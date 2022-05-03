@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+	<!--
+	things to add
+	- light/dark mode
+	- controls: clear, back, start/pause, forward, end, speed
+	- more/less detailed
+	- planner upload
+	- planner select
+	- map upload
+	- map select
+	- map editor
+	- scenario upload
+	- scenario select
+	- scenario editor
+	-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="design.css" />
+		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="modal.css" />
+		<link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet">
+
+  </head>
+
+  <body>
+		<div id="edit_map_modal" class="modal">
+			<div class="modal-content">
+				<div id="edit_map_ctn">
+					<canvas id="edit_map" height="8" width="8"></canvas>
+				</div>
+				<div id="right_panel">
+					<span class="close">&times;</span>
+					<button id="draw_erase_btn" class="btn grid-overlay">
+						<img src="assets/pencil-svgrepo-com.svg" id="draw_icon" class="icon overlay" alt="draw">
+						<img src="assets/eraser-svgrepo-com.svg" id="erase_icon" class="icon overlay hidden" alt="erase">
+					</button>
+					<div class="flex-row"> 
+						<div class="flex-col">
+							<span class="label_centered">1024</span>
+							<input type="range" min="1" max="1024" value="8" id="map_height_slider" class="slider" orient="vertical">
+							<span class="label_centered">1</span>
+						</div>
+						<label class="label_centered">Map Height: <input id="map_height_label"  class="label_input" value="8"/></label>
+					</div>
+
+				</div>
+				<div id="bottom_panel">
+					<div class="flex-row">
+						<span>1</span>
+						<input type="range" min="1" max="1024" value="8" id="map_width_slider" class="slider">
+						<span>1024</span>
+					</div>
+					<label class="label_centered">Map Width: <input id="map_width_label" class="label_input" value="8"/></label>
+				</div>
+			</div>
+		</div>
+		<div id="main-title">
+			Path Planner
+		 	<button onclick="darkmode()" >Light/Dark</button>
+		</div>
+		<div id="main" >
+			<div id="map-container" class="container">
+				<div class="sub-container">
+					<div id="map" class="interface overlay">
+						<img src="assets/map_start.svg" class="icon moveable" id="map_start_icon" alt="start">
+						<img src="assets/map_goal.svg" class="icon moveable" id="map_goal_icon" alt="goal">
+						<canvas id="hover_map" height="8" width="8">
+						</canvas>
+						<canvas id="bg" height="8" width="8"></canvas><!-- loaded .map file -->
+						<canvas id="queue" height="8" width="8" ></canvas> <!-- neighbouring nodes that are in the queue -->
+						<canvas id="visited" height="8" width="8" ></canvas>
+						<canvas id="current_YX" height="8" width="8" ></canvas>
+						<canvas id="neighbours" height="8" width="8" ></canvas>
+						<canvas id="path" height="8" width="8" ></canvas>
+						<canvas id="start" height="8" width="8"></canvas>
+						<canvas id="goal" height="8" width="8" ></canvas>
+
+					</div>
+					<div id="map_droparea" class="upload overlay">
+					  <form class="my-form">
+					    <p>Drag map file here</p>
+					    <input type="file" id="map_input" class="file_input" accept=".map">
+					    <label class="upload-btn" for="map_input">Select map file <a href="https://movingai.com/benchmarks/street/index.html">(source)</a></label>
+					  </form>
+					</div>
+				</div>
+			</div>
+			
+			<div id="controls-container" class="container">
+				<div class="sub-container">
+					<div id="controls" class="interface overlay">
+						<div class="flex-row" class="btn">
+							<button id="compute_btn" class="btn">Compute Path</button>
+				<button id="display_btn" class="btn">Display Path</button>
+						</div>
+						<div id="display_controls" class="flex-row">
+							<button id="clear_btn" class="btn">
+								<img src="assets/clear.svg" class="icon" alt="clear">
+							</button>
+							<button id="back_btn" class="btn">
+								<img src="assets/back.svg" class="icon" alt="back">
+							</button>
+							<button id="start_pause_btn" class="btn">
+								<div class="grid-overlay">
+									<img src="assets/start.svg" id="start_icon" class="icon overlay" alt="start">
+									<img src="assets/pause.svg" id="pause_icon" class="icon overlay hidden" alt="pause">
+								</div>
+							</button>
+							<button id="forward_btn" class="btn">
+								<img src="assets/next.svg" class="icon" alt="next">
+							</button>
+							<button id="end_btn" class="btn">
+								<img src="assets/end.svg" class="icon" alt="end">
+							</button>
+						</div>
+						<div id="edit_controls" class="flex-row">
+							<button id="detail_btn" class="btn grid-overlay">
+								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay" alt="simple">
+								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">
+							</button>
+							<button id="edit_map_btn" class="btn grid-overlay">
+								<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
+							</button>
+						</div>
+						<div id="slider_controls">
+							<label class="label_centered">Animation speed: <span id="animation_speed_label">1.00x</span></label>
+							<div class="flex-row">
+								<span>0.25×</span>
+        				<input type="range" min="0" max="4000" value="2000" id="animation_speed_slider" class="slider">
+								<span>4×</span>
+							</div>
+
+							<label class="label_centered">Search progress: <span id="search_progress_label"></span>%</label>
+							<div class="flex-row">
+								<span>0%</span>
+        				<input type="range" min="0" id="search_progress_slider" class="slider">
+								<span>100%</span>
+							</div>
+
+						</div>
+						<div class="select_pane">
+							<p id="scen_label"></p>
+							<label for="scen_select" class="label_centered">Choose scenario:</label>
+							<select name="scen_select" size="1" id="scen_select" class="select-dropdown">
+								<option disabled="disabled">&nbsp&nbspX1&nbsp&nbsp&nbspY1&nbsp&nbsp&nbspX2&nbsp&nbsp&nbspY2&nbspOptimal Length</option>
+							</select>
+							
+							<p id="planner_label"></p>
+							<label for="planner_select" class="label_centered">Choose planner:    </label>
+							<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
+						</div>
+					</div>
+					<div id="scen_droparea" class="upload overlay">
+					  <form class="my-form">
+					    <p>Drag scen file here</p>
+					    <input type="file" id="scen_input" class="file_input" accept=".scen">
+					    <label class="upload-btn" for="scen_input">Select scen file</label>
+					  </form>
+					</div>
+				</div>
+			</div>
+
+				
+			<div id="info-container" class="container">
+				<div class="sub-container">
+              <!--start of html for info map-->
+          <div class="grid">
+            
+            <div style = "position: relative;">
+              <div style = "position: absolute;right: 0;bottom: 0;" class ="NWSE">NW</div>
+            </div>
+            
+            <div class ="spacer"></div>
+            
+            <div style = "position: relative;display: flex;
+            justify-content: center;">
+              <div style = "position: absolute; bottom: 0;"class ="NWSE">N
+              </div>
+            </div>
+            
+          
+            <div class ="spacer"></div>
+            <div style = "position: relative;">
+              <div style = "position: absolute;bottom: 0;left:0;"class ="NWSE">NE</div>
+            </div>
+            
+            <div class ="spacer"></div>
+            <div class ="info_neighbours"id="NW">item</div>
+            <div class ="info_neighbours"id="N">item</div>
+            <div class ="info_neighbours"id="NE">item</div>  
+            <div class ="spacer"></div>
+            
+          
+            <div style = "position: relative;display: flex;
+           align-items: center;">
+              <div style = "position: absolute;right:0;"class ="NWSE">W</div>
+            </div>
+            
+            
+            <div class ="info_neighbours"id="W">item</div>
+            <div class ="info_currentYX" id="currentYX">item</div>
+            <div class ="info_neighbours"id="E">item</div>
+            
+            <div style = "position: relative; display: flex;
+           align-items: center;">
+              <div style = "position: absolute;left:0;"class ="NWSE">E</div>
+            </div>
+            
+          
+            <div class ="spacer"></div>
+            <div class ="info_neighbours"id="SW">item</div>
+            <div class ="info_neighbours"id="S">item</div>  
+            <div class ="info_neighbours"id="SE">item</div>
+            <div class ="spacer"></div>
+             
+            <div style = "position: relative;">
+              <div style = "position: absolute;right:0;top:0;"class ="NWSE">SW</div>
+            </div>
+            
+            <div class ="spacer"></div>
+              
+            <div style = "position: relative;;display: flex;
+            justify-content: center;">
+              <div style = "position: absolute;top:0;"class ="NWSE">S</div>
+            </div>
+            
+            <div class ="spacer" ></div>
+            
+            <div style = "position: relative;">
+              <div style = "position: absolute;left:0;top:0;"class ="NWSE">SE</div>
+            </div>
+            
+          </div>
+         <!--start of html for html-->
+					<div id="info-pane" class="interface overlay">
+						<div>
+							X: <span id=hover_x>--</span>, Y: <span id=hover_y>--</span>
+						</div>
+					</div>
+        
+					<div id="pathf_droparea" class="upload overlay">
+					  <form class="my-form">
+					    <p>Drag pathf file here</p>
+					    <input type="file" id="pathf_input" class="file_input" accept=".pathf">
+					    <label class="upload-btn" for="pathf_input">Select pathf file</label>
+					  </form>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+
+    <div>
+      <style id="darkmode">
+        
+      </style>
+    </div>
+		<script src="scripts/pathfinding/pathfinder.js"></script>
+		<script src="scripts/pathfinding/bfs.js"></script>
+		<script src="scripts/pathfinding/dfs.js"></script>
+		<script src="scripts/pathfinding/dijkstra.js"></script>
+		<script src="scripts/ui_elements.js"></script>
+		<script src="scripts/interface.js"></script>
+		<script src="scripts/db.js"></script>
+		<script src="scripts/animation.js"></script>
+		<script src="scripts/controls.js"></script>
+		<script src="scripts/step.js"></script>
+		<script src="scripts/upload.js"></script>
+		<script src="scripts/parser-select-display.js"></script>
+		<script src="scripts/modal.js"></script>
+    <script src="scripts/darkmode.js"></script>
+		<script src="scripts/hover.js"></script>
+  </body>
+  
+</html>
+
+

@@ -1,0 +1,242 @@
+html, body{
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	font-family: sans-serif;
+	background-color: #d1cfe2 ;
+  background-size: cover;
+}
+
+#main-title{
+	text-align: center;
+	height: 5%;
+	width: 100%;
+}
+
+
+#dark-toggle{
+	display: inline-block;
+	position: absolute;
+}
+
+#main{
+	width: 1172px;
+	height: 622px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	white-space: nowrap; /* this does the trick */
+  overflow: hidden; /* this prevents the grey divs from overflowing */
+}
+
+
+.container{
+	display: inline-block;
+	vertical-align:middle;
+	height: 612px;
+	width: 300px;
+	border: 3px solid black;
+	margin: 2px;
+	overflow: hidden;
+}
+
+#map-container{
+	width: 512px;
+}
+
+.sub-container{
+  overflow: hidden;
+	width: 100%;
+	height: 100%;
+  justify-items: center;
+  align-items: center;
+}
+
+#map{
+	position: relative;
+}
+
+.interface{
+	width: 100%;
+	height: 512px;
+}
+
+canvas{
+	height: 512px;
+	width: 512px;
+	position: absolute;
+}
+
+/* drag and drop css */
+
+.upload{
+	width: 95%;
+	height: 70px;
+	z-index: 99;
+	margin: 0 auto;
+	padding: 5px;
+	border: 2px dashed #555;
+  border-radius: 20px;
+	font-family: sans-serif;
+}
+
+.hidden{
+	visibility: hidden;
+}
+
+.upload.highlight {
+  border-color: purple;
+}
+
+.btn {
+  display: inline-block;
+	flex-grow: 1;
+	margin: 2px;
+  padding: 2px;
+  background: #bcbacb;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #bcbacb;
+	height: 52px;
+	width: 52px;
+}
+.btn:hover {
+  background: #d19b6d;
+	transform: scale(1.15) perspective(1px);
+}
+
+.icon{
+	height: 30px;
+	display: block;
+	margin: auto;
+}
+
+.file_input{
+	display: none;
+}
+
+.flex-row{
+	display: flex;
+	justify-content: center;
+	flex-direction: row;
+	padding: 5px;
+}
+
+.flex-col{
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	padding: 5px;
+}
+
+.upload-btn{
+	display: inline-block;
+  background: #ccc;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.grid-overlay{
+	display: grid;
+}
+
+.overlay{
+	grid-column: 1;
+  grid-row: 1;
+}
+
+.label_centered{
+	display: block;
+	margin: 0px auto;
+	text-align: center;
+}
+
+.slider{
+	display: inline-block;
+	margin: 0px 10px;
+	flex-basis: 100%;
+}
+
+.rotated{
+	transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg); /*do same for other browsers if required*/
+}
+
+.select-dropdown{
+	margin: 0 auto;
+	display: block;
+	width: 95%;
+}
+/*start of CSS for info panel*/
+.grid {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-row: repeat(5, 1fr);
+  width: 250px;
+  
+  padding:30px;
+
+
+}
+
+.info_neighbours{
+ padding: 10px;
+  background-color: white;
+  border: 2px solid black;
+  aspect-ratio: 1;
+  border-radius: 15px;
+   
+  /* to center verticaally and horizontally the text in info_square*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+}
+.info_currentYX{
+ padding: 10px;
+  background-color: rgb(52,119,234);
+  border: 2px solid black;
+  aspect-ratio: 1;
+  border-radius: 15px;
+   border-radius: 50px;
+   
+  /* to center verticaally and horizontally the text in info_square*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ 
+    
+}
+.NWSE{
+  font-size: 8px;
+  height: 10px;
+  aspect-ratio: 1;
+  padding: 10px;
+  background-color: rgb(0,0,0);
+  border: 1px solid black;
+  color: white;
+  
+  /* to center verticaally and horizontally the text in NWSE*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 25px
+}
+/*end of CSS for info panel*/
+#hover_map{z-index:99}
+#bg{z-index:98}
+#current_YX{z-index:97}
+#start, #goal{z-index:96}
+#path{z-index:95}
+#neighbours{z-index:94}
+#visited{z-index:93}
+#queue{z-index:92}
+
+.moveable{
+	position: absolute;
+	z-index: 100;
+}
