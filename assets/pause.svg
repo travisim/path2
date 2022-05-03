@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6.0 6.0 26 28" >
+    <view id="tightcrop"/>
+    <polygon points="10.0,10.0 10.0,30.0 16.0,30.0 16.0,10.0" style="fill:white;stroke:black;stroke-width:2.5"/>
+	<polygon points="10.0,10.0 10.0,30.0 16.0,30.0 16.0,10.0" style="fill:white;stroke:black;stroke-width:2.5" transform="translate(12, 0)"/>
+</svg>
