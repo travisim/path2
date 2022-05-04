@@ -6,7 +6,7 @@ myUI.handle_map_hover = function(e){
 	if (myUI.map_goal_icon.clicked){
 		//  means released
 		myUI.map_goal_icon.elem.style.top = (y-15).toString() + "px";
-		myUI.map_goal_icon.elem.style.left = (x-7).toString() + "px";
+		myUI.map_goal_icon.elem.style.left = (x-15).toString() + "px";
 		myUI.map_goal_icon.clicked = false;
 		myUI.map_goal = [scaled_y, scaled_x];
 		myUI.displayScen();
