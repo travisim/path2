@@ -54,24 +54,6 @@ class BFS extends GridPathFinder{
       console.log("visited?")
       if(this.visited[this.current_node_YX[0]][this.current_node_YX[1]]) console.log("true");
       else console.log("false");*/
-      
-      /* OLD */
-      /*
-      let step = new UIStep();
-      step.add_action(`ec`, `current_YX`);
-      step.add_action(`ec`, `neighbours`);
-      step.add_action(`dp`, `current_YX`, this.current_node_YX);
-      step.add_action(`dp`, `visited`, this.current_node_YX);
-      step.add_inverse(`ec`, `current_YX`, this.current_node_YX);
-      step.add_inverse(`ep`, `visited`, this.current_node_YX);
-      if(this.prev_node_YX){
-        step.add_inverse(`dp`, `current_YX`, this.prev_node_YX);
-        this.neighbours.forEach(neighbour=>{
-          step.add_inverse(`dp`, `neighbours`, neighbour.self_YX);
-        });
-      }
-      ++step_counter;
-      this.steps.push(step);
 
       /* NEW */
 
@@ -127,15 +109,6 @@ class BFS extends GridPathFinder{
         //creates array starting from start to goal
 				console.log("found");
         this.path = path;
-        /* OLD */
-        /*
-        let step = new UIStep();
-        step.add_action(`ec`, `current_YX`);
-        step.add_action(`dc`, `path`, this.path, `1d`, false);
-        step.add_inverse(`ec`, `path`);
-        step.add_inverse(`dp`, `current_YX`, this.current_node_YX);
-        ++step_counter;
-        this.steps.push(step);
 
         /* NEW */
 
@@ -167,24 +140,6 @@ class BFS extends GridPathFinder{
 				if (this.map[next_YX[0]][next_YX[1]]==1){  // if neighbour is passable & not visited
 					var next_node = new Node(null, this.current_node, next_YX);  // create a new node with said neighbour's details
 					this.neighbours.push(next_node);  // add to neighbours
-          /* OLD */
-          /*
-          step = new UIStep();
-          step.add_action(`dp`, `neighbours`, next_YX);
-          // step.add_action(`ia`, `info data`);
-          step.add_inverse(`ep`, `neighbours`, next_YX);
-          // step.add_inverse(`ie`, `info data`);
-
-          if(!this.queue_matrix[next_YX[0]][next_YX[1]]){ // prevent from adding to queue again
-            this.queue.push(next_node);  // add to queue
-            this.queue_matrix[next_YX[0]][next_YX[1]] = 1;
-            step.add_action(`dp`, `queue`, next_YX);
-            // step.add_action(`ia`, `info data`);
-            step.add_inverse(`ep`, `queue`, next_YX);
-            // step.add_inverse(`ie`, `info data`);
-          }
-          ++step_counter;
-          this.steps.push(step);
 
           /* NEW */
 
