@@ -20,7 +20,8 @@ class BFS extends GridPathFinder{
     this.steps_inverse = [];
     this.requires_uint16 = this.map_height>255 || this.map_width > 255 ? true : false;
     this.states_nums = new Set(); // stores the unique ids of each state// ponly used for DB
-    this.states = {}
+    this.states = {};
+    this.states_arr = [];
 
     // generate empty 2d array
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
@@ -281,17 +282,24 @@ class BFS extends GridPathFinder{
       // [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
       if(step_counter>=20){
         step_index += step_counter;
-
-        // add state
-        this.states[step_index] = {node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}; 
-      
-        //NOT WORKING 
-        //myUI.storage.add("states", [{id: step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
-        //this.states_nums.add(step_index);
-
         step_counter = 0;
         ++state_counter;
         if(state_counter%100==0) console.log(`reached state ${state_counter}, step ${step_index}`);
+
+        // add state
+        if(myUI.db_on){
+          if(state_counter%1000==0){
+            myUI.storage.add("states", this.states_arr);
+            this.states_arr = [];
+          }
+          this.states_arr.push({id: step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}); 
+          //myUI.storage.add("states", [{id: step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
+          this.states_nums.add(step_index);
+        }
+        else{
+          this.states[step_index] = {node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}; 
+        }
+
       }
       
 		}
@@ -315,7 +323,7 @@ class BFS extends GridPathFinder{
   }
 
   all_states(){
-    if(this.searched) return this.states;
+    if(this.searched) return myUI.db_on ? this.states_nums : this.states;
     return null;
   }
 

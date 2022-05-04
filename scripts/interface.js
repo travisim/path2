@@ -97,6 +97,8 @@ myUI.initialize = function(){
   };
 
   myUI.storage = {};
+
+  myUI.tmp = {};
 }
 
 
