@@ -8,7 +8,8 @@ myUI.handle_map_hover = function(e){
 		myUI.map_goal_icon.elem.style.top = y.toString() + "px";
 		myUI.map_goal_icon.elem.style.left = x.toString() + "px";
 		myUI.map_goal_icon.clicked = false;
-		myUI.loadScen(null, [scaled_y, scaled_x]);
+		myUI.map_goal = [scaled_y, scaled_x];
+		myUI.displayScen();
 		return
 	}
 	else if (myUI.map_start_icon.clicked){
@@ -16,7 +17,8 @@ myUI.handle_map_hover = function(e){
 		myUI.map_start_icon.elem.style.top = y.toString() + "px";
 		myUI.map_start_icon.elem.style.left = x.toString() + "px";
 		myUI.map_start_icon.clicked = false;
-		myUI.loadScen([scaled_y, scaled_x], null);
+		myUI.map_start = [scaled_y, scaled_x];
+		myUI.displayScen();
 		return
 	}
 	myUI.hover_labels.hover_x.elem.innerHTML = scaled_x;

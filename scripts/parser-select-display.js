@@ -90,7 +90,7 @@ myUI.showScenSelection = function(){
 	scen_label_elem.innerHTML = `Choose scenario for ${scen_array[0][1]}. Map   Width: ${scen_array[0][2]} Map Height: ${scen_array[0][3]}`;	
 	//display first scene as default at index 0
 	myUI.scenChoice = 0;
-	myUI.loadScen(0);
+	myUI.loadScen();
 	let scen_select_elem = myUI.selects["scen_select"].elem;
 	let child = scen_select_elem.lastElementChild; 
 	while (child) {
@@ -127,19 +127,8 @@ myUI.showScenSelection = function(){
 	}	
 }
 
-myUI.loadScen = function(start=null, goal=null){
-	myUI.canvases.start.erase_canvas();
-	myUI.canvases.goal.erase_canvas();
-	if(start){
-		myUI.map_start = start;
-		myUI.displayScen();
-		return
-	}
-	if(goal){
-		myUI.map_goal = goal;
-		myUI.displayScen();
-		return
-	}
+myUI.loadScen = function(){
+	console.log("selected by dropdown")
 	let scen_select_elem = myUI.selects["scen_select"].elem;
 	myUI.scenChoice= scen_select_elem.selectedIndex==-1 ? 0 : scen_select_elem.selectedIndex;
 	let scen_array = myUI.scen_arr;
@@ -155,6 +144,8 @@ myUI.loadScen = function(start=null, goal=null){
 }
 
 myUI.displayScen = function(){
+	myUI.canvases.start.erase_canvas();
+	myUI.canvases.goal.erase_canvas();
 	myUI.scenFail = false;
 	if(!myUI.map_arr){
 		alert("please load map!");

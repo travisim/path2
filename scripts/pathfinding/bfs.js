@@ -108,7 +108,6 @@ class BFS extends GridPathFinder{
       
       /* first check if visited */
 			//if(this.visited[this.current_node_YX[0]][this.current_node_YX[1]]) continue; // if the current node has been visited, skip to next one in queue
-
       if(this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
 
       //this.visited[this.current_node_YX[0]][this.current_node_YX[1]] = 1;  // marks current node YX as visited
@@ -160,7 +159,6 @@ class BFS extends GridPathFinder{
 			/* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
 			for(var i=0;i<this.num_neighbours;++i){
 				var next_YX = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];  // calculate the coordinates for the new neighbour
-				//console.log(next_YX);
 				if(next_YX[0]<0 || next_YX[0]>=this.map_height || next_YX[1]<0 || next_YX[1]>=this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         /* second check if visited */
 				//if(this.visited[next_YX[0]][next_YX[1]]) continue; // if the neighbour has been visited, don't add it to queue

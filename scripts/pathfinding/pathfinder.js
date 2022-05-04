@@ -101,7 +101,6 @@ class BitMatrix{
 		this.num_cols = num_cols;
 		this.num = num;
 		this.last_denary = last_denary;
-		console.log(this.data);
 	}
 
 
@@ -121,7 +120,6 @@ class BitMatrix{
 
 	get_data(yx){
 		let index = 2 + yx[0]*this.num + (yx[1]>>3); // same as Math.floor(yx[1]/8);
-		//console.log(index);
 		let bin_str = this.data[index].toString(2);
 		let num_zeros = (index-1) % this.num == 0 ? this.last_denary-bin_str.length : 8-bin_str.length;
 		//console.log("each");
