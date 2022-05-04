@@ -11,7 +11,6 @@ function compute_path(){
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
   if(!myUI.map_start) return alert("no scene loaded!");
-
 	myUI.planner = new myUI.planners[myUI.planner_choice]();
 	myUI.planner.add_map(myUI.map_arr);
 // convert array to new planner 
@@ -73,12 +72,11 @@ myUI.buttons.clear_btn.btn.addEventListener("click", myUI.reset_animation);
 
 myUI.step_back = function(){
 	myUI.stop_animation(change_svg = true);
-	/* OLD */
-	/*
-	--myUI.animation.step;
-	myUI.animation.all_steps[myUI.animation.step].run(inverse=true);
 	/* NEW */
-	myUI.run_single_step(--myUI.animation.step, inverse=true);
+	if(myUI.animation.detailed)
+		myUI.run_single_step(myUI.animation.step, inverse=true);
+	else
+		myUI.run_combined_step(myUI.animation.step, inverse=true);
 	myUI.update_search_slider(myUI.animation.step);
 	console.log(myUI.animation.step);
 }
@@ -98,12 +96,11 @@ myUI.stop_animation = function(change_svg = false){
 
 myUI.step_forward = function(){
 	myUI.stop_animation(change_svg = true);
-	/* OLD */
-	/*myUI.animation.all_steps[myUI.animation.step].run();
-	++myUI.animation.step;
 	/* NEW */
-
-	myUI.run_single_step(myUI.animation.step++);
+	if(myUI.animation.detailed)
+		myUI.run_single_step(myUI.animation.step);
+	else
+		myUI.run_combined_step(myUI.animation.step);
 	myUI.update_search_slider(myUI.animation.step);
 	console.log(myUI.animation.step);
 }
@@ -131,6 +128,10 @@ myUI.buttons.end_btn.btn.addEventListener("click", myUI.jump_to_end);
 
 
 myUI.toggleAnimation = function(){
+	if(!myUI.planner_choice) return alert("no planner loaded!");
+	if(!myUI.map_arr) return alert("no map loaded!");
+  if(!myUI.map_start) return alert("no scene loaded!");
+	if(!myUI.planner) return alert("not computed");
 	myUI.buttons.start_pause_btn.next_svg();
 	if(myUI.animation.running)
 		myUI.stop_animation();
@@ -144,6 +145,7 @@ myUI.buttons.start_pause_btn.btn.addEventListener("click", myUI.toggleAnimation)
 myUI.toggleMapDetail = function(){
 	myUI.buttons.detail_btn.next_svg();
 
+	myUI.animation.detailed = !myUI.animation.detailed;
 	// do other stuff
 }
 myUI.buttons.detail_btn.btn.addEventListener("click", myUI.toggleMapDetail);

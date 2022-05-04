@@ -103,8 +103,8 @@
 							</button>
 							<button id="start_pause_btn" class="btn">
 								<div class="grid-overlay">
-									<img src="assets/start.svg" id="start_icon" class="icon overlay" alt="start">
-									<img src="assets/pause.svg" id="pause_icon" class="icon overlay hidden" alt="pause">
+									<img src="assets/start.svg" id="start_icon" class="icon overlay hidden" alt="start">  <!-- element with multiple svgs have them hidden by default -->
+									<img src="assets/pause.svg" id="pause_icon" class="icon overlay hidden" alt="pause">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
 								</div>
 							</button>
 							<button id="forward_btn" class="btn">
@@ -116,8 +116,8 @@
 						</div>
 						<div id="edit_controls" class="flex-row">
 							<button id="detail_btn" class="btn grid-overlay">
-								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay" alt="simple">
-								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">
+								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
+								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
 							</button>
 							<button id="edit_map_btn" class="btn grid-overlay">
 								<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">

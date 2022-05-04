@@ -43,7 +43,7 @@ myUI.initialize = function(){
     ["start_pause_btn", "start_icon", "pause_icon"],
     ["forward_btn"],
     ["end_btn"],
-    ["detail_btn", "map_simple_icon", "map_detailed_icon"],
+    ["detail_btn", "map_detailed_icon", "map_simple_icon"],
     ["draw_erase_btn", "draw_icon", "erase_icon"],
     ["edit_map_btn", "edit_map_icon"],
     ["stop_edit_btn", "stop_edit_icon"]
@@ -93,7 +93,8 @@ myUI.initialize = function(){
     running: false,
     step: 0,
     max_step: 100, // arbitrary
-    speed: 1 // refers to how fast the animation will take to complete. max speed of 4x should complete the animation in 10 seconds. 50 should take twice as long to complete, 25, 4 times as long etc.
+    speed: 1, // refers to how fast the animation will take to complete. max speed of 4x should complete the animation in 10 seconds. 50 should take twice as long to complete, 25, 4 times as long etc.
+    detailed: true
   };
 
   myUI.storage = {};

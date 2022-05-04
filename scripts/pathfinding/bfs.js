@@ -59,8 +59,10 @@ class BFS extends GridPathFinder{
 
       let step_fwd = [];
       let step_bck = [];
+      step_fwd.push(new Uint8Array([STATIC.SIMPLE]));
       step_fwd.push(new Uint8Array([STATIC.EC, STATIC.CR]));
       step_fwd.push(new Uint8Array([STATIC.EC, STATIC.NB]));
+      step_bck.push(new Uint8Array([STATIC.SIMPLE]));
       step_bck.push(new Uint8Array([STATIC.EC, STATIC.CR]));
       let items = {fwd: [], bck: []};
       items.fwd.push([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]);
@@ -124,6 +126,8 @@ class BFS extends GridPathFinder{
         ++step_counter;
         this.steps_forward.push(step_fwd);
         this.steps_inverse.push(step_bck);
+
+        this.steps_forward.push([new Uint8Array([STATIC.SIMPLE])]);
 
 				break;
 			}

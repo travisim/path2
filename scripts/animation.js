@@ -1,10 +1,11 @@
 function animation_backend(){
+
   if(!myUI.planner) return alert("no planner loaded");
   myUI.animation.all_steps_fwd = myUI.planner.all_steps();
   myUI.animation.all_steps_bck = myUI.planner.all_steps(bck=true);
   let all_steps = myUI.animation.all_steps_fwd;
   if(all_steps==null) return alert("not yet finished searching");
-  myUI.animation.max_step = all_steps.length;
+  myUI.animation.max_step = all_steps.length-1; // because of dummy step at the end
   myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
 
   var timer;
@@ -16,11 +17,12 @@ function animation_backend(){
       // display on map
       if(myUI.animation.running){
 
-        myUI.run_single_step(myUI.animation.step);
-
         myUI.update_search_slider(myUI.animation.step);
 
-        ++myUI.animation.step;
+        if(myUI.animation.detailed)
+          myUI.run_single_step(myUI.animation.step);
+        else
+          myUI.run_combined_step(myUI.animation.step);
 
 				let expo_scaled = myUI.animation.speed;
         let total_time = 20/expo_scaled;
@@ -48,7 +50,6 @@ myUI.update_search_slider = function(value){
 }
 
 myUI.jump_to_step = function(target_step){
-  //console.log(target_step);
   let all_states = myUI.planner.all_states();
   let tmp_step = target_step;
   if(myUI.db_on)
@@ -141,23 +142,4 @@ myUI.jump_to_step = function(target_step){
             myUI.tmp.virtual_canvases[canvas_id][i][j] = 1;
     }
   }
-}
-
-myUI.run_single_step = function(target_step, inverse=false){
-  let step = inverse ? myUI.animation.all_steps_bck[target_step] : myUI.animation.all_steps_fwd[target_step];
-  step.forEach(action=>{
-    if(action[0]==STATIC.DC){
-      let canvas = action[1];
-      myUI.canvases[statics_to_obj[canvas]].draw_canvas(action[2], action[3], action[4]);
-    }
-    else if(action[0]==STATIC.EC){
-      myUI.canvases[statics_to_obj[action[1]]].erase_canvas();
-    }
-    else if(action[0]==STATIC.DP){
-      myUI.canvases[statics_to_obj[action[1]]].draw_pixel([action[2], action[3]]);
-    }
-    else if(action[0]==STATIC.EP){
-      myUI.canvases[statics_to_obj[action[1]]].erase_pixel([action[2], action[3]]);
-    }
-  });
 }

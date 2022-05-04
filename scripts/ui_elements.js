@@ -291,13 +291,11 @@ class UIButton{
     if(arguments.length>1){
       let svg_ids = arguments[1];
       svg_ids.forEach(id=>{
-        try{
-          this.svgs.push(document.getElementById(id));
-        }
-        catch(e){}
+        this.svgs.push(document.getElementById(id));
       });
       this.svg_index = 0;
     }
+    if(this.svgs[0]) this.svgs[0].classList.remove("hidden");
   }
 
   next_svg(){
