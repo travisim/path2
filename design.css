@@ -74,7 +74,7 @@ canvas{
 .upload{
 	width: 95%;
 	height: 70px;
-	z-index: 99;
+	z-index: 50;
 	margin: 0 auto;
 	padding: 5px;
 	border: 2px dashed #555;
@@ -227,16 +227,16 @@ canvas{
   border-radius: 25px
 }
 /*end of CSS for info panel*/
-#hover_map{z-index:99}
-#bg{z-index:98}
-#current_YX{z-index:97}
-#start, #goal{z-index:96}
-#path{z-index:95}
-#neighbours{z-index:94}
-#visited{z-index:93}
-#queue{z-index:92}
+#hover_map{z-index:48}
+#bg{z-index:47}
+#current_YX{z-index:46}
+#start, #goal{z-index:45}
+#path{z-index:44}
+#neighbours{z-index:43}
+#visited{z-index:42}
+#queue{z-index:41}
 
 .moveable{
 	position: absolute;
-	z-index: 100;
+	z-index: 49;
 }
