@@ -60,6 +60,11 @@ myUI.jump_to_step = function(target_step){
   //console.log(tmp_step);
 
   const canvas_ids = [`queue`, `neighbours`, `current_YX`, `visited`, `path`];
+  // create a virtual representation of all the canvases
+  myUI.tmp.virtual_canvases = {};
+  canvas_ids.forEach(id=>{
+    myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
+  });
 
   if(tmp_step!=0){ //  if there is a recent state to fallback on
   
@@ -113,11 +118,6 @@ myUI.jump_to_step = function(target_step){
   }
 
   function draw_canvas_from_state(state){
-    // create a virtual representation of all the canvases
-    myUI.tmp.virtual_canvases = {};
-    canvas_ids.forEach(id=>{
-      myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
-    });
     draw_virtual_canvas(`queue`, state.queue, `1d`);
     draw_virtual_canvas(`visited`, BitMatrix.expand_2_matrix(state.visited), `2d`);
     let y = state.node_YX[0];
