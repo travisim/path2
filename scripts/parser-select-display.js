@@ -148,7 +148,6 @@ myUI.displayScen = function(){
 	myUI.canvases.goal.erase_canvas();
 	myUI.scenFail = false;
 	if(!myUI.map_arr){
-		alert("please load map!");
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
 	}
 	else{

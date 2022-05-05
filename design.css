@@ -236,7 +236,7 @@ canvas{
 #visited{z-index:42}
 #queue{z-index:41}
 
-.moveable{
+.draggable{
 	position: absolute;
 	z-index: 49;
 }
