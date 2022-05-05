@@ -115,10 +115,12 @@ class BFS extends GridPathFinder{
         /* NEW */
 
         let step_fwd = [];
+        step_fwd.push(new Uint8Array([STATIC.SIMPLE]));
         step_fwd.push(new Uint8Array([STATIC.EC, STATIC.CR]));
         step_fwd.push([STATIC.DC, STATIC.PA, this.path, `1d`, false]);
         
         let step_bck = [];
+        step_bck.push(new Uint8Array([STATIC.SIMPLE]));
         step_bck.push(new Uint8Array([STATIC.EC, STATIC.PA]));
         if(this.requires_uint16) step_bck.push(new Uint16Array([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]));
         else step_bck.push(new Uint8Array([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]));
@@ -128,7 +130,7 @@ class BFS extends GridPathFinder{
         this.steps_inverse.push(step_bck);
 
         this.steps_forward.push([new Uint8Array([STATIC.SIMPLE])]);
-
+        this.steps_inverse.push([new Uint8Array([STATIC.SIMPLE])]);
 				break;
 			}
 			// NOTE, a node is only visited if all its neighbours have been added to the queue

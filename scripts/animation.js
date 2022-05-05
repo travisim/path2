@@ -1,12 +1,8 @@
 function animation_backend(){
 
   if(!myUI.planner) return alert("no planner loaded");
-  myUI.animation.all_steps_fwd = myUI.planner.all_steps();
-  myUI.animation.all_steps_bck = myUI.planner.all_steps(bck=true);
   let all_steps = myUI.animation.all_steps_fwd;
   if(all_steps==null) return alert("not yet finished searching");
-  myUI.animation.max_step = all_steps.length-1; // because of dummy step at the end
-  myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
 
   var timer;
 

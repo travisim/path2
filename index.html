@@ -127,8 +127,23 @@
 							<label class="label_centered">Animation speed: <span id="animation_speed_label">1.00x</span></label>
 							<div class="flex-row">
 								<span>0.25×</span>
+								<!-- animation speed is now dependent on the number of steps -->
+								<!-- default max is 4x, default state is 1x-10fps -->
+								<!-- max speed will complete the animation in 10 seconds -->
         				<input type="range" min="0" max="4000" value="2000" id="animation_speed_slider" class="slider">
-								<span>4×</span>
+								<!-- slider adopts a log-scale: each interval of sliding of equal length will result in a doubling of speed -->
+								<!-- 
+									0: 0.25×
+									1000: 0.5×
+									2000: 1×
+									3000: 2×
+									4000: 4×
+										.
+										.
+										.
+									n(1000): 2^(n-2)×
+								-->
+								<span>max</span>
 							</div>
 
 							<label class="label_centered">Search progress: <span id="search_progress_label"></span>%</label>

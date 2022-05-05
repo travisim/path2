@@ -17,7 +17,9 @@ function compute_path(){
 	myUI.path = myUI.planner.search(myUI.map_start, myUI.map_goal); 
 	myUI.animation.all_steps_fwd = myUI.planner.all_steps();
   myUI.animation.all_steps_bck = myUI.planner.all_steps(bck=true);
-	myUI.animation.max_step = myUI.animation.all_steps_fwd.length;
+	myUI.animation.max_step = myUI.animation.all_steps_fwd.length-1;  // because of dummy step at the end
+	myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
+
   myUI.reset_animation();
 }
 
@@ -110,11 +112,13 @@ myUI.buttons.forward_btn.btn.addEventListener("click", myUI.step_forward);
 myUI.jump_to_end = function(){
 	myUI.stop_animation(change_svg = true);
 	//myUI.animation.step = -1;  //  change ot end
-	myUI.update_search_slider(myUI.animation.max_step-1);
+	myUI.update_search_slider(myUI.animation.max_step);
+	myUI.jump_to_step(myUI.animation.max_step);
+	return
 	let final_state = myUI.planner.final_state();
 	let path = final_state.path; // array of coordinates
 	let queue = final_state.queue;  // array of nodes
-	let visited = final_state.visited;  // matrix marking which nodes are visited;
+	let visited = BitMatrix.expand_2_matrix(final_state.visited);  // matrix marking which nodes are visited;
 
   let queue_coords = [];
   queue.forEach(node=>{

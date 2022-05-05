@@ -134,6 +134,10 @@ class BitMatrix{
 	copy_data(){
 		return new Uint8Array(this.data);
 	}
+
+	copy_2d(){
+		return BitMatrix.expand_2_matrix(this.data);
+	}
 }
 
 class Matrix{
