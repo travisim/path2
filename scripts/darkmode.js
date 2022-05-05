@@ -40,13 +40,13 @@ select:-webkit-autofill {
     background-color: #001780 !important;
     color: #c5c3c0 !important;
 }
-
-
     `;
+   //document.getElementById("MyId").className = "dark";
 
   }
    else if (x == 1){
     x--;
     document.getElementById('darkmode').innerHTML = ''
+   //document.getElementById("MyId").className = "light";
   } 
 }
