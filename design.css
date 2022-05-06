@@ -175,7 +175,7 @@ canvas{
   display: grid;
   gap: 15px;
   grid-template-columns: repeat(5, 1fr);
-  grid-template-row: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
   width: 250px;
   
   padding:30px;
