@@ -31,6 +31,7 @@ class BFS extends GridPathFinder{
     let step_counter = 0;
     let step_index = 0;
     let state_counter = 0;
+    let simple_counter = 0;
     // counter is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
     // this balances between processer and memory usage
@@ -89,6 +90,7 @@ class BFS extends GridPathFinder{
       ++step_counter;
       this.steps_forward.push(step_fwd);
       this.steps_inverse.push(step_bck);
+      ++simple_counter;
       
       
       /* first check if visited */
@@ -128,6 +130,7 @@ class BFS extends GridPathFinder{
         ++step_counter;
         this.steps_forward.push(step_fwd);
         this.steps_inverse.push(step_bck);
+        ++simple_counter;
 
         this.steps_forward.push([new Uint8Array([STATIC.SIMPLE])]);
         this.steps_inverse.push([new Uint8Array([STATIC.SIMPLE])]);

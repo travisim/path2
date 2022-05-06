@@ -58,13 +58,6 @@ steps_arr = [
 */
 
 
-myUI.run_steps = function(start_step, stop_step){
-  let curr_step = start_step;
-  while(curr_step!=stop_step){
-    myUI.run_single_step(curr_step++);
-  }
-}
-
 myUI.run_combined_step = function(start_step, inverse=false){
   let tmp_step = start_step;
   if(inverse){

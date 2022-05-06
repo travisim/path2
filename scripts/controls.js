@@ -19,7 +19,8 @@ function compute_path(){
   myUI.animation.all_steps_bck = myUI.planner.all_steps(bck=true);
 	myUI.animation.max_step = myUI.animation.all_steps_fwd.length-1;  // because of dummy step at the end
 	myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
-
+	let each_frame_duration_min = 3000 / myUI.animation.max_step; //  5 seconds for fastest animation
+	myUI.sliders.animation_speed_slider.elem.max = Math.log2(200/each_frame_duration_min)*1000;
   myUI.reset_animation();
 }
 
@@ -41,10 +42,13 @@ function display_path(){
 //displays value of slider
 
 myUI.sliders.animation_speed_slider.elem.oninput = function(){
-	let expo_scaled = 0.25 * Math.pow(2, this.value/1000);  // [0, 4000]=>[0, 4]=>[1, 16]=>[0.25, 4]
-	this.parent.label.innerHTML = `${(Math.round(expo_scaled * 100) / 100).toFixed(2)}×`;
-	myUI.animation.speed = expo_scaled;
-	console.log(myUI.animation.speed);
+	let apparent_speed = Math.pow(2, this.value/1000);
+	this.parent.label.innerHTML = `${(Math.round(apparent_speed * 100) / 100).toFixed(2)}×`;
+	myUI.animation.speed = apparent_speed;
+	console.log(200/myUI.animation.speed);
+	// skip steps in animation
+	myUI.animation.jump_steps = 5*myUI.animation.speed/myUI.animation.max_fps;
+	console.log(myUI.animation.jump_steps);
 }
 
 myUI.sliders.search_progress_slider.elem.oninput = function(){

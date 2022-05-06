@@ -94,7 +94,9 @@ myUI.initialize = function(){
     step: 0,
     max_step: 100, // arbitrary
     speed: 1, // refers to how fast the animation will take to complete. max speed of 4x should complete the animation in 10 seconds. 50 should take twice as long to complete, 25, 4 times as long etc.
-    detailed: true
+    detailed: true,
+    max_fps: 250, // 4ms
+    jump_steps: 1
   };
 
   myUI.storage = {};

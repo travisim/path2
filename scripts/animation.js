@@ -14,17 +14,22 @@ function animation_backend(){
       if(myUI.animation.running){
 
         myUI.update_search_slider(myUI.animation.step);
+        if(myUI.animation.jump_steps>1){
+          let num_steps = parseInt(myUI.animation.jump_steps);
+          if(myUI.animation.detailed)
+            while(num_steps--) myUI.run_single_step(myUI.animation.step);
+          else
+            myUI.run_combined_step(myUI.animation.step);
+        }
+        else{
+          if(myUI.animation.detailed)
+            myUI.run_single_step(myUI.animation.step);
+          else
+            myUI.run_combined_step(myUI.animation.step);
+        }
 
-        if(myUI.animation.detailed)
-          myUI.run_single_step(myUI.animation.step);
-        else
-          myUI.run_combined_step(myUI.animation.step);
-
-				let expo_scaled = myUI.animation.speed;
-        let total_time = 20/expo_scaled;
-        let each_frame_duration = total_time/myUI.animation.max_step;
-
-        timer = setTimeout(updateMap, each_frame_duration*1000);
+        let each_frame_duration = 200/myUI.animation.speed;
+        timer = setTimeout(updateMap, each_frame_duration);
       }
       else{
         clearTimeout(timer);
