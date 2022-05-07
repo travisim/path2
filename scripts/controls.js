@@ -45,9 +45,9 @@ myUI.sliders.animation_speed_slider.elem.oninput = function(){
 	let apparent_speed = Math.pow(2, this.value/1000);
 	this.parent.label.innerHTML = `${(Math.round(apparent_speed * 100) / 100).toFixed(2)}×`;
 	myUI.animation.speed = apparent_speed;
-	console.log(200/myUI.animation.speed);
 	// skip steps in animation
 	myUI.animation.jump_steps = 5*myUI.animation.speed/myUI.animation.max_fps;
+	myUI.animation.jump_steps = Math.pow(myUI.animation.jump_steps, 1.5);
 	console.log(myUI.animation.jump_steps);
 }
 
@@ -55,14 +55,6 @@ myUI.sliders.search_progress_slider.elem.oninput = function(){
 	myUI.stop_animation(change_svg = myUI.animation.running);
 	myUI.update_search_slider(this.value);
 	myUI.jump_to_step(this.value);
-}
-
-function toggleClass(elementClass, toggleClass){
-	let elems = document.getElementsByClassName(elementClass);
-	for(let i=0;i<elems.length;++i){
-		let el = elems[i];
-		el.classList.toggle(toggleClass);
-	}
 }
 
 myUI.reset_animation = function(){
@@ -119,18 +111,6 @@ myUI.jump_to_end = function(){
 	myUI.update_search_slider(myUI.animation.max_step);
 	myUI.jump_to_step(myUI.animation.max_step);
 	return
-	let final_state = myUI.planner.final_state();
-	let path = final_state.path; // array of coordinates
-	let queue = final_state.queue;  // array of nodes
-	let visited = BitMatrix.expand_2_matrix(final_state.visited);  // matrix marking which nodes are visited;
-
-  let queue_coords = [];
-  queue.forEach(node=>{
-    queue_coords.push(node.self_YX);
-  })
-  myUI.canvases.path.draw_canvas(path, "1d");
-	myUI.canvases.queue.draw_canvas(queue_coords, "1d");
-	myUI.canvases.visited.draw_canvas(visited, "2d");
 }
 myUI.buttons.end_btn.btn.addEventListener("click", myUI.jump_to_end);
 

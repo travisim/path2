@@ -16,10 +16,12 @@ function animation_backend(){
         myUI.update_search_slider(myUI.animation.step);
         if(myUI.animation.jump_steps>1){
           let num_steps = parseInt(myUI.animation.jump_steps);
-          if(myUI.animation.detailed)
+          if(myUI.animation.detailed){
+            if(num_steps>50) myUI.jump_to_step(myUI.animation.step + num_steps);
             while(num_steps--) myUI.run_single_step(myUI.animation.step);
+          }
           else
-            myUI.run_combined_step(myUI.animation.step);
+            while(num_steps--) myUI.run_combined_step(myUI.animation.step);
         }
         else{
           if(myUI.animation.detailed)
@@ -27,7 +29,7 @@ function animation_backend(){
           else
             myUI.run_combined_step(myUI.animation.step);
         }
-
+        // 1× speed is defined as 5 fps
         let each_frame_duration = 200/myUI.animation.speed;
         timer = setTimeout(updateMap, each_frame_duration);
       }
@@ -51,6 +53,7 @@ myUI.update_search_slider = function(value){
 }
 
 myUI.jump_to_step = function(target_step){
+  console.log("jumping");
   let all_states = myUI.planner.all_states();
   let tmp_step = target_step;
   if(myUI.db_on)
@@ -85,7 +88,7 @@ myUI.jump_to_step = function(target_step){
       execute_steps(tmp_step, target_step);
     }
   }
-  else{
+  else{  //  no state to fall back on
     execute_steps(tmp_step, target_step);
   }
 

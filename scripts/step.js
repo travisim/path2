@@ -61,14 +61,14 @@ steps_arr = [
 myUI.run_combined_step = function(start_step, inverse=false){
   let tmp_step = start_step;
   if(inverse){
-    while(myUI.animation.all_steps_bck[tmp_step-1][0][0]!=STATIC.SIMPLE)
+    while(myUI.animation.all_steps_bck[tmp_step-1][0][0]!=STATIC.SIMPLE && tmp_step>0)
       --tmp_step;
     --tmp_step;
     for(let i=start_step;i>tmp_step;--i) myUI.run_single_step(i, inverse);
   }
   else{
     ++tmp_step;
-    while(myUI.animation.all_steps_fwd[tmp_step][0][0]!=STATIC.SIMPLE)
+    while(myUI.animation.all_steps_fwd[tmp_step][0][0]!=STATIC.SIMPLE && tmp_step<myUI.animation.max_step-1)
       ++tmp_step;
     for(let i=start_step;i<tmp_step;++i) myUI.run_single_step(i, inverse);
   }
