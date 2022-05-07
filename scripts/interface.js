@@ -38,6 +38,8 @@ myUI.initialize = function(){
 
   // Initialize buttons
   [
+		["download_map_btn"],
+		["download_scen_btn"],
     ["clear_btn"],
     ["back_btn"],
     ["start_pause_btn", "start_icon", "pause_icon"],
