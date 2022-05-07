@@ -67,6 +67,7 @@ canvas{
 	height: 512px;
 	width: 512px;
 	position: absolute;
+	border: 1px solid black;
 }
 
 /* drag and drop css */

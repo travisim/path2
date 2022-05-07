@@ -82,12 +82,12 @@ function dragElement(elmnt) {
     dx = x1 - e.clientX;
     dy = y1 - e.clientY;
 		if(elmnt.offsetTop - dy >= -elmnt.height/2 && elmnt.offsetTop - dy <= bounds.height-elmnt.height/2){  // if within y-bounds
-			elmnt.style.top = (elmnt.offsetTop - dy) + "px";
-			y1 = e.clientY;
+			elmnt.style.top = (elmnt.offsetTop - dy) + "px";  // move the element in y-axis
+			y1 = elmnt.getBoundingClientRect().y + elmnt.height/2;// update the y-coordinate when mouseup 
 		}
-		if(elmnt.offsetLeft - dx >= -elmnt.width/2 && elmnt.offsetLeft - dx <= bounds.width-elmnt.width/2){
-			elmnt.style.left = (elmnt.offsetLeft - dx) + "px";
-			x1 = e.clientX;
+		if(elmnt.offsetLeft - dx >= -elmnt.width/2 && elmnt.offsetLeft - dx <= bounds.width-elmnt.width/2){  // if within x-bounds
+			elmnt.style.left = (elmnt.offsetLeft - dx) + "px";  // move the element in x-axis
+			x1 = elmnt.getBoundingClientRect().x + elmnt.width/2; // update the x-coordinate when mouseup
 		}
   }
 

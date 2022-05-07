@@ -53,7 +53,6 @@ myUI.update_search_slider = function(value){
 }
 
 myUI.jump_to_step = function(target_step){
-  console.log("jumping");
   let all_states = myUI.planner.all_states();
   let tmp_step = target_step;
   if(myUI.db_on)
