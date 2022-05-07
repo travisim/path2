@@ -177,10 +177,7 @@ canvas{
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
   width: 250px;
-  
   padding:30px;
-
-
 }
 
 .info_neighbours{
