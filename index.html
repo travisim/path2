@@ -19,11 +19,15 @@
     <meta name="viewport" content="width=device-width">
 		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="design.css" />
 		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="modal.css" />
+		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="hover.css" />
 		<link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet">
 
   </head>
 
   <body>
+		<div class="hover_popup" id="tooltip_data">
+			<span id=hover_x>-</span>, <span id=hover_y>-</span>
+		</div>
 		<div id="edit_map_modal" class="modal">
 			<div class="modal-content">
 				<div id="edit_map_ctn">
@@ -65,8 +69,7 @@
 					<div id="map" class="interface overlay">
 						<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
 						<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
-						<canvas id="hover_map" height="8" width="8">
-						</canvas>
+						<canvas id="hover_map" height="8" width="8"></canvas>
 						<canvas id="bg" height="8" width="8"></canvas><!-- loaded .map file -->
 						<canvas id="queue" height="8" width="8" ></canvas> <!-- neighbouring nodes that are in the queue -->
 						<canvas id="visited" height="8" width="8" ></canvas>
@@ -217,7 +220,7 @@
             
             
             <div class ="info_neighbours"id="W">item</div>
-            <div class ="info_currentYX" id="currentYX">(<span id=hover_x>-</span>, <span id=hover_y>-</span>)</div>
+            <div class ="info_currentYX" id="currentYX">(<span>-</span>, <span>-</span>)</div>
             <div class ="info_neighbours"id="E">item</div>
             
             <div style = "position: relative; display: flex;

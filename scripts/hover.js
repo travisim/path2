@@ -1,4 +1,7 @@
 myUI.handle_map_hover = function(e){
+	e = e || window.event;
+  e.preventDefault();
+	/* colours the map on hover */
 	let x = e.offsetX;
 	let y = e.offsetY;
 	let scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientWidth *  myUI.map_width);
@@ -6,17 +9,27 @@ myUI.handle_map_hover = function(e){
 	myUI.hover_labels.hover_x.elem.innerHTML = scaled_x;
 	myUI.hover_labels.hover_y.elem.innerHTML = scaled_y;
 	myUI.canvases.hover_map.erase_canvas();
-	myUI.canvases.hover_map.set_color("#d19b6d", "both");
+	myUI.canvases.hover_map.set_color_index(0, "both");
 	if(myUI.map_arr)
 		if(myUI.map_arr[scaled_y][scaled_x]==0)
-			myUI.canvases.hover_map.set_color("#AA1945", "both");
+			myUI.canvases.hover_map.set_color_index(1, "both");
 	//console.log(myUI.canvases.hover_map.ctx.strokeStyle);
 	myUI.canvases.hover_map.draw_start_goal([scaled_y, scaled_x]);
+
+	/* shows the popup */
+	let tooltip_data = document.getElementById("tooltip_data");
+	tooltip_data.style.display = "block";
+	tooltip_data.style.left = e.pageX + 'px';
+	tooltip_data.style.top = e.pageY + 'px';
+	
 }
 
 myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
 
-myUI.canvases.hover_map.canvas.addEventListener(`mouseout`, e=>myUI.canvases.hover_map.erase_canvas());
+myUI.canvases.hover_map.canvas.addEventListener(`mouseout`, e=>{
+	myUI.canvases.hover_map.erase_canvas();
+	tooltip_data.style.display = "none";
+});
 
 
 dragElement(myUI.map_start_icon.elem);

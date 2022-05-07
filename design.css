@@ -225,6 +225,8 @@ canvas{
   border-radius: 25px
 }
 /*end of CSS for info panel*/
+
+/* controls map order and how the cells are displayed */
 #hover_map{z-index:48}
 #bg{z-index:47}
 #current_YX{z-index:46}
@@ -239,4 +241,13 @@ canvas{
 	z-index: 49;
 }
 
-#scen_droparea{display: none}
+.hover_popup{
+  display: none;
+  background: #C8C8C8;
+  margin-left: 28px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1000;
+  width:200px;
+  height:100px;
+}

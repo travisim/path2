@@ -32,7 +32,7 @@ class UICanvas{
     };
   }
 
-  constructor(canvas_id, color){
+  constructor(canvas_id, colors){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
@@ -49,8 +49,9 @@ class UICanvas{
 
     this.data_height = this.canvas.height;
     this.data_width = this.canvas.width;
-		
-		this.set_color(color, "all");
+    
+    this.colors = colors;
+		this.set_color_index(0, "all");
   }
 
   scale_canvas(data_height, data_width, retain_data=false){

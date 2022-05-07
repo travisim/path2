@@ -22,7 +22,7 @@ myUI.initialize = function(){
     ["goal", "rgb(159,23,231)"],
   ].forEach(item=>{
     let canvasId = item[0];
-    let color = item[1];
+    let color = item.slice(1);
     myUI.canvases[canvasId] = new UICanvas(canvasId, color);
   });
   myUI.canvases.edit_map.toggle_edit();
