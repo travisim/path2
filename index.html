@@ -77,13 +77,6 @@
 						<canvas id="goal" height="8" width="8" ></canvas>
 
 					</div>
-					<div id="map_droparea" class="upload overlay">
-					  <form class="my-form">
-					    <p>Drag map file here</p>
-					    <input type="file" id="map_input" class="file_input" accept=".map">
-					    <label class="upload-btn" for="map_input">Select map file <a href="https://movingai.com/benchmarks/street/index.html">(source)</a></label>
-					  </form>
-					</div>
 				</div>
 			</div>
 			
@@ -176,11 +169,11 @@
 							<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
 						</div>
 					</div>
-					<div id="scen_droparea" class="upload overlay">
+					<div id="file_droparea" class="upload overlay">
 					  <form class="my-form">
-					    <p>Drag scen file here</p>
-					    <input type="file" id="scen_input" class="file_input" accept=".scen">
-					    <label class="upload-btn" for="scen_input">Select scen file</label>
+					    <p>Drag map/scen/pathf file here <a target="_blank" href="https://movingai.com/benchmarks/street/index.html">(source)</a></p>
+					    <input type="file" id="file_input" class="file_input" accept=".map,.scen,.pathf" multiple>
+					    <label class="upload-btn" for="file_input">Select files</label>
 					  </form>
 					</div>
 				</div>
@@ -262,14 +255,6 @@
 						<div>
 							
 						</div>
-					</div>
-        
-					<div id="pathf_droparea" class="upload overlay">
-					  <form class="my-form">
-					    <p>Drag pathf file here</p>
-					    <input type="file" id="pathf_input" class="file_input" accept=".pathf">
-					    <label class="upload-btn" for="pathf_input">Select pathf file</label>
-					  </form>
 					</div>
 				</div>
 			</div>

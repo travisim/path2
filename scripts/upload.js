@@ -39,8 +39,9 @@ for (var i=0;i<dropAreas.length;++i){
 
 function handleDrop(e) {
   let dt = e.dataTransfer;
-  let files = dt.files;
-
+	myUI.fileHandler.files = dt.files;
+	myUI.fileHandler.handleFiles();
+	/*
 	if(files[0].name.endsWith(".map")){
 		handleMap(files[0]);
 	}
@@ -50,105 +51,46 @@ function handleDrop(e) {
 	else{ // if planner 
 		//handlePlanner(files[0];)
 	}
+	*/
 }
 
+// GENERAL
+myUI.fileHandler = {}
 
-// MAP
+myUI.fileHandler.handleFiles = function (){
+	// takes first map, scen & path file
+	let found = {map: false, scen: false, pathf: false}
+	Object.keys(found).forEach(key=>{
+		for(let i=0;i<this.files.length;++i){
+			if(this.files[i].name.endsWith(`.${key}`)){
+				if(found[key]) continue;
+				else{
+					found[key] = true;
+					processFile(key, this.files[i]);
+				}
+			}
+		}
+	});
 
+	function processFile(file_type, file){
+		let reader = new FileReader();
 
-/*
-function handleMap(file) {
-  let reader = new FileReader();
+		reader.addEventListener("load", function(e) {
+			let contents = e.target.result;
 
-	reader.addEventListener("load", function(e) {
-		console.log(e.target.result);
-			
-		// ADD MAP STUFF HERE
-		myUI.parseMap(e.target.result);
-		myUI.displayMap();
-	})
-  
-  if(file == null){
-    reader.readAsText(this.files[0])
-  }
-  else{
-    reader.readAsText(file);
-  }
-	
+			if(file_type=="map"){
+				myUI.parseMap(contents);
+  			myUI.displayMap();
+			}
+			else if(file_type=="scen"){
+				myUI.parseScenario(contents);
+				myUI.showScenSelection();// shows start and goal
+			}
+			else if(file_type=="pathf"){ // pathf
+
+			}
+		});
+		reader.readAsText(file);
+	}
 }
-*/
-
-
-
-
-function handleMap(file) {
-  let reader = new FileReader();
-
-	reader.addEventListener("load", function(e) {
-		console.log(e.target.result);
-			
-		// ADD MAP STUFF HERE
-		myUI.parseMap(e.target.result);
-		myUI.displayMap();
-	})
-	reader.readAsText(file);
-}
-
-document.getElementById("map_input").addEventListener("change", handleMap1);
-
-function handleMap1(){
-    var reader = new FileReader();
-   
-   
-    reader.addEventListener("load", function(e) {
-      myUI.parseMap(e.target.result);
-  		myUI.displayMap();
-    });
-
-    reader.readAsText(this.files[0]);
-}
-
-
-
-
-
-// SCEN
-
-
-
-function handleScen(file) {
-  let reader = new FileReader();
-
-	reader.addEventListener("load", function(e) {
-		console.log(e.target.result);
-
-		// ADD SCEN STUFF HERE
-		var contents = e.target.result;
-		
-		myUI.parseScenario(contents);
-		
-		myUI.showScenSelection();// shows start and goal
-	})
-    reader.readAsText(file)
-}
-document.getElementById("scen_input").addEventListener("change", handleScen1);
-
-function handleScen1() {
-  let reader = new FileReader();
-
-	reader.addEventListener("load", function(e) {
-		console.log(e.target.result);
-
-		// ADD SCEN STUFF HERE
-		var contents = e.target.result;
-		
-		myUI.parseScenario(contents);
-		
-		myUI.showScenSelection();// shows start and goal
-	})
-    reader.readAsText(this.files[0])
-}
-
-// PLANNER
-
-
+document.getElementById("file_input").addEventListener("change", myUI.fileHandler.handleFiles);

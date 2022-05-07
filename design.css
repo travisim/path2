@@ -237,3 +237,5 @@ canvas{
 	position: absolute;
 	z-index: 49;
 }
+
+#scen_droparea{display: none}
