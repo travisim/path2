@@ -16,7 +16,13 @@ map\n`;
 });
 
 myUI.buttons.download_scen_btn.btn.addEventListener("click", e=>{
-	let contents = "";
+	let contents = `version 1\n0\tsaved_map.map`;
+	contents += `\t${myUI.map_arr.length}\t${myUI.map_arr[0].length}`;
+	contents += `\t${myUI.map_start[1]}\t${myUI.map_start[0]}`;
+	contents += `\t${myUI.map_goal[1]}\t${myUI.map_goal[0]}`;
+	contents += `\t-1`;
+
+
 	download(`saved_scen.scen`, contents);
 });
 
