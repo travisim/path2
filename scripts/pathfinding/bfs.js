@@ -13,6 +13,7 @@ class BFS extends GridPathFinder{
     this.start = start; //in array form [y,x]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
 		this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
+    this.queue_cache = []; // used to store states
 		this.neighbours = [];  // current cell's neighbours; only contains passable cells
     this.path = null;
     this.steps = [];
@@ -165,6 +166,7 @@ class BFS extends GridPathFinder{
 
           if(!this.queue_matrix[next_YX[0]][next_YX[1]]){ // prevent from adding to queue again
             this.queue.push(next_node);  // add to queue
+            this.queue_cache.push(next_node);
             this.queue_matrix[next_YX[0]][next_YX[1]] = 1;
             if(this.requires_uint16){
               step_fwd.push(new Uint16Array([STATIC.DP, STATIC.QU, next_YX[0], next_YX[1]]));
@@ -256,12 +258,12 @@ class BFS extends GridPathFinder{
             myUI.storage.add("states", this.states_arr);
             this.states_arr = [];
           }
-          this.states_arr.push({id: step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}); 
+          this.states_arr.push({id: step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue_cache, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}); 
           //myUI.storage.add("states", [{id: step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
           this.states_nums.add(step_index);
         }
         else{
-          this.states[step_index] = {node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}; 
+          this.states[step_index] = {node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue_cache, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}; 
         }
 
       }
