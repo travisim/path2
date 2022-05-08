@@ -140,6 +140,16 @@ class BFS extends GridPathFinder{
 			// NOTE, a node is only visited if all its neighbours have been added to the queue
 			this.neighbours = [];  // reset the neighbours for each new node
 			//console.log("next");
+
+         var surrounding_map_deltaNWSE = [];
+      for(var i=0;i<this.num_neighbours;++i){
+        var next_YX_temp = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];
+        if(next_YX_temp[0]<0 || next_YX_temp[0]>=this.map_height || next_YX_temp[1]<0 || next_YX_temp[1]>=this.map_width) continue;  
+        if (this.map[next_YX_temp[0]][next_YX_temp[1]] == 1){
+                surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
+        }
+      }
+
 			/* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
 			for(var i=0;i<this.num_neighbours;++i){
 				var next_YX = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];  // calculate the coordinates for the new neighbour
@@ -148,6 +158,31 @@ class BFS extends GridPathFinder{
 				//if(this.visited[next_YX[0]][next_YX[1]]) continue; // if the neighbour has been visited, don't add it to queue
         if(this.visited.get_data(next_YX)) continue; // if the neighbour has been visited, don't add it to queue
 				if (this.map[next_YX[0]][next_YX[1]]==1){  // if neighbour is passable & not visited
+            if (this.diagonal_allow == true && this.num_neighbours == 8){
+           
+         
+              if (this.deltaNWSE[i] == "NW"){ 
+                if(!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))){
+                 continue;
+                }        
+              } 
+              else if(this.deltaNWSE[i] == "SW"){
+                if(!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("W"))){
+                  continue;
+                }  
+              } 
+              else if(this.deltaNWSE[i] == "SE"){
+                if(!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("E"))){
+                  continue;
+                }
+              } 
+              else if(this.deltaNWSE[i] == "NE"){
+              if(!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("E"))){
+               continue;
+              }
+            }
+          }
+        
 					var next_node = new Node(null, this.current_node, next_YX);  // create a new node with said neighbour's details
 					this.neighbours.push(next_node);  // add to neighbours
 
@@ -183,8 +218,8 @@ class BFS extends GridPathFinder{
 
 				}
 			}
+/*
 
-      /* extra code to check if diagonal blocking */
       if (this.diagonal_allow == true && this.num_neighbours == 8){  
         var neighbours_deltaNWSE = [];
         var relative_delta = [];
@@ -239,6 +274,7 @@ class BFS extends GridPathFinder{
           } 
         }
       }
+      */
       /* process neighbours after diagonal blocking has been dealt with */
       this.neighbours.forEach(node=>{
         let next_YX = node.self_YX;
