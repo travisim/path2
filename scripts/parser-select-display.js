@@ -206,6 +206,18 @@ myUI.loadPlanner = function() {
 myUI.showPlanners();
 myUI.loadPlanner();
 
+// default map
+myUI.map_arr = deep_copy_matrix(zero2D(16, 16), true);
+myUI.map_height = myUI.map_arr.length;
+myUI.map_width = myUI.map_arr[0].length;
+myUI.planner.add_map(myUI.map_arr);
+myUI.displayMap();
+
+// default scen
+myUI.map_start = [0,0];
+myUI.map_goal = [0,0];
+myUI.displayScen();
+
 //planner_upload_elem.addEventListener("change", show_planners);
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
