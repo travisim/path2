@@ -313,14 +313,3 @@ class UIButton{
       this.btn.style.display = "none";
   }
 }
-
-8
-
-function zero2D(rows, cols) {
-  var array = new Array(rows);
-  while(rows--){
-    let row = new Uint8Array(cols);
-    array[rows] = row;
-  }
-  return array;
-}

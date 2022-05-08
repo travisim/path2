@@ -260,12 +260,3 @@ class Dijkstra extends GridPathFinder{
   }
 
 }
-
-//takes in a array of objects and returns a array of 1 property of the object
- function nodes_to_array(obj_array,property_in_obj){
-  var array = [];
-  for (let i = 0; i < obj_array.length; i++){
-    array.push(obj_array[i][property_in_obj])
-  }
-  return array;
-}
