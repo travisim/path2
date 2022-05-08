@@ -207,17 +207,35 @@ myUI.showPlanners();
 myUI.loadPlanner();
 
 // default map
-myUI.map_arr = deep_copy_matrix(zero2D(16, 16), true);
-myUI.map_height = myUI.map_arr.length;
-myUI.map_width = myUI.map_arr[0].length;
-myUI.planner.add_map(myUI.map_arr);
-myUI.displayMap();
+myUI.runDefault = function(){
+	let default_map = `type octile
+	height 16
+	width 16
+	map
+	................
+	................
+	..@@@@@@@@@@@@..
+	..@.............
+	..@.............
+	..@..@@@@@@@@@..
+	..@..@..........
+	..@..@..........
+	..@..@..@@@@@@..
+	..@..@..@.......
+	..@..@..@.......
+	..@..@..@.......
+	..@..@..@.......
+	..@..@..@.......
+	................
+	................`;
+	myUI.parseMap(default_map);
+	myUI.displayMap();
 
-// default scen
-myUI.map_start = [0,0];
-myUI.map_goal = [0,0];
-myUI.displayScen();
+	let default_scen = `version 1\n0\tdefault.map\t16\t16\t1\t1\t13\t13\t-1`;
+	myUI.parseScenario(default_scen);
+	myUI.showScenSelection();
+}
 
-//planner_upload_elem.addEventListener("change", show_planners);
+myUI.runDefault();
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);

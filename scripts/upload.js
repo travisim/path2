@@ -87,7 +87,7 @@ myUI.fileHandler.handleFiles = function (){
 				myUI.showScenSelection();// shows start and goal
 			}
 			else if(file_type=="pathf"){ // pathf
-
+				myUI.showPlanners();
 			}
 		});
 		reader.readAsText(file);

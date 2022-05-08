@@ -75,7 +75,6 @@ canvas{
 .upload{
 	width: 95%;
 	height: 70px;
-	z-index: 50;
 	margin: 0 auto;
 	padding: 5px;
 	border: 2px dashed #555;
@@ -227,7 +226,7 @@ canvas{
 /*end of CSS for info panel*/
 
 /* controls map order and how the cells are displayed */
-#hover_map{z-index:48}
+#hover_map{z-index:60}
 #bg{z-index:47}
 #current_YX{z-index:46}
 #start, #goal{z-index:45}
@@ -238,7 +237,7 @@ canvas{
 
 .draggable{
 	position: absolute;
-	z-index: 49;
+	z-index: 61;
 }
 
 .hover_popup{
@@ -250,4 +249,9 @@ canvas{
   z-index: 1000;
   width:200px;
   height:80px;
+}
+
+.arrow{
+	position: absolute;
+	z-index: 1000;
 }
