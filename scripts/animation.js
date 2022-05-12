@@ -69,6 +69,7 @@ myUI.jump_to_step = function(target_step){
   canvas_ids.forEach(id=>{
     myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
   });
+  myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
 
   if(tmp_step!=0){ //  if there is a recent state to fallback on
   
@@ -140,7 +141,6 @@ myUI.jump_to_step = function(target_step){
     draw_virtual_canvas(`neighbours`, state.neighbours, `1d`);
     if(state.path)
       draw_virtual_canvas(`path`, state.path, `1d`);
-    myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
     myUI.arrow.step = state.arrow_step;
     for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
   }
