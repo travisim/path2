@@ -20,7 +20,7 @@ class BFS extends GridPathFinder {
     this.steps_forward = [];
     this.steps_inverse = [];
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255 ? true : false;
-    this.states_nums = new Set(); // stores the unique ids of each state// ponly used for DB
+    this.states_nums = new Set(); // stores the unique ids of each state// only used for DB
     this.states = {};
     this.states_arr = [];
 
@@ -33,6 +33,7 @@ class BFS extends GridPathFinder {
     let step_index = 0;
     let state_counter = 0;
     let simple_counter = 0;
+    this.arrow_step = -1;
     // counter is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
     // this balances between processer and memory usage
@@ -211,6 +212,13 @@ class BFS extends GridPathFinder {
               step_fwd.push(new Uint8Array([STATIC.DP, STATIC.QU, next_YX[0], next_YX[1]]));
               step_bck.push(new Uint8Array([STATIC.EP, STATIC.QU, next_YX[0], next_YX[1]]));
             }
+            /* ARROW */
+            ++this.arrow_step;
+            myUI.create_arrow(this.current_node_YX , next_YX);
+            console.log(myUI.arrow.data);
+            step_fwd.push(new Uint16Array([STATIC.DA]));
+            step_bck.push(new Uint16Array([STATIC.EA]));
+            /* END OF ARROW */
           }
           ++step_counter;
           this.steps_forward.push(step_fwd);
@@ -294,12 +302,12 @@ class BFS extends GridPathFinder {
             myUI.storage.add("states", this.states_arr);
             this.states_arr = [];
           }
-          this.states_arr.push({ id: step_index, node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue_cache, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path });
+          this.states_arr.push({ id: step_index, node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue_cache, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step });
           //myUI.storage.add("states", [{id: step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
           this.states_nums.add(step_index);
         }
         else {
-          this.states[step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue_cache, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path };
+          this.states[step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue_cache, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step };
         }
 
       }
@@ -313,7 +321,7 @@ class BFS extends GridPathFinder {
 
   final_state() {
     if (!this.start) return alert("haven't computed!");
-    return { path: this.path, queue: this.queue, visited: this.visited.copy_data() };
+    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(), arrow_step: this.arrow_step};
   }
 
   all_steps(bck = false) {

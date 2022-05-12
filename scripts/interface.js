@@ -101,6 +101,11 @@ myUI.initialize = function(){
     jump_steps: 1
   };
 
+  myUI.arrow = {
+    data: [],
+    step: -1
+  }
+
   myUI.storage = {};
 
   myUI.tmp = {};

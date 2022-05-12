@@ -2,11 +2,13 @@ const STATIC = {
   /* step markers */
   SIMPLE: 1, // shows that the step is a simple step
   /* commands (index 0) */
-  DC: 11,
-  EC: 12,
-  DP: 13,
-  EP: 14,
-  /* canvases (index 1) */
+  DC: 11,  // draw canvas
+  EC: 12,  // erase canvas
+  DP: 13,  // draw pixel
+  EP: 14,  // erase pixel
+  DA: 15,  // draw arrow
+  EA: 16,  // erase arrow
+  /* canvases (index 1), must be the same as statics_to_obj*/ 
   QU: 21, // queue
   VI: 22, // visited
   CR: 23, // current
@@ -50,6 +52,17 @@ myUI.run_single_step = function(target_step, inverse=false){
     else if(action[0]==STATIC.EP){
       myUI.canvases[statics_to_obj[action[1]]].erase_pixel([action[2], action[3]]);
     }
+    else if(action[0]==STATIC.DA){
+      // draw arrow
+      ++myUI.arrow.step;
+      myUI.arrow.data[myUI.arrow.step].classList.remove("hidden");
+    }
+    else if(action[0]==STATIC.EA){
+      // erase arrow
+      myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
+      --myUI.arrow.step;
+    }
+
   });
   
 }
@@ -60,7 +73,7 @@ steps_arr = [
   [
     each action
     UInt8Array( (5)
-      [action_type,]
+      [action_type,args]
     );
   ]
 ]

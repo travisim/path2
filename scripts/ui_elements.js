@@ -313,23 +313,3 @@ class UIButton{
       this.btn.style.display = "none";
   }
 }
-
-class UIArrow{
-  constructor(start_coord, end_coord){
-    const display_ratio = myUI.canvases.bg.canvas.clientWidth /myUI.map_width
-    let elem = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    elem.classList.add("arrow");
-    let dy = end_coord.y-start_coord.y, dx = end_coord.x-start_coord.x;
-    let angle = Math.atan2(dy, dx);
-    let elem_path_length = Math.sqrt(Math.pow(dy, 2) + Math.pow(dx, 2));
-    let elem_window_length = display_ratio * elem_path_length;
-    elem.setAttribute('viewBox', `0 0 ${elem_window_length + 3} 9`);
-    elem.style.width = elem_window_length + 3;
-    elem.style.transform = `rotate(${angle}rad)`;
-    elem.innerHTML = `<path fill="purple" d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${elem_window_length - 18} v 3 l 6 -3 h 12 a 1.5 1.5, 0, 0, 0, 0 -3 h -12 l -6 -3 v 3 z"></path>`;
-    document.getElementById("map").appendChild(elem);
-    this.elem = elem;
-    elem.style.top = (start_coord.y + elem_path_length * Math.sin(angle)/2 + 0.5) * display_ratio - 3 +"px";
-    elem.style.left = (start_coord.x + 0.5 - elem_path_length * (1-Math.cos(angle))/2) * display_ratio +"px";
-  }
-}

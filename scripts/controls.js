@@ -8,6 +8,8 @@
 document.getElementById("compute_btn").addEventListener("click", compute_path);
 
 function compute_path(){
+	
+	myUI.arrow.data = [];
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
   if(!myUI.map_start) return alert("no scene loaded!");
@@ -63,6 +65,8 @@ myUI.reset_animation = function(){
 	["visited",	"neighbours", "queue",	"current_YX",	"path"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
+	myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
+	myUI.arrow.step = -1;
 }
 
 myUI.buttons.clear_btn.btn.addEventListener("click", myUI.reset_animation);
