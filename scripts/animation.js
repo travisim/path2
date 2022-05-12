@@ -166,6 +166,7 @@ myUI.create_arrow = function(start_YX, end_YX){
   const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;
   let elem = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   elem.classList.add("arrow");
+  elem.classList.add("hidden");
   let dy = end_coord.y-start_coord.y, dx = end_coord.x-start_coord.x;
   let angle = Math.atan2(dy, dx);
   let elem_path_length = Math.sqrt(Math.pow(dy, 2) + Math.pow(dx, 2));

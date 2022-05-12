@@ -134,9 +134,6 @@ myUI.loadScen = function(){
 	let scen_array = myUI.scen_arr;
 
 	let choice = myUI.scenChoice;
-	myUI.canvases.start.erase_canvas();
-	myUI.canvases.goal.erase_canvas();
-	myUI.reset_animation();
  
 	myUI.map_start = [Number(scen_array[choice][5]),Number(scen_array[choice][4])];//  in Y, X
 	myUI.map_goal = [Number(scen_array[choice][7]), Number(scen_array[choice][6])];//  in Y, X
@@ -146,6 +143,7 @@ myUI.loadScen = function(){
 myUI.displayScen = function(){
 	myUI.canvases.start.erase_canvas();
 	myUI.canvases.goal.erase_canvas();
+	myUI.reset_animation();
 	myUI.scenFail = false;
 	if(!myUI.map_arr){
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
