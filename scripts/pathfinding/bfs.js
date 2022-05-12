@@ -286,7 +286,7 @@ class BFS extends GridPathFinder {
         step_index += step_counter;
         step_counter = 0;
         ++state_counter;
-        if (state_counter % 100 == 0) console.log(`reached state ${state_counter}, step ${step_index}`);
+        //if (state_counter % 100 == 0) console.log(`reached state ${state_counter}, step ${step_index}`);
 
         // add state
         if (myUI.db_on) {

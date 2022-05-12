@@ -13,7 +13,16 @@ const STATIC = {
   NB: 24, // neighbours
   PA: 25, // path
 }
-
+    /*
+    Actions
+    - `dc`, draw canvas
+    - `ec`, erase canvas
+    - `dp`, draw pixel
+    - `ep`, erase pixel
+    - `ia`, infopane add
+    - `ie`, infopane erase
+  
+    */
 const statics_to_obj = {
   21: "queue",
   22: "visited",
