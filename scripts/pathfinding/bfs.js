@@ -283,11 +283,6 @@ class BFS extends GridPathFinder {
               }
             }
             */
-      /* process neighbours after diagonal blocking has been dealt with */
-      this.neighbours.forEach(node => {
-        let next_YX = node.self_YX;
-
-      });
 
       // [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
       if (step_counter >= 20) {
