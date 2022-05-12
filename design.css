@@ -252,6 +252,7 @@ canvas{
 }
 
 .arrow{
+	display: block;
 	position: absolute;
 	z-index: 59;
 }
