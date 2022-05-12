@@ -70,6 +70,7 @@ myUI.jump_to_step = function(target_step){
     myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
   });
   myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
+  myUI.arrow.step = -1;
 
   if(tmp_step!=0){ //  if there is a recent state to fallback on
   
