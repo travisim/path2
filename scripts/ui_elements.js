@@ -244,15 +244,15 @@ class UICanvas{
   }
 
   _handleMouseDown(e){
-    // this refers to 
+    // this function is bound to the canvas dom element, use this.parent to refer to the UICanvas
     let x = e.offsetX;
     let y = e.offsetY;
-    //console.log(this.parent);
     this.parent._fillEditedCell(x, y);
     this.parent.isDrawing = true;
   }
 
   _handleMouseMove(e){
+    // this function is bound to the canvas dom element, use this.parent to refer to the UICanvas
     if (this.parent.isDrawing) {
       let x = e.offsetX;
       let y = e.offsetY;
@@ -262,7 +262,13 @@ class UICanvas{
   }
 
   _handleMouseUp(e){
+    // this function is bound to the canvas dom element, use this.parent to refer to the UICanvas
     this.parent.isDrawing = false;
+    if(this.id=="edit_map"){  //  to save the current state on the screen
+      let child = new EditState(myUI.map_edit.curr_state, deep_copy_matrix(this.parent.virtualCanvas));
+      myUI.map_edit.curr_state.child = child;
+      myUI.map_edit.curr_state = child;
+    }
   }
 
   _fillEditedCell(canvas_x, canvas_y){

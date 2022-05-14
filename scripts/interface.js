@@ -106,6 +106,10 @@ myUI.initialize = function(){
     step: -1
   }
 
+  myUI.map_edit = {
+    curr_state: null
+  };
+
   myUI.storage = {};
 
   myUI.tmp = {};

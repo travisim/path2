@@ -9,6 +9,7 @@ function nodes_to_array(obj_array,property_in_obj){
 
 function deep_copy_matrix(matrix, flip_bit=false){
   let res = [];
+  console.log(matrix);
   for(let i=0;i<matrix.length;++i){
     let row = new Uint8Array(matrix[0].length);
     for(let j=0;j<matrix.length;++j) row[j] = flip_bit ? matrix[i][j] ^ 1 : matrix[i][j];
