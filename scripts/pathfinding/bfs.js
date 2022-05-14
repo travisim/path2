@@ -215,7 +215,6 @@ class BFS extends GridPathFinder {
             /* ARROW */
             ++this.arrow_step;
             myUI.create_arrow(this.current_node_YX , next_YX);
-            console.log(myUI.arrow.data);
             step_fwd.push(new Uint16Array([STATIC.DA]));
             step_bck.push(new Uint16Array([STATIC.EA]));
             /* END OF ARROW */
