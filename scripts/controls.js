@@ -20,7 +20,7 @@ function compute_path(){
 	myUI.path = myUI.planner.search(myUI.map_start, myUI.map_goal); 
 	myUI.animation.all_steps_fwd = myUI.planner.all_steps();
   myUI.animation.all_steps_bck = myUI.planner.all_steps(bck=true);
-	myUI.animation.max_step = myUI.animation.all_steps_fwd.length-1;  // because of dummy step at the end
+	myUI.animation.max_step = myUI.animation.all_steps_fwd.length-2;  // because of dummy step at the end and final step is n-1
 	myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
 	let each_frame_duration_min = 3000 / myUI.animation.max_step; //  5 seconds for fastest animation
 	myUI.sliders.animation_speed_slider.elem.max = Math.log2(200/each_frame_duration_min)*1000;

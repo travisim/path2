@@ -13,22 +13,22 @@ function animation_backend(){
       // display on map
       if(myUI.animation.running){
 
-        myUI.update_search_slider(myUI.animation.step);
         if(myUI.animation.jump_steps>1){
           let num_steps = parseInt(myUI.animation.jump_steps);
           if(myUI.animation.detailed){
             if(num_steps>50) myUI.jump_to_step(myUI.animation.step + num_steps);
-            while(num_steps--) myUI.run_single_step(myUI.animation.step);
+            while(num_steps--) myUI.run_single_step();
           }
           else
-            while(num_steps--) myUI.run_combined_step(myUI.animation.step);
+            while(num_steps--) myUI.run_combined_step();
         }
         else{
           if(myUI.animation.detailed)
-            myUI.run_single_step(myUI.animation.step);
+            myUI.run_single_step();
           else
-            myUI.run_combined_step(myUI.animation.step);
+            myUI.run_combined_step();
         }
+        myUI.update_search_slider(myUI.animation.step);
         // 1× speed is defined as 5 fps
         let each_frame_duration = 200/myUI.animation.speed;
         timer = setTimeout(updateMap, each_frame_duration);
@@ -96,7 +96,7 @@ myUI.jump_to_step = function(target_step){
   function execute_steps(tmp_step, target_step){
     // execute the steps
     for(let i=tmp_step;i<target_step;++i){
-      myUI.run_single_step(i, false, true);
+      myUI.run_single_step(false, true);
     }
 
     canvas_ids.forEach(id=>{

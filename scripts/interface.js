@@ -93,7 +93,7 @@ myUI.initialize = function(){
 
   myUI.animation = {
     running: false,
-    step: 0,
+    step: -1,
     max_step: 100, // arbitrary
     speed: 1, // refers to how fast the animation will take to complete. max speed of 4x should complete the animation in 10 seconds. 50 should take twice as long to complete, 25, 4 times as long etc.
     detailed: true,
