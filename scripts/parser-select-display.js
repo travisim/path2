@@ -80,6 +80,7 @@ myUI.parseScenario = function(contents){
 	}
 	/*returns 3d array indexed on options 2ns indexed on columns:Bucket,map,map width,map height,start x-coordinate,start y-coordinate,goal x-coordinate,goal y-coordinate,optimal length"*/
   myUI.scen_arr = scen_array;
+	console.log(myUI.scen_arr);
 }
 
 myUI.showScenSelection = function(){
@@ -128,7 +129,7 @@ myUI.showScenSelection = function(){
 }
 
 myUI.loadScen = function(){
-	console.log("selected by dropdown")
+	console.log("selected by dropdown");
 	let scen_select_elem = myUI.selects["scen_select"].elem;
 	myUI.scenChoice= scen_select_elem.selectedIndex==-1 ? 0 : scen_select_elem.selectedIndex;
 	let scen_array = myUI.scen_arr;
@@ -140,7 +141,7 @@ myUI.loadScen = function(){
 	myUI.displayScen();
 }
 
-myUI.displayScen = function(){
+myUI.displayScen = function(moved=false){
 	myUI.canvases.start.erase_canvas();
 	myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
@@ -150,11 +151,12 @@ myUI.displayScen = function(){
 	}
 	else{
 		myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
-		//draw_start_goal(myUI.map_start, "start", "rgb(150,150,150)")
-  	//display_canvas("start", "point",  [Number(scen_array[choice][5]),Number(scen_array[choice][4])], "rgb(150,150,150)");
 		myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
-		//draw_start_goal(myUI.map_goal, "goal", "rgb(159,23,231")
-		//  display_canvas("goal", "point",  [Number(scen_array[choice][7]), Number(scen_array[choice][6])], "rgb(159,23,231");
+		if(!moved){
+			console.log("moving");
+			myUI.map_start_icon.move(myUI.map_start);
+			myUI.map_goal_icon.move(myUI.map_goal);
+		}
 	}
 
 	/*clear all canvases*/
@@ -162,6 +164,16 @@ myUI.displayScen = function(){
 		myUI.canvases[canvas_id].erase_canvas();
 	})
 }
+
+function moveDraggable(yx){
+	let bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
+	console.log(this.elem);
+	this.elem.style.top = `${yx[0]*bounds.height / myUI.map_height - this.elem.height/2}px`;
+	this.elem.style.left = `${yx[1]*bounds.width / myUI.map_width - this.elem.width/2}px`;
+}
+
+myUI.map_start_icon.move = moveDraggable;
+myUI.map_goal_icon.move = moveDraggable;
 
 myUI.selects["scen_select"].elem.addEventListener("change", myUI.loadScen);
 
