@@ -77,9 +77,9 @@ myUI.step_back = function(){
 	myUI.stop_animation(change_svg = true);
 	/* NEW */
 	if(myUI.animation.detailed)
-		myUI.run_single_step(myUI.animation.step, inverse=true);
+		myUI.run_single_step(inverse=true);
 	else
-		myUI.run_combined_step(myUI.animation.step, inverse=true);
+		myUI.run_combined_step(inverse=true);
 	myUI.update_search_slider(myUI.animation.step);
 	console.log(myUI.animation.step);
 }
@@ -101,9 +101,9 @@ myUI.step_forward = function(){
 	myUI.stop_animation(change_svg = true);
 	/* NEW */
 	if(myUI.animation.detailed)
-		myUI.run_single_step(myUI.animation.step);
+		myUI.run_single_step();
 	else
-		myUI.run_combined_step(myUI.animation.step);
+		myUI.run_combined_step();
 	myUI.update_search_slider(myUI.animation.step);
 	console.log(myUI.animation.step);
 }
