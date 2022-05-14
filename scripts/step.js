@@ -33,7 +33,7 @@ const statics_to_obj = {
   25: "path"
 }
 
-myUI.run_single_step = function(target_step, inverse=false){
+myUI.run_single_step = function(target_step, inverse=false, virtual=false){
   if(inverse && myUI.animation.step>0)--myUI.animation.step;
   else if(!inverse && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
   else return;
@@ -41,16 +41,20 @@ myUI.run_single_step = function(target_step, inverse=false){
   step.forEach(action=>{
     if(action[0]==STATIC.DC){
       let canvas = action[1];
-      myUI.canvases[statics_to_obj[canvas]].draw_canvas(action[2], action[3], action[4]);
+      if(virtual) myUI.draw_virtual_canvas(statics_to_obj[canvas], action[2], action[3]);
+      else myUI.canvases[statics_to_obj[canvas]].draw_canvas(action[2], action[3]);
     }
     else if(action[0]==STATIC.EC){
-      myUI.canvases[statics_to_obj[action[1]]].erase_canvas();
+      if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[action[1]]] = zero2D(myUI.map_height, myUI.map_width);
+      else myUI.canvases[statics_to_obj[action[1]]].erase_canvas();
     }
     else if(action[0]==STATIC.DP){
-      myUI.canvases[statics_to_obj[action[1]]].draw_pixel([action[2], action[3]]);
+      if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[action[1]]][action[2]][action[3]] = 1;
+      else myUI.canvases[statics_to_obj[action[1]]].draw_pixel([action[2], action[3]]);
     }
     else if(action[0]==STATIC.EP){
-      myUI.canvases[statics_to_obj[action[1]]].erase_pixel([action[2], action[3]]);
+      if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[action[1]]][action[2]][action[3]] = 0;
+      else myUI.canvases[statics_to_obj[action[1]]].erase_pixel([action[2], action[3]]);
     }
     else if(action[0]==STATIC.DA){
       // draw arrow
@@ -62,9 +66,7 @@ myUI.run_single_step = function(target_step, inverse=false){
       myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
       --myUI.arrow.step;
     }
-
   });
-  
 }
 
 /*
