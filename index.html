@@ -63,7 +63,106 @@
 		 	<button onclick="darkmode()" >Light/Dark</button>
 		</div>
 		<div id="main" >
-			<div id="map-container" class="container">
+			<div id="info-container" class="container">
+				<div class="sub-container">
+					<div id="info-pane" class="interface overlay">
+         <!--start of html for info map-->
+         
+            <div class="grid">
+              
+              <div style = "position: relative;">
+                <div style = "position: absolute;right: 0;bottom: 0;" class ="NWSE">NW</div>
+              </div>
+              
+              <div class ="spacer"></div>
+              
+              <div style = "position: relative;display: flex;
+              justify-content: center;">
+                <div style = "position: absolute; bottom: 0;"class ="NWSE">N
+                </div>
+              </div>
+              
+            
+              <div class ="spacer"></div>
+              <div style = "position: relative;">
+                <div style = "position: absolute;bottom: 0;left:0;"class ="NWSE">NE</div>
+              </div>
+              
+              <div class ="spacer"></div>
+              <div class ="info_neighbours"id="NW"></div>
+              <div class ="info_neighbours"id="N"></div>
+              <div class ="info_neighbours"id="NE">item</div>  
+              <div class ="spacer"></div>
+              
+            
+              <div style = "position: relative;display: flex;
+             align-items: center;">
+                <div style = "position: absolute;right:0;"class ="NWSE">W</div>
+              </div>
+              
+              
+              <div class ="info_neighbours"id="W">item</div>
+              
+              <div style = "position: relative;display: flex;
+             align-items: center;justify-content: center;">
+                <div style = "position: absolute;" class ="info_currentYX" id="currentYX">item</div>
+              </div>
+              
+              <div class ="info_neighbours"id="E">item</div>
+              
+              <div style = "position: relative; display: flex;
+             align-items: center;">
+                <div style = "position: absolute;left:0;"class ="NWSE">E</div>
+              </div>
+              
+            
+              <div class ="spacer"></div>
+              <div class ="info_neighbours"id="SW">item</div>
+              <div class ="info_neighbours"id="S">item</div>  
+              <div class ="info_neighbours"id="SE">item</div>
+              <div class ="spacer"></div>
+               
+              <div style = "position: relative;">
+                <div style = "position: absolute;right:0;top:0;"class ="NWSE">SW</div>
+              </div>
+              
+              <div class ="spacer"></div>
+                
+              <div style = "position: relative;;display: flex;
+              justify-content: center;">
+                <div style = "position: absolute;top:0;"class ="NWSE">S</div>
+              </div>
+              
+              <div class ="spacer" ></div>
+              
+              <div style = "position: relative;">
+                <div style = "position: absolute;left:0;top:0;"class ="NWSE">SE</div>
+              </div>
+              
+            </div>
+ 
+            <table id = "info_table"  >
+              <tr>
+                <th>Vertex</th>
+                <th>F-Cost</th>
+                <th>G-Cost</th>
+                <th>H-Cost</th>
+                <th style = "  background: red;">Parent</th>
+                <th style = "  background: red;">State</th>
+            
+              </tr>
+            </table>
+
+ 
+         <!--start of html for html-->
+						<div>
+							
+						</div>
+					</div>
+				</div>
+			</div>
+			
+      <div id="map-container" class="container">
 				<div class="sub-container">
 					<div id="map" class="interface overlay">
 						<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
@@ -84,6 +183,7 @@
 					</div>
 				</div>
 			</div>
+      
 			
 			<div id="controls-container" class="container">
 				<div class="sub-container">
@@ -185,84 +285,6 @@
 			</div>
 
 				
-			<div id="info-container" class="container">
-				<div class="sub-container">
-              <!--start of html for info map-->
-          <div class="grid">
-            
-            <div style = "position: relative;">
-              <div style = "position: absolute;right: 0;bottom: 0;" class ="NWSE">NW</div>
-            </div>
-            
-            <div class ="spacer"></div>
-            
-            <div style = "position: relative;display: flex;
-            justify-content: center;">
-              <div style = "position: absolute; bottom: 0;"class ="NWSE">N
-              </div>
-            </div>
-            
-          
-            <div class ="spacer"></div>
-            <div style = "position: relative;">
-              <div style = "position: absolute;bottom: 0;left:0;"class ="NWSE">NE</div>
-            </div>
-            
-            <div class ="spacer"></div>
-            <div class ="info_neighbours"id="NW">item</div>
-            <div class ="info_neighbours"id="N">item</div>
-            <div class ="info_neighbours"id="NE">item</div>  
-            <div class ="spacer"></div>
-            
-          
-            <div style = "position: relative;display: flex;
-           align-items: center;">
-              <div style = "position: absolute;right:0;"class ="NWSE">W</div>
-            </div>
-            
-            
-            <div class ="info_neighbours"id="W">item</div>
-            <div class ="info_currentYX" id="currentYX">(<span>-</span>, <span>-</span>)</div>
-            <div class ="info_neighbours"id="E">item</div>
-            
-            <div style = "position: relative; display: flex;
-           align-items: center;">
-              <div style = "position: absolute;left:0;"class ="NWSE">E</div>
-            </div>
-            
-          
-            <div class ="spacer"></div>
-            <div class ="info_neighbours"id="SW">item</div>
-            <div class ="info_neighbours"id="S">item</div>  
-            <div class ="info_neighbours"id="SE">item</div>
-            <div class ="spacer"></div>
-             
-            <div style = "position: relative;">
-              <div style = "position: absolute;right:0;top:0;"class ="NWSE">SW</div>
-            </div>
-            
-            <div class ="spacer"></div>
-              
-            <div style = "position: relative;;display: flex;
-            justify-content: center;">
-              <div style = "position: absolute;top:0;"class ="NWSE">S</div>
-            </div>
-            
-            <div class ="spacer" ></div>
-            
-            <div style = "position: relative;">
-              <div style = "position: absolute;left:0;top:0;"class ="NWSE">SE</div>
-            </div>
-            
-          </div>
-         <!--start of html for html-->
-					<div id="info-pane" class="interface overlay">
-						<div>
-							
-						</div>
-					</div>
-				</div>
-			</div>
 			
 		</div>
 
@@ -288,6 +310,7 @@
     <script src="scripts/darkmode.js"></script>
 		<script src="scripts/hover.js"></script>
 		<script src="scripts/download.js"></script>
+    <script src="scripts/info.js"></script>
   </body>
   
 </html>
