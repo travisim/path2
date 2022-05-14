@@ -167,9 +167,8 @@ myUI.displayScen = function(moved=false){
 
 function moveDraggable(yx){
 	let bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
-	console.log(this.elem);
-	this.elem.style.top = `${yx[0]*bounds.height / myUI.map_height - this.elem.height/2}px`;
-	this.elem.style.left = `${yx[1]*bounds.width / myUI.map_width - this.elem.width/2}px`;
+	this.elem.style.top = `${(yx[0]+0.5)*bounds.height / myUI.map_height - this.elem.height/2}px`;
+	this.elem.style.left = `${(yx[1]+0.5)*bounds.width / myUI.map_width - this.elem.width/2}px`;
 }
 
 myUI.map_start_icon.move = moveDraggable;
