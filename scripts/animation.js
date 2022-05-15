@@ -46,8 +46,8 @@ function animation_backend(){
 }
 
 myUI.update_search_slider = function(value){
-  myUI.animation.step = value;
-  let percent = (myUI.animation.step/myUI.animation.max_step)*100;
+  myUI.animation.step = Number(value);
+  let percent = ((myUI.animation.step+1)/(myUI.animation.max_step+1))*100;
 	myUI.sliders.search_progress_slider.label.innerHTML = (Math.round(percent * 100) / 100).toFixed(2); // format to 2dp
   myUI.sliders.search_progress_slider.elem.value = myUI.animation.step;
 }
@@ -56,12 +56,13 @@ myUI.jump_to_step = function(target_step){
   let all_states = myUI.planner.all_states();
   let tmp_step = target_step;
   if(myUI.db_on)
-    while(!all_states.has(tmp_step) && tmp_step>0)
+    while(!all_states.has(tmp_step) && tmp_step>-1)
       --tmp_step;
   else
-    while(!all_states.hasOwnProperty(tmp_step) && tmp_step>0)
+    while(!all_states.hasOwnProperty(tmp_step) && tmp_step>-1)
       --tmp_step;
-  //console.log(tmp_step);
+
+  myUI.animation.step = tmp_step;
 
   const canvas_ids = [`queue`, `neighbours`, `current_YX`, `visited`, `path`];
   // create a virtual representation of all the canvases
@@ -72,7 +73,7 @@ myUI.jump_to_step = function(target_step){
   myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
   myUI.arrow.step = -1;
 
-  if(tmp_step!=0){ //  if there is a recent state to fallback on
+  if(tmp_step>-1){ //  if there is a recent state to fallback on
   
     // request the state from the db
     if(myUI.db_on){
