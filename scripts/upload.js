@@ -41,17 +41,6 @@ function handleDrop(e) {
   let dt = e.dataTransfer;
 	myUI.fileHandler.files = dt.files;
 	myUI.fileHandler.handleFiles();
-	/*
-	if(files[0].name.endsWith(".map")){
-		handleMap(files[0]);
-	}
-	else if(files[0].name.endsWith(".scen")){
-		handleScen(files[0]);
-	}
-	else{ // if planner 
-		//handlePlanner(files[0];)
-	}
-	*/
 }
 
 // GENERAL
@@ -79,7 +68,7 @@ myUI.fileHandler.handleFiles = function (){
 			let contents = e.target.result;
 
 			if(file_type=="map"){
-				myUI.parseMap(contents);
+				myUI.parseMap(contents, file.name);
   			myUI.displayMap();
 			}
 			else if(file_type=="scen"){

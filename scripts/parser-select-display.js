@@ -1,6 +1,7 @@
 /* MAP PARSER & DISPLAY */
 
-myUI.parseMap = function(map_str_var){
+myUI.parseMap = function(map_str_var, file_name){
+	myUI.map_name = file_name;
   let map_array_final = [];
   let map_array = map_str_var.split("\n").splice(4).filter((el) => {
     return el !== null && typeof el !== 'undefined' && el.length > 0;
@@ -33,14 +34,11 @@ myUI.displayMap = function(){
 	myUI.reset_animation();
 
   Object.values(myUI.canvases).forEach(uiCanvas=>{
-		if(uiCanvas.canvas.id){//!="edit_map"){
-    //uiCanvas.canvas.height = myUI.map_arr.length;
-    //uiCanvas.canvas.width = myUI.map_arr[0].length;
 		let height = myUI.map_arr.length;
 		let width = myUI.map_arr[0].length;
     uiCanvas.scale_canvas(height, width);
-		}
-  })
+		if(uiCanvas.id=="start") console.log(`h: ${height}, w: ${width}`);
+  });
 
   /* summary the css canvas and html/ js canvas are different
     to get sharp lines dont let the canvs auto scale up a low res js canvas to a high res one 
@@ -80,7 +78,7 @@ myUI.parseScenario = function(contents){
 	}
 	/*returns 3d array indexed on options 2ns indexed on columns:Bucket,map,map width,map height,start x-coordinate,start y-coordinate,goal x-coordinate,goal y-coordinate,optimal length"*/
   myUI.scen_arr = scen_array;
-	console.log(myUI.scen_arr);
+	myUI.scen_name = scen_array[0][1];
 }
 
 myUI.showScenSelection = function(){
@@ -146,10 +144,11 @@ myUI.displayScen = function(moved=false){
 	myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
 	myUI.scenFail = false;
-	if(!myUI.map_arr){
+	if(myUI.map_name!=myUI.scen_name){
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
 	}
 	else{
+		console.log(myUI.map_start, myUI.map_goal);
 		myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
 		myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
 		if(!moved){
@@ -237,10 +236,10 @@ myUI.runDefault = function(){
 	..@..@..@.......
 	................
 	................`;
-	myUI.parseMap(default_map);
+	myUI.parseMap(default_map, `16x16_default.map`);
 	myUI.displayMap();
 
-	let default_scen = `version 1\n0\tdefault.map\t16\t16\t1\t1\t13\t13\t-1`;
+	let default_scen = `version 1\n0\t16x16_default.map\t16\t16\t1\t1\t13\t13\t-1`;
 	myUI.parseScenario(default_scen);
 	myUI.showScenSelection();
 }
