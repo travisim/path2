@@ -61,7 +61,7 @@ myUI.jump_to_step = function(target_step){
   else
     while(!all_states.hasOwnProperty(tmp_step) && tmp_step>-1)
       --tmp_step;
-
+  console.log(tmp_step);
   myUI.animation.step = tmp_step;
 
   const canvas_ids = [`queue`, `neighbours`, `current_YX`, `visited`, `path`];
@@ -97,6 +97,7 @@ myUI.jump_to_step = function(target_step){
   function execute_steps(tmp_step, target_step){
     // execute the steps
     for(let i=tmp_step;i<target_step;++i){
+      console.log("running steps");
       myUI.run_single_step(false, true);
     }
 

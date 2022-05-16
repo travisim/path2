@@ -40,6 +40,7 @@ myUI.run_single_step = function(inverse=false, virtual=false){
   //console.log(target_step);
   //if(inverse) console.log(myUI.animation.step+1); else console.log(myUI.animation.step-1);
   let step = inverse ? myUI.animation.all_steps_bck[myUI.animation.step+1] : myUI.animation.all_steps_fwd[myUI.animation.step];
+  if (inverse) console.log(myUI.animation.step+1); else console.log(myUI.animation.step);
   step.forEach(action=>{
     if(action[0]==STATIC.DC){
       let canvas = action[1];

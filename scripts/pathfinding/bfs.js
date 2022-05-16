@@ -70,7 +70,9 @@ class BFS extends GridPathFinder {
       let items = { fwd: [], bck: [] };
       items.fwd.push([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]);
       items.fwd.push([STATIC.DP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]);
+      items.fwd.push([STATIC.EP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]);
       items.bck.push([STATIC.EP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]);
+      items.bck.push([STATIC.DP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]);
       if (this.prev_node_YX) {
         items.bck.push([STATIC.DP, STATIC.CR, this.prev_node_YX[0], this.prev_node_YX[1]]);
         this.neighbours.forEach(neighbour => {
@@ -289,19 +291,22 @@ class BFS extends GridPathFinder {
         step_counter = 0;
         ++state_counter;
         //if (state_counter % 100 == 0) console.log(`reached state ${state_counter}, step ${step_index}`);
-
+        if(step_index>400 && step_index<434){
+          console.log(this.current_node_YX);
+          console.log(BitMatrix.expand_2_matrix(this.visited.data));
+        }
         // add state
         if (myUI.db_on) {
           if (state_counter % 1000 == 0) {
             myUI.storage.add("states", this.states_arr);
             this.states_arr = [];
           }
-          this.states_arr.push({ id: step_index, node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue_cache, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step });
+          this.states_arr.push({ id: step_index-1, node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step });
           //myUI.storage.add("states", [{id: step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
-          this.states_nums.add(step_index);
+          this.states_nums.add(step_index-1);
         }
         else {
-          this.states[step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue_cache, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step };
+          this.states[step_index-1] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step };
         }
 
       }
