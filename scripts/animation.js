@@ -97,7 +97,6 @@ myUI.jump_to_step = function(target_step){
   function execute_steps(tmp_step, target_step){
     // execute the steps
     for(let i=tmp_step;i<target_step;++i){
-      console.log("running steps");
       myUI.run_single_step(false, true);
     }
 
