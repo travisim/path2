@@ -159,8 +159,6 @@ class UICanvas{
 		this.set_color(this.fillColor);
     let y = yx[0];
     let x = yx[1];
-    if(this.id=="start")
-      console.log(this.virtualCanvas);
     this.virtualCanvas[y][x] = 1;
     this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
   }

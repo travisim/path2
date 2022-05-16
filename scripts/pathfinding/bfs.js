@@ -67,6 +67,39 @@ class BFS extends GridPathFinder {
       step_fwd.push(new Uint8Array([STATIC.EC, STATIC.NB]));
       step_bck.push(new Uint8Array([STATIC.SIMPLE]));
       step_bck.push(new Uint8Array([STATIC.EC, STATIC.CR]));
+
+      /*if(this.current_node_YX[0]>255 || this.current_node_YX[1]>255){
+        step_fwd.push(new Uint16Array([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]));
+        step_fwd.push(new Uint16Array([STATIC.DP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]));
+        step_fwd.push(new Uint16Array([STATIC.EP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]));
+        step_bck.push(new Uint16Array([STATIC.EP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]));
+        step_bck.push(new Uint16Array([STATIC.DP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]));
+      }
+      else{
+        step_fwd.push(new Uint8Array([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]));
+        step_fwd.push(new Uint8Array([STATIC.DP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]));
+        step_fwd.push(new Uint8Array([STATIC.EP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]));
+        step_bck.push(new Uint8Array([STATIC.EP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]));
+        step_bck.push(new Uint8Array([STATIC.DP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]));
+      }
+      if(this.requires_uint16){
+        if (this.prev_node_YX) {
+          step_bck.push(new Uint16Array([STATIC.DP, STATIC.CR, this.prev_node_YX[0], this.prev_node_YX[1]]));
+          this.neighbours.forEach(neighbour => {
+            step_bck.push(new Uint16Array([STATIC.DP, STATIC.NB, neighbour.self_YX[0], neighbour.self_YX[1]]));
+          });
+        }
+      }
+      else{
+        if (this.prev_node_YX) {
+          step_bck.push(new Uint8Array([STATIC.DP, STATIC.CR, this.prev_node_YX[0], this.prev_node_YX[1]]));
+          this.neighbours.forEach(neighbour => {
+            step_bck.push(new Uint8Array([STATIC.DP, STATIC.NB, neighbour.self_YX[0], neighbour.self_YX[1]]));
+          });
+        }
+      }
+      */
+
       let items = { fwd: [], bck: [] };
       items.fwd.push([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]);
       items.fwd.push([STATIC.DP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]);
@@ -79,10 +112,9 @@ class BFS extends GridPathFinder {
           items.bck.push([STATIC.DP, STATIC.NB, neighbour.self_YX[0], neighbour.self_YX[1]]);
         });
       }
-      /* check if map size > 255, then use uint16 */
       if (this.requires_uint16) {
         items.fwd.forEach(item => step_fwd.push(new Uint16Array(item)));
-        //items.bck.forEach(item=>step_bck.push(new Uint16Array(item)));
+        items.bck.forEach(item=>step_bck.push(new Uint16Array(item)));
       }
       else {
         items.fwd.forEach(item => step_fwd.push(new Uint8Array(item)));
@@ -193,7 +225,7 @@ class BFS extends GridPathFinder {
 
           let step_fwd = [];
           let step_bck = [];
-          if (this.requires_uint16) {
+          if (next_YX[0]>255 || next_YX[1]>255) {
             step_fwd.push(new Uint16Array([STATIC.DP, STATIC.NB, next_YX[0], next_YX[1]]));
             step_bck.push(new Uint16Array([STATIC.EP, STATIC.NB, next_YX[0], next_YX[1]]));
           }
@@ -206,20 +238,21 @@ class BFS extends GridPathFinder {
             this.queue.push(next_node);  // add to queue
             this.queue_cache.push(next_node);
             this.queue_matrix[next_YX[0]][next_YX[1]] = 1;
-            if (this.requires_uint16) {
+            if (next_YX[0]>255 || next_YX[1]>255) {
               step_fwd.push(new Uint16Array([STATIC.DP, STATIC.QU, next_YX[0], next_YX[1]]));
               step_bck.push(new Uint16Array([STATIC.EP, STATIC.QU, next_YX[0], next_YX[1]]));
             }
             else {
               step_fwd.push(new Uint8Array([STATIC.DP, STATIC.QU, next_YX[0], next_YX[1]]));
               step_bck.push(new Uint8Array([STATIC.EP, STATIC.QU, next_YX[0], next_YX[1]]));
+              /* ARROW */
+              // do not add arrow if map size>255
+              ++this.arrow_step;
+              myUI.create_arrow(this.current_node_YX , next_YX);
+              step_fwd.push(new Uint8Array([STATIC.DA]));
+              step_bck.push(new Uint8Array([STATIC.EA]));
+              /* END OF ARROW */
             }
-            /* ARROW */
-            ++this.arrow_step;
-            myUI.create_arrow(this.current_node_YX , next_YX);
-            step_fwd.push(new Uint16Array([STATIC.DA]));
-            step_bck.push(new Uint16Array([STATIC.EA]));
-            /* END OF ARROW */
           }
           ++step_counter;
           this.steps_forward.push(step_fwd);

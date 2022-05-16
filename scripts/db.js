@@ -29,6 +29,7 @@ myUI.storage.initialize = function(){
     for (const [objS_name, objS_key] of Object.entries(myUI.storage.objStores)){
       try{
         objectStore = request.transaction.objectStore(objS_name);
+        console.log(`created objectstore`);
       }
       catch(e){
         objectStore = myUI.storage.db.createObjectStore(objS_name, { keyPath: objS_key });
