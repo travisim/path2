@@ -1,8 +1,6 @@
 function animation_backend(){
 
   if(!myUI.planner) return alert("no planner loaded");
-  let all_steps = myUI.animation.all_steps_fwd;
-  if(all_steps==null) return alert("not yet finished searching");
 
   var timer;
 

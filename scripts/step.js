@@ -33,13 +33,24 @@ const statics_to_obj = {
   25: "path"
 }
 
+myUI.get_step = function(num, inverse=false){
+  let step;
+  if(myUI.db_step){
+    step = inverse ? myUI.storage.get("step_bck", num+1) : myUI.storage.get("step_fwd", num);
+  }
+  else{
+    step = inverse ? myUI.planner.all_steps(true)[num+1] : myUI.planner.all_steps()[num];
+  }
+  return step;
+}
+
 myUI.run_single_step = function(inverse=false, virtual=false){
   if(inverse && myUI.animation.step>-1)--myUI.animation.step;
   else if(!inverse && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
   else return;
   //console.log(target_step);
   //if(inverse) console.log(myUI.animation.step+1); else console.log(myUI.animation.step-1);
-  let step = inverse ? myUI.animation.all_steps_bck[myUI.animation.step+1] : myUI.animation.all_steps_fwd[myUI.animation.step];
+  let step = myUI.get_step(myUI.animation.step, inverse);
   step.forEach(action=>{
     if(action[0]==STATIC.DC){
       let canvas = action[1];
@@ -87,14 +98,14 @@ steps_arr = [
 myUI.run_combined_step = function(inverse=false){
   let tmp_step = myUI.animation.step, start_step = myUI.animation.step;
   if(inverse){
-    while(myUI.animation.all_steps_bck[tmp_step][0][0]!=STATIC.SIMPLE && tmp_step>0)
+    while(myUI.get_step(tmp_step, true)[0][0]!=STATIC.SIMPLE && tmp_step>0)
       --tmp_step;
     --tmp_step;
     for(let i=start_step;i>tmp_step;--i) myUI.run_single_step(inverse);
   }
   else{
     ++tmp_step;
-    while(myUI.animation.all_steps_fwd[tmp_step+1][0][0]!=STATIC.SIMPLE && tmp_step<myUI.animation.max_step-1)
+    while(myUI.get_step(tmp_step+1, false)[0][0]!=STATIC.SIMPLE && tmp_step<myUI.animation.max_step-1)
       ++tmp_step;
     for(let i=start_step;i<tmp_step;++i) myUI.run_single_step( inverse);
   }
