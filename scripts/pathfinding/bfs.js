@@ -54,14 +54,6 @@ class BFS extends GridPathFinder {
         this.prev_node_YX = this.current_node_YX
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
-      /*if the current node has already been visited, we can move on to the next node*/
-      /*console.log("current");
-      console.log(this.current_node_YX);
-      console.log("visited?")
-      if(this.visited[this.current_node_YX[0]][this.current_node_YX[1]]) console.log("true");
-      else console.log("false");*/
-
-      /* NEW */
 
       step_fwd = [];
       step_bck = [];
@@ -261,63 +253,6 @@ class BFS extends GridPathFinder {
 
         }
       }
-      /*
-      
-            if (this.diagonal_allow == true && this.num_neighbours == 8){  
-              var neighbours_deltaNWSE = [];
-              var relative_delta = [];
-              var neighbours_array = nodes_to_array(this.neighbours, "self_YX")
-              for(let i=0;i<neighbours_array.length;++i){
-                var relative_delta = [neighbours_array[i][0]-this.current_node_YX[0], neighbours_array[i][1]-this.current_node_YX[1]];
-              
-                for(var j=0;j<this.delta.length;++j){
-                  if (String(this.delta[j]) == String(relative_delta)){
-                    let index_of_current_YX_in_delta = j;
-                    break;
-                  }
-                }
-                neighbours_deltaNWSE.push(this.deltaNWSE[index_of_current_YX_in_delta]);
-                  
-                //current_delta.push contains array of valid this.deltaNWSE
-              }
-      
-              var surrounding_map_deltaNWSE = [];
-              for(let i=0;i<this.num_neighbours;++i){
-                var next_YX = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];
-                if(next_YX[0]<0 || next_YX[0]>=this.map_height || next_YX[1]<0 || next_YX[1]>=this.map_width) continue;
-                if (this.map[next_YX[0]][next_YX[1]] == 1){
-                  surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
-                }
-              }
-      
-              for(let i = 0; i<this.neighbours.length; i++){ 
-                if (neighbours_deltaNWSE[i] == "NW"){ 
-                  if(!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))){
-                    this.queue.splice(-(this.neighbours.length-i), 1); 
-                    this.neighbours.splice(i, 1);
-                  }        
-                } 
-                else if(neighbours_deltaNWSE[i] == "SW"){
-                  if(!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("W"))){
-                    this.queue.splice(-(this.neighbours.length-i), 1); 
-                    this.neighbours.splice(i, 1);
-                  }  
-                } 
-                else if(neighbours_deltaNWSE[i] == "SE"){
-                  if(!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("E"))){
-                    this.queue.splice(-(this.neighbours.length-i), 1); 
-                    this.neighbours.splice(i, 1);
-                  }
-                } 
-                else if(neighbours_deltaNWSE[i] == "NE"){
-                  if(!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("E"))){
-                    this.queue.splice(-(this.neighbours.length-i), 1); 
-                    this.neighbours.splice(i, 1);
-                  }
-                } 
-              }
-            }
-            */
 
       // [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
       if (this.step_counter-prev_count >= 20) {
