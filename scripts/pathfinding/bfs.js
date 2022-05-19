@@ -36,7 +36,6 @@ class BFS extends GridPathFinder {
     this.step_counter = 0;
     let prev_count = 0;
     let state_counter = 0;
-    let simple_counter = 0;
     this.arrow_step = -1;
     // counter is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
@@ -72,38 +71,6 @@ class BFS extends GridPathFinder {
       step_bck.push(new Uint8Array([STATIC.SIMPLE]));
       step_bck.push(new Uint8Array([STATIC.EC, STATIC.CR]));
 
-      /*if(this.current_node_YX[0]>255 || this.current_node_YX[1]>255){
-        step_fwd.push(new Uint16Array([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]));
-        step_fwd.push(new Uint16Array([STATIC.DP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]));
-        step_fwd.push(new Uint16Array([STATIC.EP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]));
-        step_bck.push(new Uint16Array([STATIC.EP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]));
-        step_bck.push(new Uint16Array([STATIC.DP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]));
-      }
-      else{
-        step_fwd.push(new Uint8Array([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]));
-        step_fwd.push(new Uint8Array([STATIC.DP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]));
-        step_fwd.push(new Uint8Array([STATIC.EP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]));
-        step_bck.push(new Uint8Array([STATIC.EP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]));
-        step_bck.push(new Uint8Array([STATIC.DP, STATIC.QU, this.current_node_YX[0], this.current_node_YX[1]]));
-      }
-      if(this.requires_uint16){
-        if (this.prev_node_YX) {
-          step_bck.push(new Uint16Array([STATIC.DP, STATIC.CR, this.prev_node_YX[0], this.prev_node_YX[1]]));
-          this.neighbours.forEach(neighbour => {
-            step_bck.push(new Uint16Array([STATIC.DP, STATIC.NB, neighbour.self_YX[0], neighbour.self_YX[1]]));
-          });
-        }
-      }
-      else{
-        if (this.prev_node_YX) {
-          step_bck.push(new Uint8Array([STATIC.DP, STATIC.CR, this.prev_node_YX[0], this.prev_node_YX[1]]));
-          this.neighbours.forEach(neighbour => {
-            step_bck.push(new Uint8Array([STATIC.DP, STATIC.NB, neighbour.self_YX[0], neighbour.self_YX[1]]));
-          });
-        }
-      }
-      */
-
       let items = { fwd: [], bck: [] };
       items.fwd.push([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]);
       items.fwd.push([STATIC.DP, STATIC.VI, this.current_node_YX[0], this.current_node_YX[1]]);
@@ -138,7 +105,6 @@ class BFS extends GridPathFinder {
         this.steps_inverse.push(step_bck);
       }
       ++this.step_counter;
-      ++simple_counter;
 
 
       /* first check if visited */
@@ -186,7 +152,6 @@ class BFS extends GridPathFinder {
           this.steps_inverse.push(step_bck);
         }
         ++this.step_counter;
-        ++simple_counter;
 
         if(myUI.db_step){
           step_fwd = [this.step_counter, new Uint8Array([STATIC.SIMPLE])];
@@ -199,7 +164,6 @@ class BFS extends GridPathFinder {
           this.steps_inverse.push([new Uint8Array([STATIC.SIMPLE])]);
         }
         ++this.step_counter;
-        ++simple_counter;
         break;
       }
       // NOTE, a node is only visited if all its neighbours have been added to the queue
@@ -404,5 +368,4 @@ class BFS extends GridPathFinder {
     if (this.searched) return myUI.db_on ? this.states_nums : this.states;
     return null;
   }
-
 }
