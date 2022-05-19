@@ -60,7 +60,7 @@ myUI.sliders.search_progress_slider.elem.oninput = function(){
 
 myUI.reset_animation = function(){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
-	myUI.update_search_slider(0);
+	myUI.update_search_slider(-1);
 	["visited",	"neighbours", "queue",	"current_YX",	"path"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
@@ -75,7 +75,7 @@ myUI.step_back = function(){
 	myUI.stop_animation(change_svg = true);
 	/* NEW */
 	if(myUI.animation.detailed)
-		myUI.run_single_step(inverse=true);
+		myUI.run_steps(1, inverse=true);
 	else
 		myUI.run_combined_step(inverse=true);
 	myUI.update_search_slider(myUI.animation.step);
@@ -99,7 +99,7 @@ myUI.step_forward = function(){
 	myUI.stop_animation(change_svg = true);
 	/* NEW */
 	if(myUI.animation.detailed)
-		myUI.run_single_step();
+		myUI.run_steps(1);
 	else
 		myUI.run_combined_step();
 	myUI.update_search_slider(myUI.animation.step);

@@ -20,7 +20,7 @@ class DFS extends GridPathFinder{
 
 		this.visited = [];  // 2d array to mark which cells have been visited
 		// generate empty 2d array
-		for(var i=0;i<this.map_height;++i){ // for each row
+		for(let i=0;i<this.map_height;++i){ // for each row
 			this.visited.push([]); // create an empty array
 			for	(var j=0;j<this.map_width;++j){		
         this.visited[i].push(0); // initialise an array of false	
@@ -67,7 +67,7 @@ class DFS extends GridPathFinder{
 			this.neighbours = [];  // reset the neighbours for each new node
 			//console.log("next");
 			/* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
-			for(var i=0;i<this.num_neighbours;++i){
+			for(let i=0;i<this.num_neighbours;++i){
 				var next_YX = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];  // calculate the coordinates for the new neighbour
 				//console.log(next_YX);
 				if(next_YX[0]<0 || next_YX[0]>=this.map_height || next_YX[1]<0 || next_YX[1]>=this.map_width) continue;

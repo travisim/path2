@@ -99,7 +99,7 @@ class Dijkstra extends GridPathFinder{
 			/* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
         //need current node
       var surrounding_map_deltaNWSE = [];
-      for(var i=0;i<this.num_neighbours;++i){
+      for(let i=0;i<this.num_neighbours;++i){
         var next_YX_temp = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];
         if(next_YX_temp[0]<0 || next_YX_temp[0]>=this.map_height || next_YX_temp[1]<0 || next_YX_temp[1]>=this.map_width) continue;  
         if (this.map[next_YX_temp[0]][next_YX_temp[1]] == 1){
@@ -108,7 +108,7 @@ class Dijkstra extends GridPathFinder{
       }
     
       
-			for(var i=0;i<this.num_neighbours;++i){
+			for(let i=0;i<this.num_neighbours;++i){
 				var next_YX = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];  // calculate the coordinates for the new neighbour
 				//console.log(next_YX);
 				if(next_YX[0]<0 || next_YX[0]>=this.map_height || next_YX[1]<0 || next_YX[1]>=this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
@@ -181,12 +181,12 @@ class Dijkstra extends GridPathFinder{
         var neighbours_deltaNWSE = [];
         var relative_delta = [];
         var neighbours_array = nodes_to_array(this.neighbours, "self_YX")
-        for(var i=0;i<neighbours_array.length;++i){
+        for(let i=0;i<neighbours_array.length;++i){
           var relative_delta = [neighbours_array[i][0]-this.current_node_YX[0], neighbours_array[i][1]-this.current_node_YX[1]];
         
           for(var j=0;j<this.delta.length;++j){
             if (String(this.delta[j]) == String(relative_delta)){
-              var index_of_current_YX_in_delta = j;
+              let index_of_current_YX_in_delta = j;
               break;
             }
           }
@@ -196,7 +196,7 @@ class Dijkstra extends GridPathFinder{
         }
 
         var surrounding_map_deltaNWSE = [];
-        for(var i=0;i<this.num_neighbours;++i){
+        for(let i=0;i<this.num_neighbours;++i){
           var next_YX = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];
 				  if(next_YX[0]<0 || next_YX[0]>=this.map_height || next_YX[1]<0 || next_YX[1]>=this.map_width) continue;
           if (this.map[next_YX[0]][next_YX[1]] == 1){
@@ -204,7 +204,7 @@ class Dijkstra extends GridPathFinder{
           }
         }
 
-        for(var i = 0; i<this.neighbours.length; i++){ 
+        for(let i = 0; i<this.neighbours.length; i++){ 
           if (neighbours_deltaNWSE[i] == "NW"){ 
             if(!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))){
               this.queue.splice(-(this.neighbours.length-i), 1); 

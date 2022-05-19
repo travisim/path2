@@ -1,6 +1,6 @@
 // In the following line, you should include the prefixes of implementations you want to test.
 window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-// DON'T use "var indexedDB = ..." if you're not in a function.
+// DON'T use "let indexedDB = ..." if you're not in a function.
 // Moreover, you may need references to some window.IDB* objects:
 window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction || {READ_WRITE: "readwrite"}; // This line should only be needed if it is needed to support the object's constants for older browsers
 window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
@@ -16,7 +16,7 @@ function database_delete(){
 
 myUI.storage.initialize = function(){
 
-  myUI.storage.objStores = {"states": "id"}
+  myUI.storage.objStores = {"states": "id", "step_fwd":"num", "step_bck":"num"}
 
   var request = indexedDB.open("Pathfinder", 2);
 
@@ -38,7 +38,7 @@ myUI.storage.initialize = function(){
   };
 }
 
-myUI.storage.add = function(objS_name, data){
+myUI.storage.add = function(objS_name, data, single=false){
   var transaction = myUI.storage.db.transaction([objS_name], "readwrite");
 
   // Do something when all the data is added to the database.
@@ -51,8 +51,11 @@ myUI.storage.add = function(objS_name, data){
   };
 
   var objectStore = transaction.objectStore(objS_name);
-
-  data.forEach(item => {
+  if(single){
+    let item = data;
+    if(objS_name=="step_fwd" || objS_name=="step_bck"){
+      item = {"num":item[0], data: item.slice(1)}
+    }
     let request = objectStore.add(item);
     request.onsuccess = event => {
       // event.target.result === customer.ssn;
@@ -60,7 +63,22 @@ myUI.storage.add = function(objS_name, data){
 
     request.onerror = event =>{
       let objS_key = myUI.storage.objStores[objS_name]
-      console.log(`${item[objS_key]} failed`);
+      console.log(`${objS_name} ${item[objS_key]} failed`);
+    };
+    return
+  }
+  data.forEach(item => {
+    if(objS_name=="step_fwd" || objS_name=="step_bck"){
+      item = {"num":item[0], data: item.slice(1)}
+    }
+    let request = objectStore.add(item);
+    request.onsuccess = event => {
+      // event.target.result === customer.ssn;
+    };
+
+    request.onerror = event =>{
+      let objS_key = myUI.storage.objStores[objS_name]
+      console.log(`${objS_name} ${item[objS_key]} failed`);
     };
   });
 }
@@ -70,12 +88,16 @@ myUI.storage.get = function(objS_name, search_key){
     let tx = myUI.storage.db.transaction([objS_name]);
     let store = tx.objectStore(objS_name);
     let req = store.get(search_key);
-    console.log(req);
+    //console.log(req);
     req.onerror = event => {
       reject();
     };
     req.onsuccess = event => {
-      resolve(req.result);
+      let res = req.result
+      if(objS_name=="step_fwd" || objS_name=="step_bck"){
+        res = req.result.data;
+      }
+      resolve(res);
     }
   })
   var transaction = myUI.storage.db.transaction([objS_name]);

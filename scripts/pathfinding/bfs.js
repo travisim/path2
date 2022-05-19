@@ -1,3 +1,5 @@
+'use strict'; 
+
 class BFS extends GridPathFinder {
 
   static get display_name() {
@@ -19,6 +21,8 @@ class BFS extends GridPathFinder {
     this.steps = [];
     this.steps_forward = [];
     this.steps_inverse = [];
+    let step_fwd;
+    let step_bck;
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255 ? true : false;
     this.states_nums = new Set(); // stores the unique ids of each state// only used for DB
     this.states = {};
@@ -60,8 +64,8 @@ class BFS extends GridPathFinder {
 
       /* NEW */
 
-      let step_fwd = [];
-      let step_bck = [];
+      step_fwd = [];
+      step_bck = [];
       step_fwd.push(new Uint8Array([STATIC.SIMPLE]));
       step_fwd.push(new Uint8Array([STATIC.EC, STATIC.CR]));
       step_fwd.push(new Uint8Array([STATIC.EC, STATIC.NB]));
@@ -160,12 +164,12 @@ class BFS extends GridPathFinder {
 
         /* NEW */
 
-        let step_fwd = [];
+        step_fwd = [];
+        step_bck = [];
         step_fwd.push(new Uint8Array([STATIC.SIMPLE]));
         step_fwd.push(new Uint8Array([STATIC.EC, STATIC.CR]));
         step_fwd.push([STATIC.DC, STATIC.PA, this.path, `1d`, false]);
 
-        let step_bck = [];
         step_bck.push(new Uint8Array([STATIC.SIMPLE]));
         step_bck.push(new Uint8Array([STATIC.EC, STATIC.PA]));
         if (this.requires_uint16) step_bck.push(new Uint16Array([STATIC.DP, STATIC.CR, this.current_node_YX[0], this.current_node_YX[1]]));
@@ -203,7 +207,7 @@ class BFS extends GridPathFinder {
       //console.log("next");
 
       var surrounding_map_deltaNWSE = [];
-      for (var i = 0; i < this.num_neighbours; ++i) {
+      for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX_temp = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];
         if (next_YX_temp[0] < 0 || next_YX_temp[0] >= this.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= this.map_width) continue;
         if (this.map[next_YX_temp[0]][next_YX_temp[1]] == 1) {
@@ -212,7 +216,7 @@ class BFS extends GridPathFinder {
       }
 
       /* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
-      for (var i = 0; i < this.num_neighbours; ++i) {
+      for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         /* second check if visited */
@@ -249,8 +253,8 @@ class BFS extends GridPathFinder {
 
           /* NEW */
 
-          let step_fwd = [];
-          let step_bck = [];
+          step_fwd = [];
+          step_bck = [];
           if (next_YX[0]>255 || next_YX[1]>255) {
             step_fwd.push(new Uint16Array([STATIC.DP, STATIC.NB, next_YX[0], next_YX[1]]));
             step_bck.push(new Uint16Array([STATIC.EP, STATIC.NB, next_YX[0], next_YX[1]]));
@@ -299,12 +303,12 @@ class BFS extends GridPathFinder {
               var neighbours_deltaNWSE = [];
               var relative_delta = [];
               var neighbours_array = nodes_to_array(this.neighbours, "self_YX")
-              for(var i=0;i<neighbours_array.length;++i){
+              for(let i=0;i<neighbours_array.length;++i){
                 var relative_delta = [neighbours_array[i][0]-this.current_node_YX[0], neighbours_array[i][1]-this.current_node_YX[1]];
               
                 for(var j=0;j<this.delta.length;++j){
                   if (String(this.delta[j]) == String(relative_delta)){
-                    var index_of_current_YX_in_delta = j;
+                    let index_of_current_YX_in_delta = j;
                     break;
                   }
                 }
@@ -314,7 +318,7 @@ class BFS extends GridPathFinder {
               }
       
               var surrounding_map_deltaNWSE = [];
-              for(var i=0;i<this.num_neighbours;++i){
+              for(let i=0;i<this.num_neighbours;++i){
                 var next_YX = [this.current_node_YX[0]+this.delta[i][0], this.current_node_YX[1]+this.delta[i][1]];
                 if(next_YX[0]<0 || next_YX[0]>=this.map_height || next_YX[1]<0 || next_YX[1]>=this.map_width) continue;
                 if (this.map[next_YX[0]][next_YX[1]] == 1){
@@ -322,7 +326,7 @@ class BFS extends GridPathFinder {
                 }
               }
       
-              for(var i = 0; i<this.neighbours.length; i++){ 
+              for(let i = 0; i<this.neighbours.length; i++){ 
                 if (neighbours_deltaNWSE[i] == "NW"){ 
                   if(!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))){
                     this.queue.splice(-(this.neighbours.length-i), 1); 

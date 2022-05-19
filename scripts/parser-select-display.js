@@ -70,7 +70,7 @@ myUI.parseScenario = function(contents){
 	// Initialise an array containing all the different scenarios
 	let scen_array = [];
 
-	for (var i=0;i<lines_filtered.length;++i){
+	for (let i=0;i<lines_filtered.length;++i){
 		/* Split line into individual values
 		contains "Bucket,map,map width,map height,start x-coordinate,start y-coordinate,goal x-coordinate,goal y-coordinate,optimal length"*/
 		let line_arr = lines_filtered[i].split("\t");

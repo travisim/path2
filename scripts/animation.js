@@ -15,14 +15,14 @@ function animation_backend(){
           let num_steps = parseInt(myUI.animation.jump_steps);
           if(myUI.animation.detailed){
             if(num_steps>50) myUI.jump_to_step(myUI.animation.step + num_steps);
-            while(num_steps--) myUI.run_single_step();
+            while(num_steps--) myUI.run_steps(1);
           }
           else
             while(num_steps--) myUI.run_combined_step();
         }
         else{
           if(myUI.animation.detailed)
-            myUI.run_single_step();
+            myUI.run_steps(1);
           else
             myUI.run_combined_step();
         }
@@ -59,7 +59,7 @@ myUI.jump_to_step = function(target_step){
   else
     while(!all_states.hasOwnProperty(tmp_step) && tmp_step>-1)
       --tmp_step;
-  console.log(tmp_step);
+  console.log("Last state:", tmp_step);
   myUI.animation.step = tmp_step;
 
   const canvas_ids = [`queue`, `neighbours`, `current_YX`, `visited`, `path`];
@@ -93,16 +93,14 @@ myUI.jump_to_step = function(target_step){
   }
 
   function execute_steps(tmp_step, target_step){
-    // execute the steps
-    for(let i=tmp_step;i<target_step;++i){
-      myUI.run_single_step(false, true);
-    }
 
     canvas_ids.forEach(id=>{
       let data = myUI.tmp.virtual_canvases[id];
       myUI.canvases[id].erase_canvas();
       myUI.canvases[id].draw_canvas(data, `2d`);
     });
+    // execute the steps
+    myUI.run_steps(target_step - tmp_step, false, false);
   }
 
   function draw_canvas_from_state(state){

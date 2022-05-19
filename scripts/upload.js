@@ -1,6 +1,6 @@
 let dropAreas = document.getElementsByClassName('upload');
 
-for (var i=0;i<dropAreas.length;++i){
+for (let i=0;i<dropAreas.length;++i){
 	let area = dropAreas[i];
 	try {
 		['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {

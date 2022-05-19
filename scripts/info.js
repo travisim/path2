@@ -13,9 +13,9 @@ document.getElementById("N").appendChild(document.createElement("div"));
 
 //document.getElementById("N").innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
 
-var info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
+let info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
 
-for(var i=0;i<info_neighbours_id.length;++i){
+for(let i=0;i<info_neighbours_id.length;++i){
   document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
 };
 /*
@@ -45,7 +45,7 @@ document.getElementById("currentYX").innerHTML = "(1024,1024)";
 
 
  table = document.getElementById("info_table");
-for(var i=1;i<5;++i){
+for(let i=1;i<5;++i){
   var row = table.insertRow(i);
   for(var j=0;j<5;++j){
    row.insertCell(j).innerHTML = "hi";
