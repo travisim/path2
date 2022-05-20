@@ -59,7 +59,7 @@ myUI.jump_to_step = function(target_step){
   else
     while(!all_states.hasOwnProperty(tmp_step) && tmp_step>-1)
       --tmp_step;
-  console.log("Last state:", tmp_step);
+  //console.log("Last state:", tmp_step);
   myUI.animation.step = tmp_step;
 
   const canvas_ids = [`queue`, `neighbours`, `current_YX`, `visited`, `path`];

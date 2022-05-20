@@ -16,12 +16,18 @@ function compute_path(){
   if(!myUI.map_start) return alert("no scene loaded!");
 	myUI.planner = new myUI.planners[myUI.planner_choice]();
 	myUI.planner.add_map(myUI.map_arr);
-// convert array to new planner 
-	myUI.path = myUI.planner.search(myUI.map_start, myUI.map_goal); 
-	myUI.animation.max_step = myUI.planner.max_step();
-	myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;
-	let each_frame_duration_min = 3000 / myUI.animation.max_step; //  5 seconds for fastest animation
-	myUI.sliders.animation_speed_slider.elem.max = Math.log2(200/each_frame_duration_min)*1000;
+	document.getElementById("compute_btn").innerHTML = "searching...";
+	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
+		console.log(path.length);
+		myUI.path = path;
+		myUI.animation.max_step = myUI.planner.max_step();
+		myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;
+		let each_frame_duration_min = 3000 / myUI.animation.max_step; //  5 seconds for fastest animation
+		myUI.sliders.animation_speed_slider.elem.max = Math.log2(200/each_frame_duration_min)*1000;
+		document.getElementById("compute_btn").innerHTML = "done!";
+		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
+	}); 
+	
 	
 }
 

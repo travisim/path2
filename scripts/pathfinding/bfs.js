@@ -15,15 +15,13 @@ class BFS extends GridPathFinder {
     this.start = start; //in array form [y,x]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
-    this.queue_cache = []; // used to store states
     this.neighbours = [];  // current cell's neighbours; only contains passable cells
     this.path = null;
     this.steps = [];
     this.steps_forward = [];
     this.steps_inverse = [];
-    let step_fwd;
-    let step_bck;
-    this.requires_uint16 = this.map_height > 255 || this.map_width > 255 ? true : false;
+    this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
+    this.draw_arrows = this.map_height <= +4 || this.map_width <= 128;
     this.states_nums = new Set(); // stores the unique ids of each state// only used for DB
     this.states = {};
     this.states_arr = [];
@@ -34,8 +32,8 @@ class BFS extends GridPathFinder {
     this.searched = false;
 
     this.step_counter = 0;
-    let prev_count = 0;
-    let state_counter = 0;
+    this.prev_count = 0;
+    this.state_counter = 0;
     this.arrow_step = -1;
     // counter is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
@@ -49,9 +47,23 @@ class BFS extends GridPathFinder {
     this.queue.push(start_node);  // begin with the start; add starting node to rear of []
     //---------------------checks if visited 2d array has been visited
 
-    while (this.queue.length) {  // while there are still nodes left to visit
+    let planner = this;
+    this.batch_size = 500;
+    this.batch_interval = 0;
+
+    return new Promise((resolve, reject)=>{
+      setTimeout(()=>resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
+    });
+  }
+
+  _run_next_search(planner, num){
+    while(num--){
+      let step_fwd;
+      let step_bck;
+      // while there are still nodes left to visit
+      if(this.queue.length==0) return this._terminate_search();
       if (this.current_node_YX)
-        this.prev_node_YX = this.current_node_YX
+        this.prev_node_YX = this.current_node_YX;
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
 
@@ -101,7 +113,7 @@ class BFS extends GridPathFinder {
 
       /* first check if visited */
       //if(this.visited[this.current_node_YX[0]][this.current_node_YX[1]]) continue; // if the current node has been visited, skip to next one in queue
-      if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
+      if (this.visited.get_data(this.current_node_YX)) return //continue; // if the current node has been visited, skip to next one in queue
 
       //this.visited[this.current_node_YX[0]][this.current_node_YX[1]] = 1;  // marks current node YX as visited
       this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
@@ -156,7 +168,7 @@ class BFS extends GridPathFinder {
           this.steps_inverse.push([new Uint8Array([STATIC.SIMPLE])]);
         }
         ++this.step_counter;
-        break;
+        return this._terminate_search()
       }
       // NOTE, a node is only visited if all its neighbours have been added to the queue
       this.neighbours = [];  // reset the neighbours for each new node
@@ -222,7 +234,6 @@ class BFS extends GridPathFinder {
 
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
             this.queue.push(next_node);  // add to queue
-            this.queue_cache.push(next_node);
             this.queue_matrix[next_YX[0]][next_YX[1]] = 1;
             if (next_YX[0]>255 || next_YX[1]>255) {
               step_fwd.push(new Uint16Array([STATIC.DP, STATIC.QU, next_YX[0], next_YX[1]]));
@@ -231,8 +242,9 @@ class BFS extends GridPathFinder {
             else {
               step_fwd.push(new Uint8Array([STATIC.DP, STATIC.QU, next_YX[0], next_YX[1]]));
               step_bck.push(new Uint8Array([STATIC.EP, STATIC.QU, next_YX[0], next_YX[1]]));
+            }
+            if(this.draw_arrows){
               /* ARROW */
-              // do not add arrow if map size>255
               ++this.arrow_step;
               myUI.create_arrow(this.current_node_YX , next_YX);
               step_fwd.push(new Uint8Array([STATIC.DA]));
@@ -255,13 +267,14 @@ class BFS extends GridPathFinder {
       }
 
       // [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
-      if (this.step_counter-prev_count >= 20) {
-        prev_count = this.step_counter;
-        ++state_counter;
-        //if (state_counter % 100 == 0) console.log(`reached state ${state_counter}, step ${this.step_counter}`);
+      if (this.step_counter-this.prev_count >= 20) {
+        this.prev_count = this.step_counter;
+        ++this.state_counter;
+        //console.log(`reached state ${this.state_counter}, step ${this.step_counter}`);
+        if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_counter}`);
         // add state
         if (myUI.db_on) {
-          if (state_counter % 1000 == 0) {
+          if (this.state_counter % 1000 == 0) {
             myUI.storage.add("states", this.states_arr);
             this.states_arr = [];
           }
@@ -272,12 +285,16 @@ class BFS extends GridPathFinder {
         else {
           this.states[this.step_counter-1] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step };
         }
-
       }
-
     }
+    return new Promise((resolve, reject)=>{
+      setTimeout(()=>resolve(planner._run_next_search(planner, planner.batch_size)),  planner.batch_interval);
+    });
+  }
+
+  _terminate_search(){
+    clearTimeout(this.search_timer);
     if (this.path == null) console.log("path does not exist");
-    myUI.sliders["search_progress_slider"].elem.max = this.steps.length;
     this.searched = true;
     return this.path;
   }
