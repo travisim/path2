@@ -33,7 +33,82 @@ class GridPathFinder{
 		this.map = map; // 2d array; each 1d array is a row
 		this.map_height = map.length;
 		this.map_width = map[0].length;
+		this.coord_bit_len = Math.ceil(Math.log2(this.map_height * this.map_width));
+		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val));
 	}
+
+	_clear_steps(){
+		this.steps_forward = [];
+		this.steps_inverse = [];
+	}
+
+	_create_step(){
+		this.step_cache = [];
+	}
+
+	_create_action(){
+		/* use bitmasking to compress every action into a series of Uint8 numbers */
+		/* bits are read from right ot left */
+		// rightmost bit shows if action contains destination
+		// 2nd rightmost shows if action contains coordinates
+		// next this.static_bit_len bits contains the command
+		// next this.static_bit_len bits contains the destination, if applicable
+		// next coord_bit_len bits contains the coordinates
+		this.action_cache = 0;
+		this.action_cache += arguments[0] << 2; // command 
+		if(arguments[1]!==undefined){
+			this.action_cache += 1; // dest_exists
+			this.action_cache += arguments[1] << (2 + this.static_bit_len); // dest
+		}
+		if (arguments[2]!==undefined){
+			this.action_cache += 1<<1; // coords exists?
+			let y = arguments[2][0];
+			let x = arguments[2][1];
+			this.action_cache += (y * this.map_width + x) << (2 + this.static_bit_len * 2);
+		}
+		this.step_cache.push(this.action_cache);
+	}
+
+	_save_step(step_direction="fwd"){
+		if(myUI.db_step){
+			this.step_cache.unshift(this.step_counter);
+			if(step_direction=="fwd") myUI.storage.add("step_fwd", [this.step_cache]);
+			else myUI.storage.add("step_bck", [this.step_cache]);
+		}
+		else{
+			if(step_direction=="fwd") this.steps_forward.push(this.step_cache);
+      else this.steps_inverse.push(this.step_cache);
+		}
+		if(step_direction=="bck") ++this.step_counter;
+	}
+
+	get_step(num, step_direction="fwd"){
+		let stepPromise;
+		if(myUI.db_step){
+			stepPromise = step_direction=="fwd" ? myUI.storage.get("step_fwd", num) : myUI.storage.get("step_bck", num+1);
+		}
+		else{
+			let step = step_direction=="fwd" ? this.steps_forward[num] :this.steps_inverse[num+1];
+			stepPromise = new Promise((resolve, reject)=>{
+				resolve(step);
+			})
+		}
+		return stepPromise;
+	}
+
+	final_state() {
+    if (!this.start) return alert("haven't computed!");
+    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(), arrow_step: this.arrow_step};
+  }
+
+  max_step(){
+    return this.step_counter-2 ; // because of dummy step at the end and final step is n-1
+  }
+
+  all_states() {
+    if (this.searched) return myUI.db_on ? this.states_nums : this.states;
+    return null;
+  }
 }
 
 class Node{
@@ -121,7 +196,6 @@ class BitMatrix{
 	}
 
 	get_data(yx){
-
 		let index = 2 + yx[0]*this.num + (yx[1]>>3); // same as Math.floor(yx[1]/8);
 		let bin_length = (index-1) % this.num == 0 ? this.last_denary : 8;
 		let rem = yx[1]%8;
