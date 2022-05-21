@@ -34,7 +34,7 @@ class GridPathFinder{
 		this.map_height = map.length;
 		this.map_width = map[0].length;
 		this.coord_bit_len = Math.ceil(Math.log2(this.map_height * this.map_width));
-		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val));
+		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val+1));
 	}
 
 	_clear_steps(){
