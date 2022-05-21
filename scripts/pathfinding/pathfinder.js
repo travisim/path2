@@ -112,25 +112,21 @@ class BitMatrix{
 			console.log("bruh");
 			console.log(yx);
 		}
-		let bin_str = this.data[index].toString(2);
-		let num_zeros = (index-1) % this.num == 0 ? this.last_denary-bin_str.length : 8-bin_str.length;
-		bin_str = "0".repeat(num_zeros) + bin_str;
+		let bin_length = (index-1) % this.num == 0 ? this.last_denary : 8;
 		let rem = yx[1]%8;
-		let bin_mod = bin_str.slice(0, rem) + new_data.toString() + bin_str.slice(rem+1);
-		this.data[index] = parseInt(bin_mod, 2);
+		let data_shifted = new_data << (bin_length - rem - 1);
+		let mask = 0b11111111 ^ (1 << (bin_length - rem - 1));
+		this.data[index] = (this.data[index] & mask) + data_shifted;
+
 	}
 
 	get_data(yx){
+
 		let index = 2 + yx[0]*this.num + (yx[1]>>3); // same as Math.floor(yx[1]/8);
-		let bin_str = this.data[index].toString(2);
-		let num_zeros = (index-1) % this.num == 0 ? this.last_denary-bin_str.length : 8-bin_str.length;
-		//console.log("each");
-		//console.log(num_zeros);
-		//console.log(index);
-		//console.log(this.data);
-		bin_str = "0".repeat(num_zeros) + bin_str;
+		let bin_length = (index-1) % this.num == 0 ? this.last_denary : 8;
 		let rem = yx[1]%8;
-		return parseInt(bin_str[rem]);
+		let mask = 1 << (bin_length - rem - 1);
+		return this.data[index] & mask ? 1 : 0;
 	}
 
 	copy_data(){

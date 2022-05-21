@@ -54,7 +54,7 @@ class BFS extends GridPathFinder {
     return new Promise((resolve, reject)=>{
       setTimeout(()=>resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
     });
-  }
+   }
 
   _run_next_search(planner, num){
     while(num--){
