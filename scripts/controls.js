@@ -81,9 +81,9 @@ myUI.step_back = function(){
 	myUI.stop_animation(change_svg = true);
 	/* NEW */
 	if(myUI.animation.detailed)
-		myUI.run_steps(1, inverse=true);
+		myUI.run_steps(1, "bck");
 	else
-		myUI.run_combined_step(inverse=true);
+		myUI.run_combined_step("bck");
 	myUI.update_search_slider(myUI.animation.step);
 	console.log(myUI.animation.step);
 }
