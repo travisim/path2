@@ -110,8 +110,7 @@ myUI.jump_to_step = function(target_step){
     let x = state.node_YX[1];
     myUI.tmp.virtual_canvases.current_YX[y][x] = 1;
     myUI.draw_virtual_canvas(`neighbours`, state.neighbours, `1d`);
-    if(state.path)
-    myUI.draw_virtual_canvas(`path`, state.path, `1d`);
+    if(state.path) myUI.draw_virtual_canvas(`path`, state.path, `1d`);
     myUI.arrow.step = state.arrow_step;
     for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
   }
@@ -120,7 +119,10 @@ myUI.jump_to_step = function(target_step){
 myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){
   if (array_type == "1d") {
     array_data.forEach(coord=>{
-      myUI.tmp.virtual_canvases[canvas_id][coord[0]][coord[1]] = 1;
+      // coord is in row-major form
+      var y = Math.floor(coord/myUI.planner.map_width);
+      var x = coord - y * myUI.planner.map_width;
+      myUI.tmp.virtual_canvases[canvas_id][y][x] = 1;
     });
   }
   else if(array_type == "2d") {  //eg [ [ 8, 6 ], [ 9, 7 ], [ 8, 8 ] ]

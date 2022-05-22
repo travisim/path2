@@ -1,8 +1,14 @@
 //takes in a array of objects and returns a array of 1 property of the object
 function nodes_to_array(obj_array,property_in_obj){
-  var array = [];
-  for (let i = 0; i < obj_array.length; i++){
-    array.push(obj_array[i][property_in_obj])
+  var array = new Uint32Array(obj_array.length);//new Array(obj_array.length); 
+  //  only needs maximum val of 1024*1024 => 20 bits
+  // default js uses 64 bits
+  for(let i=0;i<obj_array.length;++i){
+    var res = obj_array[i][property_in_obj];
+    if(property_in_obj=="self_YX"){
+      res = res[0] * myUI.planner.map_width + res[1]; // row-major form
+    }
+    array[i] = res;
   }
   return array;
 }

@@ -53,9 +53,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           if(action & 1)  // dest exists
             var dest = (action >> 2 + myUI.planner.static_bit_len) & ((1 << myUI.planner.static_bit_len) - 1);
           if(action & (1<<1)){  // coord exists
-            var coordinate = (action >> 2 + myUI.planner.static_bit_len * 2) & ((1 << myUI.planner.coord_bit_len) - 1);
-            var y = Math.floor(coordinate/myUI.planner.map_width);
-            var x = coordinate - y * myUI.planner.map_width;
+            var coord = (action >> 2 + myUI.planner.static_bit_len * 2) & ((1 << myUI.planner.coord_bit_len) - 1);
+            var y = Math.floor(coord/myUI.planner.map_width);
+            var x = coord - y * myUI.planner.map_width;
           }
           if(command==STATIC.EC){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);

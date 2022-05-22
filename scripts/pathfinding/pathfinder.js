@@ -33,7 +33,7 @@ class GridPathFinder{
 		this.map = map; // 2d array; each 1d array is a row
 		this.map_height = map.length;
 		this.map_width = map[0].length;
-		this.coord_bit_len = Math.ceil(Math.log2(this.map_height * this.map_width));
+		this.coord_bit_len = Math.ceil(Math.log2((this.map_height-1) * (this.map_width-1)));
 		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val+1));
 	}
 
@@ -70,8 +70,9 @@ class GridPathFinder{
 	}
 
 	_save_step(step_direction="fwd"){
+		var step = this.step_cache;
 		if(myUI.db_step){
-			this.step_cache.unshift(this.step_counter);
+			step.unshift(this.step_counter);
 			if(step_direction=="fwd") myUI.storage.add("step_fwd", [this.step_cache]);
 			else myUI.storage.add("step_bck", [this.step_cache]);
 		}
