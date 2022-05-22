@@ -181,12 +181,10 @@ class BFS extends GridPathFinder {
           this.neighbours.push(next_node);  // add to neighbours
 
           /* NEW */
-
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]){ // prevent from adding to queue again
             this.queue.push(next_node);  // add to queue
-            this.queue_matrix[next_YX[0]][next_YX[1]] = 1;
             this._create_action(STATIC.DP, STATIC.QU, next_YX);
             if(this.draw_arrows){
               // ARROW
@@ -201,8 +199,9 @@ class BFS extends GridPathFinder {
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]){
+            this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
             this._create_action(STATIC.EP, STATIC.QU, next_YX);
-            this._create_action(STATIC.EA);
+            if(this.draw_arrows) this._create_action(STATIC.EA);
           }
           this._save_step("bck");
         }
