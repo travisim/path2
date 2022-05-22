@@ -175,9 +175,7 @@ canvas{
 	width: 95%;
 }
 /*start of CSS for info panel*/
-html{
-  background-color: null;
-}
+/*start of CSS for info map*/
 
 .grid {
   display: grid;
@@ -250,11 +248,12 @@ span::after{
     white-space: pre;
 }
 
+/*end of css for info map*/
+/*start of css for info table*/
 
 table {
- 
   background: rgb(188,186,201);
-
+  width: 10;
   border-radius: .4em;
   border-collapse: collapse;
    width: 100%;
@@ -262,11 +261,43 @@ table {
 }
 td {
     border: none;
+    
 }
 th{
    text-align: left;
+   height: 10px;
+}
+tr{ line-height: 20px;}
+
+
+
+@keyframes out {
+  0%   {  top:0px;}
+  40% { opacity: .8; top:3px;}
+  100% { opacity: 0; top:0px;}
 }
 
+@keyframes move {
+  0%   {  top:0px;}
+  100% { top:20px;}
+}
+
+.new-slide {
+	animation: append-animate .5s linear;
+}
+
+@keyframes append-animate {
+	0% {
+		transform: scale(0.5);
+		opacity: .7;
+	}
+
+	100% {
+		transform: scale(1);
+		opacity: 1;	
+	}
+}
+/*end of css for info table*/
 /*end of CSS for info panel*/
 
 /* controls map order and how the cells are displayed */
