@@ -100,7 +100,7 @@ myUI.jump_to_step = function(target_step){
       myUI.canvases[id].draw_canvas(data, `2d`);
     });
     // execute the steps
-    myUI.run_steps(target_step - tmp_step, false, false);
+    myUI.run_steps(target_step - tmp_step, "fwd", false);
   }
 
   function draw_canvas_from_state(state){
