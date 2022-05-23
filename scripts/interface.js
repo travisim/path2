@@ -79,7 +79,7 @@ myUI.initialize = function(){
 	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), clicked: false}
 	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), clicked: false}
 
-  myUI.planners = [BFS,DFS,Dijkstra];
+  myUI.planners = [BFS,DFS,Dijkstra,A_star];
   myUI.planner_choice = 0;
   myUI.planner =  new myUI.planners[myUI.planner_choice]();
 
