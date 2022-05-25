@@ -5,12 +5,15 @@ myUI.scale_coord = function(y, x){
 }
 
 myUI.handle_map_hover = function(e){
+
+	let tooltip_data = document.getElementById("tooltip_data");
+
 	e = e || window.event;
   e.preventDefault();
 	/* colours the map on hover */
 	let [scaled_y, scaled_x] = myUI.scale_coord(e.offsetY, e.offsetX);
-	myUI.hover_labels.hover_x.elem.innerHTML = scaled_x;
-	myUI.hover_labels.hover_y.elem.innerHTML = scaled_y;
+	document.getElementById("hover_x").innerHTML = scaled_x;
+	document.getElementById("hover_y").innerHTML = scaled_y;
 	myUI.canvases.hover_map.erase_canvas();
 	myUI.canvases.hover_map.set_color_index(0, "both");
 	if(myUI.map_arr)
@@ -20,14 +23,17 @@ myUI.handle_map_hover = function(e){
 	myUI.canvases.hover_map.draw_start_goal([scaled_y, scaled_x]);
 
 	myUI.canvases.hover_map.canvas.style.cursor = "auto";
+	document.getElementById("hover_cell_index").innerHTML = "-";
+	tooltip_data.style.backgroundColor = ``;
 	if(myUI.planner.cell_map){
-		if(myUI.planner.cell_map[scaled_y][scaled_x]){
+		if(!isNaN(myUI.planner.cell_map[scaled_y][scaled_x])){
 			myUI.canvases.hover_map.canvas.style.cursor = "pointer";
+			document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_y][scaled_x];
+			tooltip_data.style.backgroundColor = `#3bd44b`;
 		}
 	}
 
 	/* shows the popup */
-	let tooltip_data = document.getElementById("tooltip_data");
 	tooltip_data.style.display = "block";
 	tooltip_data.style.left = e.pageX + 'px';
 	tooltip_data.style.top = e.pageY + 'px';
@@ -47,7 +53,7 @@ myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 
 });
 
-myUI.canvases.hover_map.canvas.addEventListener(`mouseout`, e=>{
+myUI.canvases.hover_map.canvas.addEventListener(`mouseleave`, e=>{
 	myUI.canvases.hover_map.erase_canvas();
 	tooltip_data.style.display = "none";
 });
@@ -56,6 +62,9 @@ dragElement(myUI.map_start_icon.elem);
 dragElement(myUI.map_goal_icon.elem);
 
 function dragElement(elmnt) {
+
+	elmnt.addEventListener(`mouseenter`, e=>elmnt.style.cursor = "move");
+	elmnt.addEventListener(`mouseleave`, e=>elmnt.style.cursor = "auto");
 
   var bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
 	let x1, y1, dx, dy;

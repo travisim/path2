@@ -71,7 +71,8 @@ myUI.initialize = function(){
 	myUI.hover_labels = {};
 	[
 		"hover_x",
-		"hover_y"
+		"hover_y",
+    "hover_cell_index"
 	].forEach(label=>{
 		myUI.hover_labels[label] = {elem: document.getElementById(label)}
 	})
