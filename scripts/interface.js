@@ -76,8 +76,8 @@ myUI.initialize = function(){
 		myUI.hover_labels[label] = {elem: document.getElementById(label)}
 	})
 
-	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), clicked: false}
-	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), clicked: false}
+	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), move: false}
+	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), move: false}
 
   myUI.planners = [BFS,DFS,Dijkstra,A_star];
   myUI.planner_choice = 0;
