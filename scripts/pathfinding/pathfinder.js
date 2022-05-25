@@ -126,7 +126,7 @@ class GridPathFinder{
   }
 
   max_step(){
-    return this.step_index-2 ; // because of dummy step at the end and final step is n-1
+    return this.step_index-1 ; // because of dummy step at the end and final step is n-1
   }
 
   all_states() {
