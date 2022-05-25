@@ -1,11 +1,14 @@
+myUI.scale_coord = function(y, x){
+	let scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientWidth *  myUI.map_width);
+	let scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientHeight *  myUI.map_height);
+	return [scaled_y, scaled_x];
+}
+
 myUI.handle_map_hover = function(e){
 	e = e || window.event;
   e.preventDefault();
 	/* colours the map on hover */
-	let x = e.offsetX;
-	let y = e.offsetY;
-	let scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientWidth *  myUI.map_width);
-	let scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientHeight *  myUI.map_height);
+	let [scaled_y, scaled_x] = myUI.scale_coord(e.offsetY, e.offsetX);
 	myUI.hover_labels.hover_x.elem.innerHTML = scaled_x;
 	myUI.hover_labels.hover_y.elem.innerHTML = scaled_y;
 	myUI.canvases.hover_map.erase_canvas();
@@ -15,6 +18,13 @@ myUI.handle_map_hover = function(e){
 			myUI.canvases.hover_map.set_color_index(1, "both");
 	//console.log(myUI.canvases.hover_map.ctx.strokeStyle);
 	myUI.canvases.hover_map.draw_start_goal([scaled_y, scaled_x]);
+
+	myUI.canvases.hover_map.canvas.style.cursor = "auto";
+	if(myUI.planner.cell_map){
+		if(myUI.planner.cell_map[scaled_y][scaled_x]){
+			myUI.canvases.hover_map.canvas.style.cursor = "pointer";
+		}
+	}
 
 	/* shows the popup */
 	let tooltip_data = document.getElementById("tooltip_data");
@@ -26,11 +36,21 @@ myUI.handle_map_hover = function(e){
 
 myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
 
+myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
+	let [scaled_y, scaled_x] = myUI.scale_coord(e.offsetY, e.offsetX);
+	if(myUI.planner.cell_map){
+		if(!isNaN(myUI.planner.cell_map[scaled_y][scaled_x])){
+			let ind = myUI.planner.cell_map[scaled_y][scaled_x];
+			myUI.jump_to_step(ind);
+		}
+	}
+
+});
+
 myUI.canvases.hover_map.canvas.addEventListener(`mouseout`, e=>{
 	myUI.canvases.hover_map.erase_canvas();
 	tooltip_data.style.display = "none";
 });
-
 
 dragElement(myUI.map_start_icon.elem);
 dragElement(myUI.map_goal_icon.elem);

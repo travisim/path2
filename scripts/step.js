@@ -49,14 +49,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       else return;
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
         step.forEach(action=>{
-          let command = (action >> 2) & ((1 << myUI.planner.static_bit_len) - 1);
-          if(action & 1)  // dest exists
-            var dest = (action >> 2 + myUI.planner.static_bit_len) & ((1 << myUI.planner.static_bit_len) - 1);
-          if(action & (1<<1)){  // coord exists
-            var coord = (action >> 2 + myUI.planner.static_bit_len * 2) & ((1 << myUI.planner.coord_bit_len) - 1);
-            var y = Math.floor(coord/myUI.planner.map_width);
-            var x = coord - y * myUI.planner.map_width;
-          }
+          let [command, dest, y, x] = GridPathFinder.unpack_action(action);
           if(command==STATIC.EC){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
             else myUI.canvases[statics_to_obj[dest]].erase_canvas();

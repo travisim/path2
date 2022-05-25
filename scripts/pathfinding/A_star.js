@@ -28,8 +28,9 @@ class A_star extends GridPathFinder{
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new BitMatrix(this.map_height, this.map_width);
     this.searched = false;
+    this._create_cell_index();
 
-    this.step_counter = 0;
+    this.step_index = 0;
     this.prev_count = 0;
     this.state_counter = 0;
     this.arrow_step = -1;
@@ -222,24 +223,26 @@ class A_star extends GridPathFinder{
         }
       }
 
+      this._assign_cell_index(this.current_node_YX);
+
       // [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
-      if (this.step_counter-this.prev_count >= 100) {
-        this.prev_count = this.step_counter;
+      if (this.step_index-this.prev_count >= 100) {
+        this.prev_count = this.step_index;
         ++this.state_counter;
-        //console.log(`reached state ${this.state_counter}, step ${this.step_counter}`);
-        if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_counter}`);
+        //console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
+        if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
         // add state
         if (myUI.db_on) {
           if (this.state_counter % 1000 == 0) {
             myUI.storage.add("states", this.states_arr);
             this.states_arr = [];
           }
-          this.states_arr.push({ id: this.step_counter-1, node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step });
-          //myUI.storage.add("states", [{id: this.step_counter, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
-          this.states_nums.add(this.step_counter-1);
+          this.states_arr.push({ id: this.step_index, node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step });
+          //myUI.storage.add("states", [{id: this.step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
+          this.states_nums.add(this.step_index);
         }
         else {
-          this.states[this.step_counter-1] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step };
+          this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step };
         }
       }
     }

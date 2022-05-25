@@ -3,6 +3,19 @@
 // grid, graph, directed_graph, RRP
 
 class GridPathFinder{
+
+	static unpack_action(action){
+		let command = (action >> 2) & ((1 << myUI.planner.static_bit_len) - 1);
+		if(action & 1)  // dest exists
+			var dest = (action >> 2 + myUI.planner.static_bit_len) & ((1 << myUI.planner.static_bit_len) - 1);
+		if(action & (1<<1)){  // coord exists
+			var coord = (action >> 2 + myUI.planner.static_bit_len * 2) & ((1 << myUI.planner.coord_bit_len) - 1);
+			var y = Math.floor(coord/myUI.planner.map_width);
+			var x = coord - y * myUI.planner.map_width;
+    }
+		return [command, dest, y, x];
+	}
+
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
 		this.num_neighbours = num_neighbours;
 		this.diagonal_allow = diagonal_allow;
@@ -72,7 +85,7 @@ class GridPathFinder{
 	_save_step(step_direction="fwd"){
 		var step = this.step_cache;
 		if(myUI.db_step){
-			step.unshift(this.step_counter);
+			step.unshift(this.step_index);
 			if(step_direction=="fwd") myUI.storage.add("step_fwd", [this.step_cache]);
 			else myUI.storage.add("step_bck", [this.step_cache]);
 		}
@@ -80,7 +93,17 @@ class GridPathFinder{
 			if(step_direction=="fwd") this.steps_forward.push(this.step_cache);
       else this.steps_inverse.push(this.step_cache);
 		}
-		if(step_direction=="bck") ++this.step_counter;
+		if(step_direction=="bck") ++this.step_index;
+	}
+
+	_create_cell_index(){
+		this.cell_map = zero2D(this.map_height, this.map_width, Number.MAX_SAFE_INTEGER);
+	}
+
+	_assign_cell_index(yx){
+		// index is the step index for the first expansion of that cell
+		let [y,x] = yx;
+		this.cell_map[y][x] = this.step_index;
 	}
 
 	get_step(num, step_direction="fwd"){
@@ -103,7 +126,7 @@ class GridPathFinder{
   }
 
   max_step(){
-    return this.step_counter-2 ; // because of dummy step at the end and final step is n-1
+    return this.step_index-2 ; // because of dummy step at the end and final step is n-1
   }
 
   all_states() {

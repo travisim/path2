@@ -24,10 +24,21 @@ function deep_copy_matrix(matrix, flip_bit=false){
   return res;
 }
 
-function zero2D(rows, cols) {
+function zero2D(rows, cols, max_val=255) {
   var array = new Array(rows);
   while(rows--){
-    let row = new Uint8Array(cols);
+    if(max_val<(1<<8)){
+      var row = new Uint8Array(cols);
+    }
+    else if(max_val<(1<<6)){
+      var row = new Uint16Array(cols);
+    }
+    else if(max_val<(1<<32)){
+      var row = new Uint32Array(cols);
+    }
+    else{
+      var row = new Array(cols);
+    }
     array[rows] = row;
   }
   return array;
