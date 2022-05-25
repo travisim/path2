@@ -50,6 +50,34 @@ class GridPathFinder{
 		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val+1));
 	}
 
+	_init_search(start, goal){
+    this.start = start; //in array form [y,x]  [0,0] is top left  [512,512] is bottom right
+    this.goal = goal;
+    this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
+    this.neighbours = [];  // current cell's neighbours; only contains passable cells
+    this.path = null;
+    this._clear_steps();
+    this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
+    this.draw_arrows = this.map_height <= +4 || this.map_width <= 128;
+    this.states_nums = new Set(); // stores the unique ids of each state// only used for DB
+    this.states = {};
+    this.states_arr = [];
+
+    // generate empty 2d array
+    this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
+    this.visited = new BitMatrix(this.map_height, this.map_width);
+    this.searched = false;
+    this._create_cell_index();
+
+    this.step_index = -1;
+    this.prev_count = -1;
+    this.state_counter = 0;
+    if(this.draw_arrows) this.arrow_step = -1;
+    // step_index is used to count the number of times a step is created
+    // at every ~100 steps, a state is saved
+    // this balances between processer and memory usage
+	}
+
 	_clear_steps(){
 		this.steps_forward = [];
 		this.steps_inverse = [];
