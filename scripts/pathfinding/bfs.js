@@ -25,6 +25,7 @@ class BFS extends GridPathFinder {
     this.batch_size = 500;
     this.batch_interval = 0;
 
+    // "Producing Code" (May take some time)
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
     });
@@ -41,6 +42,22 @@ class BFS extends GridPathFinder {
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
 
+
+/*
+         index 0 to index 4 are canvas ids, must be the same as statics_to_obj 
+  "QU",  queue
+  "VI",  visited
+  "CR",  current
+  "NB",  neighbours
+  "PA",  path
+   rest of the items are dynamics commands/identifiers 
+  "SIMPLE",  shows that the step is a simple step
+  "EC",  erase canvas
+  "DP",  draw pixel
+  "EP",  erase pixel
+  "DA",  draw arrow
+  "EA"   erase arrow
+      */
       this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
