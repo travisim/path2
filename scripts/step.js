@@ -14,6 +14,20 @@ const STATIC_NAMES = [
   "EA"  // erase arrow
 ];
 
+/*
+{ max_val: 10,
+  QU: 0,
+  VI: 1,
+  CR: 2,
+  NB: 3,
+  PA: 4,
+  SIMPLE: 5,
+  EC: 6,
+  DP: 7,
+  EP: 8,
+  DA: 9,
+  EA: 10 }
+*/
 var STATIC = {
   max_val: STATIC_NAMES.length-1
 };
@@ -50,6 +64,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
         step.forEach(action=>{
           let [command, dest, y, x] = GridPathFinder.unpack_action(action);
+          console.log(GridPathFinder.unpack_action(action),action);
+          if(dest==2){
+            document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
+           
+          }
           if(command==STATIC.EC){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
             else myUI.canvases[statics_to_obj[dest]].erase_canvas();

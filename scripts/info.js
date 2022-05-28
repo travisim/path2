@@ -72,7 +72,7 @@ document.getElementById("W").style.borderColor = "rgb(0,130,105)";//neighbour
 
 
  
-document.getElementById("currentYX").innerHTML = "(1024,1024)"; 
+document.getElementById("currentYX").innerHTML = "(_, _)"; 
 
 
 
