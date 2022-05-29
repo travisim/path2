@@ -65,9 +65,13 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
         step.forEach(action=>{
           let [command, dest, y, x] = GridPathFinder.unpack_action(action);
           console.log(GridPathFinder.unpack_action(action),action);
-          if(dest==2){
+          
+         
+
+          if(dest==2 && command == STATIC.DP ){//"current_YX",
             document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
-           
+            console.log(x,"x",y,"y");
+            info_map_obstacles(x,y);
           }
           if(command==STATIC.EC){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);

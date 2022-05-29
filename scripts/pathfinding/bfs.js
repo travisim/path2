@@ -146,8 +146,6 @@ class BFS extends GridPathFinder {
         if (this.visited.get_data(next_YX)) continue; // if the neighbour has been visited, don't add it to queue
         if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
-
-
             if (this.deltaNWSE[i] == "NW") {
               if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
                 continue;

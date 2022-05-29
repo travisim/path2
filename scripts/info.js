@@ -7,6 +7,26 @@ for(let i=0;i<info_neighbours_id.length;++i){
   document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
 };
 
+
+
+  console.log("hello","gr");
+
+function info_map_obstacles(x,y){
+ myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";}); //reset obstacles in info map
+  var surrounding_map_deltaNWSE = [];
+    for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+        var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+        if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
+        if (myUI.planner.map[next_YX_temp[0]][next_YX_temp[1]] != 1) {
+          surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
+        }
+      }
+  console.log(surrounding_map_deltaNWSE,"obstacle");
+  surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "rgb(0,0,0)";});//obstacle
+}
+
+
+
 //end of js for info map
 
 
