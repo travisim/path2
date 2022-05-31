@@ -2,30 +2,85 @@
 
 //start of js for info map
 let info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
-
+//var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
+//var delta = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]];
 for(let i=0;i<info_neighbours_id.length;++i){
   document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
 };
 
+var surrounding_map_deltaNWSE = [];
+function info_map_clear(){
+  myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";}); //reset obstacles in info map
+}
 
-
-  console.log("hello","gr");
-
+  
+ 
+var current_XY_ani = [];
 function info_map_obstacles(x,y){
- myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";}); //reset obstacles in info map
-  var surrounding_map_deltaNWSE = [];
-    for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
-        var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
-        if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-        if (myUI.planner.map[next_YX_temp[0]][next_YX_temp[1]] != 1) {
-          surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
-        }
-      }
-  console.log(surrounding_map_deltaNWSE,"obstacle");
+  current_XY_ani = [x,y];
+  for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+    if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
+    if (myUI.planner.map[next_YX_temp[0]][next_YX_temp[1]] != 1) {
+      surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
+    }
+  }
+  
+  //console.log(surrounding_map_deltaNWSE,"obstacle");
   surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "rgb(0,0,0)";});//obstacle
 }
 
 
+function info_map_neighbours_draw(x,y){
+  let [xc,yc] = current_XY_ani;
+  var relative_deltaNWSE = [y-yc,x-xc];
+  //console.log(relative_deltaNWSE,"relative_deltaNWSE" );
+  for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    if (relative_deltaNWSE[0] == myUI.planner.delta[i][0] && relative_deltaNWSE[1] == myUI.planner.delta[i][1]){
+      document.getElementById(myUI.planner.deltaNWSE[i]).style.borderColor = "rgb(0,130,105)";
+     // console.log(myUI.planner.deltaNWSE[i],"neighbour");
+      break;
+    } 
+  }
+}
+
+function info_map_neighbours_erase(x,y){
+  let [xc,yc] = current_XY_ani;
+  var relative_deltaNWSE = [y-yc,x-xc];
+  //console.log(relative_deltaNWSE,"relative_deltaNWSE" );
+  for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    if (relative_deltaNWSE[0] == myUI.planner.delta[i][0] && relative_deltaNWSE[1] == myUI.planner.delta[i][1]){
+      document.getElementById(myUI.planner.deltaNWSE[i]).style.borderColor = "transparent";
+     // console.log(myUI.planner.deltaNWSE[i],"neighbour");
+      break;
+    } 
+  }
+}
+
+/*
+function info_map_visited(x,y){
+  let [xc,yc] = current_XY_ani;
+  var relative_deltaNWSE = [y-yc,x-xc];
+ myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";}); //reset obstacles in info map
+
+
+var pixel = document.getElementById('visited').getContext('2d').getImageData(x, y, 1, 1).data;
+
+  var surrounding_map_deltaNWSE = [];
+    for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+      var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+      if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
+      if (pixel[0] == 221) { // just check r value for visited colour
+        surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
+        
+      }
+    }
+  console.log(surrounding_map_deltaNWSE,"visited map");
+     surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "rgb(221,48,33)";});//obstacle
+  
+}
+
+*/
 
 //end of js for info map
 

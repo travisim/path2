@@ -68,11 +68,32 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           
          
 
-          if(dest==2 && command == STATIC.DP ){//"current_YX",
+          if(dest==2 && command == STATIC.DP ){//draw "current_YX",
             document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
-            console.log(x,"x",y,"y");
+           // console.log(x,"x",y,"y","current_YX");
+           // info_map_visited(x,y);
+            info_map_clear();
             info_map_obstacles(x,y);
+             console.log(x,"x",y,"y","obstacle drawn");
+            
           }
+
+          
+
+          if(dest==3 && command == STATIC.DP ){//draw "neighbours"
+           // console.log(x,"x",y,"y","neighbours");
+            info_map_neighbours_draw(x,y);
+          }
+
+           if(dest==3 && command == STATIC.EP ){//erase "neighbours"
+           // console.log(x,"x",y,"y","neighbours");
+            info_map_neighbours_erase(x,y);
+             
+          }
+
+          
+
+       
           if(command==STATIC.EC){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
             else myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -80,6 +101,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           else if(command==STATIC.DP){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
             else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
+            
           }
           else if(command==STATIC.EP){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
@@ -94,6 +116,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             // erase arrow
             myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
             --myUI.arrow.step;
+          }
+            
+          if(dest==1 && command == STATIC.DP ){//draw "visiters"
+            console.log(x,"x",y,"y","visited drawn");
+           // info_map_visited(x,y)
           }
           
           
