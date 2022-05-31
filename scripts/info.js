@@ -9,15 +9,39 @@ for(let i=0;i<info_neighbours_id.length;++i){
 };
 
 var surrounding_map_deltaNWSE = [];
-function info_map_clear(){
-  myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";}); //reset obstacles in info map
+function info_map_reset(){
+  myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
+  document.getElementById(deltaNWSE).style.borderColor = "transparent";
+  document.getElementById(deltaNWSE).style.background = "rgb(188,186,201)";
+  document.getElementById(deltaNWSE).style.outlineColor = "black";
+  document.getElementById(deltaNWSE).style.color = "black";
+  }); //reset obstacles in info map 
+  
 }
 
+function info_map_out_of_bound(x,y){
+  current_XY_ani = [x,y];
+  var surrounding_map_deltaNWSE = []
+  for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+    if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) {
+      surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
+    }
+  }
+  
+  //console.log(surrounding_map_deltaNWSE,"obstacle");
+  surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
+document.getElementById(deltaNWSE).style.background = "transparent";
+document.getElementById(deltaNWSE).style.outlineColor = "transparent";
+document.getElementById(deltaNWSE).style.color = "transparent";});//obstacle
+}
   
  
 var current_XY_ani = [];
+
 function info_map_obstacles(x,y){
   current_XY_ani = [x,y];
+  var surrounding_map_deltaNWSE = []
   for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
     var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
     if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
@@ -56,12 +80,12 @@ function info_map_neighbours_erase(x,y){
     } 
   }
 }
-
 /*
+
 function info_map_visited(x,y){
   let [xc,yc] = current_XY_ani;
   var relative_deltaNWSE = [y-yc,x-xc];
- myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";}); //reset obstacles in info map
+
 
 
 var pixel = document.getElementById('visited').getContext('2d').getImageData(x, y, 1, 1).data;
@@ -70,17 +94,18 @@ var pixel = document.getElementById('visited').getContext('2d').getImageData(x, 
     for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
       var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
       if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-      if (pixel[0] == 221) { // just check r value for visited colour
+      if (pixel[1] == 48) { // just check r value for visited colour
         surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
+        console.log(pixel,"inside");
         
       }
     }
-  console.log(surrounding_map_deltaNWSE,"visited map");
+  console.log(surrounding_map_deltaNWSE,"visited");
      surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "rgb(221,48,33)";});//obstacle
   
 }
-
 */
+
 
 //end of js for info map
 

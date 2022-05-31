@@ -72,9 +72,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
            // console.log(x,"x",y,"y","current_YX");
            // info_map_visited(x,y);
-            info_map_clear();
+            info_map_reset();
             info_map_obstacles(x,y);
-             console.log(x,"x",y,"y","obstacle drawn");
+            info_map_out_of_bound(x,y);
+          //  info_map_visited(x,y)
+           //  console.log(x,"x",y,"y","obstacle drawn");
             
           }
 
@@ -91,7 +93,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
              
           }
 
-          
+    
 
        
           if(command==STATIC.EC){
@@ -122,7 +124,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log(x,"x",y,"y","visited drawn");
            // info_map_visited(x,y)
           }
-          
+        
           
           /*if(action[0]==STATIC.EC){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[action[1]]] = zero2D(myUI.map_height, myUI.map_width);
