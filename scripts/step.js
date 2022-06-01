@@ -16,7 +16,7 @@ const STATIC_NAMES = [
 
 /*
 { max_val: 10,
-  QU: 0,
+  QU: 0,myUI
   VI: 1,
   CR: 2,
   NB: 3,
@@ -62,13 +62,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
       else return;
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
+        if(myUI.step_new)
+          step = GridPathFinder.unpack_step(step);
         step.forEach(action=>{
           let [command, dest, y, x] = GridPathFinder.unpack_action(action);
           console.log(GridPathFinder.unpack_action(action),action);
           
          
 
-          if(dest==2 && command == STATIC.DP ){//draw "current_YX",
+          if(dest==STATIC.CR && command == STATIC.DP ){//draw "current_YX",
             document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
            // console.log(x,"x",y,"y","current_YX");
            // info_map_visited(x,y);
@@ -82,12 +84,12 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 
           
 
-          if(dest==3 && command == STATIC.DP ){//draw "neighbours"
+          if(dest==STATIC.NB && command == STATIC.DP ){//draw "neighbours"
            // console.log(x,"x",y,"y","neighbours");
             info_map_neighbours_draw(x,y);
           }
 
-           if(dest==3 && command == STATIC.EP ){//erase "neighbours"
+           if(dest==STATIC.NB && command == STATIC.EP ){//erase "neighbours"
            // console.log(x,"x",y,"y","neighbours");
             info_map_neighbours_erase(x,y);
              
@@ -120,34 +122,10 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             --myUI.arrow.step;
           }
             
-          if(dest==1 && command == STATIC.DP ){//draw "visiters"
+          if(dest==STATIC.VI && command == STATIC.DP ){//draw "visiters"
             console.log(x,"x",y,"y","visited drawn");
            // info_map_visited(x,y)
           }
-        
-          
-          /*if(action[0]==STATIC.EC){
-            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[action[1]]] = zero2D(myUI.map_height, myUI.map_width);
-            else myUI.canvases[statics_to_obj[action[1]]].erase_canvas();
-          }
-          else if(action[0]==STATIC.DP){
-            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[action[1]]][action[2]][action[3]] = 1;
-            else myUI.canvases[statics_to_obj[action[1]]].draw_pixel([action[2], action[3]]);
-          }
-          else if(action[0]==STATIC.EP){
-            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[action[1]]][action[2]][action[3]] = 0;
-            else myUI.canvases[statics_to_obj[action[1]]].erase_pixel([action[2], action[3]]);
-          }
-          else if(action[0]==STATIC.DA){
-            // draw arrow
-            ++myUI.arrow.step;
-            myUI.arrow.data[myUI.arrow.step].classList.remove("hidden");
-          }
-          else if(action[0]==STATIC.EA){
-            // erase arrow
-            myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
-            --myUI.arrow.step;
-          }*/
         });
         if(virtual) console.log(myUI.tmp.virtual_canvases.visited);
         run_next_step();

@@ -30,7 +30,7 @@ function zero2D(rows, cols, max_val=255) {
     if(max_val<(1<<8)){
       var row = new Uint8Array(cols);
     }
-    else if(max_val<(1<<6)){
+    else if(max_val<(1<<16)){
       var row = new Uint16Array(cols);
     }
     else if(max_val<(1<<32)){
