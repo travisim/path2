@@ -200,26 +200,7 @@ class BFS extends GridPathFinder {
 
       this._assign_cell_index(this.current_node_YX);
 
-      // [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
-      if (this.step_index - this.prev_count >= 100) {
-        this.prev_count = this.step_index;
-        ++this.state_counter;
-        //console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
-        if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
-        // add state
-        if (myUI.db_on) {
-          if (this.state_counter % 1000 == 0) {
-            myUI.storage.add("states", this.states_arr);
-            this.states_arr = [];
-          }
-          this.states_arr.push({ id: this.step_index, node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step });
-          //myUI.storage.add("states", [{id: this.step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
-          this.states_nums.add(this.step_index);
-        }
-        else {
-          this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step };
-        }
-      }
+      this._manage_state();
     }
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
