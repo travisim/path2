@@ -105,7 +105,9 @@ myUI.jump_to_step = function(target_step){
 
   function draw_canvas_from_state(state){
     myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
-    myUI.draw_virtual_canvas(`visited`, BitMatrix.expand_2_matrix(state.visited), `2d`);
+    curr_visited = myUI.db_on ? state.visited : myUI.planner.all_states().visited_data[state.visited[0]].slice(state.visited[1], state.visited[2]);
+    //console.log(BitMatrix.expand_2_matrix(curr_visited));
+    myUI.draw_virtual_canvas(`visited`, BitMatrix.expand_2_matrix(curr_visited), `2d`);
     let y = state.node_YX[0];
     let x = state.node_YX[1];
     myUI.tmp.virtual_canvases.current_YX[y][x] = 1;

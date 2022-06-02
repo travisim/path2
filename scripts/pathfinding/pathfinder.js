@@ -185,7 +185,23 @@ class GridPathFinder{
 				this.states_nums.add(this.step_index);
 			}
 			else {
-				this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step };
+				let uint32_len = 50099230;
+				if(!this.states.visited_data) this.states.visited_data = [new Uint32Array(uint32_len)];
+				if(!this.states.visited_index) this.states.visited_index = 0;
+				if(this.states.visited_index + this.visited.arr_length >= uint32_len){
+					this.states.visited_data.push(new Uint32Array(uint32_len));
+					this.states.visited_index = 0;
+				}
+				let i = this.states.visited_data.length - 1;
+				let visited_tuple = [i, this.states.visited_index, this.states.visited_index + this.visited.arr_length];
+				this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: visited_tuple, path: this.path, arrow_step: this.arrow_step };
+
+				let k = 0;
+				for(let j=visited_tuple[1];j<visited_tuple[2];++j){
+					this.states.visited_data[i][j] = this.visited.data[k];
+					++k;
+				}
+				this.states.visited_index+=this.visited.arr_length;
 			}
 		}
 	}
@@ -219,89 +235,97 @@ class BitMatrix{
 
 	// THIS IS A CUSTOM CLASS THAT USES THE UINT8 ARRAYS TO MORE EFFICIENTLY STORE 2D BIT ARRAYS
 
+	static chunk_length = 32;
+
+	static max_size = 1024;
+
+	static get max_size_bit(){
+		return Math.ceil(Math.log2(this.max_size));
+	}
+
 	static compress_bit_matrix(bit_matrix){
-		let num = Math.ceil(bit_matrix[0].length/8);
-		let last_denary = bit_matrix[0].length % 8;
-		let res = new Uint8Array(2+num*bit_matrix.length);
-		res[0] = num;
-		res[1] = last_denary;
-		let j = 2;
-		bit_matrix.forEach(row=>{
-			let index = 0;
-			while(index<row.length){
-				let args = row.slice(index, index+8); // take 8 bits or remaining bits because already calculated
-				var digit = parseInt(args.join(""), 2);
-				index += 8;
-				res[j] = digit;
-				++j;
-			}
-		});
-		return res;
+		// "this" refers to constructor
+    let num_rows = bit_matrix.length;
+    let num_cols = bit_matrix[0].length;
+	  let res = new this(num_rows, num_cols);
+    for(let i=0;i<num_rows;++i){
+      for(let j=0;j<num_cols;++j){
+				res.set_data([i,j], bit_matrix[i][j]);
+      }
+    }
+		return res.data;
 	}
 
 	static expand_2_matrix(arr){
-		const num = arr[0];
-		const last_denary = arr[1];
-		const num_rows = (arr.length-2)/num;
-		const num_cols = (num-1)*8+last_denary;
-		
+		// "this" refers to constructor
+		let num_rows = (arr[0] & ((1<<this.max_size_bit)-1))+1;
+		let num_cols = ((arr[0]>>this.max_size_bit) & ((1<<this.max_size_bit)-1))+1;
 		let res = zero2D(num_rows, num_cols);
+		let tmp = new this(num_rows, num_cols);
+		tmp.data = new Uint32Array(arr);
 		for(let i=0;i<num_rows;++i){
-			let j = 0;
-			let row = arr.slice(i*num+2, (i+1)*num+2);
-			for(let k=0;k<row.length;++k){
-				let bin_str = row[k].toString(2);
-				let num_zeros = k==row.length-1 ? last_denary-bin_str.length : 8-bin_str.length;
-				bin_str = "0".repeat(num_zeros) + bin_str;
-				bin_str.split('').forEach(bit=>{
-					res[i][j] = parseInt(bit);
-					++j;
-				});
+      for(let j=0;j<num_cols;++j){
+				res[i][j] = tmp.get_data([i,j]);
 			}
 		}
 		return res;
 	}
 
 	constructor(num_rows, num_cols){
-		let num = Math.ceil(num_cols/8);
-		let last_denary = num_cols % 8 == 0 ? 8 : num_cols % 8;
-		this.data = new Uint8Array(2+num*num_rows);
-		this.data[0] = num;
-		this.data[1] = last_denary;
+
+    let max_y = num_rows-1;
+    let max_x = num_cols-1;
+    this.data = new Uint32Array(Math.ceil((this.constructor.max_size_bit*2 + num_cols*num_rows)/this.constructor.chunk_length)).fill(0); // total number of bits (div) number of bits for max_safe_int
+		this.data[0] = max_y;
+		this.data[0] += max_x<<this.constructor.max_size_bit;
 		this.num_rows = num_rows;
 		this.num_cols = num_cols;
-		this.num = num;
-		this.last_denary = last_denary;
 	}
 
+	get arr_length(){
+		return this.data.length;
+	}
 
 	set_data(yx, new_data){
-		let index = 2 + yx[0]*this.num + (yx[1]>>3); // same as Math.floor(yx[1]/8);
-		if(index==0){
-			console.log("bruh");
-			console.log(yx);
-		}
-		let bin_length = (index-1) % this.num == 0 ? this.last_denary : 8;
-		let rem = yx[1]%8;
-		let data_shifted = new_data << (bin_length - rem - 1);
-		let mask = 0b11111111 ^ (1 << (bin_length - rem - 1));
-		this.data[index] = (this.data[index] & mask) + data_shifted;
+    let index = this.constructor.max_size_bit*2 + yx[0] * this.num_cols + yx[1];
+    let arr_index = Math.floor(index/this.constructor.chunk_length);
+		// alternatives are for chunk_lengths > 30 as js bit shifting doesn't work for n>30;
 
+    //let pos = 1 << (index % this.constructor.chunk_length);
+		// alteratively can do // 
+		let pos = Math.pow(2, (index % this.constructor.chunk_length));
+    new_data = new_data ? pos : 0;
+		
+    //let mask = ((1<<this.constructor.chunk_length)-1) ^ pos;
+		// alteratively can do // let mask = parseInt(`1`.repeat(this.constructor.chunk_length), 2) ^ pos;
+		// or // 
+		let mask = (Math.pow(2, this.constructor.chunk_length+1)-1) ^ pos;
+    this.data[arr_index] = (this.data[arr_index] & mask) + new_data;
 	}
 
 	get_data(yx){
-		let index = 2 + yx[0]*this.num + (yx[1]>>3); // same as Math.floor(yx[1]/8);
-		let bin_length = (index-1) % this.num == 0 ? this.last_denary : 8;
-		let rem = yx[1]%8;
-		let mask = 1 << (bin_length - rem - 1);
-		return this.data[index] & mask ? 1 : 0;
+		let index = this.constructor.max_size_bit*2 + yx[0] * this.num_cols + yx[1];
+    let arr_index = Math.floor(index/this.constructor.chunk_length);
+		let rem = (index % this.constructor.chunk_length);
+		//let pos = 1 << rem;
+		// alteratively can do // 
+		let pos = Math.pow(2, rem);
+    return (this.data[arr_index] & pos)>>rem;
 	}
 
 	copy_data(){
-		return new Uint8Array(this.data);
+		/* DEPRECATED, DO NOT USE */
+		/*
+			problem with using typed arrays: will cause buffer allocation to exceed maximum allowed
+			problem with using regular arrays: too much memory required
+			solution: store bitmatrices in a flat 1d array with a indexmap to find the next bitmatrix
+		*/
+		let new_arr = [];
+		this.data.forEach(el=>new_arr.push(el));
+		return new_arr;
 	}
 
 	copy_2d(){
-		return BitMatrix.expand_2_matrix(this.data);
+		return this.constructor.expand_2_matrix(this.data);
 	}
 }
