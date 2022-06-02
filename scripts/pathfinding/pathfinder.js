@@ -18,39 +18,6 @@ class GridPathFinder{
 		return [command, dest, y, x];
 	}
 
-	static pack_step(step_cache){
-		let buffer = GridPathFinder.action_buffer;
-		let length = buffer * step_cache.length;
-		let bit_lengths = new Uint8Array(step_cache.length);
-		for(let i=0;i<step_cache.length;++i){
-			let action = step_cache[i];
-			bit_lengths[i] = Math.ceil(Math.log2(action+1));
-			length += Math.ceil(Math.log2(action+1));
-		}
-		//console.log(length);
-		let res = new Uint8Array(Math.ceil(length/8));
-		let start = 0;
-		for(let i=0;i<step_cache.length;++i){
-			BitArray.set_range(res, start, bit_lengths[i]);
-			start+=buffer;
-			BitArray.set_range(res, start, step_cache[i]);
-			start+=bit_lengths[i];
-		}
-		return res;
-	}
-
-	static unpack_step(step){
-		let curr = 0;
-		let steps_unpacked = [];
-		while(curr<step.length){
-			let action_len = BitArray.get_range(step, curr, GridPathFinder.action_buffer);
-			curr+=GridPathFinder.action_buffer;
-			steps_unpacked.push(BitArray.get_range(step, curr, action_len));
-			curr+=action_len;
-		}
-		return steps_unpacked;
-	}
-
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
 		this.num_neighbours = num_neighbours;
 		this.diagonal_allow = diagonal_allow;
@@ -151,9 +118,6 @@ class GridPathFinder{
 		/* 
 			Each step will consist of (5 buffer bits determining how long the action is + action itself) * number of actions
 		*/
-		if(myUI.step_new){
-			step = GridPathFinder.pack_step(this.step_cache);
-		}
 		/* END TEST */
 		if(myUI.db_step){
 			step.unshift(this.step_index);
@@ -226,59 +190,6 @@ class Node{
       this.h_cost = h_cost;
 		  this.parent = parent;
 		  this.self_YX = self_YX[0]>255 || self_YX[1]>255 ? new Uint16Array(self_YX) : new Uint8Array(self_YX);
-	}
-}
-
-class BitArray{
-
-	static set_range(array, start_bit, val){
-		// val>0
-		let length = Math.ceil(Math.log2(val+1));
-		let arr_index = start_bit>>3;
-		let pos = start_bit&0b111;
-		let mask = 0b11111111 ^ (((1<<length)-1)<<pos);
-		let chunk_length = length+pos > 8 ? 8-pos : length;
-		array[arr_index] = (array[arr_index] & mask)+ (val << pos);
-		//console.log(val, pos, mask.toString(2), chunk_length);
-		length -= chunk_length;
-		val >>= chunk_length;
-		++arr_index;
-		while(length>=8){
-			array[arr_index] = val & 255;
-			length -= 8;
-			val >>= 8;
-			++arr_index;
-		}
-		if(length){
-			let mask = 0b11111111 ^ ((1<<length)-1);
-			array[arr_index] = (array[arr_index] & mask) + val;
-		}
-		//console.log(array);
-	}
-
-	static get_range(array, start_bit, length){
-		let val = 0;
-		let completed_length = 0;
-		let arr_index = start_bit>>3;
-		let pos = start_bit&0b111;
-		let mask = (((1<<length)-1)<<pos);
-		let data = (array[arr_index] & mask) >> pos;
-		let chunk_length = length+pos > 8 ? 8-pos : length;
-		val += data;
-		length -= chunk_length;
-		completed_length += chunk_length;
-		++arr_index;
-		while(length>=8){
-			val += array[arr_index] << completed_length;
-			length -= 8;
-			completed_length += 8;
-			++arr_index;
-		}
-		if(length){
-			let mask = (1<<length)-1;
-			val += (array[arr_index] & mask) << completed_length;
-		}
-		return val;
 	}
 }
 

@@ -62,8 +62,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
       else return;
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
-        if(myUI.step_new)
-          step = GridPathFinder.unpack_step(step);
         step.forEach(action=>{
           let [command, dest, y, x] = GridPathFinder.unpack_action(action);
           console.log(GridPathFinder.unpack_action(action),action);
