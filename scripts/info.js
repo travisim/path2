@@ -8,7 +8,9 @@ for(let i=0;i<info_neighbours_id.length;++i){
   document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
 };
 
-var surrounding_map_deltaNWSE = [];
+var current_XY_ani = [];
+
+
 function info_map_reset(){
   myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
   document.getElementById(deltaNWSE).style.borderColor = "transparent";
@@ -37,7 +39,6 @@ document.getElementById(deltaNWSE).style.color = "transparent";});//obstacle
 }
   
  
-var current_XY_ani = [];
 
 function info_map_obstacles(x,y){
   current_XY_ani = [x,y];
@@ -55,7 +56,7 @@ function info_map_obstacles(x,y){
 }
 
 
-function info_map_neighbours_draw(x,y){
+function info_map_neighbours_draw(x,y){ // comparing surrounding point to current point
   let [xc,yc] = current_XY_ani;
   var relative_deltaNWSE = [y-yc,x-xc];
   //console.log(relative_deltaNWSE,"relative_deltaNWSE" );
@@ -68,7 +69,7 @@ function info_map_neighbours_draw(x,y){
   }
 }
 
-function info_map_neighbours_erase(x,y){
+function info_map_neighbours_erase(x,y){ // comparing surrounding point to current point
   let [xc,yc] = current_XY_ani;
   var relative_deltaNWSE = [y-yc,x-xc];
   //console.log(relative_deltaNWSE,"relative_deltaNWSE" );
@@ -80,6 +81,31 @@ function info_map_neighbours_erase(x,y){
     } 
   }
 }
+
+
+var visited = new BitMatrix(myUI.planner.map_height, myUI.planner.map_width); // recreates the visited 2d array from tha steps for the display of the info map
+function record_drawn_visited(x,y){
+   visited.set_data([y,x], 1); // marks current node YX as visited
+ // console.log(visited.get_data([y,x]));
+}
+
+function info_map_visited(x,y){ //using pre obtained map of surrounding point
+  var surrounding_map_deltaNWSE = []
+  for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+    if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
+    if (visited.get_data(next_YX_temp)) {// if the current node has been visited
+      surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
+    }
+  }
+    surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "rgb(221,48,33)";});//obstacle
+}
+  
+     
+
+
+
+
 /*
 
 function info_map_visited(x,y){

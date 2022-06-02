@@ -77,7 +77,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_reset();
             info_map_obstacles(x,y);
             info_map_out_of_bound(x,y);
-          //  info_map_visited(x,y)
+            info_map_visited(x,y);
            //  console.log(x,"x",y,"y","obstacle drawn");
             
           }
@@ -89,12 +89,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_neighbours_draw(x,y);
           }
 
-           if(dest==STATIC.NB && command == STATIC.EP ){//erase "neighbours"
+          if(dest==STATIC.NB && command == STATIC.EP ){//erase "neighbours"
            // console.log(x,"x",y,"y","neighbours");
             info_map_neighbours_erase(x,y);
              
           }
-
+          if(dest==1 && command == STATIC.DP ){//record  "visiters" in 2d array
+            console.log(x,"x",y,"y","visited recorded");
+           record_drawn_visited(x,y);
+          }
     
 
        
