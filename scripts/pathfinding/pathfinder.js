@@ -161,8 +161,15 @@ class GridPathFinder{
 			else myUI.storage.add("step_bck", [step]);
 		}
 		else{
-			if(step_direction=="fwd") this.steps_forward.push(step);
-      else this.steps_inverse.push(step);
+			if(!this.step_index_map) this.step_index_map = [];
+			if(step_direction=="fwd") this.step_index_map.push(this.steps_forward.length);
+			/* 
+			step 0 is index 0
+			step 1 is kth index where step 0 is k-items long
+			step n is k0+k1+k2+...k(n-1) = k(0 to n-1)th index
+			*/
+			if(step_direction=="fwd") step.forEach(action=>this.steps_forward.push(action));
+			else step.forEach(action=>this.steps_inverse.push(action));
 		}
 		if(step_direction=="bck") ++this.step_index;
 	}
@@ -183,7 +190,13 @@ class GridPathFinder{
 			stepPromise = step_direction=="fwd" ? myUI.storage.get("step_fwd", num) : myUI.storage.get("step_bck", num+1);
 		}
 		else{
-			let step = step_direction=="fwd" ? this.steps_forward[num] :this.steps_inverse[num+1];
+			if(step_direction!="fwd") ++num; // num has to be incremented for reverse steps;
+			let index = this.step_index_map[num];
+			let nx_index = this.step_index_map[num+1];
+			console.log(num);
+			console.log(index);
+			console.log(nx_index);
+			let step = step_direction=="fwd" ? this.steps_forward.slice(index, nx_index) :this.steps_inverse.slice(index, nx_index);
 			stepPromise = new Promise((resolve, reject)=>{
 				resolve(step);
 			})
@@ -357,23 +370,5 @@ class BitMatrix{
 
 	copy_2d(){
 		return BitMatrix.expand_2_matrix(this.data);
-	}
-}
-
-class Matrix{
-	constructor(num_rows, num_cols){
-		this.data = zero2D(num_rows, num_cols);
-	}
-
-	get_data(yx){
-		return this.data[yx[0]][yx[1]];
-	}
-
-	set_data(yx, data){
-		this.data[yx[0]][yx[1]] = data;
-	}
-
-	copy_data(){
-		return deep_copy_matrix(this.data);
 	}
 }
