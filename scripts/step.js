@@ -117,7 +117,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             ++myUI.arrow.step;
             myUI.arrow.data[myUI.arrow.step].classList.remove("hidden");
           }
-          else if(action[0]==STATIC.EA){
+          else if(command==STATIC.EA){
             // erase arrow
             myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
             --myUI.arrow.step;

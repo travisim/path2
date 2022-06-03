@@ -78,6 +78,7 @@ class GridPathFinder{
     // step_index is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
     // this balances between processer and memory usage
+		this.prev_node_YX = undefined;
 	}
 
 	_clear_steps(){
@@ -113,27 +114,27 @@ class GridPathFinder{
 	}
 
 	_save_step(step_direction="fwd"){
-		var step = this.step_cache;
-		/* THIS PART IS A BETA TEST FOR MORE EFFICIENT STORING OF STEPS */
-		/* 
-			Each step will consist of (5 buffer bits determining how long the action is + action itself) * number of actions
-		*/
-		/* END TEST */
+		if(this.steps_inverse.length==0 && step_direction=="bck") console.log(this.step_cache);
 		if(myUI.db_step){
-			step.unshift(this.step_index);
+			this.step_cache.unshift(this.step_index);
 			if(step_direction=="fwd") myUI.storage.add("step_fwd", [step]);
 			else myUI.storage.add("step_bck", [step]);
 		}
 		else{
-			if(!this.step_index_map) this.step_index_map = [];
-			if(step_direction=="fwd") this.step_index_map.push(this.steps_forward.length);
+			if(!this.step_index_map) this.step_index_map = {fwd: [], bck: []};
+			if(step_direction=="fwd"){
+				this.step_index_map.fwd.push(this.steps_forward.length);
+				this.step_cache.forEach(action=>this.steps_forward.push(action));
+			}
+			else{
+				this.step_index_map.bck.push(this.steps_inverse.length);
+				this.step_cache.forEach(action=>this.steps_inverse.push(action));
+			}
 			/* 
 			step 0 is index 0
 			step 1 is kth index where step 0 is k-items long
 			step n is k0+k1+k2+...k(n-1) = k(0 to n-1)th index
 			*/
-			if(step_direction=="fwd") step.forEach(action=>this.steps_forward.push(action));
-			else step.forEach(action=>this.steps_inverse.push(action));
 		}
 		if(step_direction=="bck") ++this.step_index;
 	}
@@ -154,12 +155,15 @@ class GridPathFinder{
 			stepPromise = step_direction=="fwd" ? myUI.storage.get("step_fwd", num) : myUI.storage.get("step_bck", num+1);
 		}
 		else{
-			if(step_direction!="fwd") ++num; // num has to be incremented for reverse steps;
-			let index = this.step_index_map[num];
-			let nx_index = this.step_index_map[num+1];
-			//console.log(num);
-			//console.log(index);
-			//console.log(nx_index);
+			let index, nx_index;
+			if(step_direction=="fwd"){
+				index = this.step_index_map.fwd[num];
+				nx_index = this.step_index_map.fwd[num+1];
+			}
+			else{
+				index = this.step_index_map.bck[num+1];
+				nx_index = this.step_index_map.bck[num+2];
+			}
 			let step = step_direction=="fwd" ? this.steps_forward.slice(index, nx_index) :this.steps_inverse.slice(index, nx_index);
 			stepPromise = new Promise((resolve, reject)=>{
 				resolve(step);

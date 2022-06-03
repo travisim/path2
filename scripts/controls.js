@@ -89,7 +89,6 @@ myUI.step_back = function(){
 }
 myUI.buttons.back_btn.btn.addEventListener("click", myUI.step_back);
 
-
 myUI.start_animation = function(){
 	myUI.animation.running = true;
 	animation_backend();
@@ -137,6 +136,15 @@ myUI.toggleAnimation = function(){
 }
 myUI.buttons.start_pause_btn.btn.addEventListener("click", myUI.toggleAnimation);
 
+
+document.addEventListener(`keyup`, event=>{
+	switch (event.key){
+		case `ArrowLeft`:
+			myUI.step_back();
+		case `ArrowRight`:
+			myUI.step_forward();
+	}
+});
 
 
 myUI.toggleMapDetail = function(){
