@@ -34,6 +34,7 @@ myUI.displayMap = function(){
   console.log("Map Arr");
 	console.log(myUI.map_arr);
 	myUI.reset_animation();
+	myUI.planner.cell_map = undefined;
 
   Object.values(myUI.canvases).forEach(uiCanvas=>{
 		let height = myUI.map_arr.length;
@@ -144,6 +145,7 @@ myUI.displayScen = function(moved=false){
 	myUI.canvases.start.erase_canvas();
 	myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
+	myUI.planner.cell_map = undefined;
 	myUI.scenFail = false;
 	if(myUI.map_name!=myUI.scen_name){
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
