@@ -196,11 +196,8 @@ class GridPathFinder{
 				let visited_tuple = [i, this.states.visited_index, this.states.visited_index + this.visited.arr_length];
 				this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: visited_tuple, path: this.path, arrow_step: this.arrow_step };
 
-				let k = 0;
-				for(let j=visited_tuple[1];j<visited_tuple[2];++j){
-					this.states.visited_data[i][j] = this.visited.data[k];
-					++k;
-				}
+				this.visited.copy_data_to(this.states.visited_data[i], this.states.visited_index)
+
 				this.states.visited_index+=this.visited.arr_length;
 			}
 		}
@@ -323,6 +320,14 @@ class BitMatrix{
 		let new_arr = [];
 		this.data.forEach(el=>new_arr.push(el));
 		return new_arr;
+	}
+
+	copy_data_to(ctn, start_index=-1){
+		if(start_index==-1)this.data.forEach(el=>ctn.push(el));
+		else this.data.forEach(el=>{
+			ctn[start_index] = el;
+			++start_index;
+		})
 	}
 
 	copy_2d(){
