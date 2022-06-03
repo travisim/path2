@@ -137,13 +137,9 @@ myUI.toggleAnimation = function(){
 myUI.buttons.start_pause_btn.btn.addEventListener("click", myUI.toggleAnimation);
 
 
-document.addEventListener(`keyup`, event=>{
-	switch (event.key){
-		case `ArrowLeft`:
-			myUI.step_back();
-		case `ArrowRight`:
-			myUI.step_forward();
-	}
+document.addEventListener(`keydown`, event=>{
+	if(event.key==`ArrowLeft`) myUI.step_back();
+	else if(event.key==`ArrowRight`) myUI.step_forward();
 });
 
 
