@@ -5,10 +5,11 @@ let info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
 //var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
 //var delta = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]];
 for(let i=0;i<info_neighbours_id.length;++i){
-  document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
+  document.getElementById(info_neighbours_id[i]).innerHTML = 'Type:<span id="type"></span>';
 };
-
+//document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
 var current_XY_ani = [];
+
 
 
 function info_map_reset(){
@@ -17,6 +18,7 @@ function info_map_reset(){
   document.getElementById(deltaNWSE).style.background = "rgb(188,186,201)";
   document.getElementById(deltaNWSE).style.outlineColor = "black";
   document.getElementById(deltaNWSE).style.color = "black";
+  document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "";
   }); //reset obstacles in info map 
   
 }
@@ -63,11 +65,18 @@ function info_map_neighbours_draw(x,y){ // comparing surrounding point to curren
   for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
     if (relative_deltaNWSE[0] == myUI.planner.delta[i][0] && relative_deltaNWSE[1] == myUI.planner.delta[i][1]){
       document.getElementById(myUI.planner.deltaNWSE[i]).style.borderColor = "rgb(0,130,105)";
+     // document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#F").innerHTML = info[y][x].f;
+     // document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#G").innerHTML = info[y][x].g;
+     // document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#H").innerHTML = info[y][x].h;
+      document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#type").innerHTML = "neighbour";
      // console.log(myUI.planner.deltaNWSE[i],"neighbour");
       break;
     } 
   }
+
+  
 }
+
 
 function info_map_neighbours_erase(x,y){ // comparing surrounding point to current point
   let [xc,yc] = current_XY_ani;
@@ -76,6 +85,7 @@ function info_map_neighbours_erase(x,y){ // comparing surrounding point to curre
   for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
     if (relative_deltaNWSE[0] == myUI.planner.delta[i][0] && relative_deltaNWSE[1] == myUI.planner.delta[i][1]){
       document.getElementById(myUI.planner.deltaNWSE[i]).style.borderColor = "transparent";
+       document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#type").innerHTML = "";
      // console.log(myUI.planner.deltaNWSE[i],"neighbour");
       break;
     } 
@@ -152,35 +162,38 @@ function out_table(){
   setTimeout(()=>removebyindex(slides.length-1),1000);
 }
 
+
+
 function in_table(x,y){
 
+var info = myUI.planner.final_state().info
   
 if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
-  
+    t = document.createElement('table');
+  //t.setAttribute('class', 'slide'); new table automatically set "slide class"
+  r = t.insertRow(0); 
+  c1 = r.insertCell(0);
+  c2 = r.insertCell(1);
+  c1.innerHTML = x+", "+y;
+  c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
+  t.classList.add('slide', 'new-slide');
+  document.getElementById("info-container-dynamic").prepend(t); 
 }
 else if (myUI.planner_choice == 2){
-  
+  t = document.createElement('table');
+  //t.setAttribute('class', 'slide'); new table automatically set "slide class"
+  r = t.insertRow(0); 
+  c1 = r.insertCell(0);
+  c2 = r.insertCell(1);
+  c3 = r.insertCell(2);
+  c1.innerHTML = x+", "+y;
+  c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
+  c3.innerHTML = info[y][x].g;
+  t.classList.add('slide', 'new-slide');
+  document.getElementById("info-container-dynamic").prepend(t); 
   
 }
 else if (myUI.planner_choice == 3){
-  
-  
-}
-
-
-  
-var info = myUI.planner.final_state().info
-  
-  
-  /*
-x+", "+y;
-myUI.planner.info_matrix()
-  info[y][x].parent;
- info[y][x].f;
- info[y][x].g;
- info[y][x].h;
- info[y][x].state;
-  */
   t = document.createElement('table');
   //t.setAttribute('class', 'slide'); new table automatically set "slide class"
   r = t.insertRow(0); 
@@ -198,6 +211,24 @@ myUI.planner.info_matrix()
   c6.innerHTML = 1;
   t.classList.add('slide', 'new-slide');
   document.getElementById("info-container-dynamic").prepend(t); 
+  
+}
+
+
+  
+
+  
+  
+  /*
+x+", "+y;
+myUI.planner.info_matrix()
+  info[y][x].parent;
+ info[y][x].f;
+ info[y][x].g;
+ info[y][x].h;
+ info[y][x].state;
+  */
+
 }
   /*
 vertex
@@ -213,6 +244,8 @@ function removebyindex(index){
   var parentEl = removeTab.parentElement;
   parentEl.removeChild(removeTab);
 }
+
+
 
 //end of js for info table
 

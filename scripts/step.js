@@ -76,8 +76,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_obstacles(x,y);
             info_map_out_of_bound(x,y);
             info_map_visited(x,y);
+            out_table();
             
-            in_table(x,y);
+            
 
       //      out_table();
            //  console.log(x,"x",y,"y","obstacle drawn");
@@ -89,6 +90,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           if(dest==STATIC.NB && command == STATIC.DP ){//draw "neighbours"
            // console.log(x,"x",y,"y","neighbours");
             info_map_neighbours_draw(x,y);
+            in_table(x,y);
           }
 
           if(dest==STATIC.NB && command == STATIC.EP ){//erase "neighbours"

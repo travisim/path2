@@ -195,7 +195,7 @@ canvas{
 .info_neighbours{
  padding: 7px;
   height: 60px;
-  font-size: 11px;
+  font-size: 9px;
   background-color: rgb(188,186,201);
   border: 8px solid rgb(188,186,201);
   outline: 3px solid black;
@@ -253,11 +253,12 @@ span::after{
 
 table {
   background: rgb(188,186,201);
-  width: 10;
+  
   border-radius: .4em;
   border-collapse: collapse;
    width: 100%;
    position: relative;
+   table-layout: fixed;
 }
 td {
     border: none;

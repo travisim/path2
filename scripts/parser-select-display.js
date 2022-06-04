@@ -210,6 +210,7 @@ myUI.loadPlanner = function() {
 	let planner_select_elem = myUI.selects["planner_select"].elem;
   myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
 	myUI.reset_animation();
+  determine_table_header();
 }
 
 
@@ -250,3 +251,69 @@ myUI.runDefault = function(){
 myUI.runDefault();
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
+
+
+
+//determines the type of info table
+function determine_table_header(){
+
+  if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
+    if(document.getElementById("info_table").rows.length == 1){
+      document.getElementById("info_table").deleteRow(0);
+    }
+    
+    var table = document.getElementById("info_table");
+    var header = table.createTHead();
+    var row = header.insertRow(0);
+    var cell0 = row.insertCell(0);
+    var cell1 = row.insertCell(1);
+  
+  
+    cell0.innerHTML = "<b>Vertex</b>";
+    cell1.innerHTML = "<b>parent</b>";
+  
+  
+    
+  }
+  else if (myUI.planner_choice == 2){
+   if(document.getElementById("info_table").rows.length == 1){
+      document.getElementById("info_table").deleteRow(0);
+    }
+    var table = document.getElementById("info_table");
+    var header = table.createTHead();
+    var row = header.insertRow(0);
+    var cell0 = row.insertCell(0);
+    var cell1 = row.insertCell(1);
+    var cell2 = row.insertCell(2);
+    
+  
+    cell0.innerHTML = "<b>Vertex</b>";
+    cell1.innerHTML = "<b>parent</b>";
+    cell2.innerHTML = "<b>g</b>";
+   
+  
+    
+  }
+  else if (myUI.planner_choice == 3){
+     if(document.getElementById("info_table").rows.length == 1){
+      document.getElementById("info_table").deleteRow(0);
+    }
+    var table = document.getElementById("info_table");
+    var header = table.createTHead();
+    var row = header.insertRow(0);
+    var cell0 = row.insertCell(0);
+    var cell1 = row.insertCell(1);
+    var cell2 = row.insertCell(2);
+    var cell3 = row.insertCell(3);
+    var cell4 = row.insertCell(4);
+  
+    cell0.innerHTML = "<b>Vertex</b>";
+    cell1.innerHTML = "<b>parent</b>";
+    cell2.innerHTML = "<b>f</b>";
+    cell3.innerHTML = "<b>g</b>";
+    cell4.innerHTML = "<b>h</b>";
+  
+    
+    
+  }
+}
