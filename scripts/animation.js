@@ -53,12 +53,8 @@ myUI.update_search_slider = function(value){
 myUI.jump_to_step = function(target_step){
   let all_states = myUI.planner.all_states();
   let tmp_step = target_step;
-  if(myUI.db_on)
-    while(!all_states.has(tmp_step) && tmp_step>-1)
-      --tmp_step;
-  else
-    while(!all_states.hasOwnProperty(tmp_step) && tmp_step>-1)
-      --tmp_step;
+  while(!all_states.hasOwnProperty(tmp_step) && tmp_step>-1)
+    --tmp_step;
   //console.log("Last state:", tmp_step);
   myUI.animation.step = tmp_step;
 
@@ -73,20 +69,10 @@ myUI.jump_to_step = function(target_step){
 
   if(tmp_step>-1){ //  if there is a recent state to fallback on
   
-    // request the state from the db
-    if(myUI.db_on){
-      // draw the state virtually
-      myUI.storage.get("states", tmp_step).then(state=>{
-        draw_canvas_from_state(state);
-        execute_steps(tmp_step, target_step);
-      });
-    }
-    else{
-      // take from memory
-      let state = all_states[tmp_step];
-      draw_canvas_from_state(state);     
-      execute_steps(tmp_step, target_step);
-    }
+    // take from memory
+    let state = all_states[tmp_step];
+    draw_canvas_from_state(state);     
+    execute_steps(tmp_step, target_step);
   }
   else{  //  no state to fall back on
     execute_steps(tmp_step, target_step);
@@ -105,7 +91,7 @@ myUI.jump_to_step = function(target_step){
 
   function draw_canvas_from_state(state){
     myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
-    curr_visited = myUI.db_on ? state.visited : myUI.planner.all_states().visited_data[state.visited[0]].slice(state.visited[1], state.visited[2]);
+    curr_visited = myUI.planner.get_visited(state.visited_tuple);
     //console.log(BitMatrix.expand_2_matrix(curr_visited));
     myUI.draw_virtual_canvas(`visited`, BitMatrix.expand_2_matrix(curr_visited), `2d`);
     let y = state.node_YX[0];

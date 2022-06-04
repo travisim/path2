@@ -61,9 +61,7 @@ class GridPathFinder{
     this._clear_steps();
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
     this.draw_arrows = this.map_height <= +4 || this.map_width <= 128;
-    this.states_nums = new Set(); // stores the unique ids of each state// only used for DB
     this.states = {};
-    this.states_arr = [];
 
     // generate empty 2d array
 
@@ -116,28 +114,20 @@ class GridPathFinder{
 	}
 
 	_save_step(step_direction="fwd"){
-		if(this.steps_inverse.length==0 && step_direction=="bck") console.log(this.step_cache);
-		if(myUI.db_step){
-			this.step_cache.unshift(this.step_index);
-			if(step_direction=="fwd") myUI.storage.add("step_fwd", [step]);
-			else myUI.storage.add("step_bck", [step]);
+		if(!this.step_index_map) this.step_index_map = {fwd: [], bck: []};
+		if(step_direction=="fwd"){
+			this.step_index_map.fwd.push(this.steps_forward.length);
+			this.step_cache.forEach(action=>this.steps_forward.push(action));
 		}
 		else{
-			if(!this.step_index_map) this.step_index_map = {fwd: [], bck: []};
-			if(step_direction=="fwd"){
-				this.step_index_map.fwd.push(this.steps_forward.length);
-				this.step_cache.forEach(action=>this.steps_forward.push(action));
-			}
-			else{
-				this.step_index_map.bck.push(this.steps_inverse.length);
-				this.step_cache.forEach(action=>this.steps_inverse.push(action));
-			}
-			/* 
-			step 0 is index 0
-			step 1 is kth index where step 0 is k-items long
-			step n is k0+k1+k2+...k(n-1) = k(0 to n-1)th index
-			*/
+			this.step_index_map.bck.push(this.steps_inverse.length);
+			this.step_cache.forEach(action=>this.steps_inverse.push(action));
 		}
+		/* 
+		step 0 is index 0
+		step 1 is kth index where step 0 is k-items long
+		step n is k0+k1+k2+...k(n-1) = k(0 to n-1)th index
+		*/
 		if(step_direction=="bck") ++this.step_index;
 	}
 
@@ -152,25 +142,19 @@ class GridPathFinder{
 	}
 
 	get_step(num, step_direction="fwd"){
-		let stepPromise;
-		if(myUI.db_step){
-			stepPromise = step_direction=="fwd" ? myUI.storage.get("step_fwd", num) : myUI.storage.get("step_bck", num+1);
+		let index, nx_index;
+		if(step_direction=="fwd"){
+			index = this.step_index_map.fwd[num];
+			nx_index = this.step_index_map.fwd[num+1];
 		}
 		else{
-			let index, nx_index;
-			if(step_direction=="fwd"){
-				index = this.step_index_map.fwd[num];
-				nx_index = this.step_index_map.fwd[num+1];
-			}
-			else{
-				index = this.step_index_map.bck[num+1];
-				nx_index = this.step_index_map.bck[num+2];
-			}
-			let step = step_direction=="fwd" ? this.steps_forward.slice(index, nx_index) :this.steps_inverse.slice(index, nx_index);
-			stepPromise = new Promise((resolve, reject)=>{
-				resolve(step);
-			})
+			index = this.step_index_map.bck[num+1];
+			nx_index = this.step_index_map.bck[num+2];
 		}
+		let step = step_direction=="fwd" ? this.steps_forward.slice(index, nx_index) :this.steps_inverse.slice(index, nx_index);
+		let stepPromise = new Promise((resolve, reject)=>{
+			resolve(step);
+		})
 		return stepPromise;
 	}
 
@@ -181,32 +165,26 @@ class GridPathFinder{
 			++this.state_counter;
 			if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
 			// add state
-			if (myUI.db_on) {
-				if (this.state_counter % 1000 == 0) {
-					myUI.storage.add("states", this.states_arr);
-					this.states_arr = [];
-				}
-				this.states_arr.push({ id: this.step_index, node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path, arrow_step: this.arrow_step });
-				//myUI.storage.add("states", [{id: this.step_index, node_YX: this.current_node.self_YX, F_cost:this.current_node.f_value, G_cost:null, H_cost:null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: this.visited.copy_data(), path: this.path}]);
-				this.states_nums.add(this.step_index);
-			}
-			else {
-				let uint32_len = 50099230;
-				if(!this.states.visited_data) this.states.visited_data = [new Uint32Array(uint32_len)];
-				if(!this.states.visited_index) this.states.visited_index = 0;
-				if(this.states.visited_index + this.visited.arr_length >= uint32_len){
-					this.states.visited_data.push(new Uint32Array(uint32_len));
-					this.states.visited_index = 0;
-				}
-				let i = this.states.visited_data.length - 1;
-				let visited_tuple = [i, this.states.visited_index, this.states.visited_index + this.visited.arr_length];
-				this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited: visited_tuple, path: this.path, arrow_step: this.arrow_step };
 
-				this.visited.copy_data_to(this.states.visited_data[i], this.states.visited_index)
-
-				this.states.visited_index+=this.visited.arr_length;
+			let uint32_len = 50099230;
+			if(!this.states.visited_data) this.states.visited_data = [new Uint32Array(uint32_len)];
+			if(!this.states.visited_index) this.states.visited_index = 0;
+			if(this.states.visited_index + this.visited.arr_length >= uint32_len){
+				this.states.visited_data.push(new Uint32Array(uint32_len));
+				this.states.visited_index = 0;
 			}
+			let i = this.states.visited_data.length - 1;
+			let visited_tuple = [i, this.states.visited_index, this.states.visited_index + this.visited.arr_length];
+			this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited_tuple: visited_tuple, path: this.path, arrow_step: this.arrow_step };
+
+			this.visited.copy_data_to(this.states.visited_data[i], this.states.visited_index)
+
+			this.states.visited_index+=this.visited.arr_length;
 		}
+	}
+
+	get_visited(tuple){
+		return this.states.visited_data[tuple[0]].slice(tuple[1], tuple[2]);
 	}
 
 	final_state() {
@@ -219,7 +197,7 @@ class GridPathFinder{
   }
 
   all_states() {
-    if (this.searched) return myUI.db_on ? this.states_nums : this.states;
+    if (this.searched) return this.states;
     return null;
   }
   
