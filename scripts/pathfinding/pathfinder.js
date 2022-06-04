@@ -211,7 +211,7 @@ class GridPathFinder{
 
 	final_state() {
     if (!this.start) return alert("haven't computed!");
-    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(), arrow_step: this.arrow_step,info:this.info_matrix};
+    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(), arrow_step: this.arrow_step,info_matrix:this.info_matrix};
   }
 
   max_step(){

@@ -102,6 +102,11 @@ function record_drawn_visited(x,y){
    visited.set_data([y,x], 1); // marks current node YX as visited
  // console.log(visited.get_data([y,x]));
 }
+var queue = new BitMatrix(myUI.planner.map_height, myUI.planner.map_width);
+function record_drawn_queue(x,y){
+   queue.set_data([y,x], 1); // marks current node YX as visited
+ // console.log(visited.get_data([y,x]));
+}
 
 function info_map_visited(x,y){ //using pre obtained map of surrounding point
   var surrounding_map_deltaNWSE = []
@@ -119,7 +124,21 @@ function info_map_visited(x,y){ //using pre obtained map of surrounding point
 }
   
      
-
+function info_map_queue(x,y){ //using pre obtained map of surrounding point
+  var surrounding_map_deltaNWSE = []
+  for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+    if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
+    if (queue.get_data(next_YX_temp)) {// if the current node has been visited
+      surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
+    }
+  }
+    surrounding_map_deltaNWSE.forEach(deltaNWSE => {
+      document.getElementById(deltaNWSE).style.borderColor = "rgb(152,247,104)";
+      document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "Queue"
+    });//obstacle
+}
+  
 
 
 
@@ -173,7 +192,7 @@ function out_table(){
 
 function in_table(x,y){
 
-var info = myUI.planner.final_state().info
+var info = myUI.planner.final_state().info_matrix
   
 if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
     t = document.createElement('table');

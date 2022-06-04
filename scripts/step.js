@@ -76,6 +76,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_obstacles(x,y);
             info_map_out_of_bound(x,y);
             info_map_visited(x,y);
+            info_map_queue(x,y)
             out_table();
             
             
@@ -91,6 +92,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
            // console.log(x,"x",y,"y","neighbours");
             info_map_neighbours_draw(x,y);
             in_table(x,y);
+            
           }
 
           if(dest==STATIC.NB && command == STATIC.EP ){//erase "neighbours"
@@ -102,7 +104,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log(x,"x",y,"y","visited recorded");
            record_drawn_visited(x,y);
           }
-    
+          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
+            console.log(x,"x",y,"y","HI");
+            record_drawn_queue(x,y);
+           
+          }
 
        
           if(command==STATIC.EC){
@@ -129,10 +135,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             --myUI.arrow.step;
           }
             
-          if(dest==STATIC.VI && command == STATIC.DP ){//draw "visiters"
-            console.log(x,"x",y,"y","visited drawn");
-           // info_map_visited(x,y)
-          }
+       
         });
         if(virtual) console.log(myUI.tmp.virtual_canvases.visited);
         run_next_step();
