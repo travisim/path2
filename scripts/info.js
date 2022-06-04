@@ -5,7 +5,7 @@ let info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
 //var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
 //var delta = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]];
 for(let i=0;i<info_neighbours_id.length;++i){
-  document.getElementById(info_neighbours_id[i]).innerHTML = 'Type:<span id="type"></span>';
+  document.getElementById(info_neighbours_id[i]).innerHTML = '<span id="type"></span>';
 };
 //document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
 var current_XY_ani = [];
@@ -54,7 +54,11 @@ function info_map_obstacles(x,y){
   }
   
   //console.log(surrounding_map_deltaNWSE,"obstacle");
-  surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "rgb(0,0,0)";});//obstacle
+  surrounding_map_deltaNWSE.forEach(deltaNWSE => {
+    document.getElementById(deltaNWSE).style.borderColor = "rgb(0,0,0)";
+    document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "Obstacle";                           
+                                                 });//obstacle
+
 }
 
 
@@ -108,7 +112,10 @@ function info_map_visited(x,y){ //using pre obtained map of surrounding point
       surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
     }
   }
-    surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "rgb(221,48,33)";});//obstacle
+    surrounding_map_deltaNWSE.forEach(deltaNWSE => {
+      document.getElementById(deltaNWSE).style.borderColor = "rgb(221,48,33)";
+      document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "Visited"
+    });//obstacle
 }
   
      
@@ -255,7 +262,7 @@ function removebyindex(index){
 
 
 //demo
-document.querySelector("#NW").querySelector("#F").innerHTML = "13.13";
+//document.querySelector("#NW").querySelector("#F").innerHTML = "13.13";
 
 
 document.getElementById("NW").style.borderColor = "rgb(0,0,0)";//obstacle
