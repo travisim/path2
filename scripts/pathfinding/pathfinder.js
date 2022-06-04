@@ -66,6 +66,7 @@ class GridPathFinder{
     this.states_arr = [];
 
     // generate empty 2d array
+    this.info_matrix = zero2D(this.map_height, this.map_width,65537);
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new BitMatrix(this.map_height, this.map_width);
     this.searched = false;
@@ -209,7 +210,7 @@ class GridPathFinder{
 
 	final_state() {
     if (!this.start) return alert("haven't computed!");
-    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(), arrow_step: this.arrow_step};
+    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(), arrow_step: this.arrow_step,info:this.info_matrix};
   }
 
   max_step(){
@@ -220,6 +221,7 @@ class GridPathFinder{
     if (this.searched) return myUI.db_on ? this.states_nums : this.states;
     return null;
   }
+  
 }
 
 class Node{

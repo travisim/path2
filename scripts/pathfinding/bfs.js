@@ -15,6 +15,8 @@ class BFS extends GridPathFinder {
     this._init_search(start, goal);
 
     console.log("starting");
+    this.info_matrix[this.start[0]][this.start[1]]={parent: ["n","n"]};
+    //console.log(this.info_matrix[this.start[0]][this.start[1]].parent,"lop");
     let start_node = new Node(null, null, null, null, this.start);
     //var found = false;  // once the program exits the while-loop, this is the variable which determines if the endpoint has been found
     /* ^ deprecated, used a this.path variable to assign */
@@ -167,7 +169,8 @@ class BFS extends GridPathFinder {
               }
             }
           }
-
+          this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
+          //console.log(this.info_matrix[next_YX[0]][next_YX[1]].parent[1],"hi");
           var next_node = new Node(null, null, null, this.current_node, next_YX);  // create a new node with said neighbour's details
           this.neighbours.push(next_node);  // add to neighbours
 

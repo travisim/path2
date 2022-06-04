@@ -144,7 +144,7 @@ var slides = document.getElementsByClassName("slide");
 //document.getElementById("teef").innerHTML = slides.length;
 
 //out_table();
-in_table();
+//in_table();
 function out_table(){
   //animates out last table
   slides[slides.length-1].style.animation = 'out 0.5s forwards';
@@ -152,7 +152,35 @@ function out_table(){
   setTimeout(()=>removebyindex(slides.length-1),1000);
 }
 
-function in_table(){
+function in_table(x,y){
+
+  
+if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
+  
+}
+else if (myUI.planner_choice == 2){
+  
+  
+}
+else if (myUI.planner_choice == 3){
+  
+  
+}
+
+
+  
+var info = myUI.planner.final_state().info
+  
+  
+  /*
+x+", "+y;
+myUI.planner.info_matrix()
+  info[y][x].parent;
+ info[y][x].f;
+ info[y][x].g;
+ info[y][x].h;
+ info[y][x].state;
+  */
   t = document.createElement('table');
   //t.setAttribute('class', 'slide'); new table automatically set "slide class"
   r = t.insertRow(0); 
@@ -162,16 +190,23 @@ function in_table(){
   c4 = r.insertCell(3);
   c5 = r.insertCell(4);
   c6 = r.insertCell(5);
-  c1.innerHTML = 1;
-  c2.innerHTML = 1;
-  c3.innerHTML = 1;
-  c4.innerHTML = 1;
-  c5.innerHTML = 1;
+  c1.innerHTML = x+", "+y;
+  c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
+  c3.innerHTML = info[y][x].f;
+  c4.innerHTML = info[y][x].g;
+  c5.innerHTML = info[y][x].h;
   c6.innerHTML = 1;
   t.classList.add('slide', 'new-slide');
   document.getElementById("info-container-dynamic").prepend(t); 
 }
- 
+  /*
+vertex
+f
+g
+h
+parent
+state
+*/
    
 function removebyindex(index){
   var removeTab = slides[index];

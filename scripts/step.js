@@ -76,6 +76,10 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_obstacles(x,y);
             info_map_out_of_bound(x,y);
             info_map_visited(x,y);
+            
+            in_table(x,y);
+
+      //      out_table();
            //  console.log(x,"x",y,"y","obstacle drawn");
             
           }
