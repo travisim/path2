@@ -66,6 +66,7 @@ class GridPathFinder{
     this.states_arr = [];
 
     // generate empty 2d array
+
     this.info_matrix = zero2D(this.map_height, this.map_width,65537);
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new BitMatrix(this.map_height, this.map_width);

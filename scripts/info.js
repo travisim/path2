@@ -262,7 +262,7 @@ function removebyindex(index){
 
 
 //demo
-//document.querySelector("#NW").querySelector("#F").innerHTML = "13.13";
+/*document.querySelector("#NW").querySelector("#F").innerHTML = "13.13";
 
 
 document.getElementById("NW").style.borderColor = "rgb(0,0,0)";//obstacle
@@ -271,7 +271,7 @@ document.getElementById("N").style.borderColor = "rgb(221,48,33)";//visited
 document.getElementById("W").style.borderColor = "rgb(0,130,105)";//neighbour
 
 
-
+*/
  
 document.getElementById("currentYX").innerHTML = "(_, _)"; 
 

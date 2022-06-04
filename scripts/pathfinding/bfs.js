@@ -145,7 +145,7 @@ class BFS extends GridPathFinder {
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         /* second check if visited */
         //if(this.visited[next_YX[0]][next_YX[1]]) continue; // if the neighbour has been visited, don't add it to queue
-        if (this.visited.get_data(next_YX)) continue; // if the neighbour has been visited, don't add it to queue
+        if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] == 1 ) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
         if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
             if (this.deltaNWSE[i] == "NW") {
