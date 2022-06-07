@@ -66,7 +66,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
         step.forEach(action=>{
           let [command, dest, y, x] = GridPathFinder.unpack_action(action);
-          //console.log(GridPathFinder.unpack_action(action),action);
+          console.log(GridPathFinder.unpack_action(action),action);
           
          
 
@@ -77,8 +77,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_reset();
             info_map_obstacles(x,y);
             info_map_out_of_bound(x,y);
+             info_map_queue(x,y)
             info_map_visited(x,y);
-            info_map_queue(x,y)
+          
             out_table();
             
             
