@@ -134,7 +134,7 @@ function info_map_queue(x,y){ //using pre obtained map of surrounding point
     }
   }
     surrounding_map_deltaNWSE.forEach(deltaNWSE => {
-      document.getElementById(deltaNWSE).style.borderColor = "rgb(152,247,104)";
+      document.getElementById(deltaNWSE).style.borderColor = "rgb(116,250,76)";
       document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "Queue"
     });//obstacle
 }
