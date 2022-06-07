@@ -188,6 +188,10 @@ class NBitMatrix{
 		return BitArray.get_range(this.data, index, this.cell_val_bits);
 	}
 
+	increment(yx){
+		this.set_data(yx, this.get_data(yx)+1);
+	}
+
 	copy_data(){
 		/* DEPRECATED, DO NOT USE */
 		/*
