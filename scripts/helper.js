@@ -1,16 +1,20 @@
 //takes in a array of objects and returns a array of 1 property of the object
 function nodes_to_array(obj_array,property_in_obj){
-  var array = new Uint32Array(obj_array.length);//new Array(obj_array.length); 
+  var array = new Array(obj_array.length); 
   //  only needs maximum val of 1024*1024 => 20 bits
   // default js uses 64 bits
+  let max_val = 0;
   for(let i=0;i<obj_array.length;++i){
     var res = obj_array[i][property_in_obj];
     if(property_in_obj=="self_YX"){
       res = res[0] * myUI.planner.map_width + res[1]; // row-major form
+      max_val = Math.max(max_val, res);
     }
     array[i] = res;
   }
-  return array;
+  if(max_val == 0) return array;
+  else if(max_val < (1<<16)) return new Uint16Array(array);
+  else return new Uint32Array(array);
 }
 
 function deep_copy_matrix(matrix, flip_bit=false){
@@ -47,6 +51,11 @@ function zero2D(rows, cols, max_val=255) {
 function ones(bit_len){
 	if(bit_len<32) return ((1<<bit_len)-1)>>>0;
 	return Math.pow(2, bit_len)-1;
+}
+
+function isInt(value) {
+  var x;
+  return isNaN(value) ? !1 : (x = parseFloat(value), (0 | x) === x);
 }
 
 class BitMatrix{
@@ -176,6 +185,7 @@ class BitArray{
 		let first_data_length = length+pos > chunk_len ? chunk_len - pos : length;
 		array[arr_index] = (array[arr_index] & mask)+ (val << pos);
 		//console.log(val, pos, mask.toString(2), first_data_length);
+    if(length==first_data_length) return
 		length -= first_data_length;
 		val >>= first_data_length;
 		++arr_index;
@@ -208,6 +218,7 @@ class BitArray{
 		let data = (array[arr_index] & mask) >>> pos;
 		let first_data_length = length+pos > chunk_len ? chunk_len-pos : length;
 		val += data;
+    if(length==first_data_length) return val;
 		length -= first_data_length;
 		completed_length += first_data_length;
 		++arr_index;
@@ -308,6 +319,7 @@ class NBitMatrix{
 
 	set_data(yx, new_data){
 		// find the bit-index of the item in the array
+    if(new_data>this.cell_val || new_data<0) return;
     let index = this.constructor.bit_offset + (yx[0] * this.num_cols + yx[1])*this.cell_val_bits;
 		//console.log("first",  this.constructor, this.num_cols, this.cell_val_bits);
 
@@ -340,7 +352,7 @@ class NBitMatrix{
 		else this.data.forEach(el=>{
 			ctn[start_index] = el;
 			++start_index;
-		})
+		});
 	}
 
 	copy_2d(){

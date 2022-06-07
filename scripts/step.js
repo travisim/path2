@@ -10,6 +10,8 @@ const STATIC_NAMES = [
   "EC", // erase canvas
   "DP", // draw pixel
   "EP", // erase pixel
+  "INC_P", // increment pixel
+  "DEC_P", // increment pixel
   "DA", // draw arrow
   "EA"  // erase arrow
 ];
@@ -123,6 +125,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           else if(command==STATIC.EP){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
             else myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
+          }
+          else if(command==STATIC.INC_P){
+            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
+            else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
+            
+          }
+          else if(command==STATIC.DEC_P){
+            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
+            else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
           }
           else if(command==STATIC.DA){
             // draw arrow

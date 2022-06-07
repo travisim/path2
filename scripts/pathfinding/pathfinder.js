@@ -62,6 +62,7 @@ class GridPathFinder{
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
     this.draw_arrows = this.map_height <= +4 || this.map_width <= 128;
     this.states = {};
+		this.visited_incs = [];
 
     // generate empty 2d array
 
@@ -124,7 +125,7 @@ class GridPathFinder{
 			this.step_cache.forEach(action=>this.steps_inverse.push(action));
 		}
 		/* 
-		step 0 is index 0
+		step 0 is index 0 to index k-1
 		step 1 is kth index where step 0 is k-items long
 		step n is k0+k1+k2+...k(n-1) = k(0 to n-1)th index
 		*/
@@ -160,7 +161,7 @@ class GridPathFinder{
 
 	_manage_state(){
 		// [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
-		if (this.step_index - this.prev_count >= 100) {
+		if (this.step_index - this.prev_count >= 120) {
 			this.prev_count = this.step_index;
 			++this.state_counter;
 			if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
@@ -173,18 +174,24 @@ class GridPathFinder{
 				this.states.visited_data.push(new Uint32Array(uint32_len));
 				this.states.visited_index = 0;
 			}
-			let i = this.states.visited_data.length - 1;
-			let visited_tuple = [i, this.states.visited_index, this.states.visited_index + this.visited.arr_length];
+			let curr_visited_section = this.states.visited_data.length - 1;
+			let visited_tuple = new Uint32Array([curr_visited_section, this.states.visited_index, this.states.visited_index + this.visited.arr_length]);
+
 			this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited_tuple: visited_tuple, path: this.path, arrow_step: this.arrow_step };
 
-			this.visited.copy_data_to(this.states.visited_data[i], this.states.visited_index)
-
+			this.visited.copy_data_to(this.states.visited_data[curr_visited_section], this.states.visited_index);
 			this.states.visited_index+=this.visited.arr_length;
+
 		}
 	}
 
 	get_visited(tuple){
 		return this.states.visited_data[tuple[0]].slice(tuple[1], tuple[2]);
+	}
+
+	get_queue(tuple){
+		if(!tuple) return;
+		return this.states.queue_data[tuple[0]].slice(tuple[1], tuple[2]);
 	}
 
 	final_state() {

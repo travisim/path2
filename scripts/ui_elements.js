@@ -45,7 +45,7 @@ class UICanvas{
     var height = this.canvas.height;
     var width = this.canvas.width;
     if(this.id=="edit_map") console.log(`Height: ${height}, Width: ${width}`);
-    this.virtualCanvas = zero2D(height, width);  // initialise a matrix of 0s (zeroes), height x width
+    this.canvas_cache = zero2D(height, width);  // initialise a matrix of 0s (zeroes), height x width
 
     this.data_height = this.canvas.height;
     this.data_width = this.canvas.width;
@@ -91,31 +91,31 @@ class UICanvas{
 
     if(retain_data){
       //console.log(data_width);
-      let new_virtual_canvas = zero2D(data_height, data_width);
+      let new_canvas_cache = zero2D(data_height, data_width);
       //console.log(`first`);
-      //console.log(new_virtual_canvas);
+      //console.log(new_canvas_cache);
 
       for(let i=0;i<this.data_height;++i){
-        if(i<this.virtualCanvas.length)
+        if(i<this.canvas_cache.length)
           for(let j=0;j<this.data_width;++j){
-            if(j<this.virtualCanvas[0].length)
-              new_virtual_canvas[i][j] = this.virtualCanvas[i][j];
+            if(j<this.canvas_cache[0].length)
+              new_canvas_cache[i][j] = this.canvas_cache[i][j];
           }
       }
       //console.log(`second`);
-      //console.log(new_virtual_canvas);
-      //console.log(`Height: ${new_virtual_canvas.length}`);
-      //console.log(`Width: ${new_virtual_canvas[0].length}`);
-      this.virtualCanvas = zero2D(data_height, data_width);
+      //console.log(new_canvas_cache);
+      //console.log(`Height: ${new_canvas_cache.length}`);
+      //console.log(`Width: ${new_canvas_cache[0].length}`);
+      this.canvas_cache = zero2D(data_height, data_width);
       //console.log(`reset`);
-      //console.log(`Height: ${this.virtualCanvas.length}`);
-      //console.log(`Width: ${this.virtualCanvas[0].length}`);
-      //console.log(this.virtualCanvas);
-      this.draw_canvas(new_virtual_canvas, `2d`, false);
-      //console.log(this.virtualCanvas);
+      //console.log(`Height: ${this.canvas_cache.length}`);
+      //console.log(`Width: ${this.canvas_cache[0].length}`);
+      //console.log(this.canvas_cache);
+      this.draw_canvas(new_canvas_cache, `2d`, false);
+      //console.log(this.canvas_cache);
     }
     else{
-      this.virtualCanvas = zero2D(data_height, data_width);
+      this.canvas_cache = zero2D(data_height, data_width);
     }
   }
 
@@ -137,8 +137,6 @@ class UICanvas{
   }
 
 	set_color_index(index=0, color_type="fill"){
-		//console.log(this.canvas.id);
-		//console.log(this.colors);
 		if(color_type=="fill"){
       this.ctx.fillStyle = this.colors[index];
 			this.fillColor = this.colors[index];
@@ -155,24 +153,37 @@ class UICanvas{
     }
 	}
 
-  draw_pixel(yx){
-		this.set_color(this.fillColor);
-    let y = yx[0];
-    let x = yx[1];
-    this.virtualCanvas[y][x] = 1;
-    this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
+  init_virtual_canvas(){
+    this.virtualCanvas = zero2D(this.data_height, this.data_width);
+  }
+
+  change_pixel(yx, direction, virtual=false){
+    let [y,x] = yx;
+    let curr = this.canvas_cache[y][x];
+    if(direction=="inc") ++curr; else --curr;
+    this.draw_pixel(yx, virtual, curr);
+  }
+
+  draw_pixel(yx, virtual=false, val=1){
+    this.set_color_index(val-1);
+    let [y,x] = yx;
+    if(virtual)
+      this.virtualCanvas[y][x] = val;
+    else {
+      this.canvas_cache[y][x] = val;
+      this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
+    }
   }
 
   erase_pixel(yx){
     let y = yx[0];
     let x = yx[1];
-    this.virtualCanvas[y][x] = 0;
+    this.canvas_cache[y][x] = 0;
     this.ctx.clearRect(x, y, this.pixelSize, this.pixelSize);
   }
 
   draw_start_goal(point, strokeColor=this.ctx.strokeStyle){
-    this.set_color(strokeColor, "fill");
-    this.set_color(strokeColor, "stroke");
+    this.set_color(strokeColor, "all");
     if (this.data_height < 64){
       this.draw_pixel(point);
     }
@@ -197,19 +208,33 @@ class UICanvas{
     ctx.stroke();
   }
 
-  draw_canvas(array_data, array_type, draw_zeroes=false){
-    this.erase_canvas();  // clear canvas first before drawing
+  draw_canvas(array_data, array_type, draw_zeroes=false, virtual=false){
+    if(virtual) this.virtualCanvas = zero2D(this.data_height, this.data_width);
+    else this.erase_canvas();  // clear canvas first before drawing
     // remember to scale canvas first on new maps!
+    if(array_data==null || array_data==undefined) return;
     if (array_type == "1d") 
-      for (let i = 0; i < array_data.length; ++i) 
-        this.draw_pixel(array_data[i]);
-    else if(array_type == "2d")  //eg [ [ 8, 6 ], [ 9, 7 ], [ 8, 8 ] ]
+      array_data.forEach(coord=>{
+        // coord is in row-major form
+        if(isInt(coord)){
+          var y = Math.floor(coord/myUI.planner.map_width);
+          var x = coord - y * myUI.planner.map_width;
+          coord = [y,x];
+        }
+        this.draw_pixel(coord, virtual);
+      });
+    else if(array_type == "2d"){  //eg [ [ 8, 6 ], [ 9, 7 ], [ 8, 8 ] ]
       for (let i = 0; i < array_data.length; i++) 
         for (let j = 0; j < array_data[i].length; j++) 
           if (array_data[i][j] ^ draw_zeroes)
-            this.draw_pixel([i,j]);
+            this.draw_pixel([i,j], virtual);
+    }
     else if(array_type == "2d_heatmap"){
-      
+      for (let i = 0; i < array_data.length; i++) 
+        for (let j = 0; j < array_data[i].length; j++)
+          if(array_data[i][j] ^ draw_zeroes){
+            this.draw_pixel([i,j], virtual, array_data[i][j]);
+          }
     }
   }
 
@@ -217,7 +242,7 @@ class UICanvas{
     let height = this.data_height ? this.data_height : this.canvas.height;
     let width = this.data_width ? this.data_width : this.canvas.width;
     this.ctx.clearRect(0, 0, width, height);
-    this.virtualCanvas = zero2D(height, width);  // reset to a matrix of 0s (zeroes), height x width
+    this.canvas_cache = zero2D(height, width);  // reset to a matrix of 0s (zeroes), height x width
   }
 
   toggle_edit(){
@@ -266,7 +291,7 @@ class UICanvas{
     // this function is bound to the canvas dom element, use this.parent to refer to the UICanvas
     this.parent.isDrawing = false;
     if(this.id=="edit_map"){  //  to save the current state on the screen
-      let child = new EditState(myUI.map_edit.curr_state, deep_copy_matrix(this.parent.virtualCanvas));
+      let child = new EditState(myUI.map_edit.curr_state, deep_copy_matrix(this.parent.canvas_cache));
       myUI.map_edit.curr_state.child = child;
       myUI.map_edit.curr_state = child;
     }
@@ -276,7 +301,7 @@ class UICanvas{
     let x = canvas_x/this.canvas.clientWidth*this.data_width;
     let y = canvas_y/this.canvas.clientHeight*this.data_height;
     x = Math.floor(x);
-    y = Math.floor(y);
+    y = Math.floor(y);irtualCa
     if(this.erase) this.erase_pixel([y,x]);
     else this.draw_pixel([y,x]);
   }
@@ -287,7 +312,7 @@ class UICanvas{
   }
 
   copy_data_to(other_id){
-    myUI.canvases[other_id].draw_canvas(this.virtualCanvas, `2d`, false);
+    myUI.canvases[other_id].draw_canvas(this.canvas_cache, `2d`, false);
   }
 }
 

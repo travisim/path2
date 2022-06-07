@@ -14,10 +14,10 @@ myUI.initialize = function(){
 		["hover_map", "#d19b6d", "#AA1945"],
     ["bg", "#000000"],
     ["queue", "rgb(116,250,76)"],
-    ["visited", "rgb(221,48,33)"],
+    ["visited", "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,33)
     ["current_YX", "rgb(52,209,234)"],
     ["neighbours", "rgb(0,130,105)"],
-    ["path", "#E2C2B9"],
+    ["path", "rgb(52,209,234)"], //  changed from #E2C2B9
     ["start", "rgb(150,150,150)"],
     ["goal", "rgb(159,23,231)"],
   ].forEach(item=>{

@@ -15,7 +15,7 @@ function animation_backend(){
           let num_steps = parseInt(myUI.animation.jump_steps);
           if(myUI.animation.detailed){
             if(num_steps>50) myUI.jump_to_step(myUI.animation.step + num_steps);
-            while(num_steps--) myUI.run_steps(1);
+            else myUI.run_steps(num_steps);
           }
           else
             while(num_steps--) myUI.run_combined_step();
@@ -62,7 +62,8 @@ myUI.jump_to_step = function(target_step){
   // create a virtual representation of all the canvases
   myUI.tmp.virtual_canvases = {};
   canvas_ids.forEach(id=>{
-    myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
+    myUI.canvases[id].init_virtual_canvas();
+    //myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
   });
   myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
   myUI.arrow.step = -1;
@@ -81,26 +82,52 @@ myUI.jump_to_step = function(target_step){
   function execute_steps(tmp_step, target_step){
 
     canvas_ids.forEach(id=>{
-      let data = myUI.tmp.virtual_canvases[id];
-      myUI.canvases[id].erase_canvas();
-      myUI.canvases[id].draw_canvas(data, `2d`);
-    });
+      // let data = myUI.tmp.virtual_canvases[id];
+      let data = myUI.canvases[id].virtualCanvas;
+      myUI.canvases[id].draw_canvas(data, `2d_heatmap`);
+    });/* */
     // execute the steps
-    myUI.run_steps(target_step - tmp_step, "fwd", false);
+    myUI.run_steps(target_step - tmp_step, "fwd");
   }
 
   function draw_canvas_from_state(state){
-    myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
+
+    //myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
+    let curr_queue = myUI.planner.get_queue(state.queue_tuple);
+    myUI.canvases.queue.draw_canvas(state.queue, `1d`, false, true);
+
+    let curr_visited = myUI.planner.get_visited(state.visited_tuple);
+    //myUI.draw_virtual_canvas(`visited`, NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`);
+    window.tmp = NBitMatrix.expand_2_matrix(curr_visited);
+    myUI.canvases.visited.draw_canvas(NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`, false, true);
+
+    let y = state.node_YX[0];
+    let x = state.node_YX[1];
+    //myUI.tmp.virtual_canvases.current_YX[y][x] = 1;
+    myUI.canvases.current_YX.draw_canvas([state.node_YX], `1d`, false, true);
+
+    //myUI.draw_virtual_canvas(`neighbours`, state.neighbours, `1d`);
+    myUI.canvases.neighbours.draw_canvas(state.neighbours, `1d`, false, true);
+
+    //if(state.path) myUI.draw_virtual_canvas(`path`, state.path, `1d`);
+    if(state.path) myUI.canvases.neighbours.draw_canvas(state.path, `1d`, false, true);
+    
+
+    myUI.arrow.step = state.arrow_step;
+    for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
+    
+
+    /*myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
     curr_visited = myUI.planner.get_visited(state.visited_tuple);
-    console.log(NBitMatrix.expand_2_matrix(curr_visited));
-    myUI.draw_virtual_canvas(`visited`, NBitMatrix.expand_2_matrix(curr_visited), `2d`);
+    //console.log(NBitMatrix.expand_2_matrix(curr_visited));
+    myUI.draw_virtual_canvas(`visited`, NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`);
     let y = state.node_YX[0];
     let x = state.node_YX[1];
     myUI.tmp.virtual_canvases.current_YX[y][x] = 1;
     myUI.draw_virtual_canvas(`neighbours`, state.neighbours, `1d`);
     if(state.path) myUI.draw_virtual_canvas(`path`, state.path, `1d`);
     myUI.arrow.step = state.arrow_step;
-    for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
+    for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);/* */
   }
 }
 

@@ -57,6 +57,7 @@ class BFS extends GridPathFinder {
   "EC",  erase canvas
   "DP",  draw pixel
   "EP",  erase pixel
+  "INC_P", increment pixel
   "DA",  draw arrow
   "EA"   erase arrow
       */
@@ -65,14 +66,17 @@ class BFS extends GridPathFinder {
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
-      this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
+      //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
+      this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
+      this.visited_incs.forEach(coord=>this._create_action(STATIC.INC_P, STATIC.VI, coord));
       this._save_step("fwd");
 
       this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
-      this._create_action(STATIC.EP, STATIC.VI, this.current_node_YX);
+      //this._create_action(STATIC.EP, STATIC.VI, this.current_node_YX);
+      this._create_action(STATIC.DEC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.DP, STATIC.QU, this.current_node_YX);
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
@@ -80,7 +84,10 @@ class BFS extends GridPathFinder {
           this._create_action(STATIC.DP, STATIC.NB, neighbour.self_YX);
         });
       }
+      this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
       this._save_step("bck");
+
+      this.visited_incs = [];
 
       /* first check if visited */
       if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);
@@ -142,7 +149,11 @@ class BFS extends GridPathFinder {
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         /* second check if visited */
-        if (this.visited.get_data(next_YX)>0) this.visited.increment(next_YX);
+        
+        if (this.visited.get_data(next_YX)>0) {
+          this.visited_incs.push(next_YX);
+          this.visited.increment(next_YX);
+        }
         if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] == 1 ) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
         if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
