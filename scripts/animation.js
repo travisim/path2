@@ -98,7 +98,7 @@ myUI.jump_to_step = function(target_step){
 
     let curr_visited = myUI.planner.get_visited(state.visited_tuple);
     //myUI.draw_virtual_canvas(`visited`, NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`);
-    window.tmp = NBitMatrix.expand_2_matrix(curr_visited);
+    //window.tmp = NBitMatrix.expand_2_matrix(curr_visited);
     myUI.canvases.visited.draw_canvas(NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`, false, true);
 
     let y = state.node_YX[0];
@@ -120,7 +120,7 @@ myUI.jump_to_step = function(target_step){
     /*myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
     curr_visited = myUI.planner.get_visited(state.visited_tuple);
     //console.log(NBitMatrix.expand_2_matrix(curr_visited));
-    myUI.draw_virtual_canvas(`visited`, NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`);
+    myUI.draw_virtual_canvas(`visited`, NBitMatrix.expand_2_matrix(curr_visited), `2d`);
     let y = state.node_YX[0];
     let x = state.node_YX[1];
     myUI.tmp.virtual_canvases.current_YX[y][x] = 1;
