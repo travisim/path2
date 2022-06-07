@@ -200,18 +200,16 @@ class UICanvas{
   draw_canvas(array_data, array_type, draw_zeroes=false){
     this.erase_canvas();  // clear canvas first before drawing
     // remember to scale canvas first on new maps!
-    if (array_type == "1d") {
-      for (let i = 0; i < array_data.length; ++i) {
+    if (array_type == "1d") 
+      for (let i = 0; i < array_data.length; ++i) 
         this.draw_pixel(array_data[i]);
-      }
-    }
-    else if(array_type == "2d") {  //eg [ [ 8, 6 ], [ 9, 7 ], [ 8, 8 ] ]
+    else if(array_type == "2d")  //eg [ [ 8, 6 ], [ 9, 7 ], [ 8, 8 ] ]
       for (let i = 0; i < array_data.length; i++) 
         for (let j = 0; j < array_data[i].length; j++) 
-          if (array_data[i][j] ^ draw_zeroes){
-            let coord = [i, j];
-            this.draw_pixel(coord);
-          }
+          if (array_data[i][j] ^ draw_zeroes)
+            this.draw_pixel([i,j]);
+    else if(array_type == "2d_heatmap"){
+      
     }
   }
 

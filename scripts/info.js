@@ -183,7 +183,7 @@ var slides = document.getElementsByClassName("slide");
 //in_table();
 function out_table(){
   //animates out last table
-  slides[slides.length-1].style.animation = 'out 0.5s forwards';
+  //slides[slides.length-1].style.animation = 'out 0.5s forwards';
    //deletes HTML of last table(use arrow function to accept parameters)
   setTimeout(()=>removebyindex(slides.length-1),1000);
 }

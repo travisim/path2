@@ -15,7 +15,7 @@ function nodes_to_array(obj_array,property_in_obj){
 
 function deep_copy_matrix(matrix, flip_bit=false){
   let res = [];
-  console.log(matrix);
+  //console.log(matrix);
   for(let i=0;i<matrix.length;++i){
     let row = new Uint8Array(matrix[0].length);
     for(let j=0;j<matrix.length;++j) row[j] = flip_bit ? matrix[i][j] ^ 1 : matrix[i][j];
@@ -128,7 +128,7 @@ class BitMatrix{
 		//let pos = 1 << rem;
 		// alteratively can do // 
 		let pos = Math.pow(2, rem);
-    return (this.data[arr_index] & pos)>>rem;
+    return (this.data[arr_index] & pos)>>>rem;
 	}
 
 	copy_data(){
@@ -171,7 +171,7 @@ class BitArray{
 		let arr_index = Math.floor(start_bit / chunk_len)
 		let pos = start_bit % chunk_len;;
 		let mask = chunk_ones ^ (ones(length) << pos);
-		console.log("mask", (mask>>>0).toString(2));
+		//console.log("mask", (mask>>>0).toString(2));
 		//let mask = 0b11111111 ^ (((1<<length)-1)<<pos);
 		let first_data_length = length+pos > chunk_len ? chunk_len - pos : length;
 		array[arr_index] = (array[arr_index] & mask)+ (val << pos);
@@ -231,7 +231,7 @@ class NBitMatrix{
 	// THIS IS A CUSTOM CLASS THAT USES THE UINT8 ARRAYS TO MORE EFFICIENTLY STORE 2D UINT ARRAYS
 	// EACH CELL/COORDINATE IN THE ORIGINAL 2D ARRAY CAN BE SPECIFIED TO CONTAIN N-BITS
 
-	static chunk_len = 8;
+	static chunk_len = 32;
 	// each "chunk" is a string of bits in the data array
 	// e.g. Uint32 Arrays have 32 bits in each index
 

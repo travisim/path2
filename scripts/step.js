@@ -64,7 +64,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
         step.forEach(action=>{
           let [command, dest, y, x] = GridPathFinder.unpack_action(action);
-          console.log(GridPathFinder.unpack_action(action),action);
+          //console.log(GridPathFinder.unpack_action(action),action);
           
          
 
@@ -101,11 +101,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
              
           }
           if(dest==1 && command == STATIC.DP ){//record  "visiters" in 2d array
-            console.log(x,"x",y,"y","visited recorded");
+            //console.log(x,"x",y,"y","visited recorded");
            record_drawn_visited(x,y);
           }
           if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
-            console.log(x,"x",y,"y","HI");
+            //console.log(x,"x",y,"y","HI");
             record_drawn_queue(x,y);
            
           }

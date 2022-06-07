@@ -67,7 +67,7 @@ class GridPathFinder{
 
     this.info_matrix = zero2D(this.map_height, this.map_width,65537);
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
-    this.visited = new BitMatrix(this.map_height, this.map_width);
+    this.visited = new NBitMatrix(this.map_height, this.map_width, 7);
     this.searched = false;
     this._create_cell_index();
 

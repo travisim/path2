@@ -68,10 +68,8 @@ class A_star extends GridPathFinder{
       this._save_step("bck");
 
       /* first check if visited */
-      //if(this.visited[this.current_node_YX[0]][this.current_node_YX[1]]) continue; // if the current node has been visited, skip to next one in queue
-      if (this.visited.get_data(this.current_node_YX)) return //continue; // if the current node has been visited, skip to next one in queue
-
-      //this.visited[this.current_node_YX[0]][this.current_node_YX[1]] = 1;  // marks current node YX as visited
+      if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);
+      if (this.visited.get_data(this.current_node_YX)) return //continue; // if the current node has been visited, skip to next one in queue]
       this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
       /* FOUND GOAL */
       if (this.current_node_YX[0] == this.goal[0] && this.current_node_YX[1] == this.goal[1]) {  // found the goal & exits the loop
@@ -129,7 +127,7 @@ class A_star extends GridPathFinder{
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         /* second check if visited */
-        //if(this.visited[next_YX[0]][next_YX[1]]) continue; // if the neighbour has been visited, don't add it to queue
+        if (this.visited.get_data(next_YX)>0) this.visited.increment(next_YX);
         if (this.visited.get_data(next_YX)) continue; // if the neighbour has been visited, don't add it to queue
         if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
