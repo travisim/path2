@@ -89,7 +89,7 @@ class GridPathFinder{
 	_create_step(){
 		this.step_cache = [];
 	}
-
+  // this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
 	_create_action(){
 		/* use bitmasking to compress every action into a series of Uint8 numbers */
 		/* bits are read from right ot left */
