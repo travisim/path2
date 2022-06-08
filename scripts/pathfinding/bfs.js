@@ -87,7 +87,7 @@ class BFS extends GridPathFinder {
       this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
       this._save_step("bck");
 
-      this.visited_incs = [];
+      this.visited_incs = []; // reset visited_incs after adding them
 
       /* first check if visited */
       if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);

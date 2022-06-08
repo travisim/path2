@@ -50,14 +50,17 @@ class A_star extends GridPathFinder{
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
-      this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
+      //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
+      this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
+      this.visited_incs.forEach(coord=>this._create_action(STATIC.INC_P, STATIC.VI, coord));
       this._save_step("fwd");
 
       this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
-      this._create_action(STATIC.EP, STATIC.VI, this.current_node_YX);
+      //this._create_action(STATIC.EP, STATIC.VI, this.current_node_YX);
+      this._create_action(STATIC.DEC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.DP, STATIC.QU, this.current_node_YX);
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
@@ -65,11 +68,14 @@ class A_star extends GridPathFinder{
           this._create_action(STATIC.DP, STATIC.NB, neighbour.self_YX);
         });
       }
+      this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
       this._save_step("bck");
+
+      this.visited_incs = []; // reset visited_incs after adding them
 
       /* first check if visited */
       if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);
-      if (this.visited.get_data(this.current_node_YX)) return //continue; // if the current node has been visited, skip to next one in queue]
+      if (this.visited.get_data(this.current_node_YX)) return //continue; // if the current node has been visited, skip to next one in queue
       this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
       /* FOUND GOAL */
       if (this.current_node_YX[0] == this.goal[0] && this.current_node_YX[1] == this.goal[1]) {  // found the goal & exits the loop
@@ -91,7 +97,7 @@ class A_star extends GridPathFinder{
         this._create_step();
         this._create_action(STATIC.SIMPLE);
         this._create_action(STATIC.EC, STATIC.CR);
-        this.path.forEach(yx=>this._create_action(STATIC.DP, STATIC.PA, yx));
+        this.path.forEach(yx => this._create_action(STATIC.DP, STATIC.PA, yx));
         this._save_step("fwd");
 
         this._create_step();
@@ -127,12 +133,14 @@ class A_star extends GridPathFinder{
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         /* second check if visited */
-        if (this.visited.get_data(next_YX)>0) this.visited.increment(next_YX);
-        if (this.visited.get_data(next_YX)) continue; // if the neighbour has been visited, don't add it to queue
+        
+        if (this.visited.get_data(next_YX)>0) {
+          this.visited_incs.push(next_YX);
+          this.visited.increment(next_YX);
+        }
+        if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] == 1 ) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
         if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
-
-
             if (this.deltaNWSE[i] == "NW") {
               if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
                 continue;
