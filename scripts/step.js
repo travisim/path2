@@ -5,10 +5,19 @@ const STATIC_NAMES = [
   "CR", // current
   "NB", // neighbours
   "PA", // path
-  "F",
-  "G",
-  "H",
-  "parent",
+  "IN", // info NWSE
+  "INE",
+  "IE",
+  "ISE",
+  "IS",
+  "ISW",
+  "IW",
+  "INW",
+  "ICR", //info current
+  
+
+ 
+  
   /* rest of the items are dynamics commands/identifiers */
   "SIMPLE", // shows that the step is a simple step
   "EC", // erase canvas
@@ -19,13 +28,16 @@ const STATIC_NAMES = [
   "DA", // draw arrow
   "EA",  // erase arrow
   "DF", // draw F
-  "EF",  // erase F
+  "EF",  // erinfo_currentYXase F
   "DG", // draw G
   "EG",  // erase G
   "DH", // draw H
   "EH" , // erase H
   "DParent", // draw Parent
-  "EParent"  // erase Parent
+  "EParent",  // erase Parent
+  "Einfomap",
+  "TableAdd",
+  "TableRemove"
 
 ];
 

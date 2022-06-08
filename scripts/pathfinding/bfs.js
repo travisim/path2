@@ -45,27 +45,15 @@ class BFS extends GridPathFinder {
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
 
 
-/*
-         index 0 to index 4 are canvas ids, must be the same as statics_to_obj 
-  "QU",  queue
-  "VI",  visited
-  "CR",  current
-  "NB",  neighbours
-  "PA",  path
-   rest of the items are dynamics commands/identifiers 
-  "SIMPLE",  shows that the step is a simple step
-  "EC",  erase canvas
-  "DP",  draw pixel
-  "EP",  erase pixel
-  "INC_P", increment pixel
-  "DA",  draw arrow
-  "EA"   erase arrow
-      */
+
+
+      // erase current+neighbour canvas,erase queue pixel, increase pixel for neighbours+current then draw current node+visited+
       this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
+     // this._create_action(STATIC.D, STATIC.CR, this.parent_YX);
       //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
