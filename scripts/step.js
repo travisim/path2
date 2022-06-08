@@ -5,6 +5,10 @@ const STATIC_NAMES = [
   "CR", // current
   "NB", // neighbours
   "PA", // path
+  "F",
+  "G",
+  "H",
+  "parent",
   /* rest of the items are dynamics commands/identifiers */
   "SIMPLE", // shows that the step is a simple step
   "EC", // erase canvas
@@ -13,7 +17,16 @@ const STATIC_NAMES = [
   "INC_P", // increment pixel
   "DEC_P", // increment pixel
   "DA", // draw arrow
-  "EA"  // erase arrow
+  "EA",  // erase arrow
+  "DF", // draw F
+  "EF",  // erase F
+  "DG", // draw G
+  "EG",  // erase G
+  "DH", // draw H
+  "EH" , // erase H
+  "DParent", // draw Parent
+  "EParent"  // erase Parent
+
 ];
 
 /*
@@ -77,11 +90,13 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_reset();
             info_map_obstacles(x,y);
             info_map_out_of_bound(x,y);
-             info_map_queue(x,y)
+           
             info_map_visited(x,y);
+         //   info_map_queue(x,y)
           
-            out_table();
-            
+            if (myUI.planner.start[0]!=y && myUI.planner.start[1]!=x){
+              out_table();
+            }            
             
 
       //      out_table();
@@ -103,9 +118,10 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_neighbours_erase(x,y);
              
           }
-          if(dest==1 && command == STATIC.DP ){//record  "visiters" in 2d array
+          if(dest==STATIC.VI && command == STATIC.DP ){//record  "visiters" in 2d array
             //console.log(x,"x",y,"y","visited recorded");
            record_drawn_visited(x,y);
+            console.log("ho");
           }
           if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
             //console.log(x,"x",y,"y","HI");
