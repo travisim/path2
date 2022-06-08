@@ -60,7 +60,7 @@ class GridPathFinder{
     this.path = null;
     this._clear_steps();
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
-    this.draw_arrows = this.map_height <= +4 || this.map_width <= 128;
+    this.draw_arrows = this.map_height <= 64 && this.map_width <= 64;
     this.states = {};
 		this.visited_incs = [];
 
@@ -175,12 +175,12 @@ class GridPathFinder{
 				this.states.visited_index = 0;
 			}
 			let curr_visited_section = this.states.visited_data.length - 1;
-			let visited_tuple = new Uint32Array([curr_visited_section, this.states.visited_index, this.states.visited_index + this.visited.arr_length]);
+			let nxt_index = this.visited.copy_data_to(this.states.visited_data[curr_visited_section], this.states.visited_index, true);
+			let visited_tuple = new Uint32Array([curr_visited_section, this.states.visited_index, nxt_index]);//this.states.visited_index + this.visited.arr_length]);
+			//this.states.visited_index+=this.visited.arr_length;
+			this.states.visited_index = nxt_index;
 
 			this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited_tuple: visited_tuple, path: this.path, arrow_step: this.arrow_step };
-
-			this.visited.copy_data_to(this.states.visited_data[curr_visited_section], this.states.visited_index);
-			this.states.visited_index+=this.visited.arr_length;
 
 		}
 	}

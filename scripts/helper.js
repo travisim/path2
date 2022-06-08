@@ -62,7 +62,13 @@ class BitMatrix{
 
 	// THIS IS A CUSTOM CLASS THAT USES THE UINT8 ARRAYS TO MORE EFFICIENTLY STORE 2D BIT ARRAYS
 
-	static chunk_length = 32;
+	static chunk_len = 32;
+
+	static get data_arr(){
+		if(this.chunk_len==8) return Uint8Array;
+		if(this.chunk_len==16) return Uint16Array;
+		if(this.chunk_len==32) return Uint32Array;
+	}
 
 	static max_size = 1024;
 
@@ -89,7 +95,7 @@ class BitMatrix{
 		let num_cols = ((arr[0]>>this.max_size_bit) & ((1<<this.max_size_bit)-1))+1;
 		let res = zero2D(num_rows, num_cols);
 		let tmp = new this(num_rows, num_cols);
-		tmp.data = new Uint32Array(arr);
+		tmp.data = arr;
 		for(let i=0;i<num_rows;++i){
       for(let j=0;j<num_cols;++j){
 				res[i][j] = tmp.get_data([i,j]);
@@ -102,7 +108,8 @@ class BitMatrix{
 
     let max_y = num_rows-1;
     let max_x = num_cols-1;
-    this.data = new Uint32Array(Math.ceil((this.constructor.max_size_bit*2 + num_cols*num_rows)/this.constructor.chunk_length)).fill(0); // total number of bits (div) number of bits for max_safe_int
+		console.log(this.constructor.data_arr);
+    this.data = new this.constructor.data_arr(Math.ceil((this.constructor.max_size_bit*2 + num_cols*num_rows)/this.constructor.chunk_len)); // total number of bits (div) number of bits for max_safe_int
 		this.data[0] = max_y;
 		this.data[0] += max_x<<this.constructor.max_size_bit;
 		this.num_rows = num_rows;
@@ -115,25 +122,26 @@ class BitMatrix{
 
 	set_data(yx, new_data){
     let index = this.constructor.max_size_bit*2 + yx[0] * this.num_cols + yx[1];
-    let arr_index = Math.floor(index/this.constructor.chunk_length);
-		// alternatives are for chunk_lengths > 30 as js bit shifting doesn't work for n>30;
+    let arr_index = Math.floor(index/this.constructor.chunk_len);
+		// alternatives are for chunk_lens > 30 as js bit shifting doesn't work for n>30;
 
-    //let pos = 1 << (index % this.constructor.chunk_length);
+    //let pos = 1 << (index % this.constructor.chunk_len);
 		// alteratively can do // 
-		let pos = Math.pow(2, (index % this.constructor.chunk_length));
+		let pos = Math.pow(2, (index % this.constructor.chunk_len));
     new_data = new_data ? pos : 0;
 		
-    //let mask = ((1<<this.constructor.chunk_length)-1) ^ pos;
-		// alteratively can do // let mask = parseInt(`1`.repeat(this.constructor.chunk_length), 2) ^ pos;
+    //let mask = ((1<<this.constructor.chunk_len)-1) ^ pos;
+		// alteratively can do // let mask = parseInt(`1`.repeat(this.constructor.chunk_len), 2) ^ pos;
 		// or // 
-		let mask = (Math.pow(2, this.constructor.chunk_length+1)-1) ^ pos;
+		let mask = (Math.pow(2, this.constructor.chunk_len+1)-1) ^ pos;
     this.data[arr_index] = (this.data[arr_index] & mask) + new_data;
 	}
 
 	get_data(yx){
 		let index = this.constructor.max_size_bit*2 + yx[0] * this.num_cols + yx[1];
-    let arr_index = Math.floor(index/this.constructor.chunk_length);
-		let rem = (index % this.constructor.chunk_length);
+		if(index>this.data.length*this.constructor.chunk_len) return 0; // for truncated bitmatrices
+    let arr_index = Math.floor(index/this.constructor.chunk_len);
+		let rem = (index % this.constructor.chunk_len);
 		//let pos = 1 << rem;
 		// alteratively can do // 
 		let pos = Math.pow(2, rem);
@@ -152,12 +160,16 @@ class BitMatrix{
 		return new_arr;
 	}
 
-	copy_data_to(ctn, start_index=-1){
-		if(start_index==-1)this.data.forEach(el=>ctn.push(el));
-		else this.data.forEach(el=>{
-			ctn[start_index] = el;
+	copy_data_to(ctn, start_index=-1, truncate=false){
+		let last_index = this.data.length-1;
+		if(truncate) while(this.data[last_index]==0) --last_index;
+		++last_index;
+		if(start_index==-1) for(let i=0;i<last_index;++i) ctn.push(this.data[i]);
+		else for(let i=0;i<last_index;++i){
+			ctn[start_index] = this.data[i];
 			++start_index;
-		})
+		}
+		return start_index==-1 ? ctn.length : start_index;
 	}
 
 	copy_2d(){
@@ -329,6 +341,7 @@ class NBitMatrix{
 	get_data(yx){
 		// find the bit-index of the item in the array
     let index = this.constructor.bit_offset + (yx[0] * this.num_cols + yx[1])*this.cell_val_bits;
+		if(index>this.data.length*this.constructor.chunk_len) return 0; // for truncated nbitmatrices
 
 		return BitArray.get_range(this.data, index, this.cell_val_bits);
 	}
@@ -347,12 +360,15 @@ class NBitMatrix{
 		return new this.constructor.data_arr(this.data);
 	}
 
-	copy_data_to(ctn, start_index=-1){
-		if(start_index==-1)this.data.forEach(el=>ctn.push(el));
-		else this.data.forEach(el=>{
-			ctn[start_index] = el;
+	copy_data_to(ctn, start_index=-1, truncate=false){
+		let last_index = this.data.length-1;
+		if(truncate) while(this.data[last_index]==0) --last_index;
+		if(start_index==-1) for(let i=0;i<=last_index;++i) ctn.push(this.data[i]);
+		else for(let i=0;i<=last_index;++i){
+			ctn[start_index] = this.data[i];
 			++start_index;
-		});
+		}
+		return start_index==-1 ? ctn.length : start_index;
 	}
 
 	copy_2d(){

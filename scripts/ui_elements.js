@@ -165,6 +165,7 @@ class UICanvas{
   }
 
   draw_pixel(yx, virtual=false, val=1){
+    val = Math.min(this.colors.length, Math.max(val, 0));
     this.set_color_index(val-1);
     let [y,x] = yx;
     if(virtual)

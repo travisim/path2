@@ -146,7 +146,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           else if(command==STATIC.DP){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
             else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
-            
           }
           else if(command==STATIC.EP){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;

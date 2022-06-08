@@ -75,8 +75,8 @@ class BFS extends GridPathFinder {
       this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
-      //this._create_action(STATIC.EP, STATIC.VI, this.current_node_YX);
-      this._create_action(STATIC.DEC_P, STATIC.VI, this.current_node_YX);
+      this._create_action(STATIC.EP, STATIC.VI, this.current_node_YX);
+      //this._create_action(STATIC.DEC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.DP, STATIC.QU, this.current_node_YX);
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
@@ -154,7 +154,7 @@ class BFS extends GridPathFinder {
           this.visited_incs.push(next_YX);
           this.visited.increment(next_YX);
         }
-        if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] == 1 ) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
+        if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] > 0) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
         if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
             if (this.deltaNWSE[i] == "NW") {
