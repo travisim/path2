@@ -32,8 +32,6 @@ class A_star extends GridPathFinder{
 
   _run_next_search(planner, num){
     while(num--){
-      let step_fwd;
-      let step_bck;
       // while there are still nodes left to visit
       if(this.queue.length==0) return this._terminate_search();
                   //++ from bfs.js
@@ -75,49 +73,13 @@ class A_star extends GridPathFinder{
 
       /* first check if visited */
       if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);
-      if (this.visited.get_data(this.current_node_YX)) return //continue; // if the current node has been visited, skip to next one in queue
+      if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
       this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
       /* FOUND GOAL */
-      if (this.current_node_YX[0] == this.goal[0] && this.current_node_YX[1] == this.goal[1]) {  // found the goal & exits the loop
-        var path = [];
-        var curr = this.current_node;
-        // retraces the entire parent tree until start is found
-        while (curr != null) {
-          //console.log(curr.self_YX); 
-          path.unshift(curr.self_YX);
-          curr = curr.parent;
-        }
+      if(this._found_goal()) return this._terminate_search(); // found the goal & exits the loop
 
-        //creates array starting from start to goal
-        console.log("found");
-        this.path = path;
-
-        /* NEW */
-
-        this._create_step();
-        this._create_action(STATIC.SIMPLE);
-        this._create_action(STATIC.EC, STATIC.CR);
-        this.path.forEach(yx => this._create_action(STATIC.DP, STATIC.PA, yx));
-        this._save_step("fwd");
-
-        this._create_step();
-        this._create_action(STATIC.SIMPLE);
-        this._create_action(STATIC.EC, STATIC.PA);
-        this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
-        this._save_step("bck");
-
-        this._create_step();
-        this._create_action(STATIC.SIMPLE);
-        this._save_step("fwd");
-
-        this._create_step();
-        this._create_action(STATIC.SIMPLE);
-        this._save_step("bck");
-        return this._terminate_search()
-      }
       // NOTE, a node is only visited if all its neighbours have been added to the queue
-      this.neighbours = [];  // reset the neighbours for each new node
-      //console.log("next");
+      this.neighbours_YX = [];  // reset the neighbours for each new node
 
       var surrounding_map_deltaNWSE = [];
       for (let i = 0; i < this.num_neighbours; ++i) {
@@ -172,16 +134,13 @@ class A_star extends GridPathFinder{
 
           var f_cost = g_cost + h_cost //++ from bfs.js
           
-					
-          
-          var next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_YX);  // create a new node with said neighbour's details
-          this.neighbours.push(next_node);  // add to neighbours
+          this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
 
           /* NEW */
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]){ // prevent from adding to queue again
-            this.queue.push(next_node);  // add to queue
+            this.queue.push(new Node(f_cost, g_cost, h_cost, this.current_node, next_YX));  // add to queue
             this._create_action(STATIC.DP, STATIC.QU, next_YX);
             if(this.draw_arrows){
               // ARROW
@@ -211,12 +170,5 @@ class A_star extends GridPathFinder{
     return new Promise((resolve, reject)=>{
       setTimeout(()=>resolve(planner._run_next_search(planner, planner.batch_size)),  planner.batch_interval);
     });
-  }
-
-  _terminate_search(){
-    clearTimeout(this.search_timer);
-    if (this.path == null) console.log("path does not exist");
-    this.searched = true;
-    return this.path;
   }
 }

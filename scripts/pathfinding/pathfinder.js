@@ -161,7 +161,7 @@ class GridPathFinder{
 
 	_manage_state(){
 		// [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
-		if (this.step_index - this.prev_count >= 120) {
+		if (this.step_index - this.prev_count >= 115) {
 			this.prev_count = this.step_index;
 			++this.state_counter;
 			if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
@@ -170,11 +170,13 @@ class GridPathFinder{
 			let uint32_len = 50099230;
 			if(!this.states.visited_data) this.states.visited_data = [new Uint32Array(uint32_len)];
 			if(!this.states.visited_index) this.states.visited_index = 0;
-			if(this.states.visited_index + this.visited.arr_length >= uint32_len){
-				this.states.visited_data.push(new Uint32Array(uint32_len));
-				this.states.visited_index = 0;
-			}
 			let curr_visited_section = this.states.visited_data.length - 1;
+			if(this.states.visited_index + this.visited.arr_length > this.states.visited_data[curr_visited_section].length){
+				if(this.states.visited_data.length<37) this.states.visited_data.push(new Uint32Array(uint32_len));
+				else this.states.visited_data.push(new Array(12567562));
+				this.states.visited_index = 0;
+				++curr_visited_section;
+			}
 			let nxt_index = this.visited.copy_data_to(this.states.visited_data[curr_visited_section], this.states.visited_index, true);
 			let visited_tuple = new Uint32Array([curr_visited_section, this.states.visited_index, nxt_index]);//this.states.visited_index + this.visited.arr_length]);
 			//this.states.visited_index+=this.visited.arr_length;
@@ -184,6 +186,47 @@ class GridPathFinder{
 
 		}
 	}
+
+	_found_goal(){
+		// found the goal & exits the loop
+		if (this.current_node_YX[0] != this.goal[0] || this.current_node_YX[1] != this.goal[1]) return false;
+		this.path = [];
+		var curr = this.current_node;
+		// retraces the entire parent tree until start is found
+		while (this.current_node != null) {
+			this.path.unshift(this.current_node.self_YX);
+			this.current_node = this.current_node.parent;
+		}
+		console.log("found");
+
+		this._create_step();
+		this._create_action(STATIC.SIMPLE);
+		this._create_action(STATIC.EC, STATIC.CR);
+		this.path.forEach(yx => this._create_action(STATIC.DP, STATIC.PA, yx));
+		this._save_step("fwd");
+
+		this._create_step();
+		this._create_action(STATIC.SIMPLE);
+		this._create_action(STATIC.EC, STATIC.PA);
+		this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
+		this._save_step("bck");
+
+		this._create_step();
+		this._create_action(STATIC.SIMPLE);
+		this._save_step("fwd");
+
+		this._create_step();
+		this._create_action(STATIC.SIMPLE);
+		this._save_step("bck");
+		return true;
+	}
+
+	_terminate_search(){
+    clearTimeout(this.search_timer);
+    if (this.path == null) console.log("path does not exist");
+    this.searched = true;
+    return this.path;
+  }
 
 	get_visited(tuple){
 		return this.states.visited_data[tuple[0]].slice(tuple[1], tuple[2]);

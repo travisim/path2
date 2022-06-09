@@ -210,7 +210,7 @@ class UICanvas{
   }
 
   draw_canvas(array_data, array_type, draw_zeroes=false, virtual=false){
-    if(virtual) this.virtualCanvas = zero2D(this.data_height, this.data_width);
+    if(virtual) this.init_virtual_canvas();
     else this.erase_canvas();  // clear canvas first before drawing
     // remember to scale canvas first on new maps!
     if(array_data==null || array_data==undefined) return;
