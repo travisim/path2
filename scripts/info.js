@@ -34,7 +34,7 @@ function info_map_out_of_bound(x,y){
   }
   
   //console.log(surrounding_map_deltaNWSE,"obstacle");
-  surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
+surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
 document.getElementById(deltaNWSE).style.background = "transparent";
 document.getElementById(deltaNWSE).style.outlineColor = "transparent";
 document.getElementById(deltaNWSE).style.color = "transparent";});//obstacle
@@ -74,7 +74,7 @@ function info_map_neighbours_draw(x,y){ // comparing surrounding point to curren
      // document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#H").innerHTML = info[y][x].h;
       document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#type").innerHTML = "neighbour";
      // console.log(myUI.planner.deltaNWSE[i],"neighbour");
-      break;
+      
     } 
   }
 
@@ -91,7 +91,7 @@ function info_map_neighbours_erase(x,y){ // comparing surrounding point to curre
       document.getElementById(myUI.planner.deltaNWSE[i]).style.borderColor = "transparent";
        document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#type").innerHTML = "";
      // console.log(myUI.planner.deltaNWSE[i],"neighbour");
-      break;
+     
     } 
   }
 }
@@ -138,40 +138,28 @@ function info_map_queue(x,y){ //using pre obtained map of surrounding point
       document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "Queue"
     });//obstacle
 }
-  
-
-
-
-/*
-
-function info_map_visited(x,y){
-  let [xc,yc] = current_XY_ani;
-  var relative_deltaNWSE = [y-yc,x-xc];
-
-
-
-var pixel = document.getElementById('visited').getContext('2d').getImageData(x, y, 1, 1).data;
-
-  var surrounding_map_deltaNWSE = [];
-    for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
-      var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
-      if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-      if (pixel[1] == 48) { // just check r value for visited colour
-        surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
-        console.log(pixel,"inside");
-        
-      }
-    }
-  console.log(surrounding_map_deltaNWSE,"visited");
-     surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "rgb(221,48,33)";});//obstacle
-  
-}
-*/
-
+ 
 
 //end of js for info map
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
 
 //start of js for info table
@@ -195,7 +183,7 @@ function in_table(x,y){
 var info = myUI.planner.final_state().info_matrix
   
 if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
-    t = document.createElement('table');
+  t = document.createElement('table');
   //t.setAttribute('class', 'slide'); new table automatically set "slide class"
   r = t.insertRow(0); 
   c1 = r.insertCell(0);

@@ -6,7 +6,7 @@ myUI.initialize = function(){
   myUI.buttons = {};
   myUI.selects = {};
   myUI.sliders = {};
-  myUI.infopanes = {};
+  myUI.infomap = {};
 
   // Initialize canvases
   [
@@ -19,13 +19,32 @@ myUI.initialize = function(){
     ["neighbours", "rgb(0,130,105)"],
     ["path", "rgb(52,209,234)"], //  changed from #E2C2B9
     ["start", "rgb(150,150,150)"],
-    ["goal", "rgb(159,23,231)"],
+    ["goal", "rgb(159,23,231)"]
   ].forEach(item=>{
     let canvasId = item[0];
     let color = item.slice(1);
     myUI.canvases[canvasId] = new UICanvas(canvasId, color);
   });
   myUI.canvases.edit_map.toggle_edit();
+ //initialise info
+  /*
+  [
+    ["N"],
+		["NE"],
+    ["E"],
+    ["SE"],
+    ["S"],
+    ["SW"],
+    ["W"],
+    ["NE"] 
+  ].forEach(item=>{
+    let infoNWSE_Id = item[0];
+    myUI.infomap[infoNWSE_Id] = new UIInfoMap(infoNWSE_Id);
+  });
+*/
+      myUI.infomap = new UIInfoMap;
+
+  
   // Initialize selects
   [
     ["scen_select", "scen_label"],

@@ -99,7 +99,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
            // console.log(x,"x",y,"y","current_YX");
            // info_map_visited(x,y);
-            info_map_reset();
+           // info_map_reset();
+            myUI.infomap.ResetAll();
             info_map_obstacles(x,y);
             info_map_out_of_bound(x,y);
              info_map_queue(x,y)
