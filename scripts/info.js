@@ -13,15 +13,21 @@ var current_XY_ani = [];
 
 
 function info_map_reset(){
-  myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
+ /* myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
   document.getElementById(deltaNWSE).style.borderColor = "transparent";
   document.getElementById(deltaNWSE).style.background = "rgb(188,186,201)";
   document.getElementById(deltaNWSE).style.outlineColor = "black";
   document.getElementById(deltaNWSE).style.color = "black";
   document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "";
   }); //reset obstacles in info map 
-  
+  */
+  myUI.planner.deltaNWSE.forEach(deltaNWSE => {
+    myUI.infomap[deltaNWSE].Reset();
+  }); //reset obstacles in info map 
 }
+
+
+ 
 
 function info_map_out_of_bound(x,y){
   current_XY_ani = [x,y];
@@ -34,10 +40,12 @@ function info_map_out_of_bound(x,y){
   }
   
   //console.log(surrounding_map_deltaNWSE,"obstacle");
-surrounding_map_deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
+surrounding_map_deltaNWSE.forEach(deltaNWSE => {
+document.getElementById(deltaNWSE).style.borderColor = "transparent";
 document.getElementById(deltaNWSE).style.background = "transparent";
 document.getElementById(deltaNWSE).style.outlineColor = "transparent";
-document.getElementById(deltaNWSE).style.color = "transparent";});//obstacle
+document.getElementById(deltaNWSE).style.color = "transparent";
+});//obstacle
 }
   
  

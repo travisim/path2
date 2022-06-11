@@ -27,7 +27,7 @@ myUI.initialize = function(){
   });
   myUI.canvases.edit_map.toggle_edit();
  //initialise info
-  /*
+  
   [
     ["N"],
 		["NE"],
@@ -36,13 +36,13 @@ myUI.initialize = function(){
     ["S"],
     ["SW"],
     ["W"],
-    ["NE"] 
+    ["NW"] 
   ].forEach(item=>{
     let infoNWSE_Id = item[0];
     myUI.infomap[infoNWSE_Id] = new UIInfoMap(infoNWSE_Id);
   });
-*/
-      myUI.infomap = new UIInfoMap;
+
+      
 
   
   // Initialize selects
