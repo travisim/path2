@@ -32,7 +32,7 @@
 		<div id="edit_map_modal" class="modal">
 			<div class="modal-content">
 				<div id="edit_map_ctn">
-					<canvas id="edit_map" height="8" width="8"></canvas>
+					<canvas id="edit_map" class="map_canvas" height="8" width="8"></canvas>
 				</div>
 				<div id="right_panel">
 					<span class="close">&times;</span>
@@ -159,17 +159,19 @@
       <div id="map-container" class="container">
 				<div class="sub-container">
 					<div id="map" class="interface overlay">
-						<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
-						<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
-						<canvas id="hover_map" height="8" width="8"></canvas>
-						<canvas id="bg" height="8" width="8"></canvas><!-- loaded .map file -->
-						<canvas id="queue" height="8" width="8" ></canvas> <!-- neighbouring nodes that are in the queue -->
-						<canvas id="visited" height="8" width="8" ></canvas>
-						<canvas id="current_YX" height="8" width="8" ></canvas>
-						<canvas id="neighbours" height="8" width="8" ></canvas>
-						<canvas id="path" height="8" width="8" ></canvas>
-						<canvas id="start" height="8" width="8"></canvas>
-						<canvas id="goal" height="8" width="8" ></canvas>
+						<div id="canvas_container">
+							<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
+							<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
+							<canvas id="hover_map" class="map_canvas" height="8" width="8"></canvas>
+							<canvas id="bg" class="map_canvas" height="8" width="8"></canvas><!-- loaded .map file -->
+							<canvas id="queue" class="map_canvas" height="8" width="8" ></canvas> <!-- neighbouring nodes that are in the queue -->
+							<canvas id="visited" class="map_canvas" height="8" width="8" ></canvas>
+							<canvas id="current_YX" class="map_canvas" height="8" width="8" ></canvas>
+							<canvas id="neighbours" class="map_canvas" height="8" width="8" ></canvas>
+							<canvas id="path" class="map_canvas" height="8" width="8" ></canvas>
+							<canvas id="start" class="map_canvas" height="8" width="8"></canvas>
+							<canvas id="goal" class="map_canvas" height="8" width="8" ></canvas>
+						</div>
 					</div>
 					<div class="flex-row">
 						<div class="flex-row">

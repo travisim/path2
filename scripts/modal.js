@@ -1,5 +1,6 @@
 // Get the modal
 var modal = document.getElementById("edit_map_modal");
+modal.style.display = "none";
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];

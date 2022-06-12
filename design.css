@@ -62,16 +62,23 @@ html, body{
 	position: relative;
 }
 
+#canvas_container{
+	height: 480px;
+	width: 480px;
+	position: relative;
+	float: right;
+	border: 1px solid black;
+}
+
 .interface{
 	width: 100%;
 	height: 512px;
 }
 
-canvas{
-	height: 512px;
-	width: 512px;
+.map_canvas{
+	height: 100%;
+	width: 100%;
 	position: absolute;
-	border: 1px solid black;
 }
 
 /* drag and drop css */
