@@ -51,7 +51,6 @@ myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 			myUI.jump_to_step(idx);
 		}
 	}
-
 });
 
 myUI.canvases.hover_map.canvas.addEventListener(`mouseleave`, e=>{

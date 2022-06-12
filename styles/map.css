@@ -1,3 +1,7 @@
+:root{
+	--canvas-length: 472px;;
+}
+
 #map-container{
 	width: 512px;
 }
@@ -7,8 +11,8 @@
 }
 
 #canvas_container{
-	height: 480px;
-	width: 480px;
+	height: var(--canvas-length);
+	width: var(--canvas-length);
 	position: relative;
 	float: right;
 	border: 1px solid black;
@@ -18,6 +22,24 @@
 	height: 100%;
 	width: 100%;
 	position: absolute;
+}
+
+#left_axes{
+	position: absolute;
+	height: var(--canvas-length);
+	width: calc(512px - var(--canvas-length));
+	overflow: hidden;
+	padding: 0px;
+}
+
+#bottom_axes{
+	position: absolute;
+	width: var(--canvas-length);
+	right: 0;
+	top: var(--canvas-length);
+	overflow: hidden;
+	padding-left: 0px;
+	padding-right: 0px;
 }
 
 /* controls map order and how the cells are displayed */

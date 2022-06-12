@@ -138,8 +138,14 @@ myUI.buttons.start_pause_btn.btn.addEventListener("click", myUI.toggleAnimation)
 
 
 document.addEventListener(`keydown`, event=>{
-	if(event.key==`ArrowLeft`) myUI.step_back();
-	else if(event.key==`ArrowRight`) myUI.step_forward();
+	if(event.key==`ArrowLeft`){
+		event.preventDefault();
+		myUI.step_back();
+	}
+	else if(event.key==`ArrowRight`){
+		event.preventDefault();
+		myUI.step_forward();
+	}
 });
 
 

@@ -161,8 +161,6 @@
       <div id="map-container" class="container">
 				<div class="sub-container">
 					<div id="map" class="interface overlay">
-						<div id="left_axes"></div>
-						<div id="bottom_axes"></div>
 						<div id="canvas_container">
 							<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
 							<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
@@ -175,6 +173,16 @@
 							<canvas id="path" class="map_canvas" height="8" width="8" ></canvas>
 							<canvas id="start" class="map_canvas" height="8" width="8"></canvas>
 							<canvas id="goal" class="map_canvas" height="8" width="8" ></canvas>
+						</div>
+						<div id="left_axes" class="flex-col">
+							<span class="label_centered">0</span>
+							<div class="slider"></div>
+							<span id="map_height_axis" class="label_centered">15</span>
+						</div>
+						<div id="bottom_axes" class="flex-row">
+							<span class="label_centered">0</span>
+							<div class="slider"></div>
+							<span id="map_width_axis" class="label_centered">15</span>
 						</div>
 					</div>
 					<div class="flex-row">
