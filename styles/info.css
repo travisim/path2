@@ -1,0 +1,126 @@
+/*start of CSS for info panel*/
+/*start of CSS for info map*/
+
+.grid {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  aspect-ratio: 1;
+  position: relative;
+  padding:35px;
+
+ 
+
+}
+
+
+
+.info_neighbours{
+ padding: 7px;
+  height: 60px;
+  font-size: 9px;
+  background-color: rgb(188,186,201);
+  border: 8px solid rgb(188,186,201);
+  outline: 3px solid black;
+
+  aspect-ratio: 1;
+  border-radius: 15px;
+
+
+}
+
+
+.info_currentYX{
+ padding: 10px;
+  height: 30px;
+    font-size: 11px;
+  background-color: rgb(52,209,234);
+  border: 2px solid black;
+  aspect-ratio: 1;
+  border-radius: 15px;
+   border-radius: 50px;
+   
+  /* to center verticaally and horizontally the text in info_square*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ 
+    
+}
+.NWSE{
+  font-size: 8px;
+  height: 10px;
+  aspect-ratio: 1;
+  padding: 10px;
+  background-color: rgb(0,0,0);
+
+  color: white;
+
+  /* to center verticaally and horizontally the text in NWSE*/
+   display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 25px
+  
+
+
+}
+
+span::after{
+    content: "\a";
+    white-space: pre;
+}
+
+/*end of css for info map*/
+/*start of css for info table*/
+
+table {
+  background: rgb(188,186,201);
+  
+  border-radius: .4em;
+  border-collapse: collapse;
+   width: 100%;
+   position: relative;
+   table-layout: fixed;
+}
+td {
+    border: none;
+    
+}
+th{
+   text-align: left;
+   height: 10px;
+}
+tr{ line-height: 20px;}
+
+
+
+@keyframes out {
+  0%   {  top:0px;}
+  40% { opacity: .8; top:3px;}
+  100% { opacity: 0; top:0px;}
+}
+
+@keyframes move {
+  0%   {  top:0px;}
+  100% { top:20px;}
+}
+
+.new-slide {
+	animation: append-animate .5s linear;
+}
+
+@keyframes append-animate {
+	0% {
+		transform: scale(0.5);
+		opacity: .7;
+	}
+
+	100% {
+		transform: scale(1);
+		opacity: 1;	
+	}
+}
+/*end of css for info table*/
+/*end of CSS for info panel*/

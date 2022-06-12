@@ -1,0 +1,161 @@
+html, body{
+	height: 100%;
+	width: 100%;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	font-family: sans-serif;
+	background-color: #d1cfe2 ;
+  background-size: cover;
+}
+
+#main-title{
+	text-align: center;
+	height: 5%;
+	width: 100%;
+}
+
+
+#dark-toggle{
+	display: inline-block;
+	position: absolute;
+}
+
+#main{
+	width: 1272px;
+	height: 622px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	white-space: nowrap; /* this does the trick */
+  overflow: hidden; /* this prevents the grey divs from overflowing */
+}
+
+
+.container{
+	display: inline-block;
+	vertical-align:middle;
+	height: 612px;
+	width: 300px;
+	border: 3px solid black;
+	margin: 2px;
+	overflow: hidden;
+}
+
+#info-container{
+	width: 400px;
+}
+
+.sub-container{
+  overflow: hidden;
+	width: 100%;
+	height: 100%;
+  justify-items: center;
+  align-items: center;
+}
+
+.interface{
+	width: 100%;
+	height: 512px;
+}
+
+/* drag and drop css */
+
+.upload{
+	width: 95%;
+	height: 70px;
+	margin: 0 auto;
+	padding: 5px;
+	border: 2px dashed #555;
+  border-radius: 20px;
+	font-family: sans-serif;
+}
+
+.hidden{
+	visibility: hidden;
+}
+
+.upload.highlight {
+  border-color: purple;
+}
+
+.btn {
+  display: inline-block;
+	flex-grow: 1;
+	margin: 2px;
+  padding: 2px;
+  background: #bcbacb;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #bcbacb;
+	height: 52px;
+	width: 52px;
+}
+.btn:hover {
+  background: #d19b6d;
+	transform: scale(1.15) perspective(1px);
+}
+
+.icon{
+	height: 30px;
+	display: block;
+	margin: auto;
+}
+
+.file_input{
+	display: none;
+}
+
+.flex-row{
+	display: flex;
+	justify-content: center;
+	flex-direction: row;
+	padding: 5px;
+}
+
+.flex-col{
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	padding: 5px;
+}
+
+.upload-btn{
+	display: inline-block;
+  background: #ccc;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.grid-overlay{
+	display: grid;
+}
+
+.overlay{
+	grid-column: 1;
+  grid-row: 1;
+}
+
+.label_centered{
+	display: block;
+	margin: 0px auto;
+	text-align: center;
+}
+
+.slider{
+	display: inline-block;
+	margin: 0px 10px;
+	flex-basis: 100%;
+}
+
+.rotated{
+	transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg); /*do same for other browsers if required*/
+}
+
+.select-dropdown{
+	margin: 0 auto;
+	display: block;
+	width: 95%;
+}

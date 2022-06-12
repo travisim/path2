@@ -163,7 +163,7 @@ myUI.create_arrow = function(start_YX, end_YX){
   elem.style.width = elem_window_length + 3;
   elem.style.transform = `rotate(${angle}rad)`;
   elem.innerHTML = `<path fill="purple" d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${elem_window_length - 18} v 3 l 6 -3 h 12 a 1.5 1.5, 0, 0, 0, 0 -3 h -12 l -6 -3 v 3 z"></path>`;
-  document.getElementById("map").appendChild(elem);
+  document.getElementById("canvas_container").appendChild(elem);
   elem.style.top = (start_coord.y + elem_path_length * Math.sin(angle)/2 + 0.5) * display_ratio - 3 +"px";
   elem.style.left = (start_coord.x + 0.5 - elem_path_length * (1-Math.cos(angle))/2) * display_ratio +"px";
   elem.id = `${start_coord.y},${start_coord.x} ${end_coord.y},${end_coord.x}`;

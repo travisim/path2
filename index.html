@@ -17,8 +17,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="design.css" />
-		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="modal.css" />
+		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="styles/design.css" />
+		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="styles/modal.css" />
+		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="styles/map.css" />
+		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="styles/info.css" />
 		<link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet">
 
   </head>
@@ -159,6 +161,8 @@
       <div id="map-container" class="container">
 				<div class="sub-container">
 					<div id="map" class="interface overlay">
+						<div id="left_axes"></div>
+						<div id="bottom_axes"></div>
 						<div id="canvas_container">
 							<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
 							<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
@@ -190,7 +194,6 @@
 				</div>
 			</div>
       
-			
 			<div id="controls-container" class="container">
 				<div class="sub-container">
 					<div id="controls" class="interface overlay">
@@ -290,10 +293,7 @@
 				</div>
 			</div>
 
-				
-			
 		</div>
-
     <div>
       <style id="darkmode">
         

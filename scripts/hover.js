@@ -46,8 +46,9 @@ myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let [scaled_y, scaled_x] = myUI.scale_coord(e.offsetY, e.offsetX);
 	if(myUI.planner.cell_map){
 		if(!isNaN(myUI.planner.cell_map[scaled_y][scaled_x])){
-			let ind = myUI.planner.cell_map[scaled_y][scaled_x];
-			myUI.jump_to_step(ind);
+			let idx = myUI.planner.cell_map[scaled_y][scaled_x];
+			myUI.update_search_slider(idx);
+			myUI.jump_to_step(idx);
 		}
 	}
 

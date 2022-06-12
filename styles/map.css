@@ -1,0 +1,57 @@
+#map-container{
+	width: 512px;
+}
+
+#map{
+	position: relative;
+}
+
+#canvas_container{
+	height: 480px;
+	width: 480px;
+	position: relative;
+	float: right;
+	border: 1px solid black;
+}
+
+.map_canvas{
+	height: 100%;
+	width: 100%;
+	position: absolute;
+}
+
+/* controls map order and how the cells are displayed */
+#hover_map{z-index:60}
+#bg{z-index:47}
+#current_YX{z-index:46}
+#start, #goal{z-index:45}
+#path{z-index:44}
+#neighbours{z-index:43}
+#visited{z-index:42}
+#queue{z-index:41}
+
+.draggable{
+	position: absolute;
+	z-index: 61;
+}
+
+.arrow{
+	display: block;
+	position: absolute;
+	z-index: 59;
+}
+
+.hover_popup{
+  display: none;
+  background: #C8C8C8;
+  margin-left: 28px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1000;
+  width:200px;
+  height:80px;
+}
+
+#hover_x, #hover_y{
+	display: inline;
+}
