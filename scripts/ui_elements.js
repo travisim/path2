@@ -37,11 +37,6 @@ class UICanvas{
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
 
-    // parent for mouse event handlers
-    this.canvas.parent = this;
-    this.window = window;
-    this.window.parent = this;
-
     var height = this.canvas.height;
     var width = this.canvas.width;
     if(this.id=="edit_map") console.log(`Height: ${height}, Width: ${width}`);
@@ -161,17 +156,17 @@ class UICanvas{
     let [y,x] = yx;
     let curr = this.canvas_cache[y][x];
     if(direction=="inc") ++curr; else --curr;
-    this.draw_pixel(yx, virtual, curr);
+    curr = Math.min(this.colors.length, Math.max(curr, 0));
+    this.draw_pixel(yx, virtual, curr, curr-1);
   }
 
-  draw_pixel(yx, virtual=false, val=1){
-    val = Math.min(this.colors.length, Math.max(val, 0));
-    this.set_color_index(val-1);
+  draw_pixel(yx, virtual=false, val=1, color_index=0, save_in_cache=true){
+    this.set_color_index(color_index);
     let [y,x] = yx;
     if(virtual)
       this.virtualCanvas[y][x] = val;
     else {
-      this.canvas_cache[y][x] = val;
+      if(save_in_cache) this.canvas_cache[y][x] = val;
       this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
     }
   }
@@ -255,56 +250,71 @@ class UICanvas{
       this.edit_enabled = true;
     }*/
 
+    // wrapper for mouse event handlers
+    this.canvas.wrapper = this;
+    this.window = window;
+    this.window.wrapper = this;
+
     if(this.edit_state){  // enable editing mode
       console.log(`enabling editing`);
       this.canvas.addEventListener(`mousedown`, this._handleMouseDown, true);
       this.canvas.addEventListener('mousemove', this._handleMouseMove, true);
       this.canvas.addEventListener('mouseup', this._handleMouseUp, true);
+      this.canvas.addEventListener('mouseleave', this._handleMouseLeave, true);
       window.addEventListener('mouseup', this._handleMouseUp, true);
     }
     else{
       this.canvas.removeEventListener(`mousedown`, this._handleMouseDown, true);
       this.canvas.removeEventListener('mousemove', this._handleMouseMove, true);
       this.canvas.removeEventListener('mouseup', this._handleMouseUp, true);
+      this.canvas.removeEventListener('mouseleave', this._handleMouseLeave, true);
       window.removeEventListener('mouseup', this._handleMouseUp, true);
     }
   }
 
   _handleMouseDown(e){
-    // this function is bound to the canvas dom element, use this.parent to refer to the UICanvas
-    let x = e.offsetX;
-    let y = e.offsetY;
-    this.parent._fillEditedCell(x, y);
-    this.parent.isDrawing = true;
+    // this function is bound to the canvas dom element, use this.wrapper to refer to the UICanvas
+    let canvas_x = e.offsetX;
+    let canvas_y = e.offsetY;
+    this.wrapper._fillEditedCell(canvas_x, canvas_y);
+    this.wrapper.isDrawing = true;
   }
 
   _handleMouseMove(e){
-    // this function is bound to the canvas dom element, use this.parent to refer to the UICanvas
-    if (this.parent.isDrawing) {
-      let x = e.offsetX;
-      let y = e.offsetY;
-      this.parent._fillEditedCell(x, y);
-      //console.log(`${x}, ${y}`);
-    }
+    // this function is bound to the canvas dom element, use this.wrapper to refer to the UICanvas
+    let canvas_x = e.offsetX;
+    let canvas_y = e.offsetY;
+    this.wrapper.draw_canvas(deep_copy_matrix(this.wrapper.canvas_cache), `2d`);
+    if (this.wrapper.isDrawing) this.wrapper._fillEditedCell(canvas_x, canvas_y);
+    this.wrapper._drawHover(canvas_x, canvas_y);
   }
 
   _handleMouseUp(e){
-    // this function is bound to the canvas dom element, use this.parent to refer to the UICanvas
-    this.parent.isDrawing = false;
+    // this function is bound to the canvas dom element, use this.wrapper to refer to the UICanvas
+    this.wrapper.isDrawing = false;
     if(this.id=="edit_map"){  //  to save the current state on the screen
-      let child = new EditState(myUI.map_edit.curr_state, deep_copy_matrix(this.parent.canvas_cache));
+      let child = new EditState(myUI.map_edit.curr_state, deep_copy_matrix(this.wrapper.canvas_cache));
       myUI.map_edit.curr_state.child = child;
       myUI.map_edit.curr_state = child;
     }
   }
+  
+  _handleMouseLeave(e){
+    this.wrapper.draw_canvas(deep_copy_matrix(this.wrapper.canvas_cache), `2d`);
+  }
 
   _fillEditedCell(canvas_x, canvas_y){
-    let x = canvas_x/this.canvas.clientWidth*this.data_width;
-    let y = canvas_y/this.canvas.clientHeight*this.data_height;
-    x = Math.floor(x);
-    y = Math.floor(y);
+    let x = Math.floor(canvas_x/this.canvas.clientWidth*this.data_width);
+    let y = Math.floor(canvas_y/this.canvas.clientHeight*this.data_height);
     if(this.erase) this.erase_pixel([y,x]);
     else this.draw_pixel([y,x]);
+  }
+
+  _drawHover(canvas_x, canvas_y){
+    let x = Math.floor(canvas_x/this.canvas.clientWidth*this.data_width);
+    let y = Math.floor(canvas_y/this.canvas.clientHeight*this.data_height);
+    if(this.erase) this.draw_pixel([y,x], false, 1, 2, false);
+    else this.draw_pixel([y,x], false, 1, 1, false);
   }
 
   toggle_draw_erase(){

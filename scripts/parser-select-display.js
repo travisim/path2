@@ -35,11 +35,13 @@ myUI.displayMap = function(){
 	console.log(myUI.map_arr);
 	myUI.reset_animation();
 	myUI.planner.cell_map = undefined;
+	
+	const height = myUI.map_arr.length;
+	const width = myUI.map_arr[0].length;
 
   Object.values(myUI.canvases).forEach(uiCanvas=>{
-		let height = myUI.map_arr.length;
-		let width = myUI.map_arr[0].length;
     uiCanvas.scale_canvas(height, width);
+		console.log(uiCanvas.id, height, width);
   });
 
   /* summary the css canvas and html/ js canvas are different

@@ -10,7 +10,7 @@ myUI.initialize = function(){
 
   // Initialize canvases
   [
-    ["edit_map", "#000000"],
+    ["edit_map", "#000000" ,"#d19b6d", "#AA1945"],
 		["hover_map", "#d19b6d", "#AA1945"],
     ["bg", "#000000"],
     ["queue", "rgb(116,250,76)"],

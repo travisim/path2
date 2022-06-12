@@ -7,6 +7,7 @@ var span = document.getElementsByClassName("close")[0];
 // When the user clicks on the button, open the modal
 myUI.buttons.edit_map_btn.btn.onclick = function() {
   modal.style.zIndex = "100"; // reveal
+  modal.style.display = "block";
   document.addEventListener("keydown", undo_edit);
   document.addEventListener("keydown", redo_edit);
   //  to save the current state on the screen
@@ -14,11 +15,12 @@ myUI.buttons.edit_map_btn.btn.onclick = function() {
 }
 
 myUI.close_modal = function(){
-  modal.style.zIndex = "-100"; // hide
   myUI.map_arr = deep_copy_matrix(myUI.canvases.edit_map.canvas_cache, flip_bit=true);
   myUI.displayMap();
   document.removeEventListener("keydown", undo_edit);
   document.removeEventListener("keydown", redo_edit);
+  modal.style.zIndex = "-100"; // hide
+  modal.style.display = "none";
 }
 
 // When the user clicks on <span> (x), close the modal
