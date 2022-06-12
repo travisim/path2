@@ -154,10 +154,10 @@ class UICanvas{
 
   change_pixel(yx, direction, virtual=false){
     let [y,x] = yx;
-    let curr = this.canvas_cache[y][x];
-    if(direction=="inc") ++curr; else --curr;
-    curr = Math.min(this.colors.length, Math.max(curr, 0));
-    this.draw_pixel(yx, virtual, curr, curr-1);
+    let val = this.canvas_cache[y][x];
+    if(direction=="inc") ++val; else --val;
+    val = Math.min(this.colors.length, Math.max(val, 0));
+    this.draw_pixel(yx, virtual, val, val-1);
   }
 
   draw_pixel(yx, virtual=false, val=1, color_index=0, save_in_cache=true){
@@ -228,8 +228,9 @@ class UICanvas{
     else if(array_type == "2d_heatmap"){
       for (let i = 0; i < array_data.length; i++) 
         for (let j = 0; j < array_data[i].length; j++)
-          if(array_data[i][j] ^ draw_zeroes){
-            this.draw_pixel([i,j], virtual, array_data[i][j]);
+          if(array_data[i][j]){
+            let val = Math.min(this.colors.length, Math.max(array_data[i][j], 0));
+            this.draw_pixel([i,j], virtual, val, val-1);
           }
     }
   }
