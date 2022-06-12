@@ -321,6 +321,7 @@ class UICanvas{
   toggle_draw_erase(){
     // initial state => set his.erase to true, because draw is default and calling of function means it has been clicked to erase
     this.erase = !this.erase;
+    return this.erase;
   }
 
   copy_data_to(other_id){

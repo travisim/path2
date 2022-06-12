@@ -104,3 +104,13 @@ input[type=range][orient=vertical]{
 #edit_map{
   z-index: 102;
 }
+
+#edit_mouse_tip{
+  position: absolute;
+  display: none;
+  z-index: 103;
+}
+
+#erase_marker{
+  display: none;
+}

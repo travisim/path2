@@ -63,8 +63,8 @@ dragElement(myUI.map_goal_icon.elem);
 
 function dragElement(elmnt) {
 
-	elmnt.addEventListener(`mouseenter`, e=>elmnt.style.cursor = "move");
-	elmnt.addEventListener(`mouseleave`, e=>elmnt.style.cursor = "auto");
+	elmnt.addEventListener(`mouseenter`, e=>this.style.cursor = "move");
+	elmnt.addEventListener(`mouseleave`, e=>this.style.cursor = "auto");
 
   var bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
 	let x1, y1, dx, dy;

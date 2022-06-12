@@ -156,9 +156,3 @@ myUI.toggleMapDetail = function(){
 	// do other stuff
 }
 myUI.buttons.detail_btn.btn.addEventListener("click", myUI.toggleMapDetail);
-
-myUI.toggleDrawErase = function(){
-	myUI.buttons.draw_erase_btn.next_svg();
-	myUI.canvases.edit_map.toggle_draw_erase();
-}
-myUI.buttons.draw_erase_btn.btn.addEventListener("click", myUI.toggleDrawErase);
