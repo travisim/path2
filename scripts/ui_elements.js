@@ -302,7 +302,7 @@ class UICanvas{
     let x = canvas_x/this.canvas.clientWidth*this.data_width;
     let y = canvas_y/this.canvas.clientHeight*this.data_height;
     x = Math.floor(x);
-    y = Math.floor(y);irtualCa
+    y = Math.floor(y);
     if(this.erase) this.erase_pixel([y,x]);
     else this.draw_pixel([y,x]);
   }

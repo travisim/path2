@@ -10,12 +10,12 @@ myUI.buttons.edit_map_btn.btn.onclick = function() {
   document.addEventListener("keydown", undo_edit);
   document.addEventListener("keydown", redo_edit);
   //  to save the current state on the screen
-  myUI.map_edit.curr_state = new EditState(null, deep_copy_matrix(myUI.canvases.edit_map.virtualCanvas));
+  myUI.map_edit.curr_state = new EditState(null, deep_copy_matrix(myUI.canvases.edit_map.canvas_cache));
 }
 
 myUI.close_modal = function(){
   modal.style.zIndex = "-100"; // hide
-  myUI.map_arr = deep_copy_matrix(myUI.canvases.edit_map.virtualCanvas, flip_bit=true);
+  myUI.map_arr = deep_copy_matrix(myUI.canvases.edit_map.canvas_cache, flip_bit=true);
   myUI.displayMap();
   document.removeEventListener("keydown", undo_edit);
   document.removeEventListener("keydown", redo_edit);
