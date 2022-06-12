@@ -1,5 +1,5 @@
-const STATIC_NAMES = [
-  /* index 0 to index 4 are canvas ids, must be the same as statics_to_obj */
+/*const STATIC_NAMES = [
+  // index 0 to index 4 are canvas ids, must be the same as statics_to_obj 
   "QU", // queue
   "VI", // visited
   "CR", // current
@@ -14,7 +14,7 @@ const STATIC_NAMES = [
   "IW",
   "INW",
   "ICR", //info current path
-  /* rest of the items are dynamics commands/identifiers */
+  // rest of the items are dynamics commands/identifiers
   "SIMPLE", // shows that the step is a simple step
   "EC", // erase canvas
   "DP", // draw pixel
@@ -22,7 +22,7 @@ const STATIC_NAMES = [
   "INC_P", // increment pixel
   "DEC_P", // increment pixel
   "DA", // draw, arrow
-  "EA" ,
+  "EA" , // erase arrow
   "DF",
   "EF",
   "DG",
@@ -34,33 +34,60 @@ const STATIC_NAMES = [
   "Einfomap",
   "TableAdd",
   "Tableremove"
-  
- 
+];*/
 
-// erase arrow
+const STATIC_COMMANDS = [
+  /* rest of the items are dynamics commands/identifiers */
+  "SIMPLE", // shows that the step is a simple step
+  "EC", // erase canvas
+  "DP", // draw pixel
+  "EP", // erase pixel
+  "INC_P", // increment pixel
+  "DEC_P", // increment pixel
+  "DA", // draw, arrow
+  "EA" , // erase arrow
+  "DF",
+  "EF",
+  "DG",
+  "EG",
+  "DH",
+  "EH",
+  "Dparent",
+  "Eparent",
+  "Einfomap",
+  "TableAdd",
+  "Tableremove"
 ];
 
+const STATIC_DESTS = [
+  /* index 0 to index 4 are canvas ids, must be the same as statics_to_obj */
+  "QU", // queue
+  "VI", // visited
+  "CR", // current
+  "NB", // neighbours
+  "PA", //
+  "IN", // info NWSE
+  "INE",
+  "IE",
+  "ISE",
+  "IS",
+  "ISW",
+  "IW",
+  "INW",
+  "ICR", //info current path
+];
 
-/*
-{ max_val: 10,
-  QU: 0,myUI
-  VI: 1,
-  CR: 2,
-  NB: 3,
-  PA: 4,
-  SIMPLE: 5,
-  EC: 6,
-  DP: 7,
-  EP: 8,
-  DA: 9,
-  EA: 10 }
-*/
+// IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
+
 var STATIC = {
-  max_val: STATIC_NAMES.length-1
+  max_val: Math.max(STATIC_COMMANDS.length-1, STATIC_DESTS.length-1)
 };
-STATIC_NAMES.forEach(function(value, i){
+STATIC_COMMANDS.forEach(function(value, i){
   STATIC[value] = i;
-})
+});
+STATIC_DESTS.forEach(function(value, i){
+  STATIC[value] = i;
+});
 console.log(STATIC);
 /*
 Actions
