@@ -7,15 +7,20 @@ class GridPathFinder{
 	static get action_buffer(){return 5}
 
 	static unpack_action(action){
-		let command = (action >> 2) & ((1 << myUI.planner.static_bit_len) - 1);
+		let command = (action >> 3) & ones(myUI.planner.static_bit_len);
 		if(action & 1)  // dest exists
-			var dest = (action >> 2 + myUI.planner.static_bit_len) & ((1 << myUI.planner.static_bit_len) - 1);
+			var dest = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(myUI.planner.static_bit_len);
 		if(action & (1<<1)){  // coord exists
-			var coord = (action >> 2 + myUI.planner.static_bit_len * 2) & ((1 << myUI.planner.coord_bit_len) - 1);
+			var coord = bit_shift(action, -(3 + myUI.planner.static_bit_len * 2)) & ones(myUI.planner.coord_bit_len);
 			var y = Math.floor(coord/myUI.planner.map_width);
 			var x = coord - y * myUI.planner.map_width;
     }
-		return [command, dest, y, x];
+		if(action & (1<<2)){ //  g, h & parent exists
+			var parent_coord = bit_shift(action, -(3 + myUI.planner.static_bit_len * 2 + myUI.planner.coord_bit_len)) & ones(myUI.planner.coord_bit_len);
+			var parent_y = Math.floor(parent_coord/myUI.planner.map_width);
+			var parent_x = parent_coord - parent_y * myUI.planner.map_width;
+		}
+		return [command, dest, y, x, parent_y, parent_x];
 	}
 
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
@@ -96,22 +101,35 @@ class GridPathFinder{
 		/* bits are read from right ot left */
 		// rightmost bit shows if action contains destination
 		// 2nd rightmost shows if action contains coordinates
+		// 3rd rightmost bit shows if action contains g & h cost
 		// next this.static_bit_len bits contains the command
 		// next this.static_bit_len bits contains the destination, if applicable
 		// next coord_bit_len bits contains the coordinates
+		// next coord_bit_len bits contains the parent coordinates
+		// next two integers contain g & h cost, if applicable
 		this.action_cache = 0;
-		this.action_cache += arguments[0] << 2; // command 
+		this.action_cache += arguments[0] << 3; // command 
 		if(arguments[1]!==undefined){
 			this.action_cache += 1; // dest_exists
-			this.action_cache += arguments[1] << (2 + this.static_bit_len); // dest
+			this.action_cache += bit_shift(arguments[1], 3 + this.static_bit_len); // dest
 		}
 		if (arguments[2]!==undefined){
 			this.action_cache += 1<<1; // coords exists?
 			let y = arguments[2][0];
 			let x = arguments[2][1];
-			this.action_cache += (y * this.map_width + x) << (2 + this.static_bit_len * 2);
+			this.action_cache += bit_shift(y * this.map_width + x, 3 + this.static_bit_len * 2);
+		}
+		if (arguments[3]!==undefined){
+			this.action_cache += 1<<2; // parent, g & h exists?
+			let y = arguments[5][0];
+			let x = arguments[5][1];
+			this.action_cache += bit_shift(y * this.map_width + x, 3 + this.static_bit_len * 2 + this.coord_bit_len);
 		}
 		this.step_cache.push(this.action_cache);
+		if (arguments[3]!==undefined){
+			this.step_cache.push(arguments[3]);
+			this.step_cache.push(arguments[4]);
+		}
 	}
 
 	_save_step(step_direction="fwd"){

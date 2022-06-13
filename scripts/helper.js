@@ -53,6 +53,21 @@ function ones(bit_len){
 	return Math.pow(2, bit_len)-1;
 }
 
+function bit_shift(data, num_bits){
+	return Math.floor(Math.pow(2, num_bits)*data);
+}
+
+function bit_and(a, b){
+	let res = 0, i=0;
+	while (a!=0 && b!=0){
+		if((a&1) && (b&1)) res += bit_shift(1, i);
+		a = bit_shift(a, -1);
+		b = bit_shift(b, -1);
+		++i;
+	}
+	return res;
+}
+
 function isInt(value) {
   var x;
   return isNaN(value) ? !1 : (x = parseFloat(value), (0 | x) === x);
