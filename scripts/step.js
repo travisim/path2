@@ -55,8 +55,8 @@ const STATIC_COMMANDS = [
   "Dparent",
   "Eparent",
   "Einfomap",
-  "TableAdd",
-  "Tableremove"
+  "AddTable",
+  "RemoveTable"
 ];
 
 const STATIC_DESTS = [
