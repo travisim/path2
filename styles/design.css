@@ -159,3 +159,336 @@ html, body{
 	display: block;
 	width: 95%;
 }
+
+/*start of CSS for info panel*/
+/*start of CSS for info map*/
+
+.grid {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  aspect-ratio: 1;
+  position: relative;
+  padding:35px;
+
+ 
+
+}
+
+
+
+.info_neighbours{
+ padding: 7px;
+  height: 60px;
+  font-size: 9px;
+  background-color: rgb(188,186,201);
+  border: 8px solid rgb(188,186,201);
+  outline: 3px solid black;
+
+  aspect-ratio: 1;
+  border-radius: 15px;
+
+
+}
+
+
+.info_currentYX{
+ padding: 10px;
+  height: 30px;
+    font-size: 11px;
+  background-color: rgb(52,209,234);
+  border: 2px solid black;
+  aspect-ratio: 1;
+  border-radius: 15px;
+   border-radius: 50px;
+   
+  /* to center verticaally and horizontally the text in info_square*/
+  display: flex;
+  justify-content: center;
+  align-items: center;
+ 
+    
+}
+.NWSE{
+  font-size: 8px;
+  height: 10px;
+  aspect-ratio: 1;
+  padding: 10px;
+  background-color: rgb(0,0,0);
+
+  color: white;
+
+  /* to center verticaally and horizontally the text in NWSE*/
+   display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 25px
+  
+
+
+}
+
+span::after{
+    content: "\a";
+    white-space: pre;
+}
+
+/*end of css for info map*/
+/*start of css for info table*/
+
+table {
+  background: rgb(188,186,201);
+  
+  border-radius: .4em;
+  border-collapse: collapse;
+   width: 100%;
+   position: relative;
+   table-layout: fixed;
+}
+td {
+    border: none;
+    
+}
+th{
+   text-align: left;
+   height: 10px;
+}
+tr{ line-height: 20px;}
+
+
+
+@keyframes out {
+  0%   {  top:0px;}
+  40% { opacity: .8; top:3px;}
+  100% { opacity: 0; top:0px;}
+}
+
+@keyframes move {
+  0%   {  top:0px;}
+  100% { top:20px;}
+}
+
+.new-slide {
+	animation: append-animate .5s linear;
+}
+
+@keyframes append-animate {
+	0% {
+		transform: scale(0.5);
+		opacity: .7;
+	}
+
+	100% {
+		transform: scale(1);
+		opacity: 1;	
+	}
+}
+/*end of css for info table*/
+/*end of CSS for info panel*/
+
+
+
+
+
+:root{
+	--canvas-length: 472px;;
+}
+
+#map-container{
+	width: 512px;
+}
+
+#map{
+	position: relative;
+}
+
+#canvas_container{
+	height: var(--canvas-length);
+	width: var(--canvas-length);
+	position: relative;
+	float: right;
+	border: 1px solid black;
+}
+
+.map_canvas{
+	height: 100%;
+	width: 100%;
+	position: absolute;
+}
+
+#left_axes{
+	position: absolute;
+	height: var(--canvas-length);
+	width: calc(512px - var(--canvas-length));
+	overflow: hidden;
+	padding: 0px;
+}
+
+#bottom_axes{
+	position: absolute;
+	width: var(--canvas-length);
+	right: 0;
+	top: var(--canvas-length);
+	overflow: hidden;
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+/* controls map order and how the cells are displayed */
+#hover_map{z-index:60}
+#bg{z-index:47}
+#current_YX{z-index:46}
+#start, #goal{z-index:45}
+#path{z-index:44}
+#neighbours{z-index:43}
+#visited{z-index:42}
+#queue{z-index:41}
+
+.draggable{
+	position: absolute;
+	z-index: 61;
+}
+
+.arrow{
+	display: block;
+	position: absolute;
+	z-index: 59;
+}
+
+.hover_popup{
+  display: none;
+  background: #C8C8C8;
+  margin-left: 28px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1000;
+  width:200px;
+  height:80px;
+}
+
+#hover_x, #hover_y{
+	display: inline;
+}
+
+
+
+
+
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: -100; /* Hidden by default */ /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  position: relative;
+  background-color: #d1cfe2 ;
+  margin: 5vh auto; /* 15% from the top and centered */
+  padding: 10px;
+  border: 1px solid #888;
+  width: 700px; 
+  height: 610px;
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#edit_map_ctn{
+  position: absolute;
+  padding: 0px;
+  border: 3px solid black;
+  height: 512px;
+  width: 512px;
+}
+
+#right_panel{
+  position: relative;
+  float: right;
+  width: 165px;
+  border: 1px solid black;
+  height: 100%;
+}
+
+#right_panel .flex-row{
+  height: 512px;
+}
+
+#right_panel .flex-row .label_centered{
+  -ms-transform: translateY(50%);
+  transform: translateY(50%);
+}
+
+#right_panel .flex-col{
+  width: 50px;
+  position: relative;
+}
+
+input[type=range][orient=vertical]{
+  writing-mode: bt-lr; /* IE */
+  -webkit-appearance: slider-vertical; /* Chromium */
+  width: 8px;
+  padding: 0 5px;
+  margin: 0 auto;
+}
+
+#draw_erase_btn{
+  position: absolute;
+  bottom: 0;
+  width: 98%;
+  height: 80px;
+  z-index: 101;
+}
+#draw_erase_btn .icon{
+  height: 50px;
+}
+
+#bottom_panel{
+  position: absolute;
+  height: 75px;
+  width: 512px;
+  bottom: 0;
+  margin-left: 2px;
+  margin-bottom: 10px;
+  border: 1px solid black;
+}
+
+.label_input{
+  width: 100px;
+}
+
+#edit_map{
+  z-index: 102;
+}
+
+#edit_mouse_tip{
+  position: absolute;
+  display: none;
+  z-index: 103;
+}
+
+#erase_marker{
+  display: none;
+}
