@@ -1,59 +1,54 @@
  
-class UIInfoNWSE{
+class UIInfoMap{
   constructor(infoNWSE_Id){
-    this.element = document.getElementById(infoNWSE_Id);
+    this.id = infoNWSE_Id;
   }
       
-  /*
- 
+  
+  
   
   Reset(){
-    this.element.style.borderColor = "transparent";
-    this.element.style.borderColor = "transparent";
-    this.element.style.background = "rgb(188,186,201)";
-    this.element.style.outlineColor = "black";
-    this.element.style.color = "black";
-    this.element.querySelector("#type").innerHTML = "";
-     //reset a square in info map 
+  document.getElementById(this.id).style.borderColor = "transparent";
+  document.getElementById(this.id).style.borderColor = "transparent";
+  document.getElementById(this.id).style.background = "rgb(188,186,201)";
+  document.getElementById(this.id).style.outlineColor = "black";
+  document.getElementById(this.id).style.color = "black";
+  document.getElementById(this.id).querySelector("#type").innerHTML = "";
+   //reset a square in info map 
+    
   }
   DrawObstacle(){
-    this.element.style.borderColor = "rgb(0,0,0)";
-    this.element.querySelector("#type").innerHTML = "Obstacle"; 
+    document.getElementById(this.id).style.borderColor = "rgb(0,0,0)";
+    document.getElementById(this.id).querySelector("#type").innerHTML = "Obstacle"; 
     
   }
   DrawOutOfBounds(){
-    this.element.style.borderColor = "transparent";
-    this.element.style.background = "transparent";
-    this.element.style.outlineColor = "transparent";
-    this.element.style.color = "transparent";
+    document.getElementById(this.id).style.borderColor = "transparent";
+    document.getElementById(this.id).style.background = "transparent";
+    document.getElementById(this.id).style.outlineColor = "transparent";
+    document.getElementById(this.id).style.color = "transparent";
   }
   
   DrawVisited(){
-    this.element.style.borderColor = "rgb(221,48,33)";
-    this.element.querySelector("#type").innerHTML = "Visited"
+    document.getElementById(this.id).style.borderColor = "rgb(221,48,33)";
+    document.getElementById(this.id).querySelector("#type").innerHTML = "Visited"
   }
   DrawQueue(){
-    this.element.style.borderColor = "rgb(116,250,76)";
-    this.element.querySelector("#type").innerHTML = "Queue"
+    document.getElementById(this.id).style.borderColor = "rgb(116,250,76)";
+    document.getElementById(this.id).querySelector("#type").innerHTML = "Queue"
     
   }
     
   DrawNeighbour(f,g,h){
-    this.element.style.borderColor = "rgb(0,130,105)";
-    //this.element.querySelector("#F").innerHTML = f;
-    //this.element.querySelector("#G").innerHTML = g;
-    //this.element.querySelector("#H").innerHTML = h;
-    this.element.querySelector("#type").innerHTML = "neighbour";
+    document.getElementById(this.id).style.borderColor = "rgb(0,130,105)";
+    // document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#F").innerHTML = f;
+    // document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#G").innerHTML = g;
+    // document.getElementById(myUI.planner.deltaNWSE[i]).querySelector("#H").innerHTML = h;
+    document.getElementById(this.id).querySelector("#type").innerHTML = "neighbour";
   }
-    */
+    
   
 }
-var UIInfoCurrent = {
-   DrawCurrent(x,y){
-    document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
-  }
-}
-
 
 class UIInfoTable{
   out_table(){

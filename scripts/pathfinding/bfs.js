@@ -64,7 +64,7 @@ class BFS extends GridPathFinder {
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
-      this._create_action(STATIC.DP, STATIC.ICR, this.current_node_YX);// DP used 
+      //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
       this.visited_incs.forEach(coord=>this._create_action(STATIC.INC_P, STATIC.VI, coord));

@@ -6,7 +6,7 @@ myUI.initialize = function(){
   myUI.buttons = {};
   myUI.selects = {};
   myUI.sliders = {};
-  myUI.infoNWSE = {};
+  myUI.infomap = {};
 	myUI.modals = {};
 
   // Initialize canvases
@@ -40,11 +40,9 @@ myUI.initialize = function(){
     ["NW"] 
   ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    myUI.infoNWSE[infoNWSE_Id] = new UIInfoNWSE(infoNWSE_Id);
+    myUI.infomap[infoNWSE_Id] = new UIInfoMap(infoNWSE_Id);
   });
-myUI.InfoCurrent = UIInfoCurrent;
 
-  // Initialize modal
 	[
 		["edit_map_modal", "edit_map_close"],
 		["planner_config_modal", "planner_config_close"]
