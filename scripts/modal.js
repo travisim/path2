@@ -9,8 +9,7 @@ myUI.buttons.edit_map_btn.btn.onclick = function() {
 	var modal = myUI.modals.edit_map.elem;
   modal.style.zIndex = "100"; // reveal
   modal.style.display = "block";
-  document.addEventListener("keydown", undo_edit);
-  document.addEventListener("keydown", redo_edit);
+  document.addEventListener("keydown", modal_await_keypress);
   //  to save the current state on the screen
   myUI.map_edit.curr_state = new EditState(null, deep_copy_matrix(myUI.canvases.edit_map.canvas_cache));
 }
@@ -19,8 +18,7 @@ myUI.close_modal = function(){
 	var modal = myUI.modals.edit_map.elem;
   myUI.map_arr = deep_copy_matrix(myUI.canvases.edit_map.canvas_cache, flip_bit=true);
   myUI.displayMap();
-  document.removeEventListener("keydown", undo_edit);
-  document.removeEventListener("keydown", redo_edit);
+  document.removeEventListener("keydown", modal_await_keypress);
   modal.style.zIndex = "-100"; // hide
   modal.style.display = "none";
 }
@@ -108,18 +106,15 @@ myUI.sliders.map_height_slider.label.onkeypress = function(e){
   }
 }
 
-function undo_edit(e){
-  e = e || window.event;
-  if (e.ctrlKey && e.key === 'z') {
+function modal_await_keypress(e){
+	e = e || window.event
+
+	if (e.ctrlKey && e.key === 'z') {
     //alert('Undo!');
     myUI.map_edit.curr_state = myUI.map_edit.curr_state.get_parent();
     myUI.canvases.edit_map.draw_canvas(myUI.map_edit.curr_state.matrix_data, `2d`, false);
   }
-}
-
-function redo_edit(e){
-  e = e || window.event;
-  if (e.ctrlKey && e.key === 'y') {
+	else if (e.ctrlKey && e.key === 'y') {
     //alert('Redo!');
     myUI.map_edit.curr_state = myUI.map_edit.curr_state.get_child();
     myUI.canvases.edit_map.draw_canvas(myUI.map_edit.curr_state.matrix_data, `2d`, false);
