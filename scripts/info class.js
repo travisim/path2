@@ -1,11 +1,11 @@
  
-class UIInfoMap{
+class UIInfoNWSE{
   constructor(infoNWSE_Id){
     this.element = document.getElementById(infoNWSE_Id);
   }
       
-  
-  
+  /*
+ 
   
   Reset(){
     this.element.style.borderColor = "transparent";
@@ -45,9 +45,15 @@ class UIInfoMap{
     //this.element.querySelector("#H").innerHTML = h;
     this.element.querySelector("#type").innerHTML = "neighbour";
   }
-    
+    */
   
 }
+var UIInfoCurrent = {
+   DrawCurrent(x,y){
+    document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
+  }
+}
+
 
 class UIInfoTable{
   out_table(){

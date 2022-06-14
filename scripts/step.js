@@ -74,7 +74,7 @@ const STATIC_DESTS = [
   "ISW",
   "IW",
   "INW",
-  "ICR", //info current path
+  "ICR", //info current XY
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -126,8 +126,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             i+=2;
           }
           console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost]);
+
+          if(dest==STATIC.ICR && command == STATIC.DP ){//draw "current_YX",
+           myUI.InfoCurrent.DrawCurrent(x,y);
+            
+          }
+
+          /*
           if(dest==STATIC.CR && command == STATIC.DP ){//draw "current_YX",
-            document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
+            //document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
            // console.log(x,"x",y,"y","current_YX");
            // info_map_visited(x,y);
             info_map_reset();
@@ -169,7 +176,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             record_drawn_queue(x,y);
            
           }
-
+*/
        
           if(command==STATIC.EC){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
