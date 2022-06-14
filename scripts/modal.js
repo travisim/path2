@@ -1,12 +1,12 @@
 // Get the modal
 var modal = document.getElementById("edit_map_modal");
-modal.style.display = "none";
 
 // Get the <span> element that closes the modal
 var span = document.getElementsByClassName("close")[0];
 
 // When the user clicks on the button, open the modal
 myUI.buttons.edit_map_btn.btn.onclick = function() {
+	var modal = myUI.modals.edit_map.elem;
   modal.style.zIndex = "100"; // reveal
   modal.style.display = "block";
   document.addEventListener("keydown", undo_edit);
@@ -16,6 +16,7 @@ myUI.buttons.edit_map_btn.btn.onclick = function() {
 }
 
 myUI.close_modal = function(){
+	var modal = myUI.modals.edit_map.elem;
   myUI.map_arr = deep_copy_matrix(myUI.canvases.edit_map.canvas_cache, flip_bit=true);
   myUI.displayMap();
   document.removeEventListener("keydown", undo_edit);

@@ -7,6 +7,7 @@ myUI.initialize = function(){
   myUI.selects = {};
   myUI.sliders = {};
   myUI.infomap = {};
+	myUI.modals = {}l
 
   // Initialize canvases
   [
@@ -42,7 +43,12 @@ myUI.initialize = function(){
     myUI.infomap[infoNWSE_Id] = new UIInfoMap(infoNWSE_Id);
   });
 
-      
+	[
+		["edit_map_modal", "edit_map_close"],
+		["planner_config_modal", "planner_config_close
+	].forEach(item=>{
+		myUI.modals[item[0].slice(0, -6)] = {elem: document.getElementById(item[0]), close: document.getElementById(item[1])}
+	});
 
   
   // Initialize selects

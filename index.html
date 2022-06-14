@@ -31,41 +31,6 @@
 			<br>
 			Step Number: <span id="hover_cell_index">-</span>
 		</div>
-		<div id="edit_map_modal" class="modal">
-			<div class="modal-content">
-				<div id="edit_map_ctn">
-					<div id="edit_mouse_tip" class="grid-overlay">
-						<img src="assets/pencil-marker-svgrepo-com.svg" id="draw_marker" class="icon overlay" alt="pencil">
-						<img src="assets/eraser-marker-svgrepo-com.svg" id="erase_marker" class="icon overlay" alt="eraser">
-					</div>
-					<canvas id="edit_map" class="map_canvas" height="8" width="8"></canvas>
-				</div>
-				<div id="right_panel">
-					<span class="close">&times;</span>
-					<button id="draw_erase_btn" class="btn grid-overlay">
-						<img src="assets/pencil-svgrepo-com.svg" id="draw_icon" class="icon overlay" alt="draw">
-						<img src="assets/eraser-svgrepo-com.svg" id="erase_icon" class="icon overlay hidden" alt="erase">
-					</button>
-					<div class="flex-row"> 
-						<div class="flex-col">
-							<span class="label_centered">1024</span>
-							<input type="range" min="1" max="1024" value="16" id="map_height_slider" class="slider" orient="vertical">
-							<span class="label_centered">1</span>
-						</div>
-						<label class="label_centered">Map Height: <input id="map_height_label"  class="label_input" value="16"/></label>
-					</div>
-
-				</div>
-				<div id="bottom_panel">
-					<div class="flex-row">
-						<span>1</span>
-						<input type="range" min="1" max="1024" value="16" id="map_width_slider" class="slider">
-						<span>1024</span>
-					</div>
-					<label class="label_centered">Map Width: <input id="map_width_label" class="label_input" value="16"/></label>
-				</div>
-			</div>
-		</div>
 		<div id="main-title">
 			Path Planner
 		 	<button onclick="darkmode()" >Light/Dark</button>
@@ -305,6 +270,46 @@
 				</div>
 			</div>
 
+		</div>
+		<div id="edit_map_modal" class="modal">
+			<div class="modal-content">
+				<div id="edit_map_ctn">
+					<div id="edit_mouse_tip" class="grid-overlay">
+						<img src="assets/pencil-marker-svgrepo-com.svg" id="draw_marker" class="icon overlay" alt="pencil">
+						<img src="assets/eraser-marker-svgrepo-com.svg" id="erase_marker" class="icon overlay" alt="eraser">
+					</div>
+					<canvas id="edit_map" class="map_canvas" height="8" width="8"></canvas>
+				</div>
+				<div id="right_panel">
+					<span class="close">&times;</span>
+					<button id="draw_erase_btn" class="btn grid-overlay">
+						<img src="assets/pencil-svgrepo-com.svg" id="draw_icon" class="icon overlay" alt="draw">
+						<img src="assets/eraser-svgrepo-com.svg" id="erase_icon" class="icon overlay hidden" alt="erase">
+					</button>
+					<div class="flex-row"> 
+						<div class="flex-col">
+							<span class="label_centered">1024</span>
+							<input type="range" min="1" max="1024" value="16" id="map_height_slider" class="slider" orient="vertical">
+							<span class="label_centered">1</span>
+						</div>
+						<label class="label_centered">Map Height: <input id="map_height_label"  class="label_input" value="16"/></label>
+					</div>
+
+				</div>
+				<div id="bottom_panel">
+					<div class="flex-row">
+						<span>1</span>
+						<input type="range" min="1" max="1024" value="16" id="map_width_slider" class="slider">
+						<span>1024</span>
+					</div>
+					<label class="label_centered">Map Width: <input id="map_width_label" class="label_input" value="16"/></label>
+				</div>
+			</div>
+		</div>
+		<div id="planner_config_modal" class="modal">
+			<div class="modal-content">
+				
+			</div>
 		</div>
     <div>
       <style id="darkmode">
