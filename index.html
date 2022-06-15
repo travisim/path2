@@ -176,7 +176,11 @@
 					<div id="controls" class="interface overlay">
 						<div class="flex-row" class="btn">
 							<button id="compute_btn" class="btn">Compute Path</button>
-				<button id="display_btn" class="btn">Display Path</button>
+							<button id="display_btn" class="btn">Display Path</button>
+							<button id="detail_btn" class="btn grid-overlay">
+								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
+								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
+							</button>
 						</div>
 						<div id="display_controls" class="flex-row">
 							<button id="clear_btn" class="btn">
@@ -199,12 +203,11 @@
 							</button>
 						</div>
 						<div id="edit_controls" class="flex-row">
-							<button id="detail_btn" class="btn grid-overlay">
-								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
-								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
-							</button>
 							<button id="edit_map_btn" class="btn grid-overlay">
 								<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
+							</button>
+							<button id="planner_config_btn" class="btn grid-overlay">
+								<img src="assets/planner-config.svg" id="planner_config_icon" class="icon overlay" alt="config planner">
 							</button>
 						</div>
 						<div id="slider_controls">
@@ -281,7 +284,7 @@
 					<canvas id="edit_map" class="map_canvas" height="8" width="8"></canvas>
 				</div>
 				<div id="right_panel">
-					<span class="close">&times;</span>
+					<span id="edit_map_close" class="close">&times;</span>
 					<button id="draw_erase_btn" class="btn grid-overlay">
 						<img src="assets/pencil-svgrepo-com.svg" id="draw_icon" class="icon overlay" alt="draw">
 						<img src="assets/eraser-svgrepo-com.svg" id="erase_icon" class="icon overlay hidden" alt="erase">
@@ -308,7 +311,7 @@
 		</div>
 		<div id="planner_config_modal" class="modal">
 			<div class="modal-content">
-				
+				<span id="planner_config_close" class="close">&times;</span>
 			</div>
 		</div>
     <div>

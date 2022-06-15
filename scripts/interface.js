@@ -47,7 +47,12 @@ myUI.initialize = function(){
 		["edit_map_modal", "edit_map_close"],
 		["planner_config_modal", "planner_config_close"]
 	].forEach(item=>{
-		myUI.modals[item[0].slice(0, -6)] = {elem: document.getElementById(item[0]), close: document.getElementById(item[1])};
+		myUI.modals[item[0].slice(0, -6)] = {
+			elem: document.getElementById(item[0]),
+			close_btn: document.getElementById(item[1]),
+			show: null,
+			close: null // show and close modal function is bound to itself
+		};
 	});
 
   
