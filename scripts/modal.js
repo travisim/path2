@@ -26,6 +26,8 @@ myUI.modals.edit_map.close = function(){
 }
 myUI.modals.edit_map.close_btn.addEventListener("click", myUI.modals.edit_map.close);
 
+myUI.modals.edit_map.elem.style.display = "none";
+
 window.addEventListener("click", event=>{
 	if (event.target == myUI.modals.edit_map.elem)
 		myUI.modals.edit_map.close();

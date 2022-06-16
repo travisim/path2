@@ -78,7 +78,8 @@ myUI.initialize = function(){
     ["detail_btn", "map_detailed_icon", "map_simple_icon"],
     ["draw_erase_btn", "draw_icon", "erase_icon"],
     ["edit_map_btn", "edit_map_icon"],
-    ["stop_edit_btn", "stop_edit_icon"]
+    ["stop_edit_btn", "stop_edit_icon"],
+		["planner_config_btn", "planner_config_icon"]
   ].forEach(item=>{
     let btn_id = item[0];
     let svg_ids = item.slice(1);
