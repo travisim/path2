@@ -123,9 +123,52 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log("parent exists");
             var g_cost = step[i+1];
             var h_cost = step[i+2];
+            var f_cost = g_cost + h_cost;
             i+=2;
           }
           console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost]);
+          
+          
+          if(dest==STATIC.ICR ){//draw "current_YX",
+            info_map_reset(); // reset all info NWSE
+            myUI.InfoCurrent.DrawCurrent(x,y);
+            console.log(STATIC.ICR);
+          }
+         //to draw neighbours
+          if(dest==STATIC.IN && command == STATIC.DP ){
+            myUI.InfoNWSE["N"].DrawNeighbour(f_cost,g_cost,h_cost);
+            
+          }
+          if(dest==STATIC.INW && command == STATIC.DP ){
+            myUI.InfoNWSE["NW"].DrawNeighbour(f_cost,g_cost,h_cost);
+            
+          }
+          if(dest==STATIC.IW && command == STATIC.DP ){
+            myUI.InfoNWSE["W"].DrawNeighbour(f_cost,g_cost,h_cost);
+            
+          }
+          if(dest==STATIC.ISW && command == STATIC.DP ){
+            myUI.InfoNWSE["SW"].DrawNeighbour(f_cost,g_cost,h_cost);
+            
+          }
+          if(dest==STATIC.IS && command == STATIC.DP ){
+           myUI.InfoNWSE["S"].DrawNeighbour(f_cost,g_cost,h_cost);
+            
+          }
+          if(dest==STATIC.ISE && command == STATIC.DP ){
+            myUI.InfoNWSE["SE"].DrawNeighbour(f_cost,g_cost,h_cost);
+            
+          }
+          if(dest==STATIC.IE && command == STATIC.DP ){
+            myUI.InfoNWSE["E"].DrawNeighbour(f_cost,g_cost,h_cost);
+            
+          }
+           if(dest==STATIC.INE && command == STATIC.DP ){
+            myUI.InfoNWSE["NE"].DrawNeighbour(f_cost,g_cost,h_cost);
+            
+          }
+
+          /*
           if(dest==STATIC.CR && command == STATIC.DP ){//draw "current_YX",
             document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
            // console.log(x,"x",y,"y","current_YX");
@@ -169,7 +212,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             record_drawn_queue(x,y);
            
           }
-
+*/
        
           if(command==STATIC.EC){
             if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);

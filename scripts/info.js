@@ -11,7 +11,7 @@ for(let i=0;i<info_neighbours_id.length;++i){
 var current_XY_ani = [];
 
 
-
+/*
 function info_map_reset(){
  /* myUI.planner.deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
   document.getElementById(deltaNWSE).style.borderColor = "transparent";
@@ -20,13 +20,13 @@ function info_map_reset(){
   document.getElementById(deltaNWSE).style.color = "black";
   document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "";
   }); //reset obstacles in info map 
-  */
-  myUI.planner.deltaNWSE.forEach(deltaNWSE => {
+  
+  //myUI.planner.deltaNWSE.forEach(deltaNWSE => {
     myUI.infomap[deltaNWSE].Reset();
   }); //reset obstacles in info map 
 }
 
-
+*/
  
 
 function info_map_out_of_bound(x,y){

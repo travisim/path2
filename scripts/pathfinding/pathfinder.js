@@ -32,10 +32,12 @@ class GridPathFinder{
 		if(this.num_neighbours==8){
 			var delta = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]];
 			var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
+      var deltaNWSE_STATICS = [5,6,7,8,9,10,11,12];
 		}
 		else{ // if(this.num_neighbours==4)
 			var delta = [[-1, 0], [0, -1], [1, 0], [0, 1]];
 			var deltaNWSE = ["N", "W", "S", "E"];
+      var deltaNWSE_STATICS = [5,7,9,11];
 		}
 		if (this.search_direction=="clockwise"){
 			delta.reverse();
@@ -45,7 +47,8 @@ class GridPathFinder{
 		this.first_index = deltaNWSE.indexOf(this.first_neighbour);
 		this.deltaNWSE = deltaNWSE.slice(this.first_index).concat(deltaNWSE.slice(0, this.first_index));
 		this.delta = delta.slice(this.first_index).concat(delta.slice(0, this.first_index));
-
+    this.deltaNWSE_STATICS = deltaNWSE_STATICS.slice(this.first_index).concat(deltaNWSE_STATICS.slice(0, this.first_index));
+    
     this.searched = false;
 	}
 
