@@ -72,7 +72,7 @@ myUI.reset_animation = function(){
 		myUI.canvases[canvas_id].erase_canvas();
 	});
 	myUI.arrow.ctx.clearRect(0, 0, myUI.arrow.canvas.width,  myUI.arrow.canvas.height);
-	myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
+	//myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
 	myUI.arrow.step = -1;
 }
 

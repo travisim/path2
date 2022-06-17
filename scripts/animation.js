@@ -65,6 +65,7 @@ myUI.jump_to_step = function(target_step){
     myUI.canvases[id].init_virtual_canvas();
     //myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
   });
+  myUI.arrow.ctx.clearRect(0, 0, myUI.arrow.canvas.width, myUI.arrow.canvas.height);
   //myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
   myUI.arrow.step = -1;
 
@@ -114,7 +115,8 @@ myUI.jump_to_step = function(target_step){
     
 
     myUI.arrow.step = state.arrow_step;
-    for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
+    myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
+    //for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
     
 
     /*myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
