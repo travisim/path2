@@ -9,8 +9,8 @@ document.getElementById("compute_btn").addEventListener("click", compute_path);
 
 function compute_path(){
 	myUI.reset_animation();  // reset first time for arrows to be removed
-	myUI.arrow.data.forEach(el=>el.remove());
-	myUI.arrow.data = [];
+	//myUI.arrow.data.forEach(el=>el.remove());
+	//myUI.arrow.data = [];
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
   if(!myUI.map_start) return alert("no scene loaded!");

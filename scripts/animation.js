@@ -198,10 +198,10 @@ myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vert
     end_YX = [end_YX[0]+0.5, end_YX[1]+0.5];
   }
   if(save_data){
-    let min_x = Math.min(start_YX[1], end_YX[1])-0.5;
-    let min_y = Math.min(start_YX[0], end_YX[0])-0.5;
-    let max_x = Math.max(start_YX[1], end_YX[1])+0.5;
-    let max_y = Math.max(start_YX[0], end_YX[0])+0.5;
+    let min_x = Math.min(start_YX[1], end_YX[1])-0.25;
+    let min_y = Math.min(start_YX[0], end_YX[0])-0.25;
+    let max_x = Math.max(start_YX[1], end_YX[1])+0.25;
+    let max_y = Math.max(start_YX[0], end_YX[0])+0.25;
     [min_y, min_x] = scale_coord([min_y, min_x]);
     [max_y, max_x] = scale_coord([max_y, max_x]);
     let img_data = myUI.arrow.ctx.getImageData(min_x, min_y, max_x, max_y);
