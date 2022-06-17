@@ -26,6 +26,7 @@ function compute_path(){
 		myUI.sliders.animation_speed_slider.elem.max = Math.log2(200/each_frame_duration_min)*1000;
 		document.getElementById("compute_btn").innerHTML = "done!";
 		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
+		myUI.reset_animation();
 	}); 
 	
 	
@@ -70,6 +71,7 @@ myUI.reset_animation = function(){
 	["visited",	"neighbours", "queue",	"current_YX",	"path"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
+	myUI.arrow.ctx.clearRect(0, 0, myUI.arrow.canvas.width,  myUI.arrow.canvas.height);
 	myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
 	myUI.arrow.step = -1;
 }

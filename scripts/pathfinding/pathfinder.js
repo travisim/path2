@@ -83,7 +83,10 @@ class GridPathFinder{
     this.step_index = -1;
     this.prev_count = -1;
     this.state_counter = 0;
-    if(this.draw_arrows) this.arrow_step = -1;
+    if(this.draw_arrows){
+			this.arrow_step = -1;
+			myUI.reset_arrow();
+		}
     // step_index is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
     // this balances between processer and memory usage

@@ -138,6 +138,10 @@ myUI.initialize = function(){
 
   myUI.arrow = {
     data: [],
+    canvas: document.getElementById("arrows"),
+    ctx: document.getElementById("arrows").getContext("2d"),
+    colors: ["purple", "green"],
+    coords: [],
     step: -1
   }
 

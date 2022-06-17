@@ -65,7 +65,7 @@ myUI.jump_to_step = function(target_step){
     myUI.canvases[id].init_virtual_canvas();
     //myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
   });
-  myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
+  //myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
   myUI.arrow.step = -1;
 
   if(tmp_step>-1){ //  if there is a recent state to fallback on
@@ -168,4 +168,89 @@ myUI.create_arrow = function(start_YX, end_YX){
   elem.style.left = (start_coord.x + 0.5 - elem_path_length * (1-Math.cos(angle))/2) * display_ratio +"px";
   elem.id = `${start_coord.y},${start_coord.x} ${end_coord.y},${end_coord.x}`;
   myUI.arrow.data.push(elem);
+}
+
+myUI.reset_arrow = function(){
+  myUI.arrow.data = [];
+  myUI.arrow.coords = [];
+}
+
+myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vertex=false){
+
+  function scale_coord(yx){
+    return [yx[0]*canvas.height / myUI.map_height, yx[1]*canvas.width / myUI.map_width];
+  }
+
+  console.log(`drawing ${start_YX} ${end_YX}`);
+  const canvas = myUI.arrow.canvas;
+  const color = myUI.arrow.colors[color_index];
+  const line_width = 10.6667;//canvas.height/myUI.map_height/12;
+	//console.log(line_width);
+	const headlen = line_width*1.5;
+	const ctx = canvas.getContext('2d');
+  
+  if(save_data)
+    myUI.arrow.coords.push(start_YX, end_YX);
+  if(!vertex){
+    start_YX = [start_YX[0]+0.5, start_YX[1]+0.5];
+    end_YX = [end_YX[0]+0.5, end_YX[1]+0.5];
+  }
+  if(save_data){
+    let min_x = Math.min(start_YX[1], end_YX[1])-0.5;
+    let min_y = Math.min(start_YX[0], end_YX[0])-0.5;
+    let max_x = Math.max(start_YX[1], end_YX[1])+0.5;
+    let max_y = Math.max(start_YX[0], end_YX[0])+0.5;
+    [min_y, min_x] = scale_coord([min_y, min_x]);
+    [max_y, max_x] = scale_coord([max_y, max_x]);
+    let img_data = myUI.arrow.ctx.getImageData(min_x, min_y, max_x, max_y);
+    myUI.arrow.data.push([img_data, min_x, min_y]);
+  }
+	
+	let [fromy, fromx] = scale_coord(start_YX);
+	let [toy, tox] = scale_coord(end_YX);
+
+	/*fromx *= canvas.width / myUI.map_width;
+	fromy *= canvas.height / myUI.map_height;
+	tox *=  canvas.width / myUI.map_width
+	toy *= canvas.height / myUI.map_height;*/
+	const angle = Math.atan2(toy-fromy,tox-fromx);
+
+	let midx = fromx + (tox-fromx)*5/8 + headlen*Math.cos(angle);
+	let midy = fromy + (toy-fromy)*5/8 + headlen*Math.sin(angle);
+	if(myUI.map_height>16){
+		midx = fromx + (tox-fromx)/2 + headlen*Math.cos(angle);
+	 	midy = fromy + (toy-fromy)/2+ headlen*Math.sin(angle);
+	}
+	
+	ctx.save();
+	// First path
+	ctx.beginPath();
+	ctx.strokeStyle = color;
+	ctx.moveTo(fromx, fromy);
+	ctx.lineTo(tox, toy);
+	ctx.lineWidth = line_width;
+	ctx.stroke();
+
+	if(myUI.map_height>32) return;
+//starting a new path from the head of the arrow to one of the sides of
+  //the point
+  ctx.beginPath();
+  ctx.moveTo(midx, midy);
+  ctx.lineTo(midx-headlen*Math.cos(angle-Math.PI/7),
+              midy-headlen*Math.sin(angle-Math.PI/7));
+
+  //path from the side point of the arrow, to the other side point
+  ctx.lineTo(midx-headlen*Math.cos(angle+Math.PI/7),
+              midy-headlen*Math.sin(angle+Math.PI/7));
+
+  //path from the side point back to the tip of the arrow, and then
+  //again to the opposite side point
+  ctx.lineTo(midx, midy);
+  ctx.lineTo(midx-headlen*Math.cos(angle-Math.PI/7),
+              midy-headlen*Math.sin(angle-Math.PI/7));
+
+  //draws the paths created above
+  ctx.stroke();
+  ctx.restore();
+  
 }

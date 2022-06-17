@@ -24,7 +24,7 @@ class BFS extends GridPathFinder {
     //---------------------checks if visited 2d array has been visited
 
     let planner = this;
-    this.batch_size = 500;
+    this.batch_size = 10;
     this.batch_interval = 0;
 
     // "Producing Code" (May take some time)
@@ -157,7 +157,8 @@ class BFS extends GridPathFinder {
             if (this.draw_arrows) {
               // ARROW
               ++this.arrow_step;
-              myUI.create_arrow(this.current_node_YX, next_YX);
+              //myUI.create_arrow(this.current_node_YX, next_YX);
+              myUI.draw_arrow(this.current_node_YX, next_YX, true, 0, false);
               this._create_action(STATIC.DA);
               // END OF ARROW
             }
