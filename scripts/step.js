@@ -213,37 +213,40 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
            
           }
 */
-       
-          if(command==STATIC.EC){
-            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
-            else myUI.canvases[statics_to_obj[dest]].erase_canvas();
-          }
-          else if(command==STATIC.DP){
-            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
-            else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
-          }
-          else if(command==STATIC.EP){
-            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
-            else myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
-          }
-          else if(command==STATIC.INC_P){
-            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
-            else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
-            
-          }
-          else if(command==STATIC.DEC_P){
-            if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
-            else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
-          }
-          else if(command==STATIC.DA){
-            // draw arrow
-            ++myUI.arrow.step;
-            myUI.arrow.data[myUI.arrow.step].classList.remove("hidden");
-          }
-          else if(command==STATIC.EA){
-            // erase arrow
-            myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
-            --myUI.arrow.step;
+          try{
+            if(command==STATIC.EC){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
+              else myUI.canvases[statics_to_obj[dest]].erase_canvas();
+            }
+            else if(command==STATIC.DP){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
+              else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
+            }
+            else if(command==STATIC.EP){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
+              else myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
+            }
+            else if(command==STATIC.INC_P){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
+              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
+              
+            }
+            else if(command==STATIC.DEC_P){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
+              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
+            }
+            else if(command==STATIC.DA){
+              // draw arrow
+              ++myUI.arrow.step;
+              myUI.arrow.data[myUI.arrow.step].classList.remove("hidden");
+            }
+            else if(command==STATIC.EA){
+              // erase arrow
+              myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
+              --myUI.arrow.step;
+            }
+          }catch(e){
+            console.log(command, dest, "failed");
           }
           ++i;
         }
