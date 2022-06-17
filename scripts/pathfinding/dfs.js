@@ -153,7 +153,8 @@ class DFS extends GridPathFinder {
             if (this.draw_arrows) {
               // ARROW
               ++this.arrow_step;
-              myUI.create_arrow(this.current_node_YX, next_YX);
+              myUI.draw_arrow(this.current_node_YX, next_YX, true, 0, false);
+              //myUI.create_arrow(this.current_node_YX, next_YX);
               this._create_action(STATIC.DA);
               // END OF ARROW
             }
