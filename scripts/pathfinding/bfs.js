@@ -24,8 +24,6 @@ class BFS extends GridPathFinder {
     //---------------------checks if visited 2d array has been visited
 
     let planner = this;
-    this.batch_size = 10;
-    this.batch_interval = 0;
 
     // "Producing Code" (May take some time)
     return new Promise((resolve, reject) => {

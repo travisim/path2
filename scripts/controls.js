@@ -71,7 +71,7 @@ myUI.reset_animation = function(){
 	["visited",	"neighbours", "queue",	"current_YX",	"path"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
-	myUI.arrow.ctx.clearRect(0, 0, myUI.arrow.canvas.width,  myUI.arrow.canvas.height);
+	myUI.arrow.ctx.clearRect(...myUI.arrow.full_canvas);
 	//myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
 	myUI.arrow.step = -1;
 }

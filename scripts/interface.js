@@ -136,6 +136,7 @@ myUI.initialize = function(){
     jump_steps: 1
   };
 
+  // START OF ARROW
   myUI.arrow = {
     data: [],
     canvas: document.getElementById("arrows"),
@@ -144,6 +145,8 @@ myUI.initialize = function(){
     coords: [],
     step: -1
   }
+  myUI.arrow.full_canvas = [0, 0, myUI.arrow.canvas.width, myUI.arrow.canvas.height];
+  // END OF ARROW
 
   myUI.map_edit = {
     curr_state: null

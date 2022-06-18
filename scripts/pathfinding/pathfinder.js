@@ -91,6 +91,9 @@ class GridPathFinder{
     // at every ~100 steps, a state is saved
     // this balances between processer and memory usage
 		this.prev_node_YX = undefined;
+
+		this.batch_size = 5;
+    this.batch_interval = 0;
 	}
 
 	_clear_steps(){
@@ -207,7 +210,7 @@ class GridPathFinder{
 			this.states.visited_index = nxt_index;
 
 			this.states[this.step_index] = { node_YX: this.current_node.self_YX, F_cost: this.current_node.f_value, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited_tuple: visited_tuple, path: this.path, arrow_step: this.arrow_step};
-			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(0, 0, myUI.arrow.canvas.width, myUI.arrow.canvas.height);
+			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(...myUI.arrow.full_canvas);
 
 		}
 	}

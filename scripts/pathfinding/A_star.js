@@ -22,8 +22,6 @@ class A_star extends GridPathFinder{
     //---------------------checks if visited 2d array has been visited
 
     let planner = this;
-    this.batch_size = 500;
-    this.batch_interval = 0;
 
     return new Promise((resolve, reject)=>{
       setTimeout(()=>resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);

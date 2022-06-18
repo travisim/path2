@@ -246,9 +246,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             else if(command==STATIC.EA){
               // erase arrow
               //myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
-              let img_data = myUI.arrow.data[myUI.arrow.step][0];
-              let data = myUI.arrow.data[myUI.arrow.step].slice(0, 3);
-              console.log(data);
+              let data = myUI.arrow.data[myUI.arrow.step];
+              //console.log(data);
               myUI.arrow.ctx.putImageData(...data);
               --myUI.arrow.step;
             }

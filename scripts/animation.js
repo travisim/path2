@@ -65,7 +65,7 @@ myUI.jump_to_step = function(target_step){
     myUI.canvases[id].init_virtual_canvas();
     //myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
   });
-  myUI.arrow.ctx.clearRect(0, 0, myUI.arrow.canvas.width, myUI.arrow.canvas.height);
+  myUI.arrow.ctx.clearRect(...myUI.arrow.full_canvas);
   //myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
   myUI.arrow.step = -1;
 
@@ -186,7 +186,7 @@ myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vert
   console.log(`drawing ${start_YX} ${end_YX}`);
   const canvas = myUI.arrow.canvas;
   const color = myUI.arrow.colors[color_index];
-  const line_width = 10.6667;//canvas.height/myUI.map_height/12;
+  const line_width = canvas.height/192;//10.6667;//canvas.height/myUI.map_height/12;
 	//console.log(line_width);
 	const headlen = line_width*1.5;
 	const ctx = canvas.getContext('2d');
