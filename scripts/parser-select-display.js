@@ -195,24 +195,32 @@ myUI.showPlanners = function() {
   // planner_upload_elem
   // get data from planner_upload_elem
   // add_planner()
-  let child = myUI.selects["planner_select"].elem.lastElementChild;
+  /*let child = myUI.selects["planner_select"].elem.lastElementChild;
 
   while (child) {
     planner_select_elem.removeChild(child);
     child = planner_select_elem.lastElementChild;
-  }
+  }/**/
   for (i = 0; i < myUI.planners.length; ++i) {
     let option = document.createElement("option");
-
     option.setAttribute("value", i);
     option.innerHTML = myUI.planners[i].display_name;
     myUI.selects["planner_select"].elem.appendChild(option);
+
+		let option2 = option.cloneNode(true);
+    myUI.selects["planner_select2"].elem.appendChild(option2);
   }
 }
 
 myUI.loadPlanner = function() {
-	let planner_select_elem = myUI.selects["planner_select"].elem;
+	if(this==myUI) var planner_select_elem = myUI.selects["planner_select"].elem;
+	else var planner_select_elem = this; // binds to the planner select element
+	
   myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
+
+	// updates both selects
+	myUI.selects["planner_select"].elem.value = myUI.planner_choice;
+	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
   determine_table_header();
 }

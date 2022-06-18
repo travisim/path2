@@ -62,7 +62,8 @@ myUI.initialize = function(){
   // Initialize selects
   [
     ["scen_select", "scen_label"],
-    ["planner_select", "planner_label"]
+    ["planner_select", "planner_label"],
+    ["planner_select2", "planner_label2"]
   ].forEach(arr=>{
     let id = arr[0];
     let select_label = arr[1];

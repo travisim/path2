@@ -1,6 +1,7 @@
 myUI.modals.planner_config.show = function(){
   show_modal(myUI.modals.planner_config.elem);
-  document.addEventListener("keydown", modal_await_keypress);
+  //document.getElementById("planner_name").innerHTML = myUI.planner.constructor.display_name;
+
 }
 
 // When the user clicks on the button, open the modal
@@ -16,3 +17,5 @@ window.addEventListener("click", event=>{
 	if (event.target == myUI.modals.planner_config.elem)
 		myUI.modals.planner_config.close();
 });
+
+myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
