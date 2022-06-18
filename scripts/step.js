@@ -135,35 +135,35 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log(STATIC.ICR);
           }
          //to draw neighbours
-          if(dest==STATIC.IN && command == STATIC.DP ){
+          else if(dest==STATIC.IN && command == STATIC.DP ){
             myUI.InfoNWSE["N"].DrawNeighbour(f_cost,g_cost,h_cost);
             
           }
-          if(dest==STATIC.INW && command == STATIC.DP ){
+          else if(dest==STATIC.INW && command == STATIC.DP ){
             myUI.InfoNWSE["NW"].DrawNeighbour(f_cost,g_cost,h_cost);
             
           }
-          if(dest==STATIC.IW && command == STATIC.DP ){
+          else if(dest==STATIC.IW && command == STATIC.DP ){
             myUI.InfoNWSE["W"].DrawNeighbour(f_cost,g_cost,h_cost);
             
           }
-          if(dest==STATIC.ISW && command == STATIC.DP ){
+          else if(dest==STATIC.ISW && command == STATIC.DP ){
             myUI.InfoNWSE["SW"].DrawNeighbour(f_cost,g_cost,h_cost);
             
           }
-          if(dest==STATIC.IS && command == STATIC.DP ){
+          else if(dest==STATIC.IS && command == STATIC.DP ){
            myUI.InfoNWSE["S"].DrawNeighbour(f_cost,g_cost,h_cost);
             
           }
-          if(dest==STATIC.ISE && command == STATIC.DP ){
+          else if(dest==STATIC.ISE && command == STATIC.DP ){
             myUI.InfoNWSE["SE"].DrawNeighbour(f_cost,g_cost,h_cost);
             
           }
-          if(dest==STATIC.IE && command == STATIC.DP ){
+          else if(dest==STATIC.IE && command == STATIC.DP ){
             myUI.InfoNWSE["E"].DrawNeighbour(f_cost,g_cost,h_cost);
             
           }
-           if(dest==STATIC.INE && command == STATIC.DP ){
+          else if(dest==STATIC.INE && command == STATIC.DP ){
             myUI.InfoNWSE["NE"].DrawNeighbour(f_cost,g_cost,h_cost);
             
           }

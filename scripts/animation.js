@@ -93,6 +93,8 @@ myUI.jump_to_step = function(target_step){
 
   function draw_canvas_from_state(state){
 
+    myUI.curr_state = state;
+
     //myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
     let curr_queue = myUI.planner.get_queue(state.queue_tuple);
     myUI.canvases.queue.draw_canvas(state.queue, `1d`, false, true);
@@ -115,7 +117,7 @@ myUI.jump_to_step = function(target_step){
     
 
     myUI.arrow.step = state.arrow_step;
-    myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
+    if(state.arrow_img) myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
     //for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
     
 

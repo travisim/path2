@@ -92,7 +92,7 @@ class GridPathFinder{
     // this balances between processer and memory usage
 		this.prev_node_YX = undefined;
 
-		this.batch_size = 5;
+		this.batch_size = 9999;
     this.batch_interval = 0;
 	}
 
