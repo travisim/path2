@@ -90,6 +90,7 @@ myUI.jump_to_step = function(target_step){
     myUI.arrow.step = state.arrow_step;
     if(state.arrow_img) myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
     //for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
+  }
 }
 
 myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){
