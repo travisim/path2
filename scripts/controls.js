@@ -14,7 +14,6 @@ function compute_path(){
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
   if(!myUI.map_start) return alert("no scene loaded!");
-	myUI.planner = new myUI.planners[myUI.planner_choice]();
 	myUI.planner.add_map(myUI.map_arr);
 	document.getElementById("compute_btn").innerHTML = "searching...";
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{

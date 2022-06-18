@@ -114,3 +114,8 @@ input[type=range][orient=vertical]{
 #erase_marker{
   display: none;
 }
+
+.modal_btn{
+  height: 30px;
+	width: 80px;
+}

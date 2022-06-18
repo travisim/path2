@@ -48,8 +48,6 @@ class GridPathFinder{
 		this.deltaNWSE = deltaNWSE.slice(this.first_index).concat(deltaNWSE.slice(0, this.first_index));
 		this.delta = delta.slice(this.first_index).concat(delta.slice(0, this.first_index));
     this.deltaNWSE_STATICS = deltaNWSE_STATICS.slice(this.first_index).concat(deltaNWSE_STATICS.slice(0, this.first_index));
-    
-    this.searched = false;
 	}
 
 	add_map(map){
@@ -91,8 +89,10 @@ class GridPathFinder{
     // at every ~100 steps, a state is saved
     // this balances between processer and memory usage
 		this.prev_node_YX = undefined;
-
-		this.batch_size = 9999;
+		
+		if(this.map_height<=32) this.batch_size = 10;
+		else if(this.map_height<=64) this.batch_size = 40;
+		else this.batch_size = 1000;
     this.batch_interval = 0;
 	}
 
@@ -263,6 +263,16 @@ class GridPathFinder{
 	get_queue(tuple){
 		if(!tuple) return;
 		return this.states.queue_data[tuple[0]].slice(tuple[1], tuple[2]);
+	}
+
+	search_state(step_num){
+		while(!this.states.hasOwnProperty(step_num) && step_num>-1)
+    	--step_num;
+		return step_num;
+	}
+
+	get_state(step_num){
+		return this.states[step_num];
 	}
 
 	final_state() {

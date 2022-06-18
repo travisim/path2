@@ -51,88 +51,45 @@ myUI.update_search_slider = function(value){
 }
 
 myUI.jump_to_step = function(target_step){
-  let all_states = myUI.planner.all_states();
-  let tmp_step = target_step;
-  while(!all_states.hasOwnProperty(tmp_step) && tmp_step>-1)
-    --tmp_step;
-  //console.log("Last state:", tmp_step);
-  myUI.animation.step = tmp_step;
+  myUI.animation.step = myUI.planner.search_state(target_step);
 
   const canvas_ids = [`queue`, `neighbours`, `current_YX`, `visited`, `path`];
   // create a virtual representation of all the canvases
   myUI.tmp.virtual_canvases = {};
   canvas_ids.forEach(id=>{
     myUI.canvases[id].init_virtual_canvas();
-    //myUI.tmp.virtual_canvases[id] = zero2D(myUI.map_height, myUI.map_width);
   });
   myUI.arrow.ctx.clearRect(...myUI.arrow.full_canvas);
-  //myUI.arrow.data.forEach(el=>el.classList.add(`hidden`));
   myUI.arrow.step = -1;
 
-  if(tmp_step>-1){ //  if there is a recent state to fallback on
+  if(myUI.animation.step>-1){ //  if there is a recent state to fallback on
   
     // take from memory
-    let state = all_states[tmp_step];
-    draw_canvas_from_state(state);     
-    execute_steps(tmp_step, target_step);
+    let state = myUI.planner.get_state(myUI.animation.step);
+    draw_canvas_from_state(state);
   }
-  else{  //  no state to fall back on
-    execute_steps(tmp_step, target_step);
-  }
-
-  function execute_steps(tmp_step, target_step){
-
-    canvas_ids.forEach(id=>{
-      // let data = myUI.tmp.virtual_canvases[id];
-      let data = myUI.canvases[id].virtualCanvas;
-      myUI.canvases[id].draw_canvas(data, `2d_heatmap`);
-    });/* */
-    // execute the steps
-    myUI.run_steps(target_step - tmp_step, "fwd");
-  }
+  canvas_ids.forEach(id=>{
+    let data = myUI.canvases[id].virtualCanvas;
+    myUI.canvases[id].draw_canvas(data, `2d_heatmap`);
+  });/* */
+  myUI.run_steps(target_step - myUI.animation.step, "fwd");
 
   function draw_canvas_from_state(state){
 
-    myUI.curr_state = state;
-
-    //myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
-    let curr_queue = myUI.planner.get_queue(state.queue_tuple);
     myUI.canvases.queue.draw_canvas(state.queue, `1d`, false, true);
 
     let curr_visited = myUI.planner.get_visited(state.visited_tuple);
-    //myUI.draw_virtual_canvas(`visited`, NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`);
-    //window.tmp = NBitMatrix.expand_2_matrix(curr_visited);
     myUI.canvases.visited.draw_canvas(NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`, false, true);
 
-    let y = state.node_YX[0];
-    let x = state.node_YX[1];
-    //myUI.tmp.virtual_canvases.current_YX[y][x] = 1;
     myUI.canvases.current_YX.draw_canvas([state.node_YX], `1d`, false, true);
 
-    //myUI.draw_virtual_canvas(`neighbours`, state.neighbours, `1d`);
     myUI.canvases.neighbours.draw_canvas(state.neighbours, `1d`, false, true);
 
-    //if(state.path) myUI.draw_virtual_canvas(`path`, state.path, `1d`);
     if(state.path) myUI.canvases.neighbours.draw_canvas(state.path, `1d`, false, true);
     
-
     myUI.arrow.step = state.arrow_step;
     if(state.arrow_img) myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
     //for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
-    
-
-    /*myUI.draw_virtual_canvas(`queue`, state.queue, `1d`);
-    curr_visited = myUI.planner.get_visited(state.visited_tuple);
-    //console.log(NBitMatrix.expand_2_matrix(curr_visited));
-    myUI.draw_virtual_canvas(`visited`, NBitMatrix.expand_2_matrix(curr_visited), `2d`);
-    let y = state.node_YX[0];
-    let x = state.node_YX[1];
-    myUI.tmp.virtual_canvases.current_YX[y][x] = 1;
-    myUI.draw_virtual_canvas(`neighbours`, state.neighbours, `1d`);
-    if(state.path) myUI.draw_virtual_canvas(`path`, state.path, `1d`);
-    myUI.arrow.step = state.arrow_step;
-    for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);/* */
-  }
 }
 
 myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){

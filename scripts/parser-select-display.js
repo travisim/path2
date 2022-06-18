@@ -223,6 +223,7 @@ myUI.loadPlanner = function() {
 	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
   determine_table_header();
+	myUI.planner = new myUI.planners[myUI.planner_choice]();
 }
 
 

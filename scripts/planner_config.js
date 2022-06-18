@@ -19,3 +19,18 @@ window.addEventListener("click", event=>{
 });
 
 myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
+
+if(myUI.planner.diagonal_allow) document.getElementById("diagonal_block_label").innerHTML = "Blocked";
+else document.getElementById("diagonal_block_label").innerHTML = "Unblocked";
+document.getElementById("diagonal_block_btn").addEventListener("click", e=>{
+  myUI.planner.diagonal_allow = !myUI.planner.diagonal_allow;
+  if(myUI.planner.diagonal_allow) document.getElementById("diagonal_block_label").innerHTML = "Blocked";
+  else document.getElementById("diagonal_block_label").innerHTML = "Unblocked";
+});
+
+document.getElementById("num_neighbours_label").innerHTML = myUI.planner.num_neighbours;
+document.getElementById("num_neighbours_btn").addEventListener("click", e=>{
+  if(myUI.planner.num_neighbours!=8) myUI.planner.num_neighbours=8;
+  else myUI.planner.num_neighbours=4;
+  document.getElementById("num_neighbours_label").innerHTML = myUI.planner.num_neighbours;
+});
