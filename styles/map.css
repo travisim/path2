@@ -37,7 +37,7 @@
 	padding: 0px;
 }
 
-#bottom_axes{
+#top_axes{
 	position: absolute;
 	width: var(--canvas-length);
 	height: var(--canvas-remaining);
