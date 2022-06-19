@@ -15,12 +15,13 @@ class GridPathFinder{
 			var y = Math.floor(coord/myUI.planner.map_width);
 			var x = coord - y * myUI.planner.map_width;
     }
-		if(action & (1<<2)){ //  g, h & parent exists
+		let parent_exists = action & (1<<2);
+		if(parent_exists){ //  g, h & parent exists
 			var parent_coord = bit_shift(action, -(3 + myUI.planner.static_bit_len * 2 + myUI.planner.coord_bit_len)) & ones(myUI.planner.coord_bit_len);
 			var parent_y = Math.floor(parent_coord/myUI.planner.map_width);
 			var parent_x = parent_coord - parent_y * myUI.planner.map_width;
 		}
-		return [command, dest, y, x, parent_y, parent_x];
+		return [command, dest, y, x, parent_y, parent_x, parent_exists];
 	}
 
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){

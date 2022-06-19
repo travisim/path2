@@ -118,8 +118,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
         let i=0;
         while(i<step.length){
-          let [command, dest, y, x, parent_y, parent_x] = GridPathFinder.unpack_action(step[i]);
-          if(parent_y || parent_x){
+          let [command, dest, y, x, parent_y, parent_x, parent_exists] = GridPathFinder.unpack_action(step[i]);
+          if(parent_exists){
             console.log("parent exists");
             var g_cost = step[i+1];
             var h_cost = step[i+2];
