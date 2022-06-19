@@ -48,7 +48,7 @@ class UIInfoNWSE{
 }
 var UIInfoCurrent = {
    DrawCurrent(x,y){
-    document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
+    document.getElementById("currentYX").innerHTML =  "( "+y+", "+x+")"; // flipped x and y because of matrix transformation
   }
 }
 

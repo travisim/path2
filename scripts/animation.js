@@ -137,15 +137,18 @@ myUI.reset_arrow = function(){
   myUI.arrow.coords = [];
 }
 
-myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vertex=false){
+myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vertex=false, canvas=null){
 
   function scale_coord(yx){
     return [yx[0]*canvas.height / myUI.map_height, yx[1]*canvas.width / myUI.map_width];
   }
 
   console.log(`drawing ${start_YX} ${end_YX}`);
-  const canvas = myUI.arrow.canvas;
-  const color = myUI.arrow.colors[color_index];
+  let color = "black";
+  if(canvas==null){
+    canvas = myUI.arrow.canvas;
+    color = myUI.arrow.colors[color_index];
+  }
   const line_width = canvas.height/192;//10.6667;//canvas.height/myUI.map_height/12;
 	//console.log(line_width);
 	const headlen = line_width*1.5;

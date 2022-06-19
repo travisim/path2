@@ -27,7 +27,7 @@
 
   <body>
 		<div class="hover_popup" id="tooltip_data">
-			<div class="flex-row"><span id=hover_x>-</span>, <span id=hover_y>-</span></div>
+			<div class="flex-row"><span id=hover_y>-</span>, <span id=hover_x>-</span></div>
 			<br>
 			Step Number: <span id="hover_cell_index">-</span>
 		</div>
@@ -146,12 +146,16 @@
 						</div>
 						<div id="left_axes" class="flex-col">
 							<span class="label_centered">0</span>
-							<div class="slider"></div>
+							<div class="slider">
+								<canvas class="shrink" height="1024" width="1024"></canvas>
+							</div>
 							<span id="map_height_axis" class="label_centered">15</span>
 						</div>
-						<div id="bottom_axes" class="flex-row">
+						<div id="top_axes" class="flex-row">
 							<span class="label_centered">0</span>
-							<div class="slider"></div>
+							<div class="slider">
+								<canvas class="shrink" height="1024" width="1024"></canvas>
+							</div>
 							<span id="map_width_axis" class="label_centered">15</span>
 						</div>
 					</div>

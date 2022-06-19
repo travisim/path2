@@ -1,5 +1,6 @@
 :root{
 	--canvas-length: 472px;;
+	--canvas-remaining: calc(512px - var(--canvas-length));
 }
 
 #map-container{
@@ -13,8 +14,11 @@
 #canvas_container{
 	height: var(--canvas-length);
 	width: var(--canvas-length);
-	position: relative;
+	position: absolute;
 	float: right;
+	top: var(--canvas-remaining);
+	left: var(--canvas-remaining);
+	/*margin-top: var(--canvas-remaining);/**/
 	border: 1px solid black;
 }
 
@@ -29,14 +33,16 @@
 	height: var(--canvas-length);
 	width: calc(512px - var(--canvas-length));
 	overflow: hidden;
+	top: var(--canvas-remaining);
 	padding: 0px;
 }
 
 #bottom_axes{
 	position: absolute;
 	width: var(--canvas-length);
+	height: var(--canvas-remaining);
 	right: 0;
-	top: var(--canvas-length);
+	top: 0;
 	overflow: hidden;
 	padding-left: 0px;
 	padding-right: 0px;
