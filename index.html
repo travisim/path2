@@ -251,7 +251,7 @@
 							<label class="label_centered">Search progress: <span id="search_progress_label"></span>%</label>
 							<div class="flex-row">
 								<span>0%</span>
-        				<input type="range" min="-1" id="search_progress_slider" class="slider"> <!-- steps are 0-indexed -->
+        				<input type="range" min="-1" id="search_progress_slider" disabled="true" class="slider"> <!-- steps are 0-indexed -->
 								<span>100%</span>
 							</div>
 
@@ -330,9 +330,9 @@
 							</button>
 						</div>
 						<div class="flex-row">
-							<label class="label_centered">Num Neighbours:</label>
+							<label class="label_centered">Neighbours:</label>
 							<button id="num_neighbours_btn" class="btn modal_btn">
-								<span id="num_neighbours_label">8</span>
+								<span id="num_neighbours_label">Octal (8-directions)</span>
 							</button>
 						</div>
 					</div>

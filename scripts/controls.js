@@ -18,6 +18,7 @@ function compute_path(){
 	document.getElementById("compute_btn").innerHTML = "searching...";
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
 		console.log(path ? path.length : -1);
+		myUI.sliders.search_progress_slider.elem.disabled = false;
 		myUI.path = path;
 		myUI.animation.max_step = myUI.planner.max_step();
 		myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;

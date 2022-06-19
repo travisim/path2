@@ -35,6 +35,7 @@ myUI.displayMap = function(){
 	console.log(myUI.map_arr);
 	myUI.reset_animation();
 	myUI.planner.cell_map = undefined;
+	myUI.sliders.search_progress_slider.elem.disabled = true;
 	
 	const height = myUI.map_arr.length;
 	const width = myUI.map_arr[0].length;
@@ -150,6 +151,7 @@ myUI.displayScen = function(moved=false){
 	myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
 	myUI.planner.cell_map = undefined;
+	myUI.sliders.search_progress_slider.elem.disabled = true;
 	myUI.scenFail = false;
 	if(myUI.map_name!=myUI.scen_name){
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded

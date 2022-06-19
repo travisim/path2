@@ -28,9 +28,14 @@ document.getElementById("diagonal_block_btn").addEventListener("click", e=>{
   else document.getElementById("diagonal_block_label").innerHTML = "Unblocked";
 });
 
-document.getElementById("num_neighbours_label").innerHTML = myUI.planner.num_neighbours;
+document.getElementById("num_neighbours_label").innerHTML = "Octal (8-directions)";
 document.getElementById("num_neighbours_btn").addEventListener("click", e=>{
-  if(myUI.planner.num_neighbours!=8) myUI.planner.num_neighbours=8;
-  else myUI.planner.num_neighbours=4;
-  document.getElementById("num_neighbours_label").innerHTML = myUI.planner.num_neighbours;
+  if(myUI.planner.num_neighbours!=8){
+    myUI.planner.num_neighbours=8;
+    document.getElementById("num_neighbours_label").innerHTML = "Octal (8-directions)";
+  }
+  else{
+    myUI.planner.num_neighbours=4;
+    document.getElementById("num_neighbours_label").innerHTML = "Cardinal (4-directions)";
+  }
 });
