@@ -62,7 +62,7 @@ class BFS extends GridPathFinder {
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
-      this._create_action(0, STATIC.ICR, this.current_node_YX);
+      this._create_action(STATIC.DI, STATIC.ICR, this.current_node_YX);
       //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
@@ -77,7 +77,7 @@ class BFS extends GridPathFinder {
       this._create_action(STATIC.DP, STATIC.QU, this.current_node_YX);
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
-        this._create_action(0,STATIC.ICR, this.prev_node_YX);
+        this._create_action(STATIC.DI,STATIC.ICR, this.prev_node_YX);
         this.neighbours_YX.forEach(coord => {
           this._create_action(STATIC.DP, STATIC.NB, coord);
         });
@@ -147,7 +147,7 @@ class BFS extends GridPathFinder {
           /* NEW */
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
-          this._create_action(STATIC.DP, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
+          this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
   
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
             this.queue.push(new Node(null, null, null, this.current_node, next_YX));  // add to queue
@@ -165,7 +165,7 @@ class BFS extends GridPathFinder {
 
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
-          // this._create_action(STATIC.EP, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
+          this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
             this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
             this._create_action(STATIC.EP, STATIC.QU, next_YX);

@@ -52,19 +52,6 @@ var UIInfoCurrent = {
   }
 }
 
-function info_map_reset(){
-  var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
- 
-  deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
-  document.getElementById(deltaNWSE).style.borderColor = "transparent";
-  document.getElementById(deltaNWSE).style.background = "rgb(188,186,201)";
-  document.getElementById(deltaNWSE).style.outlineColor = "black";
-  document.getElementById(deltaNWSE).style.color = "black";
-  document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "";
-  }); //reset obstacles in info map 
-
-}
-
 
 
 
