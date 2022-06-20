@@ -160,7 +160,7 @@ function info_map_queue(x,y){ //using pre obtained map of surrounding point
 
 
 
-*/
+
 
 
 

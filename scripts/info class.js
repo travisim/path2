@@ -50,11 +50,14 @@ var UIInfoCurrent = {
    DrawCurrent(x,y){
     document.getElementById("currentYX").innerHTML =  "( "+y+", "+x+")"; // flipped x and y because of matrix transformation
   }
+
+
 }
+//object with only 1 method
 
 
 
-
+/*
 
 class UIInfoTable{
   out_table(){
@@ -67,7 +70,16 @@ class UIInfoTable{
 
   
   in_table(x,y){
+    var t;
+    var r;
+    var c1;
+    var c2;
+    var c3;
+    var c4;
+    var c5;
+    var c6;
     var info = myUI.planner.final_state().info_matrix
+   
     if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
       t = document.createElement('table');
       //t.setAttribute('class', 'slide'); new table automatically set "slide class"
@@ -75,7 +87,7 @@ class UIInfoTable{
       c1 = r.insertCell(0);
       c2 = r.insertCell(1);
       c1.innerHTML = x+", "+y;
-      c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
+      c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0]; 
       t.classList.add('slide', 'new-slide');
       document.getElementById("info-container-dynamic").prepend(t); 
     }
@@ -115,7 +127,7 @@ class UIInfoTable{
   }
 }
       
-  
+  */
 
 function removebyindex(index){
   var removeTab = slides[index];

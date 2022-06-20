@@ -44,7 +44,7 @@ myUI.initialize = function(){
   });
 
   myUI.InfoCurrent = UIInfoCurrent;
-
+ // myUI.InfoTable  = new UIInfoTable;
   myUI.InfoVisited;
   myUI.InfoQueue;
 
