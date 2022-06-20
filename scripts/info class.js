@@ -38,9 +38,10 @@ class UIInfoNWSE{
     */
   DrawNeighbour(f,g,h){
     this.element.style.borderColor = "rgb(0,130,105)";
-    //this.element.querySelector("#F").innerHTML = f;
-    //this.element.querySelector("#G").innerHTML = g;
-    //this.element.querySelector("#H").innerHTML = h;
+     console.log(f,"f",g,"g",h,"h")
+    if(f!=null ) this.element.querySelector("#F").innerHTML = f;
+    if(g!=null )  this.element.querySelector("#G").innerHTML = g;
+    if(h!=null )  this.element.querySelector("#H").innerHTML = h;
     this.element.querySelector("#type").innerHTML = "neighbour";
   }
     
@@ -54,6 +55,10 @@ var UIInfoCurrent = {
 
 }
 //object with only 1 method
+
+
+
+
 
 
 

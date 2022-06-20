@@ -7,7 +7,7 @@ let info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
 for(let i=0;i<info_neighbours_id.length;++i){
   document.getElementById(info_neighbours_id[i]).innerHTML = '<span id="type"></span>';
 };
-//document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
+document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
 var current_XY_ani = [];
 
 
@@ -186,9 +186,9 @@ function out_table(){
 
 
 
-function in_table(x,y){
+function in_table(x,y,g-cost){
 
-var info = myUI.planner.final_state().info_matrix
+
   
 if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
   t = document.createElement('table');

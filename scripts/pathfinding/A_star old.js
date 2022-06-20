@@ -1,10 +1,10 @@
-'use strict';
+'use strict'; 
 
-class BFS extends GridPathFinder {
+class A_star extends GridPathFinder{
 
-  static get display_name() {
-    return "Breadth-First Search (BFS)";
-  }
+	static get display_name(){
+		return "A star";
+	}
 
   constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbours, diagonal_allow, first_neighbour, search_direction);
@@ -15,7 +15,7 @@ class BFS extends GridPathFinder {
     this._init_search(start, goal);
 
     console.log("starting");
-    let start_node = new Node(null, null, null, null, start);
+    let start_node = new Node(0, 0, 0, null, this.start);
     //var found = false;  // once the program exits the while-loop, this is the variable which determines if the endpoint has been found
     /* ^ deprecated, used a this.path variable to assign */
     this.queue.push(start_node);  // begin with the start; add starting node to rear of []
@@ -23,16 +23,19 @@ class BFS extends GridPathFinder {
 
     let planner = this;
 
-    // "Producing Code" (May take some time)
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
+    return new Promise((resolve, reject)=>{
+      setTimeout(()=>resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
     });
-  }
+   }
 
-  _run_next_search(planner, num) {
-    while (num--) {
+  _run_next_search(planner, num){
+    while(num--){
       // while there are still nodes left to visit
-      if (this.queue.length == 0) return this._terminate_search();
+      if(this.queue.length==0) return this._terminate_search();
+                  //++ from bfs.js
+      this.queue.sort(function (a, b){return a.f_cost - b.f_cost});   
+               //++ from bfs.js
+      
       if (this.current_node_YX)
         this.prev_node_YX = this.current_node_YX;
       this.current_node = this.queue.shift(); // remove the first node in queue
@@ -43,7 +46,6 @@ class BFS extends GridPathFinder {
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
-      this._create_action(STATIC.DI, STATIC.ICR, this.current_node_YX);
       //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
@@ -58,9 +60,8 @@ class BFS extends GridPathFinder {
       this._create_action(STATIC.DP, STATIC.QU, this.current_node_YX);
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
-        this._create_action(STATIC.DI,STATIC.ICR, this.prev_node_YX);
-        this.neighbours_YX.forEach(coord => {
-          this._create_action(STATIC.DP, STATIC.NB, coord);
+        this.neighbours.forEach(neighbour => {
+          this._create_action(STATIC.DP, STATIC.NB, neighbour.self_YX);
         });
       }
       this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
@@ -121,23 +122,29 @@ class BFS extends GridPathFinder {
               }
             }
           }
-          this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
 
+         // start to a node, taking into account obstacles
+          var g_cost = this.current_node.g_cost + ((this.current_node.self_YX[0]-next_YX[0])**2+(this.current_node.self_YX[1]-next_YX[1])**2)**0.5//euclidean //++ from bfs.js
+        //var g_cost = this.current_node.g_value + (math.abs(this.current_node.node_YX[0]-next_YX[0])+math.abs(this.current_node.node_YX[1]-next_YX[1]))//manhatten //++ from bfs.js
+
+          var h_cost = ((this.goal[0]-next_YX[0])**2+(this.goal[1]-next_YX[1])**2)**0.5
+        //var h_cost = (math.abs(this.goal[0]-next_YX[0])+math.abs(this.goal[1]-next_YX[1]))
+
+          var f_cost = g_cost + h_cost //++ from bfs.js
+          
           this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
 
           /* NEW */
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
-          this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
-  
-          if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
-            this.queue.push(new Node(null, null, null, this.current_node, next_YX));  // add to queue
+          if (!this.queue_matrix[next_YX[0]][next_YX[1]]){ // prevent from adding to queue again
+            this.queue.push(new Node(f_cost, g_cost, h_cost, this.current_node, next_YX));  // add to queue
             this._create_action(STATIC.DP, STATIC.QU, next_YX);
-            if (this.draw_arrows) {
+            if(this.draw_arrows){
               // ARROW
               ++this.arrow_step;
-              //myUI.create_arrow(this.current_node_YX, next_YX);
               myUI.draw_arrow(this.current_node_YX, next_YX, true, 0, false);
+              //myUI.create_arrow(this.current_node_YX , next_YX);
               this._create_action(STATIC.DA);
               // END OF ARROW
             }
@@ -146,11 +153,10 @@ class BFS extends GridPathFinder {
 
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
-          this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
-          if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
+          if (!this.queue_matrix[next_YX[0]][next_YX[1]]){
             this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
             this._create_action(STATIC.EP, STATIC.QU, next_YX);
-            if (this.draw_arrows) this._create_action(STATIC.EA);
+            if(this.draw_arrows) this._create_action(STATIC.EA);
           }
           this._save_step("bck");
         }
@@ -160,8 +166,8 @@ class BFS extends GridPathFinder {
 
       this._manage_state();
     }
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
+    return new Promise((resolve, reject)=>{
+      setTimeout(()=>resolve(planner._run_next_search(planner, planner.batch_size)),  planner.batch_interval);
     });
   }
 }

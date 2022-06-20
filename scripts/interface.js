@@ -41,8 +41,12 @@ myUI.initialize = function(){
   ].forEach(item=>{
     let infoNWSE_Id = item[0];
     myUI.InfoNWSE[infoNWSE_Id] = new UIInfoNWSE(infoNWSE_Id);
+    document.getElementById(infoNWSE_Id).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
+  //initialise html for info squares as well
   });
 
+
+  
   myUI.InfoCurrent = UIInfoCurrent;
  // myUI.InfoTable  = new UIInfoTable;
   myUI.InfoVisited;

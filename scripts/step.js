@@ -124,13 +124,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       else return;
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
         let i=0;
+        
         while(i<step.length){
           let [command, dest, y, x, parent_y, parent_x, parent_exists] = GridPathFinder.unpack_action(step[i]);
           if(parent_exists){
             console.log("parent exists");
             var g_cost = step[i+1];
             var h_cost = step[i+2];
-            var f_cost = g_cost + h_cost;
+            var f_cost = g_cost + h_cost; // null + null = 0 this causes f_cost to be 0
+            if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
           console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost]);
@@ -143,14 +145,14 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_visited(x,y);
             info_map_queue(x,y)
           //  myUI.InfoTable.out_table();
-            out_table();
+           // out_table();
             myUI.InfoCurrent.DrawCurrent(x,y);
             console.log(STATIC.ICR);
           }
          //to draw neighbours
           else if(command == STATIC.DI ){
             myUI.InfoNWSE[statics_to_obj[dest]].DrawNeighbour(f_cost,g_cost,h_cost);
-            in_table(x,y);
+            in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
           }
 
 
@@ -307,14 +309,6 @@ myUI.run_combined_step = function(step_direction="fwd"){
   }
 }
 
-
-let info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
-for(let i=0;i<info_neighbours_id.length;++i){
-  document.getElementById(info_neighbours_id[i]).innerHTML = '<span id="type"></span>';
-};
-//document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
-var current_XY_ani = [];
-
 // info map post process
 function info_map_reset(){
   var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
@@ -325,6 +319,9 @@ function info_map_reset(){
   document.getElementById(deltaNWSE).style.outlineColor = "black";
   document.getElementById(deltaNWSE).style.color = "black";
   document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "";
+  document.getElementById(deltaNWSE).querySelector("#F").innerHTML = "";
+  document.getElementById(deltaNWSE).querySelector("#G").innerHTML = "";
+  document.getElementById(deltaNWSE).querySelector("#H").innerHTML = "";
   }); //reset obstacles in info map 
 
 }
@@ -433,7 +430,7 @@ function out_table(){
 
 
 
-function in_table(x,y){
+function in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
 
   var info = myUI.planner.final_state().info_matrix
     
@@ -444,7 +441,7 @@ function in_table(x,y){
     c1 = r.insertCell(0);
     c2 = r.insertCell(1);
     c1.innerHTML = x+", "+y;
-    c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
+    c2.innerHTML = parent_x+", "+parent_y;
     t.classList.add('slide', 'new-slide');
     document.getElementById("info-container-dynamic").prepend(t); 
   }
@@ -456,8 +453,8 @@ function in_table(x,y){
     c2 = r.insertCell(1);
     c3 = r.insertCell(2);
     c1.innerHTML = x+", "+y;
-    c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
-    c3.innerHTML = info[y][x].g;
+    c2.innerHTML = parent_x+", "+parent_y;
+    c3.innerHTML = g_cost;
     t.classList.add('slide', 'new-slide');
     document.getElementById("info-container-dynamic").prepend(t); 
     
@@ -471,13 +468,11 @@ function in_table(x,y){
     c3 = r.insertCell(2);
     c4 = r.insertCell(3);
     c5 = r.insertCell(4);
-    c6 = r.insertCell(5);
     c1.innerHTML = x+", "+y;
-    c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
-    c3.innerHTML = info[y][x].f;
-    c4.innerHTML = info[y][x].g;
-    c5.innerHTML = info[y][x].h;
-    c6.innerHTML = 1;
+    c2.innerHTML = parent_x+", "+parent_y;
+    c3.innerHTML = f_cost;
+    c4.innerHTML = g_cost;
+    c5.innerHTML = h_cost;
     t.classList.add('slide', 'new-slide');
     document.getElementById("info-container-dynamic").prepend(t); 
   
