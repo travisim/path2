@@ -1,5 +1,5 @@
 
-
+/
 //start of js for info map
 let info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
 //var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
@@ -105,12 +105,12 @@ function info_map_neighbours_erase(x,y){ // comparing surrounding point to curre
 }
 
 
-var visited = new BitMatrix(myUI.planner.map_height, myUI.planner.map_width); // recreates the visited 2d array from tha steps for the display of the info map
+
 function record_drawn_visited(x,y){
    visited.set_data([y,x], 1); // marks current node YX as visited
  // console.log(visited.get_data([y,x]));
 }
-var queue = new BitMatrix(myUI.planner.map_height, myUI.planner.map_width);
+
 function record_drawn_queue(x,y){
    queue.set_data([y,x], 1); // marks current node YX as visited
  // console.log(visited.get_data([y,x]));
@@ -160,7 +160,7 @@ function info_map_queue(x,y){ //using pre obtained map of surrounding point
 
 
 
-
+*/
 
 
 

@@ -5,7 +5,9 @@ myUI.parseMap = function(map_str_var, file_name){
 	myUI.map_height = parseInt(map_str_var.split('\n')[1].split(' ')[1]);
 	myUI.map_width = parseInt(map_str_var.split('\n')[2].split(' ')[1]);
 	myUI.map_arr = zero2D(myUI.map_height, myUI.map_width);
-	console.log(myUI.map_height);
+	myUI.InfoQueue = new BitMatrix(myUI.map_height, myUI.map_width); // recreates the visited 2d array from tha steps for the display of the info map
+  myUI.InfoVisited = new BitMatrix(myUI.map_height, myUI.map_width); // recreates the visited 2d array from tha steps for the display of the info map
+  console.log(myUI.map_height);
 	console.log(myUI.map_width)
 	
   let map_array_final = [];

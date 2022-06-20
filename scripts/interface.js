@@ -45,7 +45,10 @@ myUI.initialize = function(){
 
   myUI.InfoCurrent = UIInfoCurrent;
 
+  myUI.InfoVisited;
+  myUI.InfoQueue;
 
+  
 	[ 
 		["edit_map_modal", "edit_map_close"],
 		["planner_config_modal", "planner_config_close"]

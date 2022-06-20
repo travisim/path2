@@ -155,7 +155,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log(x,"x",y,"y","visited recorded");
             record_drawn_visited(x,y);
             var next_YX_temp = [y,x]
-            console.log(visited.get_data(next_YX_temp),"check");
+            //console.log(visited.get_data(next_YX_temp),"check");
             
           }
           if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
@@ -305,8 +305,12 @@ myUI.run_combined_step = function(step_direction="fwd"){
 }
 
 
-
-
+let info_neighbours_id = ["NW","N","NE","W","E","SW","S","SE"];
+for(let i=0;i<info_neighbours_id.length;++i){
+  document.getElementById(info_neighbours_id[i]).innerHTML = '<span id="type"></span>';
+};
+//document.getElementById(info_neighbours_id[i]).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
+var current_XY_ani = [];
 
 // info map post process
 function info_map_reset(){
@@ -362,15 +366,16 @@ document.getElementById(deltaNWSE).style.color = "transparent";
 }
 
 
-var visited = new BitMatrix(myUI.planner.map_height, myUI.planner.map_width); // recreates the visited 2d array from tha steps for the display of the info map
+
 function record_drawn_visited(x,y){
-   console.log(visited.get_data([y,x]),"visited recordbefore");
-   visited.set_data([y,x], 1); // marks current node YX as visited
- console.log(visited.get_data([y,x]),"visited record");
+ //  console.log(myUI.InfoVisited.get_data([y,x]),"visited record before");
+   myUI.InfoVisited.set_data([y,x], 1); // marks current node YX as visited
+//   console.log(myUI.InfoVisited.get_data([y,x]),"visited record after");
 }
-var queue = new BitMatrix(myUI.planner.map_height, myUI.planner.map_width);
+
+
 function record_drawn_queue(x,y){
-   queue.set_data([y,x], 1); // marks current node YX as visited
+  myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
  // console.log(visited.get_data([y,x]));
 }
 
@@ -382,7 +387,7 @@ function info_map_visited(x,y){ //using pre obtained map of surrounding point
   for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
     var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
     if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-    if (visited.get_data(next_YX_temp)) {// if the current node has been visited
+    if (myUI.InfoVisited.get_data(next_YX_temp)) {// if the current node has been visited
       surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
     }
   }
@@ -398,7 +403,7 @@ function info_map_queue(x,y){ //using pre obtained map of surrounding point
   for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
     var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
     if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-    if (queue.get_data(next_YX_temp)) {// if the current node has been visited
+    if (myUI.InfoQueue.get_data(next_YX_temp)) {// if the current node has been visited
       surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
     }
   }
