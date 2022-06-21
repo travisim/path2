@@ -6,7 +6,6 @@ class UIInfoNWSE{
      
   Reset(){
     this.element.style.borderColor = "transparent";
-    this.element.style.borderColor = "transparent";
     this.element.style.background = "rgb(188,186,201)";
     this.element.style.outlineColor = "black";
     this.element.style.color = "black";
@@ -44,7 +43,8 @@ class UIInfoNWSE{
     if(h!=null )  this.element.querySelector("#H").innerHTML = h;
     this.element.querySelector("#type").innerHTML = "neighbour";
   }
-    
+
+
   
 }
 var UIInfoCurrent = {

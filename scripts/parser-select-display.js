@@ -275,9 +275,21 @@ myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner)
 function determine_table_header(){
 
   if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
+  // delete previous header
     if(document.getElementById("info_table").rows.length == 1){
-      document.getElementById("info_table").deleteRow(0);
+      document.getElementById("info_table").deleteRow(0); 
     }
+  var temp = slides.length;// slides.length alawys changes, cannot use
+   if(temp != 0){
+      console.log( temp,"slides length");
+     var i =temp-1;
+      while(i!=-1) {
+        console.log(i,"iter");
+        removebyindex(i);
+        i--;
+      }
+    } 
+    
     
     var table = document.getElementById("info_table");
     var header = table.createTHead();
@@ -287,7 +299,7 @@ function determine_table_header(){
   
   
     cell0.innerHTML = "<b>Vertex</b>";
-    cell1.innerHTML = "<b>parent</b>";
+    cell1.innerHTML = "<b>Parent</b>";
   
   
     
@@ -305,8 +317,8 @@ function determine_table_header(){
     
   
     cell0.innerHTML = "<b>Vertex</b>";
-    cell1.innerHTML = "<b>parent</b>";
-    cell2.innerHTML = "<b>g</b>";
+    cell1.innerHTML = "<b>Parent</b>";
+    cell2.innerHTML = "<b>G cost</b>";
    
   
     
@@ -325,10 +337,10 @@ function determine_table_header(){
     var cell4 = row.insertCell(4);
   
     cell0.innerHTML = "<b>Vertex</b>";
-    cell1.innerHTML = "<b>parent</b>";
-    cell2.innerHTML = "<b>f</b>";
-    cell3.innerHTML = "<b>g</b>";
-    cell4.innerHTML = "<b>h</b>";
+    cell1.innerHTML = "<b>Parent</b>";
+    cell2.innerHTML = "<b>F cost</b>";
+    cell3.innerHTML = "<b>G cost</b>";
+    cell4.innerHTML = "<b>H cost</b>";
   
     
     

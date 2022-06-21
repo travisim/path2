@@ -145,7 +145,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_visited(x,y);
             info_map_queue(x,y)
           //  myUI.InfoTable.out_table();
-           // out_table();
+            out_table();
             myUI.InfoCurrent.DrawCurrent(x,y);
             console.log(STATIC.ICR);
           }
@@ -154,6 +154,12 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             myUI.InfoNWSE[statics_to_obj[dest]].DrawNeighbour(f_cost,g_cost,h_cost);
             in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
           }
+        //to erase neighbours
+          else if(command == STATIC.EI ){
+            myUI.InfoNWSE[statics_to_obj[dest]].Reset();
+            
+          }
+          
 
 
           if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
@@ -432,7 +438,7 @@ function out_table(){
 
 function in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
 
-  var info = myUI.planner.final_state().info_matrix
+
     
   if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
     t = document.createElement('table');
