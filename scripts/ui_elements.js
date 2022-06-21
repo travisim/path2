@@ -86,11 +86,12 @@ class UICanvas{
 
     if(retain_data){
       //console.log(data_width);
-      let new_canvas_cache = zero2D(data_height, data_width);
+      let new_canvas_cache = deep_copy_matrix(this.canvas_cache);//zero2D(data_height, data_width);
       //console.log(`first`);
       //console.log(new_canvas_cache);
 
-      for(let i=0;i<this.data_height;++i){
+
+      /*for(let i=0;i<this.data_height;++i){
         if(i<this.canvas_cache.length)
           for(let j=0;j<this.data_width;++j){
             if(j<this.canvas_cache[0].length)
@@ -101,11 +102,11 @@ class UICanvas{
       //console.log(new_canvas_cache);
       //console.log(`Height: ${new_canvas_cache.length}`);
       //console.log(`Width: ${new_canvas_cache[0].length}`);
-      this.canvas_cache = zero2D(data_height, data_width);
       //console.log(`reset`);
       //console.log(`Height: ${this.canvas_cache.length}`);
       //console.log(`Width: ${this.canvas_cache[0].length}`);
-      //console.log(this.canvas_cache);
+      //console.log(this.canvas_cache);/* */
+      this.canvas_cache = zero2D(data_height, data_width);;
       this.draw_canvas(new_canvas_cache, `2d`, false);
       //console.log(this.canvas_cache);
     }

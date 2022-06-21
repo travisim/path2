@@ -22,7 +22,7 @@ function deep_copy_matrix(matrix, flip_bit=false){
   //console.log(matrix);
   for(let i=0;i<matrix.length;++i){
     let row = new Uint8Array(matrix[0].length);
-    for(let j=0;j<matrix.length;++j) row[j] = flip_bit ? matrix[i][j] ^ 1 : matrix[i][j];
+    for(let j=0;j<matrix[0].length;++j) row[j] = flip_bit ? matrix[i][j] ^ 1 : matrix[i][j];
     res.push(row);
   }
   return res;

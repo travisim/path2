@@ -3,7 +3,7 @@
 class DFS extends GridPathFinder {
 
   static get display_name() {
-    return "Depth-First Search (BFS)";
+    return "Depth-First Search (DFS)";
   }
 
   constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
@@ -14,14 +14,14 @@ class DFS extends GridPathFinder {
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
 
-    console.log("starting");
+    console.log("starting");v
     this.info_matrix[this.start[0]][this.start[1]]={parent: ["n","n"]};
     //console.log(this.info_matrix[this.start[0]][this.start[1]].parent,"lop");
     let start_node = new Node(null, null, null, null, start);
     //var found = false;  // once the program exits the while-loop, this is the variable which determines if the endpoint has been found
     /* ^ deprecated, used a this.path variable to assign */
     this.queue.push(start_node);  // begin with the start; add starting node to rear of []
-    //---------------------checks if visited 2d array has been visited
+    //---------------------checks if visited 2d array has been isited
 
     let planner = this;
 
