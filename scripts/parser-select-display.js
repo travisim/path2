@@ -279,16 +279,7 @@ function determine_table_header(){
     if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0); 
     }
-  var temp = slides.length;// slides.length alawys changes, cannot use
-   if(temp != 0){
-      console.log( temp,"slides length");
-     var i =temp-1;
-      while(i!=-1) {
-        console.log(i,"iter");
-        removebyindex(i);
-        i--;
-      }
-    } 
+    RemoveAllTableSlides()
     
     
     var table = document.getElementById("info_table");
@@ -308,6 +299,7 @@ function determine_table_header(){
    if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0);
     }
+    RemoveAllTableSlides()
     var table = document.getElementById("info_table");
     var header = table.createTHead();
     var row = header.insertRow(0);
@@ -324,9 +316,10 @@ function determine_table_header(){
     
   }
   else if (myUI.planner_choice == 3){
-     if(document.getElementById("info_table").rows.length == 1){
+    if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0);
     }
+    RemoveAllTableSlides()
     var table = document.getElementById("info_table");
     var header = table.createTHead();
     var row = header.insertRow(0);
@@ -345,4 +338,17 @@ function determine_table_header(){
     
     
   }
+}
+
+function RemoveAllTableSlides(){
+  var temp = slides.length;// slides.length alawys changes, cannot use
+   if(temp != 0){
+      console.log( temp,"slides length");
+     var i =temp-1;
+      while(i!=-1) {
+        console.log(i,"iter");
+        removebyindex(i);
+        i--;
+      }
+    } 
 }
