@@ -189,7 +189,7 @@ class GridPathFinder{
 
 	_manage_state(){
 		// [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
-		if (this.step_index - this.prev_count >= 115) {
+		if (this.step_index - this.prev_count >= 115) {  
 			this.prev_count = this.step_index;
 			++this.state_counter;
 			if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_index}`);

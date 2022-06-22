@@ -145,7 +145,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             info_map_visited(x,y);
             info_map_queue(x,y)
           //  myUI.InfoTable.out_table();
-            out_table();
+            out_last_slide();
             myUI.InfoCurrent.DrawCurrent(x,y);
             console.log(STATIC.ICR);
           }
@@ -157,6 +157,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
         //to erase neighbours
           else if(command == STATIC.EI ){
             myUI.InfoNWSE[statics_to_obj[dest]].Reset();
+            out_first_slide()
             
           }
           
@@ -423,15 +424,18 @@ function info_map_queue(x,y){ //using pre obtained map of surrounding point
 //start of js for info table
 
 var slides = document.getElementsByClassName("slide");
-//document.getElementById("teef").innerHTML = slides.length;
 
-//out_table();
-//in_table();
-function out_table(){
-  //animates out last table
+function out_last_slide(){
+  //animates out last slide
   if (slides.length >= 1) slides[slides.length-1].style.animation = 'out 0.5s forwards';
    //deletes HTML of last table(use arrow function to accept parameters)
   setTimeout(()=>removebyindex(slides.length-1),1000);
+}
+function out_first_slide(){
+  //animates out first slide
+  if (slides.length >= 1) slides[0].style.animation = 'out 0.5s forwards';
+   //deletes HTML of last table(use arrow function to accept parameters)
+  setTimeout(()=>removebyindex(0),1000);
 }
 
 

@@ -10,6 +10,9 @@ class UIInfoNWSE{
     this.element.style.outlineColor = "black";
     this.element.style.color = "black";
     this.element.querySelector("#type").innerHTML = "";
+    this.element.querySelector("#F").innerHTML = "";
+    this.element.querySelector("#G").innerHTML = "";
+    this.element.querySelector("#H").innerHTML = "";
      //reset a square in info map 
   }
   /* 
@@ -62,77 +65,70 @@ var UIInfoCurrent = {
 
 
 
-/*
+
 
 class UIInfoTable{
+  /*
   out_table(){
     //animates out last table
     //slides[slides.length-1].style.animation = 'out 0.5s forwards';
      //deletes HTML of last table(use arrow function to accept parameters)
     setTimeout(()=>removebyindex(slides.length-1),1000);
+  },
+*/
+  /* below references myUI cannot be in interface.js
+    
+ in_table:function(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
+
+
+    
+  if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
+    t = document.createElement('table');
+    //t.setAttribute('class', 'slide'); new table automatically set "slide class"
+    r = t.insertRow(0); 
+    c1 = r.insertCell(0);
+    c2 = r.insertCell(1);
+    c1.innerHTML = x+", "+y;
+    c2.innerHTML = parent_x+", "+parent_y;
+    t.classList.add('slide', 'new-slide');
+    document.getElementById("info-container-dynamic").prepend(t); 
   }
-
-
+  else if (myUI.planner_choice == 2){
+    t = document.createElement('table');
+    //t.setAttribute('class', 'slide'); new table automatically set "slide class"
+    r = t.insertRow(0); 
+    c1 = r.insertCell(0);
+    c2 = r.insertCell(1);
+    c3 = r.insertCell(2);
+    c1.innerHTML = x+", "+y;
+    c2.innerHTML = parent_x+", "+parent_y;
+    c3.innerHTML = g_cost;
+    t.classList.add('slide', 'new-slide');
+    document.getElementById("info-container-dynamic").prepend(t); 
+    
+  }
+  else if (myUI.planner_choice == 3){
+    t = document.createElement('table');
+    //t.setAttribute('class', 'slide'); new table automatically set "slide class"
+    r = t.insertRow(0); 
+    c1 = r.insertCell(0);
+    c2 = r.insertCell(1);
+    c3 = r.insertCell(2);
+    c4 = r.insertCell(3);
+    c5 = r.insertCell(4);
+    c1.innerHTML = x+", "+y;
+    c2.innerHTML = parent_x+", "+parent_y;
+    c3.innerHTML = f_cost;
+    c4.innerHTML = g_cost;
+    c5.innerHTML = h_cost;
+    t.classList.add('slide', 'new-slide');
+    document.getElementById("info-container-dynamic").prepend(t); 
   
-  in_table(x,y){
-    var t;
-    var r;
-    var c1;
-    var c2;
-    var c3;
-    var c4;
-    var c5;
-    var c6;
-    var info = myUI.planner.final_state().info_matrix
-   
-    if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
-      t = document.createElement('table');
-      //t.setAttribute('class', 'slide'); new table automatically set "slide class"
-      r = t.insertRow(0); 
-      c1 = r.insertCell(0);
-      c2 = r.insertCell(1);
-      c1.innerHTML = x+", "+y;
-      c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0]; 
-      t.classList.add('slide', 'new-slide');
-      document.getElementById("info-container-dynamic").prepend(t); 
-    }
-    else if (myUI.planner_choice == 2){
-      t = document.createElement('table');
-      //t.setAttribute('class', 'slide'); new table automatically set "slide class"
-      r = t.insertRow(0); 
-      c1 = r.insertCell(0);
-      c2 = r.insertCell(1);
-      c3 = r.insertCell(2);
-      c1.innerHTML = x+", "+y;
-      c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
-      c3.innerHTML = info[y][x].g;
-      t.classList.add('slide', 'new-slide');
-      document.getElementById("info-container-dynamic").prepend(t); 
-      
-    }
-    else if (myUI.planner_choice == 3){
-      t = document.createElement('table');
-      //t.setAttribute('class', 'slide'); new table automatically set "slide class"
-      r = t.insertRow(0); 
-      c1 = r.insertCell(0);
-      c2 = r.insertCell(1);
-      c3 = r.insertCell(2);
-      c4 = r.insertCell(3);
-      c5 = r.insertCell(4);
-      c6 = r.insertCell(5);
-      c1.innerHTML = x+", "+y;
-      c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
-      c3.innerHTML = info[y][x].f;
-      c4.innerHTML = info[y][x].g;
-      c5.innerHTML = info[y][x].h;
-      c6.innerHTML = 1;
-      t.classList.add('slide', 'new-slide');
-      document.getElementById("info-container-dynamic").prepend(t); 
-    }
   }
+*/
 }
       
-  */
+  
 
 function removebyindex(index){
   var removeTab = slides[index];

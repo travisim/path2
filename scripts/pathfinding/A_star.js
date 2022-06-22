@@ -156,7 +156,7 @@ class A_star extends GridPathFinder{
 
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
-          this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_YX, h_cost,g_cost,this.current_node_YX);
+          this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i]);
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
             this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
             this._create_action(STATIC.EP, STATIC.QU, next_YX);

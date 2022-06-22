@@ -189,77 +189,56 @@ function out_table(){
 function in_table(x,y,g-cost){
 
 
-  
-if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
-  t = document.createElement('table');
-  //t.setAttribute('class', 'slide'); new table automatically set "slide class"
-  r = t.insertRow(0); 
-  c1 = r.insertCell(0);
-  c2 = r.insertCell(1);
-  c1.innerHTML = x+", "+y;
-  c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
-  t.classList.add('slide', 'new-slide');
-  document.getElementById("info-container-dynamic").prepend(t); 
-}
-else if (myUI.planner_choice == 2){
-  t = document.createElement('table');
-  //t.setAttribute('class', 'slide'); new table automatically set "slide class"
-  r = t.insertRow(0); 
-  c1 = r.insertCell(0);
-  c2 = r.insertCell(1);
-  c3 = r.insertCell(2);
-  c1.innerHTML = x+", "+y;
-  c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
-  c3.innerHTML = info[y][x].g;
-  t.classList.add('slide', 'new-slide');
-  document.getElementById("info-container-dynamic").prepend(t); 
-  
-}
-else if (myUI.planner_choice == 3){
-  t = document.createElement('table');
-  //t.setAttribute('class', 'slide'); new table automatically set "slide class"
-  r = t.insertRow(0); 
-  c1 = r.insertCell(0);
-  c2 = r.insertCell(1);
-  c3 = r.insertCell(2);
-  c4 = r.insertCell(3);
-  c5 = r.insertCell(4);
-  c6 = r.insertCell(5);
-  c1.innerHTML = x+", "+y;
-  c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
-  c3.innerHTML = info[y][x].f;
-  c4.innerHTML = info[y][x].g;
-  c5.innerHTML = info[y][x].h;
-  c6.innerHTML = 1;
-  t.classList.add('slide', 'new-slide');
-  document.getElementById("info-container-dynamic").prepend(t); 
-  
-}
-
-
+    
+  if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
+    t = document.createElement('table');
+    //t.setAttribute('class', 'slide'); new table automatically set "slide class"
+    r = t.insertRow(0); 
+    c1 = r.insertCell(0);
+    c2 = r.insertCell(1);
+    c1.innerHTML = x+", "+y;
+    c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
+    t.classList.add('slide', 'new-slide');
+    document.getElementById("info-container-dynamic").prepend(t); 
+  }
+  else if (myUI.planner_choice == 2){
+    t = document.createElement('table');
+    //t.setAttribute('class', 'slide'); new table automatically set "slide class"
+    r = t.insertRow(0); 
+    c1 = r.insertCell(0);
+    c2 = r.insertCell(1);
+    c3 = r.insertCell(2);
+    c1.innerHTML = x+", "+y;
+    c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
+    c3.innerHTML = info[y][x].g;
+    t.classList.add('slide', 'new-slide');
+    document.getElementById("info-container-dynamic").prepend(t); 
+    
+  }
+  else if (myUI.planner_choice == 3){
+    t = document.createElement('table');
+    //t.setAttribute('class', 'slide'); new table automatically set "slide class"
+    r = t.insertRow(0); 
+    c1 = r.insertCell(0);
+    c2 = r.insertCell(1);
+    c3 = r.insertCell(2);
+    c4 = r.insertCell(3);
+    c5 = r.insertCell(4);
+    c6 = r.insertCell(5);
+    c1.innerHTML = x+", "+y;
+    c2.innerHTML = info[y][x].parent[1]+", "+info[y][x].parent[0];
+    c3.innerHTML = info[y][x].f;
+    c4.innerHTML = info[y][x].g;
+    c5.innerHTML = info[y][x].h;
+    c6.innerHTML = 1;
+    t.classList.add('slide', 'new-slide');
+    document.getElementById("info-container-dynamic").prepend(t); 
+    
+  }
   
 
-  
-  
-  /*
-x+", "+y;
-myUI.planner.info_matrix()
-  info[y][x].parent;
- info[y][x].f;
- info[y][x].g;
- info[y][x].h;
- info[y][x].state;
-  */
-
 }
-  /*
-vertex
-f
-g
-h
-parent
-state
-*/
+
    
 function removebyindex(index){
   var removeTab = slides[index];

@@ -163,6 +163,8 @@ myUI.initialize = function(){
   myUI.storage = {};
 
   myUI.tmp = {};
+ myUI.InfoTable  = new UIInfoTable;
+  
 }
 
 
