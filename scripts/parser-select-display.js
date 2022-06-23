@@ -274,7 +274,7 @@ myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner)
 //determines the type of info table
 function determine_table_header(){
 
-  if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
+  if (myUI.planner_choice == 2 || myUI.planner_choice == 1){
   // delete previous header
     if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0); 
@@ -292,10 +292,23 @@ function determine_table_header(){
     cell0.innerHTML = "<b>Vertex</b>";
     cell1.innerHTML = "<b>Parent</b>";
   
-  
+    [
+    ["N"],
+		["NE"],
+    ["E"],
+    ["SE"],
+    ["S"],
+    ["SW"],
+    ["W"],
+    ["NW"] 
+    ].forEach(item=>{
+    let infoNWSE_Id = item[0];
+    document.getElementById(infoNWSE_Id).innerHTML = 'Type:<span id="type"></span>';
+  //initialise html for info squares as well
+    });
     
   }
-  else if (myUI.planner_choice == 2){
+  else if (myUI.planner_choice == 3){
    if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0);
     }
@@ -311,11 +324,25 @@ function determine_table_header(){
     cell0.innerHTML = "<b>Vertex</b>";
     cell1.innerHTML = "<b>Parent</b>";
     cell2.innerHTML = "<b>G cost</b>";
-   
+
+    [
+    ["N"],
+		["NE"],
+    ["E"],
+    ["SE"],
+    ["S"],
+    ["SW"],
+    ["W"],
+    ["NW"] 
+    ].forEach(item=>{
+    let infoNWSE_Id = item[0];
+    document.getElementById(infoNWSE_Id).innerHTML = 'G:<span id="G"></span>Type:<span id="type"></span>';
+  //initialise html for info squares as well
+    });
   
     
   }
-  else if (myUI.planner_choice == 3){
+  else if (myUI.planner_choice == 0){
     if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0);
     }
