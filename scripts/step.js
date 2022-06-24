@@ -444,7 +444,7 @@ function in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
 
 
     
-  if (myUI.planner_choice == 0 || myUI.planner_choice == 1){
+  if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
     t = document.createElement('table');
     //t.setAttribute('class', 'slide'); new table automatically set "slide class"
     r = t.insertRow(0); 
@@ -455,7 +455,7 @@ function in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
     t.classList.add('slide', 'new-slide');
     document.getElementById("info-container-dynamic").prepend(t); 
   }
-  else if (myUI.planner_choice == 2){
+  else if (myUI.planners[myUI.planner_choice] == Dijkstra){
     t = document.createElement('table');
     //t.setAttribute('class', 'slide'); new table automatically set "slide class"
     r = t.insertRow(0); 
@@ -469,7 +469,7 @@ function in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
     document.getElementById("info-container-dynamic").prepend(t); 
     
   }
-  else if (myUI.planner_choice == 3){
+  else if (myUI.planners[myUI.planner_choice] == A_star){
     t = document.createElement('table');
     //t.setAttribute('class', 'slide'); new table automatically set "slide class"
     r = t.insertRow(0); 

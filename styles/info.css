@@ -1,3 +1,15 @@
+#queue_header{
+    text-align: center;
+  margin-right:auto;
+  margin-left:auto;
+padding: 3px;
+  background: #bcbacb;
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid #bcbacb;
+	height: 20px;
+	width: 55px;"
+}
 /*start of CSS for info panel*/
 /*start of CSS for info map*/
 
@@ -17,7 +29,7 @@
 
 
 .info_neighbours{
- padding: 7px;
+ padding: 4px;
   height: 60px;
   font-size: 9px;
   background-color: rgb(188,186,201);
@@ -34,7 +46,7 @@
 .info_currentYX{
  padding: 10px;
   height: 30px;
-    font-size: 11px;
+  font-size: 11px;
   background-color: rgb(52,209,234);
   border: 2px solid black;
   aspect-ratio: 1;

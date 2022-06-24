@@ -140,6 +140,7 @@ class GridPathFinder{
 			this.step_cache.push(arguments[3]);
 			this.step_cache.push(arguments[4]);
 		}
+
 	}
 
 	_save_step(step_direction="fwd"){

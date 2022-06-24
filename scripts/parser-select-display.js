@@ -274,7 +274,7 @@ myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner)
 //determines the type of info table
 function determine_table_header(){
 
-  if (myUI.planner_choice == 2 || myUI.planner_choice == 1){
+  if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
   // delete previous header
     if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0); 
@@ -308,7 +308,7 @@ function determine_table_header(){
     });
     
   }
-  else if (myUI.planner_choice == 3){
+  else if (myUI.planners[myUI.planner_choice] == Dijkstra){
    if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0);
     }
@@ -342,7 +342,9 @@ function determine_table_header(){
   
     
   }
-  else if (myUI.planner_choice == 0){
+
+    
+  else if (myUI.planners[myUI.planner_choice] == A_star){
     if(document.getElementById("info_table").rows.length == 1){
       document.getElementById("info_table").deleteRow(0);
     }
@@ -362,8 +364,21 @@ function determine_table_header(){
     cell3.innerHTML = "<b>G cost</b>";
     cell4.innerHTML = "<b>H cost</b>";
   
-    
-    
+
+    [
+    ["N"],
+		["NE"],
+    ["E"],
+    ["SE"],
+    ["S"],
+    ["SW"],
+    ["W"],
+    ["NW"] 
+    ].forEach(item=>{
+    let infoNWSE_Id = item[0];
+    document.getElementById(infoNWSE_Id).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
+  //initialise html for info squares as well
+    });
   }
 }
 
