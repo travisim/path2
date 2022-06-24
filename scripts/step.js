@@ -131,7 +131,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log("parent exists");
             var g_cost = step[i+1];
             var h_cost = step[i+2];
-            var f_cost = g_cost + h_cost; // null + null = 0 this causes f_cost to be 0
+            var f_cost = (parseInt(g_cost) + parseInt(h_cost)).toPrecision(3); // null + null = 0 this causes f_cost to be 0
+         //  var f_cost = f_cost.toPrecision(3);
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
@@ -326,9 +327,9 @@ function info_map_reset(){
   document.getElementById(deltaNWSE).style.outlineColor = "black";
   document.getElementById(deltaNWSE).style.color = "black";
   document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "";
-  document.getElementById(deltaNWSE).querySelector("#F").innerHTML = "";
-  document.getElementById(deltaNWSE).querySelector("#G").innerHTML = "";
-  document.getElementById(deltaNWSE).querySelector("#H").innerHTML = "";
+  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector("#F").innerHTML = "";
+  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector("#G").innerHTML = "";
+  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector("#H").innerHTML = "";
   }); //reset obstacles in info map 
 
 }
