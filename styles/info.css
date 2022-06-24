@@ -1,3 +1,4 @@
+
 #queue_header{
     text-align: center;
   margin-right:auto;
@@ -20,7 +21,7 @@ padding: 3px;
   grid-template-rows: repeat(5, 1fr);
   aspect-ratio: 1;
   position: relative;
-  padding:35px;
+  
 
  
 
@@ -29,12 +30,12 @@ padding: 3px;
 
 
 .info_neighbours{
- padding: 4px;
-  height: 60px;
-  font-size: 9px;
+ padding: 6px;
+  height: 70px;
+  font-size: 10px;
   background-color: rgb(188,186,201);
-  border: 8px solid rgb(188,186,201);
-  outline: 3px solid black;
+  border: 5px solid rgb(188,186,201);
+  outline: 2px solid black;
 
   aspect-ratio: 1;
   border-radius: 15px;
@@ -61,10 +62,10 @@ padding: 3px;
     
 }
 .NWSE{
-  font-size: 8px;
+  font-size: 12px;
   height: 10px;
   aspect-ratio: 1;
-  padding: 10px;
+  padding: 7px;
   background-color: rgb(0,0,0);
 
   color: white;
