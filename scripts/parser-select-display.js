@@ -303,7 +303,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = 'Type:<span id="type"></span>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section>Type:<span id="type"></span></section>';
   //initialise html for info squares as well
     });
     
@@ -336,7 +336,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = 'G:<span id="G"></span>Type:<span id="type"></span>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section>G:<span id="G"></span>Type:<span id="type"></span></section>';
   //initialise html for info squares as well
     });
   
@@ -376,7 +376,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = 'F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section>F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span></section>';
   //initialise html for info squares as well
     });
   }
