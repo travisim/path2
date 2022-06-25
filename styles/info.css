@@ -17,12 +17,13 @@ padding: 3px;
 
 .grid {
   display: grid;
-  gap: 13px;
+  gap: 11px;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(5, 1fr);
   aspect-ratio: 1;
   position: relative;
- 
+padding:-5px;
+  
      
   
 
