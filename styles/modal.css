@@ -23,6 +23,12 @@
   height: 610px;
 }
 
+.mini{
+  margin: 15vh auto;
+  width: 500px; 
+  height: 410px;
+}
+
 /* The Close Button */
 .close {
   color: #aaa;
@@ -118,4 +124,11 @@ input[type=range][orient=vertical]{
 .modal_btn{
   height: 30px;
 	width: 120px;
+}
+
+.first_neighbour_choice{
+  font-size: large;
+  font-weight: bold;
+  height: 80px;
+  margin: 12px;
 }

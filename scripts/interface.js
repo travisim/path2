@@ -1,6 +1,8 @@
 var myUI = {}
 
 myUI.initialize = function(){
+
+  myUI.top_Z = 99;
   
   myUI.canvases = {};
   myUI.buttons = {};
@@ -55,7 +57,8 @@ myUI.initialize = function(){
   
 	[ 
 		["edit_map_modal", "edit_map_close"],
-		["planner_config_modal", "planner_config_close"]
+		["planner_config_modal", "planner_config_close"],
+    ["first_neighbour_modal", "first_neighbour_close"]
 	].forEach(item=>{
 		myUI.modals[item[0].slice(0, -6)] = {
 			elem: document.getElementById(item[0]),
@@ -90,7 +93,8 @@ myUI.initialize = function(){
     ["draw_erase_btn", "draw_icon", "erase_icon"],
     ["edit_map_btn", "edit_map_icon"],
     ["stop_edit_btn", "stop_edit_icon"],
-		["planner_config_btn", "planner_config_icon"]
+		["planner_config_btn", "planner_config_icon"],
+    ["first_neighbour_btn"]
   ].forEach(item=>{
     let btn_id = item[0];
     let svg_ids = item.slice(1);

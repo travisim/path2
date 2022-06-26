@@ -1,11 +1,13 @@
 function show_modal(modal){
-	modal.style.zIndex = "100"; // reveal
-  modal.style.display = "block";
+  ++myUI.top_Z;
+	modal.style.zIndex = String(myUI.top_Z); // reveal
+  modal.style.opacity = 100;
 }
 
 function hide_modal(modal){
+  --myUI.top_Z;
 	modal.style.zIndex = "-100"; // hide
-  modal.style.display = "none";
+  modal.style.opacity = 0;
 }
 
 myUI.modals.edit_map.show = function(){
@@ -26,42 +28,10 @@ myUI.modals.edit_map.close = function(){
 }
 myUI.modals.edit_map.close_btn.addEventListener("click", myUI.modals.edit_map.close);
 
-myUI.modals.edit_map.elem.style.display = "none";
-
 window.addEventListener("click", event=>{
 	if (event.target == myUI.modals.edit_map.elem)
 		myUI.modals.edit_map.close();
 });
-
-
-/*/ When the user clicks on the button, open the modal
-myUI.buttons.edit_map_btn.btn.onclick = function() {
-	var modal = myUI.modals.edit_map.elem;
-  modal.style.zIndex = "100"; // reveal
-  modal.style.display = "block";
-  document.addEventListener("keydown", modal_await_keypress);
-  //  to save the current state on the screen
-  myUI.map_edit.curr_state = new EditState(null, deep_copy_matrix(myUI.canvases.edit_map.canvas_cache));
-}
-
-myUI.close_modal = function(){
-	var modal = myUI.modals.edit_map.elem;
-  myUI.map_arr = deep_copy_matrix(myUI.canvases.edit_map.canvas_cache, flip_bit=true);
-  myUI.displayMap();
-  document.removeEventListener("keydown", modal_await_keypress);
-  modal.style.zIndex = "-100"; // hide
-  modal.style.display = "none";
-}
-
-// When the user clicks on <span> (x), close the modal
-span.onclick = myUI.close_modal;
-
-// When the user clicks anywhere outside of the mdal, close it
-window.onclick = function(event) {
-  if (event.target == myUI.modals.edit_map.elem) {
-    myUI.close_modal();
-  }
-}*/
 
 let edit_map_ctn = document.getElementById("edit_map_ctn");
 let edit_mouse_tip = document.getElementById("edit_mouse_tip");

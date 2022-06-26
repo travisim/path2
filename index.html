@@ -338,8 +338,35 @@
 								<span id="num_neighbours_label">Octal (8-directions)</span>
 							</button>
 						</div>
+						<div class="flex-row">
+							<label class="label_centered">Starting Node:</label>
+							<button id="first_neighbour_btn" class="btn modal_btn">
+								<span id="first_neighbour_label">N</span>
+							</button>
+						</div>
 					</div>
-					
+				</div>
+			</div>
+		</div>
+		<div id="first_neighbour_modal" class="modal">
+			<div class="modal-content mini">
+				<span id="first_neighbour_close" class="close">&times;</span>
+				<div class="flex-col">
+					<div class="flex-row">
+						<button class="first_neighbour_choice btn">NW</button>
+						<button class="first_neighbour_choice btn">N</button>
+						<button class="first_neighbour_choice btn">NE</button>
+					</div>
+					<div class="flex-row">
+						<button class="first_neighbour_choice btn">W</button>
+						<button class="first_neighbour_choice btn empty"></button>
+						<button class="first_neighbour_choice btn">E</button>
+					</div>
+					<div class="flex-row">
+						<button class="first_neighbour_choice btn">SW</button>
+						<button class="first_neighbour_choice btn">S</button>
+						<button class="first_neighbour_choice btn">SE</button>
+					</div>
 				</div>
 			</div>
 		</div>

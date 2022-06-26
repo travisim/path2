@@ -25,30 +25,48 @@ class GridPathFinder{
 	}
 
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
-		this.num_neighbours = num_neighbours;
+		this.init_neighbours(num_neighbours, first_neighbour, search_direction);
 		this.diagonal_allow = diagonal_allow;
-		this.first_neighbour = first_neighbour;
-		this.search_direction = search_direction;
+	}
 
+	init_neighbours(num_neighbours, first_neighbour=this.first_neighbour, search_direction=this.search_direction){
+		this.num_neighbours = num_neighbours;
+		
 		if(this.num_neighbours==8){
-			var delta = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]];
-			var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
-      var deltaNWSE_STATICS = [5,6,7,8,9,10,11,12];
+			this.delta = [[-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1]];
+			this.deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
+      this.deltaNWSE_STATICS = [5,6,7,8,9,10,11,12];
 		}
 		else{ // if(this.num_neighbours==4)
-			var delta = [[-1, 0], [0, -1], [1, 0], [0, 1]];
-			var deltaNWSE = ["N", "W", "S", "E"];
-      var deltaNWSE_STATICS = [5,7,9,11];
+			this.delta = [[-1, 0], [0, -1], [1, 0], [0, 1]];
+			this.deltaNWSE = ["N", "W", "S", "E"];
+      this.deltaNWSE_STATICS = [5,7,9,11];
 		}
-		if (this.search_direction=="clockwise"){
-			delta.reverse();
-			deltaNWSE.reverse();
+		this.search_direction = "anticlockwise";
+		if(!this.deltaNWSE.includes(first_neighbour)){
+			first_neighbour = this.deltaNWSE[0];
+			myUI.buttons.first_neighbour_btn.btn.innerHTML = first_neighbour;
 		}
-		
-		this.first_index = deltaNWSE.indexOf(this.first_neighbour);
-		this.deltaNWSE = deltaNWSE.slice(this.first_index).concat(deltaNWSE.slice(0, this.first_index));
-		this.delta = delta.slice(this.first_index).concat(delta.slice(0, this.first_index));
-    this.deltaNWSE_STATICS = deltaNWSE_STATICS.slice(this.first_index).concat(deltaNWSE_STATICS.slice(0, this.first_index));
+		this.first_neighbour = first_neighbour;
+		this.init_search_direction(search_direction);
+	}
+
+	init_search_direction(search_direction){
+		if(this.search_direction!=search_direction){
+			this.deltaNWSE.reverse();
+			this.delta.reverse();
+			this.deltaNWSE_STATICS.reverse();
+		}
+		this.search_direction = search_direction;
+		this.init_first_neighbour(this.first_neighbour);
+	}
+
+	init_first_neighbour(first_neighbour){
+		this.first_neighbour = first_neighbour;
+		this.first_index = this.deltaNWSE.indexOf(this.first_neighbour);
+		this.deltaNWSE = this.deltaNWSE.slice(this.first_index).concat(this.deltaNWSE.slice(0, this.first_index));
+		this.delta = this.delta.slice(this.first_index).concat(this.delta.slice(0, this.first_index));
+    this.deltaNWSE_STATICS = this.deltaNWSE_STATICS.slice(this.first_index).concat(this.deltaNWSE_STATICS.slice(0, this.first_index));
 	}
 
 	add_map(map){
