@@ -1,5 +1,6 @@
 myUI.modals.planner_config.show = function(){
   show_modal(myUI.modals.planner_config.elem);
+  myUI.stop_animation(change_svg = true);
   //document.getElementById("planner_name").innerHTML = myUI.planner.constructor.display_name;
 }
 
@@ -63,3 +64,17 @@ document.querySelectorAll(".first_neighbour_choice").forEach(el=>{
     myUI.modals.first_neighbour.close();
   })
 });
+
+function toggle_search_direction(e){
+  if(myUI.planner.search_direction=="clockwise"){
+    myUI.planner.init_search_direction("anticlockwise");
+    document.getElementById("search_direction_label").innerHTML = "Anti-clockwise";
+  }
+  else{
+    myUI.planner.init_search_direction("clockwise");
+    document.getElementById("search_direction_label").innerHTML = "Clockwise";
+  }
+}
+toggle_search_direction(null);
+toggle_search_direction(null);
+document.getElementById("search_direction_btn").addEventListener("click", toggle_search_direction);
