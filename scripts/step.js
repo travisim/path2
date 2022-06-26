@@ -148,7 +148,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           //  myUI.InfoTable.out_table();
             out_last_slide();
             myUI.InfoCurrent.DrawCurrent(x,y);
-            console.log(STATIC.ICR);
+            
+             console.log(myUI.planner.cell_map[y][x],"step");
           }
          //to draw neighbours
           else if(command == STATIC.DI ){
@@ -451,8 +452,10 @@ function in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
     r = t.insertRow(0); 
     c1 = r.insertCell(0);
     c2 = r.insertCell(1);
-    c1.innerHTML = x+", "+y;
-    c2.innerHTML = parent_x+", "+parent_y;
+    c3 = r.insertCell(2);
+    c2.innerHTML = "";
+    c2.innerHTML = x+", "+y;
+    c3.innerHTML = parent_x+", "+parent_y;
     t.classList.add('slide', 'new-slide');
     document.getElementById("info-container-dynamic").prepend(t); 
   }
@@ -463,9 +466,11 @@ function in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
     c1 = r.insertCell(0);
     c2 = r.insertCell(1);
     c3 = r.insertCell(2);
-    c1.innerHTML = x+", "+y;
-    c2.innerHTML = parent_x+", "+parent_y;
-    c3.innerHTML = g_cost;
+    c4 = r.insertCell(3);
+    c1.innerHTML = "";
+    c2.innerHTML = x+", "+y;
+    c3.innerHTML = parent_x+", "+parent_y;
+    c4.innerHTML = g_cost;
     t.classList.add('slide', 'new-slide');
     document.getElementById("info-container-dynamic").prepend(t); 
     
@@ -479,11 +484,13 @@ function in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
     c3 = r.insertCell(2);
     c4 = r.insertCell(3);
     c5 = r.insertCell(4);
-    c1.innerHTML = x+", "+y;
-    c2.innerHTML = parent_x+", "+parent_y;
-    c3.innerHTML = f_cost;
-    c4.innerHTML = g_cost;
-    c5.innerHTML = h_cost;
+    c6 = r.insertCell(5);
+    c1.innerHTML = "";
+    c2.innerHTML = x+", "+y;
+    c3.innerHTML = parent_x+", "+parent_y;
+    c4.innerHTML = f_cost;
+    c5.innerHTML = g_cost;
+    c6.innerHTML = h_cost;
     t.classList.add('slide', 'new-slide');
     document.getElementById("info-container-dynamic").prepend(t); 
   

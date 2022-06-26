@@ -287,10 +287,13 @@ function determine_table_header(){
     var row = header.insertRow(0);
     var cell0 = row.insertCell(0);
     var cell1 = row.insertCell(1);
+    var cell2 = row.insertCell(2);
   
   
-    cell0.innerHTML = "<b>Vertex</b>";
-    cell1.innerHTML = "<b>Parent</b>";
+    
+    cell0.innerHTML = "<b>Queue</b>";
+    cell1.innerHTML = "<b>Vertex</b>";
+    cell2.innerHTML = "<b>Parent</b>";
   
     [
     ["N"],
@@ -319,11 +322,12 @@ function determine_table_header(){
     var cell0 = row.insertCell(0);
     var cell1 = row.insertCell(1);
     var cell2 = row.insertCell(2);
+    var cell3 = row.insertCell(3);
     
-  
-    cell0.innerHTML = "<b>Vertex</b>";
-    cell1.innerHTML = "<b>Parent</b>";
-    cell2.innerHTML = "<b>G cost</b>";
+    cell0.innerHTML = "<b>Queue</b>";
+    cell1.innerHTML = "<b>Vertex</b>";
+    cell2.innerHTML = "<b>Parent</b>";
+    cell3.innerHTML = "<b>G cost</b>";
 
     [
     ["N"],
@@ -357,12 +361,14 @@ function determine_table_header(){
     var cell2 = row.insertCell(2);
     var cell3 = row.insertCell(3);
     var cell4 = row.insertCell(4);
+    var cell5 = row.insertCell(5);
   
-    cell0.innerHTML = "<b>Vertex</b>";
-    cell1.innerHTML = "<b>Parent</b>";
-    cell2.innerHTML = "<b>F cost</b>";
-    cell3.innerHTML = "<b>G cost</b>";
-    cell4.innerHTML = "<b>H cost</b>";
+    cell0.innerHTML = "<b>Queue</b>";
+    cell1.innerHTML = "<b>Vertex</b>";
+    cell2.innerHTML = "<b>Parent</b>";
+    cell3.innerHTML = "<b>F cost</b>";
+    cell4.innerHTML = "<b>G cost</b>";
+    cell5.innerHTML = "<b>H cost</b>";
   
 
     [

@@ -1,4 +1,4 @@
-N//takes in a array of objects and returns a array of 1 property of the object
+//takes in a array of objects and returns a array of 1 property of the object
 function nodes_to_array(obj_array,property_in_obj){
   var array = new Array(obj_array.length); 
   //  only needs maximum val of 1024*1024 => 20 bits
