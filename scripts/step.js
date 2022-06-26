@@ -328,9 +328,9 @@ function info_map_reset(){
   document.getElementById(deltaNWSE).style.outlineColor = "black";
   document.getElementById(deltaNWSE).style.color = "black";
   document.getElementById(deltaNWSE).querySelector(".type").innerHTML = "";
-  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".F").innerHTML = "";
-  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".G").innerHTML = "";
-  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".H").innerHTML = "";
+  if (!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".F").innerHTML = "";
+  if (!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".G").innerHTML = "";
+  if (!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".H").innerHTML = "";
   }); //reset obstacles in info map 
 
 }
