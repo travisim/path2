@@ -290,8 +290,10 @@ function determine_table_header(){
     var cell2 = row.insertCell(2);
   
   
-    
-    cell0.innerHTML = "<b>Queue</b>";
+    cell0.className = 'table_header_cell';
+    cell1.className = 'table_header_cell';
+    cell2.className = 'table_header_cell';
+    cell0.innerHTML = "<b>Queue No.</b>";
     cell1.innerHTML = "<b>Vertex</b>";
     cell2.innerHTML = "<b>Parent</b>";
   
@@ -306,7 +308,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section>Type:<span id="type"></span></section>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section>Type:<span class="type"></span></section>';
   //initialise html for info squares as well
     });
     
@@ -323,8 +325,12 @@ function determine_table_header(){
     var cell1 = row.insertCell(1);
     var cell2 = row.insertCell(2);
     var cell3 = row.insertCell(3);
-    
-    cell0.innerHTML = "<b>Queue</b>";
+
+    cell0.className = 'table_header_cell';
+    cell1.className = 'table_header_cell';
+    cell2.className = 'table_header_cell';
+    cell3.className = 'table_header_cell';
+    cell0.innerHTML = "<b>Queue No.</b>";
     cell1.innerHTML = "<b>Vertex</b>";
     cell2.innerHTML = "<b>Parent</b>";
     cell3.innerHTML = "<b>G cost</b>";
@@ -340,7 +346,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section>G:<span id="G"></span>Type:<span id="type"></span></section>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section>G:<span class="G"></span>Type:<span class="type"></span></section>';
   //initialise html for info squares as well
     });
   
@@ -362,8 +368,14 @@ function determine_table_header(){
     var cell3 = row.insertCell(3);
     var cell4 = row.insertCell(4);
     var cell5 = row.insertCell(5);
-  
-    cell0.innerHTML = "<b>Queue</b>";
+
+    cell0.className = 'table_header_cell';
+    cell1.className = 'table_header_cell';
+    cell2.className = 'table_header_cell';
+    cell3.className = 'table_header_cell';
+    cell4.className = 'table_header_cell';
+    cell5.className = 'table_header_cell';
+    cell0.innerHTML = "<b>Queue No.</b>";
     cell1.innerHTML = "<b>Vertex</b>";
     cell2.innerHTML = "<b>Parent</b>";
     cell3.innerHTML = "<b>F cost</b>";
@@ -382,7 +394,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section>F:<span class "F_cost" id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span></section>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section><div id="adjustment2">F:<span class="F"></span></div><div id="adjustment">G:<span class="G"></span>H:<span class="H"></span></div>Type:<span class="type"></span></section>';
   //initialise html for info squares as well
     });
   }

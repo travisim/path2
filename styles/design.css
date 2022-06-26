@@ -5,7 +5,7 @@ html, body{
 	border: 0;
 	padding: 0;
 	font-family: sans-serif;
-	background-color: #d1cfe2 ;
+	background-color: black;
   background-size: cover;
 }
 
@@ -13,6 +13,7 @@ html, body{
 	text-align: center;
 	height: 5%;
 	width: 100%;
+  
 }
 
 
@@ -29,6 +30,7 @@ html, body{
 	margin-right: auto;
 	white-space: nowrap; /* this does the trick */
   overflow: hidden; /* this prevents the grey divs from overflowing */
+ background-color: #d1cfe2 ;
 }
 
 

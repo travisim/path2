@@ -327,10 +327,10 @@ function info_map_reset(){
   document.getElementById(deltaNWSE).style.background = "rgb(188,186,201)";
   document.getElementById(deltaNWSE).style.outlineColor = "black";
   document.getElementById(deltaNWSE).style.color = "black";
-  document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "";
-  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector("#F").innerHTML = "";
-  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector("#G").innerHTML = "";
-  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector("#H").innerHTML = "";
+  document.getElementById(deltaNWSE).querySelector(".type").innerHTML = "";
+  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".F").innerHTML = "";
+  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".G").innerHTML = "";
+  if (!!document.getElementById(deltaNWSE)) document.getElementById(deltaNWSE).querySelector(".H").innerHTML = "";
   }); //reset obstacles in info map 
 
 }
@@ -349,7 +349,7 @@ function info_map_obstacles(x,y){
   //console.log(surrounding_map_deltaNWSE,"obstacle");
   surrounding_map_deltaNWSE.forEach(deltaNWSE => {
     document.getElementById(deltaNWSE).style.borderColor = "rgb(0,0,0)";
-    document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "Obstacle";                           
+    document.getElementById(deltaNWSE).querySelector(".type").innerHTML = "Obstacle";                           
                                                  });//obstacle
 
 }
@@ -402,7 +402,7 @@ function info_map_visited(x,y){ //using pre obtained map of surrounding point
   }
     surrounding_map_deltaNWSE.forEach(deltaNWSE => {
       document.getElementById(deltaNWSE).style.borderColor = "rgb(221,48,33)";
-      document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "Visited"
+      document.getElementById(deltaNWSE).querySelector(".type").innerHTML = "Visited"
     });//obstacle
 }
   
@@ -418,7 +418,7 @@ function info_map_queue(x,y){ //using pre obtained map of surrounding point
   }
     surrounding_map_deltaNWSE.forEach(deltaNWSE => {
       document.getElementById(deltaNWSE).style.borderColor = "rgb(116,250,76)";
-      document.getElementById(deltaNWSE).querySelector("#type").innerHTML = "Queue"
+      document.getElementById(deltaNWSE).querySelector(".type").innerHTML = "Queue"
     });//obstacle
 }
 

@@ -9,10 +9,10 @@ class UIInfoNWSE{
     this.element.style.background = "rgb(188,186,201)";
     this.element.style.outlineColor = "black";
     this.element.style.color = "black";
-    this.element.querySelector("#type").innerHTML = "";
-    this.element.querySelector("#F").innerHTML = "";
-    this.element.querySelector("#G").innerHTML = "";
-    this.element.querySelector("#H").innerHTML = "";
+    this.element.querySelector(".type").innerHTML = "";
+    this.element.querySelector(".F").innerHTML = "";
+    this.element.querySelector(".G").innerHTML = "";
+    this.element.querySelector(".H").innerHTML = "";
      //reset a square in info map 
   }
   /* 
@@ -41,10 +41,10 @@ class UIInfoNWSE{
   DrawNeighbour(f,g,h){
     this.element.style.borderColor = "rgb(0,130,105)";
      console.log(f,"f",g,"g",h,"h")
-    if(f!=null ) this.element.querySelector("#F").innerHTML = f;
-    if(g!=null )  this.element.querySelector("#G").innerHTML = g;
-    if(h!=null )  this.element.querySelector("#H").innerHTML = h;
-    this.element.querySelector("#type").innerHTML = "neighbour";
+    if(f!=null ) this.element.querySelector(".F").innerHTML = f;
+    if(g!=null )  this.element.querySelector(".G").innerHTML = g;
+    if(h!=null )  this.element.querySelector(".H").innerHTML = h;
+    this.element.querySelector(".type").innerHTML = "neighbour";
   }
 
 
