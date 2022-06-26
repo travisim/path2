@@ -308,7 +308,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section>Type:<span class="type"></span></section>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section>Type:&nbsp<span class="type"></span></section>';
   //initialise html for info squares as well
     });
     
@@ -346,7 +346,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section>G:<span class="G"></span>Type:<span class="type"></span></section>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section>G:&nbsp<span class="G"></span>Type:&nbsp<span class="type"></span></section>';
   //initialise html for info squares as well
     });
   
@@ -394,7 +394,7 @@ function determine_table_header(){
     ["NW"] 
     ].forEach(item=>{
     let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section><div id="adjustment2">F:<span class="F"></span></div><div id="adjustment">G:<span class="G"></span>H:<span class="H"></span></div>Type:<span class="type"></span></section>';
+    document.getElementById(infoNWSE_Id).innerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
   //initialise html for info squares as well
     });
   }
