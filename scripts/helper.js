@@ -48,6 +48,27 @@ function zero2D(rows, cols, max_val=255) {
   return array;
 }
 
+class Empty2D{
+	constructor(rows, cols){
+		this.data = [];
+		while(rows--) this.data.push(new Array(cols));
+	}
+
+	set(yx, item){
+		this.data[yx[0]][yx[1]] = item;
+	}
+
+	get(yx){
+		return this.data[yx[0]][yx[1]];
+	}
+}
+
+function empty2D(rows, cols){
+	var array = [];
+	while(rows--) array.push(new Array(cols));
+	return array;
+}
+
 function ones(bit_len){
 	if(bit_len<32) return ((1<<bit_len)-1)>>>0;
 	return Math.pow(2, bit_len)-1;
