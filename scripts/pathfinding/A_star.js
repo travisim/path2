@@ -147,7 +147,7 @@ class A_star extends GridPathFinder{
               // ARROW
               ++this.arrow_step;
               //myUI.create_arrow(this.current_node_YX, next_YX);
-              myUI.draw_arrow(this.current_node_YX, next_YX, true, 0, false);
+              myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);
               this._create_action(STATIC.DA);
               // END OF ARROW
             }

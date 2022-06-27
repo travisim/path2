@@ -180,8 +180,8 @@ myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vert
 	toy *= canvas.height / myUI.map_height;*/
 	const angle = Math.atan2(toy-fromy,tox-fromx);
 
-	let midx = fromx + (tox-fromx)*5/8 + headlen*Math.cos(angle);
-	let midy = fromy + (toy-fromy)*5/8 + headlen*Math.sin(angle);
+	let midx = fromx + (tox-fromx)*1/4 + headlen*Math.cos(angle);
+	let midy = fromy + (toy-fromy)*1/4 + headlen*Math.sin(angle);
 	if(myUI.map_height>16){
 		midx = fromx + (tox-fromx)/2 + headlen*Math.cos(angle);
 	 	midy = fromy + (toy-fromy)/2+ headlen*Math.sin(angle);

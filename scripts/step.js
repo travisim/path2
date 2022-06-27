@@ -138,91 +138,90 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           }
           console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost]);
           
-          
-          if(dest==STATIC.ICR ){//draw "current_YX",
-            info_map_reset(); // reset all info NWSE
-            info_map_obstacles(x,y);
-            info_map_out_of_bound(x,y);
-            info_map_visited(x,y);
-            info_map_queue(x,y)
-          //  myUI.InfoTable.out_table();
-            out_last_slide();
-            myUI.InfoCurrent.DrawCurrent(x,y);
-            
-             console.log(myUI.planner.cell_map[y][x],"step");
-          }
-         //to draw neighbours
-          else if(command == STATIC.DI ){
-            myUI.InfoNWSE[statics_to_obj[dest]].DrawNeighbour(f_cost,g_cost,h_cost);
-            in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
-          }
-        //to erase neighbours
-          else if(command == STATIC.EI ){
-            myUI.InfoNWSE[statics_to_obj[dest]].Reset();
-            out_first_slide()
-            
-          }
-          
-
-
-          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
-            console.log(x,"x",y,"y","visited recorded");
-            record_drawn_visited(x,y);
-            var next_YX_temp = [y,x]
-            //console.log(visited.get_data(next_YX_temp),"check");
-            
-          }
-          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
-            console.log(x,"x",y,"y","Queue");
-            record_drawn_queue(x,y);
-           
-          }
-          /*
-          if(dest==STATIC.CR && command == STATIC.DP ){//draw "current_YX",
-            document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
-           // console.log(x,"x",y,"y","current_YX");
-           // info_map_visited(x,y);
-            info_map_reset();
-            //myUI.infomap.ResetAll();
-            info_map_obstacles(x,y);
-            info_map_out_of_bound(x,y);
-             info_map_queue(x,y)
-            info_map_visited(x,y);
-          
-            out_table();
-            
-            
-
-      //      out_table();
-           //  console.log(x,"x",y,"y","obstacle drawn");
-            
-          }
-
-          
-
-          if(dest==STATIC.NB && command == STATIC.DP ){//draw "neighbours"
-           // console.log(x,"x",y,"y","neighbours");
-            info_map_neighbours_draw(x,y);
-            in_table(x,y);
-            
-          }
-
-          if(dest==STATIC.NB && command == STATIC.EP ){//erase "neighbours"
-           // console.log(x,"x",y,"y","neighbours");
-          //  info_map_neighbours_erase(x,y);
-             
-          }
-          if(dest==1 && command == STATIC.DP ){//record  "visiters" in 2d array
-            //console.log(x,"x",y,"y","visited recorded");
-           record_drawn_visited(x,y);
-          }
-          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
-            //console.log(x,"x",y,"y","HI");
-            record_drawn_queue(x,y);
-           
-          }
-*/
           try{
+	          if(dest==STATIC.ICR ){//draw "current_YX",
+	            info_map_reset(); // reset all info NWSE
+	            info_map_obstacles(x,y);
+	            info_map_out_of_bound(x,y);
+	            info_map_visited(x,y);
+	            info_map_queue(x,y)
+	          //  myUI.InfoTable.out_table();
+	            out_last_slide();
+	            myUI.InfoCurrent.DrawCurrent(x,y);
+	            
+	             console.log(myUI.planner.cell_map[y][x],"step");
+	          }
+	         	//to draw neighbours
+	          else if(command == STATIC.DI ){
+	            myUI.InfoNWSE[statics_to_obj[dest]].DrawNeighbour(f_cost,g_cost,h_cost);
+	            in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
+	          }
+	        	//to erase neighbours
+	          else if(command == STATIC.EI ){
+	            myUI.InfoNWSE[statics_to_obj[dest]].Reset();
+	            out_first_slide()
+	            
+	          }
+	          
+	
+	
+	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
+	            console.log(x,"x",y,"y","visited recorded");
+	            record_drawn_visited(x,y);
+	            var next_YX_temp = [y,x]
+	            //console.log(visited.get_data(next_YX_temp),"check");
+	            
+	          }
+	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
+	            console.log(x,"x",y,"y","Queue");
+	            record_drawn_queue(x,y);
+	           
+	          }
+	          /*
+	          if(dest==STATIC.CR && command == STATIC.DP ){//draw "current_YX",
+	            document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
+	           // console.log(x,"x",y,"y","current_YX");
+	           // info_map_visited(x,y);
+	            info_map_reset();
+	            //myUI.infomap.ResetAll();
+	            info_map_obstacles(x,y);
+	            info_map_out_of_bound(x,y);
+	             info_map_queue(x,y)
+	            info_map_visited(x,y);
+	          
+	            out_table();
+	            
+	            
+	
+	      //      out_table();
+	           //  console.log(x,"x",y,"y","obstacle drawn");
+	            
+	          }
+	
+	          
+	
+	          if(dest==STATIC.NB && command == STATIC.DP ){//draw "neighbours"
+	           // console.log(x,"x",y,"y","neighbours");
+	            info_map_neighbours_draw(x,y);
+	            in_table(x,y);
+	            
+	          }
+	
+	          if(dest==STATIC.NB && command == STATIC.EP ){//erase "neighbours"
+	           // console.log(x,"x",y,"y","neighbours");
+	          //  info_map_neighbours_erase(x,y);
+	             
+	          }
+	          if(dest==1 && command == STATIC.DP ){//record  "visiters" in 2d array
+	            //console.log(x,"x",y,"y","visited recorded");
+	           record_drawn_visited(x,y);
+	          }
+	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
+	            //console.log(x,"x",y,"y","HI");
+	            record_drawn_queue(x,y);
+	           
+	          }
+	*/
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
               else myUI.canvases[statics_to_obj[dest]].erase_canvas();
