@@ -146,7 +146,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	            info_map_visited(x,y);
 	            info_map_queue(x,y)
 	          //  myUI.InfoTable.out_table();
-	            out_last_slide();
+	            //out_last_slide();
 	            myUI.InfoCurrent.DrawCurrent(x,y);
 	            
 	             console.log(myUI.planner.cell_map[y][x],"step");
@@ -154,12 +154,14 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	         	//to draw neighbours
 	          else if(command == STATIC.DI ){
 	            myUI.InfoNWSE[statics_to_obj[dest]].DrawNeighbour(f_cost,g_cost,h_cost);
-	            in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
+	            //in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
+             myUI.InfoTable.InBottom(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
+              myUI.InfoTable.HighlightNew();
 	          }
 	        	//to erase neighbours
 	          else if(command == STATIC.EI ){
 	            myUI.InfoNWSE[statics_to_obj[dest]].Reset();
-	            out_first_slide()
+	          //  out_first_slide()
 	            
 	          }
 	          
@@ -521,7 +523,7 @@ state
 */
    
 function removebyindex(index){
-  var removeTab = slides[index];
+  var removeTab = document.getElementsByClassName("slide")[index];
   var parentEl = removeTab.parentElement;
   parentEl.removeChild(removeTab);
 }

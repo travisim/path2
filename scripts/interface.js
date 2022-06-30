@@ -138,6 +138,8 @@ myUI.initialize = function(){
     uiCanvas.scale_canvas(myUI.map_height, myUI.map_width);
   });
 
+myUI.InfoTable = UIInfoTable;
+  
   myUI.animation = {
     running: false,
     step: -1,
