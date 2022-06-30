@@ -140,23 +140,21 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           
           try{
 	          if(dest==STATIC.ICR ){//draw "current_YX",
-	            info_map_reset(); // reset all info NWSE
+	            myUI.InfoMapReset; // reset all info NWSE
 	            info_map_obstacles(x,y);
 	            info_map_out_of_bound(x,y);
 	            info_map_visited(x,y);
 	            info_map_queue(x,y)
-	          //  myUI.InfoTable.out_table();
-	            //out_last_slide();
+	            myUI.InfoTable.OutTop();
 	            myUI.InfoCurrent.DrawCurrent(x,y);
 	            
-	             console.log(myUI.planner.cell_map[y][x],"step");
+	        
 	          }
 	         	//to draw neighbours
 	          else if(command == STATIC.DI ){
 	            myUI.InfoNWSE[statics_to_obj[dest]].DrawNeighbour(f_cost,g_cost,h_cost);
-	            //in_table(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
-             myUI.InfoTable.InBottom(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
-              myUI.InfoTable.HighlightNew();
+             myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
+            
 	          }
 	        	//to erase neighbours
 	          else if(command == STATIC.EI ){
@@ -322,7 +320,6 @@ myUI.run_combined_step = function(step_direction="fwd"){
 // info map post process
 function info_map_reset(){
   var deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
- 
   deltaNWSE.forEach(deltaNWSE => {document.getElementById(deltaNWSE).style.borderColor = "transparent";
   document.getElementById(deltaNWSE).style.borderColor = "transparent";
   document.getElementById(deltaNWSE).style.background = "rgb(188,186,201)";

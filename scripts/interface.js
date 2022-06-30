@@ -46,11 +46,13 @@ myUI.initialize = function(){
     document.getElementById(infoNWSE_Id).innerHTML = '  <section>F:<span id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span></section>';
   //initialise html for info squares as well
   });
-
+  //myUI.InfoMapReset() = UIInfoMapReset();
 
   
   myUI.InfoCurrent = UIInfoCurrent;
- // myUI.InfoTable  = new UIInfoTable;
+  myUI.InfoTable  = new UIInfoTable;
+  
+  
   myUI.InfoVisited;
   myUI.InfoQueue;
 
@@ -169,7 +171,7 @@ myUI.InfoTable = UIInfoTable;
   myUI.storage = {};
 
   myUI.tmp = {};
- myUI.InfoTable  = new UIInfoTable;
+
   
 }
 

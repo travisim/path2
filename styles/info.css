@@ -146,7 +146,7 @@ tr{
   100% { top:20px;}
 }
 
-.new-slide {
+.slide {
 	animation: append-animate .5s linear;
 }
 
