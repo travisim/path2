@@ -21,6 +21,7 @@ class A_star extends GridPathFinder{
     //var found = false;  // once the program exits the while-loop, this is the variable which determines if the endpoint has been found
     /* ^ deprecated, used a this.path variable to assign */
     this.queue.push(start_node);  // begin with the start; add starting node to rear of []
+    this.open_list.set(start_node.self_YX, start_node);
     //---------------------checks if visited 2d array has been visited
 
     let planner = this;
@@ -43,6 +44,7 @@ class A_star extends GridPathFinder{
         this.prev_node_YX = this.current_node_YX;
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
+      this.open_list[this.current_node_YX] = undefined;
 
       this._create_step();
       this._create_action(STATIC.SIMPLE);
@@ -79,7 +81,7 @@ class A_star extends GridPathFinder{
       if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
       this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
       /* FOUND GOAL */
-      if(this._found_goal()) return this._terminate_search(); // found the goal & exits the loop
+      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
       // NOTE, a node is only visited if all its neighbours have been added to the queue
       this.neighbours_YX = [];  // reset the neighbours for each new node
@@ -136,10 +138,12 @@ class A_star extends GridPathFinder{
 
           var f_cost = g_cost + h_cost //++ from bfs.js
 
-					node = this.open_list.get(next_YX);
-					if(node !== undefined) if(node.f_cost<f_cost) continue;
-					node = this.closed_list.get(next_YX);
-					if(node !== undefined) if(node.f_cost<f_cost) continue; // do not add to queue if closed list already has a lower cost node
+          let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_YX);
+
+					let open_node = this.open_list.get(next_YX);
+					if(open_node !== undefined) if(open_node.f_cost<=f_cost) continue;
+					let closed_node = this.closed_list.get(next_YX);
+					if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
 
           this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
 
@@ -153,8 +157,6 @@ class A_star extends GridPathFinder{
 					// since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
 					// see https://www.geeksforgeeks.org/a-search-algorithm/
   
-          //if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
-					let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_YX)
 					this.queue.push(new_node);  // add to queue
 					this.open_list.set(next_YX, new_node);  // add to open list
 					this._create_action(STATIC.DP, STATIC.QU, next_YX);
@@ -162,22 +164,24 @@ class A_star extends GridPathFinder{
 						// ARROW
 						++this.arrow_step;
 						//myUI.create_arrow(this.current_node_YX, next_YX);
-						myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);
+            if(open_node!==undefined){
+              
+            }
+            myUI.create_arrow(next_YX, this.current_node_YX);
+						//myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
 						this._create_action(STATIC.DA);
 						// END OF ARROW
 					}
-          //}
           this._save_step("fwd");
 
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
           this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i]);
-          //if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
-					//this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
 					this._create_action(STATIC.EP, STATIC.QU, next_YX);
 					if (this.draw_arrows) this._create_action(STATIC.EA);
-          //}
           this._save_step("bck");
+
+          if(this._found_goal(new_node)) return this._terminate_search();
         }
       }
 

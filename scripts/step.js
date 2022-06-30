@@ -246,17 +246,16 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             else if(command==STATIC.DA){
               // draw arrow
               ++myUI.arrow.step;
-              let fromyx = myUI.arrow.coords[myUI.arrow.step*2];
+              /*let fromyx = myUI.arrow.coords[myUI.arrow.step*2];
               let toyx = myUI.arrow.coords[myUI.arrow.step*2+1];
-              myUI.draw_arrow(fromyx, toyx, false, 0, false);
-              //myUI.arrow.data[myUI.arrow.step].classList.remove("hidden");
+              myUI.draw_arrow(fromyx, toyx, false, 0, false);/* */
+              myUI.arrow.elems[myUI.arrow.step].classList.remove("hidden");
             }
             else if(command==STATIC.EA){
               // erase arrow
-              //myUI.arrow.data[myUI.arrow.step].classList.add("hidden");
-              let data = myUI.arrow.data[myUI.arrow.step];
-              //console.log(data);
-              myUI.arrow.ctx.putImageData(...data);
+              myUI.arrow.elems[myUI.arrow.step].classList.add("hidden");
+              /*let data = myUI.arrow.data[myUI.arrow.step];
+              myUI.arrow.ctx.putImageData(...data);/* */
               --myUI.arrow.step;
             }
           }catch(e){

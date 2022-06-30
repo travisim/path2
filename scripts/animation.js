@@ -59,8 +59,9 @@ myUI.jump_to_step = function(target_step){
   canvas_ids.forEach(id=>{
     myUI.canvases[id].init_virtual_canvas();
   });
-  myUI.arrow.ctx.clearRect(...myUI.arrow.full_canvas);
+  //myUI.arrow.ctx.clearRect(...myUI.arrow.full_canvas);
   myUI.arrow.step = -1;
+  myUI.arrow.elems.forEach(el=>el.classList.add("hidden"));
 
   if(myUI.animation.step>-1){ //  if there is a recent state to fallback on
   
@@ -88,8 +89,8 @@ myUI.jump_to_step = function(target_step){
     if(state.path) myUI.canvases.neighbours.draw_canvas(state.path, `1d`, false, true);
     
     myUI.arrow.step = state.arrow_step;
-    if(state.arrow_img) myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
-    //for(let i=0;i<=state.arrow_step;++i) myUI.arrow.data[i].classList.remove(`hidden`);
+    //if(state.arrow_img) myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
+    for(let i=0;i<=state.arrow_step;++i) myUI.arrow.elems[i].classList.remove(`hidden`);
   }
 }
 
@@ -110,7 +111,7 @@ myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){
   }
 }
 
-myUI.create_arrow = function(start_YX, end_YX){
+myUI.create_arrow = function(start_YX, end_YX, head_pc){
   const start_coord = {y:start_YX[0], x:start_YX[1]};
   const end_coord = {y:end_YX[0], x:end_YX[1]};
   const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;
@@ -122,19 +123,32 @@ myUI.create_arrow = function(start_YX, end_YX){
   let elem_path_length = Math.sqrt(Math.pow(dy, 2) + Math.pow(dx, 2));
   let elem_window_length = display_ratio * elem_path_length;
   elem.setAttribute('viewBox', `0 0 ${elem_window_length + 3} 9`);
-  elem.style.width = elem_window_length + 3;
+  elem.style.width = String(elem_window_length+3)+"px";
   elem.style.transform = `rotate(${angle}rad)`;
-  elem.innerHTML = `<path fill="purple" d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${elem_window_length - 18} v 3 l 6 -3 h 12 a 1.5 1.5, 0, 0, 0, 0 -3 h -12 l -6 -3 v 3 z"></path>`;
+  let total_len = 3+elem_window_length;
+  if(head_pc===undefined) // head_pc is defined as the proportion of line is in front of the pointer
+    head_pc = 0.7;
+  let front_len = head_pc * total_len - 1.5 - 3;
+  let back_len = (1-head_pc) * total_len - 1.5 - 3;
+  elem.innerHTML = `<path fill="purple" d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${back_len} v 3 l 6 -3 h ${front_len} a 1.5 1.5, 0, 0, 0, 0 -3 h ${0-front_len} l -6 -3 v 3 z"></path>`;
   document.getElementById("canvas_container").appendChild(elem);
   elem.style.top = (start_coord.y + elem_path_length * Math.sin(angle)/2 + 0.5) * display_ratio - 3 +"px";
   elem.style.left = (start_coord.x + 0.5 - elem_path_length * (1-Math.cos(angle))/2) * display_ratio +"px";
   elem.id = `${start_coord.y},${start_coord.x} ${end_coord.y},${end_coord.x}`;
-  myUI.arrow.data.push(elem);
+  myUI.arrow.elems.push(elem);
 }
 
-myUI.reset_arrow = function(){
-  myUI.arrow.data = [];
-  myUI.arrow.coords = [];
+myUI.reset_arrow = function(clear_data=false){
+  if(clear_data){
+    myUI.arrow.data = [];
+    myUI.arrow.coords = [];
+    myUI.arrow.elems.forEach(el=>el.remove());
+    myUI.arrow.elems = [];
+  }
+  else{
+    myUI.arrow.ctx.clearRect(...myUI.arrow.full_canvas);
+    myUI.arrow.elems.forEach(el=>el.classList.add("hidden"));
+  }
 }
 
 myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vertex=false, canvas=null){
@@ -157,16 +171,20 @@ myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vert
   if(save_data)
     myUI.arrow.coords.push(start_YX, end_YX);
   if(!vertex){
+    // offset coordinates based on vertex to draw arrows
     start_YX = [start_YX[0]+0.5, start_YX[1]+0.5];
     end_YX = [end_YX[0]+0.5, end_YX[1]+0.5];
   }
   if(save_data){
+    // save data before drawing the arrow
     let min_x = Math.min(start_YX[1], end_YX[1])-0.25;
     let min_y = Math.min(start_YX[0], end_YX[0])-0.25;
     let max_x = Math.max(start_YX[1], end_YX[1])+0.25;
     let max_y = Math.max(start_YX[0], end_YX[0])+0.25;
     [min_y, min_x] = scale_coord([min_y, min_x]);
     [max_y, max_x] = scale_coord([max_y, max_x]);
+    console.log(min_x, min_y, max_x, max_y);
+    //throw "error";
     let img_data = myUI.arrow.ctx.getImageData(min_x, min_y, max_x, max_y);
     myUI.arrow.data.push([img_data, min_x, min_y]);
   }

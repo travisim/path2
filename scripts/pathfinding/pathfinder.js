@@ -81,7 +81,7 @@ class GridPathFinder{
     this.start = start; //in array form [y,x]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
-    this.neighbours = [];  // current cell's neighbours; only contains passable cells
+    this.neighbours_YX = [];  // current cell's neighbours; only contains passable cells
     this.path = null;
     this._clear_steps();
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
@@ -100,9 +100,9 @@ class GridPathFinder{
     this.step_index = -1;
     this.prev_count = -1;
     this.state_counter = 0;
+		myUI.reset_arrow(true);
     if(this.draw_arrows){
 			this.arrow_step = -1;
-			myUI.reset_arrow();
 		}
     // step_index is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
@@ -229,21 +229,20 @@ class GridPathFinder{
 			//this.states.visited_index+=this.visited.arr_length;
 			this.states.visited_index = nxt_index;
 
-			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: nodes_to_array(this.neighbours, "self_YX"), visited_tuple: visited_tuple, path: this.path, arrow_step: this.arrow_step};
+			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: deep_copy_matrix(this.neighbours_YX), visited_tuple: visited_tuple, path: this.path, arrow_step: this.arrow_step};
 			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(...myUI.arrow.full_canvas);
 
 		}
 	}
 
-	_found_goal(){
+	_found_goal(node){
 		// found the goal & exits the loop
-		if (this.current_node_YX[0] != this.goal[0] || this.current_node_YX[1] != this.goal[1]) return false;
+		if (node.self_YX[0] != this.goal[0] || node.self_YX[1] != this.goal[1]) return false;
 		this.path = [];
-		var curr = this.current_node;
 		// retraces the entire parent tree until start is found
-		while (this.current_node != null) {
-			this.path.unshift(this.current_node.self_YX);
-			this.current_node = this.current_node.parent;
+		while (node != null) {
+			this.path.unshift(node.self_YX);
+			node = node.parent;
 		}
 		console.log("found");
 
@@ -312,11 +311,13 @@ class GridPathFinder{
 }
 
 class Node{
-	constructor(f_cost, g_cost, h_cost, parent, self_YX){
+	constructor(f_cost, g_cost, h_cost, parent, self_YX, arrow_index){
 	  	this.f_cost = f_cost;
       this.g_cost = g_cost;
       this.h_cost = h_cost;
 		  this.parent = parent;
 		  this.self_YX = self_YX[0]>255 || self_YX[1]>255 ? new Uint16Array(self_YX) : new Uint8Array(self_YX);
+			this.arrow_index = arrow_index;  // refers to the index at which the arrow points from the node to the parent
+			// arrow index is used to construct the steps/states when computing the path
 	}
 }

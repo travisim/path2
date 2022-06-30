@@ -159,6 +159,7 @@ myUI.InfoTable = UIInfoTable;
     ctx: document.getElementById("arrows").getContext("2d"),
     colors: ["purple", "green"],
     coords: [],
+    elems: [],
     step: -1
   }
   myUI.arrow.full_canvas = [0, 0, myUI.arrow.canvas.width, myUI.arrow.canvas.height];

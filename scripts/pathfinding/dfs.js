@@ -92,7 +92,7 @@ class DFS extends GridPathFinder {
       if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
       this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
       /* FOUND GOAL */
-      if(this._found_goal()) return this._terminate_search(); // found the goal & exits the loop
+      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
       // NOTE, a node is only visited if all its neighbours have been added to the queue
       this.neighbours_YX = [];  // reset the neighbours for each new node

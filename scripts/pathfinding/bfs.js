@@ -73,7 +73,7 @@ class BFS extends GridPathFinder {
       if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
       this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
       /* FOUND GOAL */
-      if(this._found_goal()) return this._terminate_search(); // found the goal & exits the loop
+      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
       // NOTE, a node is only visited if all its neighbours have been added to the queue
       this.neighbours_YX = [];  // reset the neighbours for each new node
@@ -136,8 +136,8 @@ class BFS extends GridPathFinder {
             if (this.draw_arrows) {
               // ARROW
               ++this.arrow_step;
-              //myUI.create_arrow(this.current_node_YX, next_YX);
-              myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);
+              myUI.create_arrow(next_YX, this.current_node_YX);
+						  //myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
               this._create_action(STATIC.DA);
               // END OF ARROW
             }

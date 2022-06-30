@@ -61,6 +61,16 @@ class Empty2D{
 	get(yx){
 		return this.data[yx[0]][yx[1]];
 	}
+
+	clear(){
+		for(let i=0;i<this.data.length;++i){
+			for(let j=0;j<this.data[i].length;++j){
+				try{this.data[i][j].remove();}
+				catch(e){}
+				this.data[i][j] = undefined;
+			}
+		}
+	}
 }
 
 function empty2D(rows, cols){
