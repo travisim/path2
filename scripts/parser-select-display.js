@@ -276,13 +276,13 @@ function determine_table_header(){
 
   if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
   // delete previous header
-    if(document.getElementById("info_table").rows.length == 1){
-      document.getElementById("info_table").deleteRow(0); 
+    if(document.getElementById("info_table_header").rows.length == 1){
+      document.getElementById("info_table_header").deleteRow(0); 
     }
     RemoveAllTableSlides()
     
     
-    var table = document.getElementById("info_table");
+    var table = document.getElementById("info_table_header");
     var header = table.createTHead();
     var row = header.insertRow(0);
     var cell0 = row.insertCell(0);
@@ -314,11 +314,11 @@ function determine_table_header(){
     
   }
   else if (myUI.planners[myUI.planner_choice] == Dijkstra){
-   if(document.getElementById("info_table").rows.length == 1){
-      document.getElementById("info_table").deleteRow(0);
+   if(document.getElementById("info_table_header").rows.length == 1){
+      document.getElementById("info_table_header").deleteRow(0);
     }
     RemoveAllTableSlides()
-    var table = document.getElementById("info_table");
+    var table = document.getElementById("info_table_header");
     var header = table.createTHead();
     var row = header.insertRow(0);
     var cell0 = row.insertCell(0);
@@ -355,11 +355,11 @@ function determine_table_header(){
 
     
   else if (myUI.planners[myUI.planner_choice] == A_star){
-    if(document.getElementById("info_table").rows.length == 1){
-      document.getElementById("info_table").deleteRow(0);
+    if(document.getElementById("info_table_header").rows.length == 1){
+      document.getElementById("info_table_header").deleteRow(0);
     }
     RemoveAllTableSlides()
-    var table = document.getElementById("info_table");
+    var table = document.getElementById("info_table_header");
     var header = table.createTHead();
     var row = header.insertRow(0);
     var cell0 = row.insertCell(0);
