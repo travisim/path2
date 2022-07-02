@@ -90,6 +90,42 @@ function UIInfoTable(){
     slides[SlidesIndex].after(t);
     
   }
+/*
+  this.sort(){
+      var table, i, x, y;
+    // var slides = document.getElementsByClassName("slide");
+      var switching = true;
+
+      // Run loop until no switching is needed
+      while (switching) {
+          switching = false;
+        
+          // Loop to go through all rows
+          for (i = 0; i < (slides.length-1); i++){
+            var Switch = false;
+
+            // Fetch 2 elements that need to be compared
+            x = slides[i].rows[0].cells[3].firstChild.nodeValue;
+            y = slides[i+1].rows[0].cells[3].firstChild.nodeValue;
+
+            // Check if 2 rows need to be switched
+            if (x > y){
+
+                // If yes, mark Switch as needed and break loop
+                Switch = true;
+                break;
+            }
+          
+          if (Switch) {
+              // Function to switch rows and mark switch as completed
+              slides[i+1].after(slides[i]);
+         
+              switching = true;
+          }
+      }
+      }
+    
+  }*/
   this.OutBottom = function(){
     let slides = document.getElementsByClassName("slide");
     //animates out last slide
