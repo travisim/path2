@@ -8,6 +8,8 @@ class GridPathFinder{
 
 	static unpack_action(action){
 		let command = (action >> 3) & ones(myUI.planner.static_bit_len);
+		// SPECIAL CASE: draw arrows
+		if(command==STATIC.DA || command==STATIC.EA) var arrow_index = bit_shift(action, -(3 + myUI.planner.static_bit_len));
 		if(action & 1)  // dest exists
 			var dest = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(myUI.planner.static_bit_len);
 		if(action & (1<<1)){  // coord exists
@@ -21,7 +23,7 @@ class GridPathFinder{
 			var parent_y = Math.floor(parent_coord/myUI.planner.map_width);
 			var parent_x = parent_coord - parent_y * myUI.planner.map_width;
 		}
-		return [command, dest, y, x, parent_y, parent_x, parent_exists];
+		return [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index];
 	}
 
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
@@ -88,12 +90,14 @@ class GridPathFinder{
     this.draw_arrows = this.map_height <= 64 && this.map_width <= 64;
     this.states = {};
 		this.visited_incs = [];
+		this.current_node = undefined;
 
     // generate empty 2d array
 
     this.info_matrix = zero2D(this.map_height, this.map_width,65537);
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new NBitMatrix(this.map_height, this.map_width, 7);
+		this.arrow_state = new Uint8Array(this.map_height*this.map_width); // stores the visibility of arrows; 1 is shown, 0 is hidden
     this.searched = false;
     this._create_cell_index();
 
@@ -101,9 +105,6 @@ class GridPathFinder{
     this.prev_count = -1;
     this.state_counter = 0;
 		myUI.reset_arrow(true);
-    if(this.draw_arrows){
-			this.arrow_step = -1;
-		}
     // step_index is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
     // this balances between processer and memory usage
@@ -118,6 +119,7 @@ class GridPathFinder{
 	_clear_steps(){
 		this.steps_forward = [];
 		this.steps_inverse = [];
+		this.step_index_map = {fwd:[], bck:[]};
 	}
 
 	_create_step(){
@@ -135,8 +137,14 @@ class GridPathFinder{
 		// next coord_bit_len bits contains the coordinates
 		// next coord_bit_len bits contains the parent coordinates
 		// next two integers contain g & h cost, if applicable
+		// SPECIAL CASE: for draw arrows, destination is replaced by the index
 		this.action_cache = 0;
 		this.action_cache += arguments[0] << 3; // command 
+		if(arguments[0]==STATIC.DA || arguments[0]==STATIC.EA){
+			this.action_cache += bit_shift(arguments[1], 3 + this.static_bit_len); // arrow index
+			this.step_cache.push(this.action_cache);
+			return
+		}
 		if(arguments[1]!==undefined){
 			this.action_cache += 1; // dest_exists
 			this.action_cache += bit_shift(arguments[1], 3 + this.static_bit_len); // dest
@@ -158,11 +166,9 @@ class GridPathFinder{
 			this.step_cache.push(arguments[3]);
 			this.step_cache.push(arguments[4]);
 		}
-
 	}
 
 	_save_step(step_direction="fwd"){
-		if(!this.step_index_map) this.step_index_map = {fwd: [], bck: []};
 		if(step_direction=="fwd"){
 			this.step_index_map.fwd.push(this.steps_forward.length);
 			this.step_cache.forEach(action=>this.steps_forward.push(action));
@@ -229,7 +235,7 @@ class GridPathFinder{
 			//this.states.visited_index+=this.visited.arr_length;
 			this.states.visited_index = nxt_index;
 
-			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: deep_copy_matrix(this.neighbours_YX), visited_tuple: visited_tuple, path: this.path, arrow_step: this.arrow_step};
+			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: deep_copy_matrix(this.neighbours_YX), visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
 			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(...myUI.arrow.full_canvas);
 
 		}
@@ -296,7 +302,7 @@ class GridPathFinder{
 
 	final_state() {
     if (!this.start) return alert("haven't computed!");
-    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(), arrow_step: this.arrow_step,info_matrix:this.info_matrix};
+    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(),info_matrix:this.info_matrix};
   }
 
   max_step(){
@@ -317,7 +323,7 @@ class Node{
       this.h_cost = h_cost;
 		  this.parent = parent;
 		  this.self_YX = self_YX[0]>255 || self_YX[1]>255 ? new Uint16Array(self_YX) : new Uint8Array(self_YX);
-			this.arrow_index = arrow_index;  // refers to the index at which the arrow points from the node to the parent
+			this.arrow_index = arrow_index;  // refers to the index (or arrow array) at which the arrow points from the node to the parent
 			// arrow index is used to construct the steps/states when computing the path
 	}
 }

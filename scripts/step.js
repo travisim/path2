@@ -126,7 +126,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
         let i=0;
         
         while(i<step.length){
-          let [command, dest, y, x, parent_y, parent_x, parent_exists] = GridPathFinder.unpack_action(step[i]);
+          let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index] = GridPathFinder.unpack_action(step[i]);
           if(parent_exists){
             console.log("parent exists");
             var g_cost = step[i+1];
@@ -136,10 +136,45 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
-          console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost]);
+          console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index]);
           
           try{
-	          if(dest==STATIC.ICR ){//draw "current_YX",
+            if(command==STATIC.EC){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
+              else myUI.canvases[statics_to_obj[dest]].erase_canvas();
+            }
+            else if(command==STATIC.DP){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
+              else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
+            }
+            else if(command==STATIC.EP){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
+              else myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
+            }
+            else if(command==STATIC.INC_P){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
+              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
+              
+            }
+            else if(command==STATIC.DEC_P){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
+              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
+            }
+            else if(command==STATIC.DA){
+              // draw arrow
+              /*let fromyx = myUI.arrow.coords[myUI.arrow.step*2];
+              let toyx = myUI.arrow.coords[myUI.arrow.step*2+1];
+              myUI.draw_arrow(fromyx, toyx, false, 0, false);/* */
+              console.log("ARROW EXISTS");
+              myUI.arrow.elems[arrow_index].classList.remove("hidden");
+            }
+            else if(command==STATIC.EA){
+              // erase arrow
+              myUI.arrow.elems[arrow_index].classList.add("hidden");
+              /*let data = myUI.arrow.data[myUI.arrow.step];
+              myUI.arrow.ctx.putImageData(...data);/* */
+            }
+	          else if(dest==STATIC.ICR ){//draw "current_YX",
 	            myUI.InfoMapReset; // reset all info NWSE
 	            info_map_obstacles(x,y);
 	            info_map_out_of_bound(x,y);
@@ -222,44 +257,10 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	           
 	          }
 	*/
-            if(command==STATIC.EC){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
-              else myUI.canvases[statics_to_obj[dest]].erase_canvas();
-            }
-            else if(command==STATIC.DP){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
-              else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
-            }
-            else if(command==STATIC.EP){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
-              else myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
-            }
-            else if(command==STATIC.INC_P){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
-              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
-              
-            }
-            else if(command==STATIC.DEC_P){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
-              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
-            }
-            else if(command==STATIC.DA){
-              // draw arrow
-              ++myUI.arrow.step;
-              /*let fromyx = myUI.arrow.coords[myUI.arrow.step*2];
-              let toyx = myUI.arrow.coords[myUI.arrow.step*2+1];
-              myUI.draw_arrow(fromyx, toyx, false, 0, false);/* */
-              myUI.arrow.elems[myUI.arrow.step].classList.remove("hidden");
-            }
-            else if(command==STATIC.EA){
-              // erase arrow
-              myUI.arrow.elems[myUI.arrow.step].classList.add("hidden");
-              /*let data = myUI.arrow.data[myUI.arrow.step];
-              myUI.arrow.ctx.putImageData(...data);/* */
-              --myUI.arrow.step;
-            }
+            
           }catch(e){
             console.log(command, dest, "failed");
+            console.log(i, step);
           }
           ++i;
         }

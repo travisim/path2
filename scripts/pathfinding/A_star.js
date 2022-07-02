@@ -15,36 +15,41 @@ class A_star extends GridPathFinder{
     this._init_search(start, goal);
 		this.closed_list =  new Empty2D(this.map_height, this.map_width);
 		this.open_list =  new Empty2D(this.map_height, this.map_width);
+    // "Producing Code" (May take some time)
+    if(myUI.testing) return new Promise((resolve, reject) => {resolve(1)});
 
     console.log("starting");
     let start_node = new Node(0, 0, 0, null, this.start);
-    //var found = false;  // once the program exits the while-loop, this is the variable which determines if the endpoint has been found
-    /* ^ deprecated, used a this.path variable to assign */
     this.queue.push(start_node);  // begin with the start; add starting node to rear of []
     this.open_list.set(start_node.self_YX, start_node);
     //---------------------checks if visited 2d array has been visited
 
     let planner = this;
 
-    // "Producing Code" (May take some time)
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
     });
   }
 
   _run_next_search(planner, num) {
-		let node;
     while (num--) {
       // while there are still nodes left to visit
       if (this.queue.length == 0) return this._terminate_search();
            //++ from bfs.js
       this.queue.sort(function (a, b){return a.f_cost - b.f_cost});   
                //++ from bfs.js
-      if (this.current_node_YX)
+      if (this.current_node)
         this.prev_node_YX = this.current_node_YX;
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
       this.open_list[this.current_node_YX] = undefined;
+      
+      /* first check if visited */
+      if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);
+      if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
+      this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
+      /* FOUND GOAL */
+      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
       this._create_step();
       this._create_action(STATIC.SIMPLE);
@@ -75,13 +80,6 @@ class A_star extends GridPathFinder{
       this._save_step("bck");
 
       this.visited_incs = []; // reset visited_incs after adding them
-
-      /* first check if visited */
-      if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);
-      if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
-      this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
-      /* FOUND GOAL */
-      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
       // NOTE, a node is only visited if all its neighbours have been added to the queue
       this.neighbours_YX = [];  // reset the neighbours for each new node
@@ -156,29 +154,43 @@ class A_star extends GridPathFinder{
 
 					// since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
 					// see https://www.geeksforgeeks.org/a-search-algorithm/
-  
-					this.queue.push(new_node);  // add to queue
-					this.open_list.set(next_YX, new_node);  // add to open list
-					this._create_action(STATIC.DP, STATIC.QU, next_YX);
 					if (this.draw_arrows) {
 						// ARROW
-						++this.arrow_step;
-						//myUI.create_arrow(this.current_node_YX, next_YX);
-            if(open_node!==undefined){
-              
+            if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
+              this._create_action(STATIC.EA, open_node.arrow_index);
+              this.arrow_state[open_node.arrow_index] = 0;
             }
-            myUI.create_arrow(next_YX, this.current_node_YX);
+            if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
+              this._create_action(STATIC.EA, closed_node.arrow_index);
+              this.arrow_state[closed_node.arrow_index] = 0;
+            }
+            new_node.arrow_index = myUI.create_arrow(next_YX, this.current_node_YX); // node is reference typed so properties can be modified after adding to queue or open list
+            this.arrow_state[new_node.arrow_index] = 1;
 						//myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
-						this._create_action(STATIC.DA);
+						this._create_action(STATIC.DA, new_node.arrow_index);
+            this._create_action(STATIC.DP, STATIC.QU, next_YX);
 						// END OF ARROW
 					}
+          
+					this.queue.push(new_node);  // add to queue
+					this.open_list.set(next_YX, new_node);  // add to open list
           this._save_step("fwd");
 
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
           this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i]);
 					this._create_action(STATIC.EP, STATIC.QU, next_YX);
-					if (this.draw_arrows) this._create_action(STATIC.EA);
+					if (this.draw_arrows){
+            this._create_action(STATIC.EA, new_node.arrow_index);
+            if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
+              this._create_action(STATIC.DA, open_node.arrow_index);
+              this._create_action(STATIC.DP, STATIC.QU, next_YX);
+            }
+            if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
+              this._create_action(STATIC.DA, closed_node.arrow_index);
+              this._create_action(STATIC.DP, STATIC.QU, next_YX);
+            }
+          }
           this._save_step("bck");
 
           if(this._found_goal(new_node)) return this._terminate_search();

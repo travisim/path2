@@ -88,9 +88,11 @@ myUI.jump_to_step = function(target_step){
 
     if(state.path) myUI.canvases.neighbours.draw_canvas(state.path, `1d`, false, true);
     
-    myUI.arrow.step = state.arrow_step;
+    if(state.arrow_state) for(let i=0;i<myUI.arrow.elems.length;++i){
+      if(state.arrow_state[i]) myUI.arrow.elems[i].classList.remove("hidden");
+      else myUI.arrow.elems[i].classList.add("hidden");
+    }
     //if(state.arrow_img) myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
-    for(let i=0;i<=state.arrow_step;++i) myUI.arrow.elems[i].classList.remove(`hidden`);
   }
 }
 
@@ -130,12 +132,14 @@ myUI.create_arrow = function(start_YX, end_YX, head_pc){
     head_pc = 0.7;
   let front_len = head_pc * total_len - 1.5 - 3;
   let back_len = (1-head_pc) * total_len - 1.5 - 3;
-  elem.innerHTML = `<path fill="purple" d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${back_len} v 3 l 6 -3 h ${front_len} a 1.5 1.5, 0, 0, 0, 0 -3 h ${0-front_len} l -6 -3 v 3 z"></path>`;
+  if(elem_window_length<14) elem.innerHTML = `<path fill="purple" d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${elem_window_length} a 1.5 1.5, 0, 0, 0, 0 -3 z"></path>`;
+  else elem.innerHTML = `<path fill="purple" d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${back_len} v 3 l 6 -3 h ${front_len} a 1.5 1.5, 0, 0, 0, 0 -3 h ${0-front_len} l -6 -3 v 3 z"></path>`;
   document.getElementById("canvas_container").appendChild(elem);
-  elem.style.top = (start_coord.y + elem_path_length * Math.sin(angle)/2 + 0.5) * display_ratio - 3 +"px";
-  elem.style.left = (start_coord.x + 0.5 - elem_path_length * (1-Math.cos(angle))/2) * display_ratio +"px";
+  elem.style.top = (start_coord.y + elem_path_length * Math.sin(angle)/2 + 0.5) * display_ratio - 4.5 +"px";
+  elem.style.left = (start_coord.x + 0.5 - elem_path_length * (1-Math.cos(angle))/2) * display_ratio -1.5 +"px";
   elem.id = `${start_coord.y},${start_coord.x} ${end_coord.y},${end_coord.x}`;
   myUI.arrow.elems.push(elem);
+  return myUI.arrow.elems.length-1;
 }
 
 myUI.reset_arrow = function(clear_data=false){

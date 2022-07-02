@@ -135,10 +135,10 @@ class BFS extends GridPathFinder {
             this._create_action(STATIC.DP, STATIC.QU, next_YX);
             if (this.draw_arrows) {
               // ARROW
-              ++this.arrow_step;
-              myUI.create_arrow(next_YX, this.current_node_YX);
+              var arrow_index = myUI.create_arrow(next_YX, this.current_node_YX);
+              this.arrow_state[arrow_index] = 1;
 						  //myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
-              this._create_action(STATIC.DA);
+              this._create_action(STATIC.DA, arrow_index);
               // END OF ARROW
             }
           }
@@ -150,7 +150,7 @@ class BFS extends GridPathFinder {
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
             this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
             this._create_action(STATIC.EP, STATIC.QU, next_YX);
-            if (this.draw_arrows) this._create_action(STATIC.EA);
+            if (this.draw_arrows) this._create_action(STATIC.DA, arrow_index);
           }
           this._save_step("bck");
         }

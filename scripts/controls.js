@@ -55,7 +55,7 @@ myUI.sliders.animation_speed_slider.elem.oninput = function(){
 	myUI.animation.speed = apparent_speed;
 	// skip steps in animation
 	myUI.animation.jump_steps = 5*myUI.animation.speed/myUI.animation.max_fps;
-	myUI.animation.jump_steps = Math.pow(myUI.animation.jump_steps, 1.5);
+	if(myUI.animation.jump_steps>1) myUI.animation.jump_steps = myUI.animation.jump_steps *10;
 	//console.log(myUI.animation.jump_steps);
 }
 
