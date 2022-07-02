@@ -138,7 +138,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           }
           console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index]);
           
-          try{
+          
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
               else myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -174,13 +174,20 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               /*let data = myUI.arrow.data[myUI.arrow.step];
               myUI.arrow.ctx.putImageData(...data);/* */
             }
-	          else if(dest==STATIC.ICR ){//draw "current_YX",
-	            myUI.InfoMapReset; // reset all info NWSE
+	         
+            
+            else if(dest==STATIC.ICR ){//draw "current_YX",
+	            //myUI.InfoMapReset; // reset all info NWSE
+              UIInfoMapReset();
 	            info_map_obstacles(x,y);
 	            info_map_out_of_bound(x,y);
 	            info_map_visited(x,y);
 	            info_map_queue(x,y)
-	            myUI.InfoTable.OutTop();
+	            
+              if (slides.length >= 1){
+                myUI.InfoTable.OutTop();
+              }
+                
 	            myUI.InfoCurrent.DrawCurrent(x,y);
 	            
 	        
@@ -189,6 +196,10 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	          else if(command == STATIC.DI ){
 	            myUI.InfoNWSE[statics_to_obj[dest]].DrawNeighbour(f_cost,g_cost,h_cost);
              myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
+             if (slides.length >= 2){
+                myUI.InfoTable.Sort();
+              }
+              
             
 	          }
 	        	//to erase neighbours
@@ -212,6 +223,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	            record_drawn_queue(x,y);
 	           
 	          }
+          try{
 	          /*
 	          if(dest==STATIC.CR && command == STATIC.DP ){//draw "current_YX",
 	            document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
