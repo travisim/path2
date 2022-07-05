@@ -19,7 +19,6 @@ function compute_path(){
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
 		console.log(path ? path.length : -1);
 		myUI.sliders.search_progress_slider.elem.disabled = false;
-		myUI.path = path;
 		myUI.animation.max_step = myUI.planner.max_step();
 		myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;
 		let each_frame_duration_min = 3000 / myUI.animation.max_step; //  5 seconds for fastest animation
@@ -44,8 +43,7 @@ function display_path(){
   let final_state = myUI.planner.final_state();
   if(final_state.length<=1) return;
 
-  let path = final_state.path; // array of coordinates
-  myUI.canvases.path.draw_canvas(path, "1d");
+  myUI.canvases.path.draw_canvas(final_state.path, "1d");
 }
 //displays value of slider
 

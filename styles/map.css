@@ -67,6 +67,7 @@
 	display: block;
 	position: absolute;
 	z-index: 59;
+	fill: purple;
 }
 
 .hover_popup{

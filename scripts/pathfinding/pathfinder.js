@@ -9,7 +9,10 @@ class GridPathFinder{
 	static unpack_action(action){
 		let command = (action >> 3) & ones(myUI.planner.static_bit_len);
 		// SPECIAL CASE: draw arrows
-		if(command==STATIC.DA || command==STATIC.EA) var arrow_index = bit_shift(action, -(3 + myUI.planner.static_bit_len));
+		if(command==STATIC.DA || command==STATIC.EA){
+			var arrow_index = bit_shift(action, -(3 + myUI.planner.static_bit_len + 3));
+			var arrow_color = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(3);
+		}
 		if(action & 1)  // dest exists
 			var dest = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(myUI.planner.static_bit_len);
 		if(action & (1<<1)){  // coord exists
@@ -23,7 +26,7 @@ class GridPathFinder{
 			var parent_y = Math.floor(parent_coord/myUI.planner.map_width);
 			var parent_x = parent_coord - parent_y * myUI.planner.map_width;
 		}
-		return [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index];
+		return [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, arrow_color];
 	}
 
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
@@ -141,7 +144,9 @@ class GridPathFinder{
 		this.action_cache = 0;
 		this.action_cache += arguments[0] << 3; // command 
 		if(arguments[0]==STATIC.DA || arguments[0]==STATIC.EA){
-			this.action_cache += bit_shift(arguments[1], 3 + this.static_bit_len); // arrow index
+			let color = arguments[2] ? arguments[2] : 0;
+			this.action_cache += bit_shift(color, 3 + this.static_bit_len); // arrow color //  allow up to 8 colors
+			this.action_cache += bit_shift(arguments[1], 3 + this.static_bit_len + 3); // arrow index
 			this.step_cache.push(this.action_cache);
 			return
 		}
@@ -244,24 +249,31 @@ class GridPathFinder{
 	_found_goal(node){
 		// found the goal & exits the loop
 		if (node.self_YX[0] != this.goal[0] || node.self_YX[1] != this.goal[1]) return false;
+		this._create_step();
 		this.path = [];
 		// retraces the entire parent tree until start is found
+		const originalNode = node;
+		myUI.node = originalNode;
 		while (node != null) {
 			this.path.unshift(node.self_YX);
+			this._create_action(STATIC.DP, STATIC.PA, node.self_YX);
+			this._create_action(STATIC.DA, node.arrow_index, 1);
 			node = node.parent;
 		}
 		console.log("found");
-
-		this._create_step();
 		this._create_action(STATIC.SIMPLE);
 		this._create_action(STATIC.EC, STATIC.CR);
-		this.path.forEach(yx => this._create_action(STATIC.DP, STATIC.PA, yx));
 		this._save_step("fwd");
 
 		this._create_step();
 		this._create_action(STATIC.SIMPLE);
 		this._create_action(STATIC.EC, STATIC.PA);
 		this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
+		node = originalNode;
+		while (node != null) {
+			this._create_action(STATIC.DA, node.arrow_index, 0);
+			node = node.parent;
+		}
 		this._save_step("bck");
 
 		this._create_step();

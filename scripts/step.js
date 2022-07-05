@@ -44,8 +44,8 @@ const STATIC_COMMANDS = [
   "EP", // erase pixel
   "INC_P", // increment pixel
   "DEC_P", // increment pixel
-  "DA", // draw, arrow
-  "EA" , // erase arrow
+  "DA", // draw arrow (arrow index) [colour index]
+  "EA" , // erase arrow (arrow index)
   "DI",
   "EI",
   "Dparent",
@@ -126,7 +126,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
         let i=0;
         
         while(i<step.length){
-          let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index] = GridPathFinder.unpack_action(step[i]);
+          let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, arrow_color] = GridPathFinder.unpack_action(step[i]);
           if(parent_exists){
             console.log("parent exists");
             var g_cost = step[i+1];
@@ -136,7 +136,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
-          console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index]);
+          console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, arrow_color]);
           
           
             if(command==STATIC.EC){
@@ -165,8 +165,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               /*let fromyx = myUI.arrow.coords[myUI.arrow.step*2];
               let toyx = myUI.arrow.coords[myUI.arrow.step*2+1];
               myUI.draw_arrow(fromyx, toyx, false, 0, false);/* */
-              console.log("ARROW EXISTS");
               myUI.arrow.elems[arrow_index].classList.remove("hidden");
+              myUI.arrow.elems[arrow_index].style.fill = myUI.arrow.colors[arrow_color];
             }
             else if(command==STATIC.EA){
               // erase arrow
