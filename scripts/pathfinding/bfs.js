@@ -38,6 +38,14 @@ class BFS extends GridPathFinder {
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
 
+      /* first check if visited */
+      if (this.visited.get_data(this.current_node_YX)>0){
+        this.visited.increment(this.current_node_YX);
+        this.visited_incs.push(this.current_node_YX);
+        continue;  // if the current node has been visited, skip to next one in queue
+      }/* */
+      this.visited.increment(this.current_node_YX); // marks current node YX as visited
+
       this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
@@ -67,11 +75,7 @@ class BFS extends GridPathFinder {
       this._save_step("bck");
 
       this.visited_incs = []; // reset visited_incs after adding them
-
-      /* first check if visited */
-      if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);
-      if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
-      this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
+      
       /* FOUND GOAL */
       if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
@@ -91,13 +95,7 @@ class BFS extends GridPathFinder {
       for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
-        /* second check if visited */
         
-        if (this.visited.get_data(next_YX)>0) {
-          this.visited_incs.push(next_YX);
-          this.visited.increment(next_YX);
-        }
-        if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] > 0) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
         if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
             if (this.deltaNWSE[i] == "NW") {
@@ -121,6 +119,14 @@ class BFS extends GridPathFinder {
               }
             }
           }
+
+            /* second check if visited */
+          if (this.visited.get_data(next_YX)>0) {
+            this.visited_incs.push(next_YX);
+            this.visited.increment(next_YX);
+          }
+          if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] > 0) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
+
           this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
 
           this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
