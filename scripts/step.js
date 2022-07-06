@@ -138,7 +138,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           }
           console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, arrow_color]);
           
-          
+          try{
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
               else myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -223,7 +223,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	            record_drawn_queue(x,y);
 	           
 	          }
-          try{
 	          /*
 	          if(dest==STATIC.CR && command == STATIC.DP ){//draw "current_YX",
 	            document.getElementById("currentYX").innerHTML =  "( "+x+", "+y+")"; 
