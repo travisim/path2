@@ -138,7 +138,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           }
           console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, arrow_color]);
           
-          try{
+          
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
               else myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -177,24 +177,26 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	         
             
             else if(dest==STATIC.ICR ){//draw "current_YX",
-	            //myUI.InfoMapReset; // reset all info NWSE
-              UIInfoMapReset();
+	            
+               myUI.InfoMapReset();
 	            info_map_obstacles(x,y);
 	            info_map_out_of_bound(x,y);
 	            info_map_visited(x,y);
 	            info_map_queue(x,y)
 	            
-              if (slides.length >= 1){
-                myUI.InfoTable.OutTop();
-              }
+             
+              myUI.InfoTable.OutTop();
+              
                 
 	            myUI.InfoCurrent.DrawCurrent(x,y);
+              
 	            
 	        
 	          }
 	         	//to draw neighbours
 	          else if(command == STATIC.DI ){
 	            myUI.InfoNWSE[statics_to_obj[dest]].DrawNeighbour(f_cost,g_cost,h_cost);
+                
              myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
              if (slides.length >= 2){
                 myUI.InfoTable.Sort();
@@ -205,7 +207,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	        	//to erase neighbours
 	          else if(command == STATIC.EI ){
 	            myUI.InfoNWSE[statics_to_obj[dest]].Reset();
-	          //  out_first_slide()
+              myUI.InfoTable.removelastSlidebById();
+	            
 	            
 	          }
 	          
@@ -268,6 +271,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	           
 	          }
 	*/
+          try{
             
           }catch(e){
             console.log(command, dest, "failed");
