@@ -100,63 +100,44 @@ myUI.parseScenario = function(contents){
 	myUI.scen_name = scen_array[0][1];
 }
 
-myUI.showScenSelection = function(){
+myUI.loadScenario = function(){
+  let elem = this;
+  if(elem==myUI) elem = document.querySelector('#scen_num');
+  if(elem==document.querySelector('#scen_num')){
+    // selected by scenario
+    if(elem.value==0){
+      if(myUI.scen_arr.length>0) elem.value = 1;
+    }
+    elem.value = Math.max(0, Math.min(myUI.scen_arr.length, elem.value));
+    let index = elem.value-1;
+    myUI.map_start = [Number(myUI.scen_arr[index][5]),Number(myUI.scen_arr[index][4])];//  in Y, X
+    myUI.map_goal = [Number(myUI.scen_arr[index][7]), Number(myUI.scen_arr[index][6])];//  in Y, X
 
-	let scen_array = myUI.scen_arr;
-  
-  let scen_label_elem = myUI.selects["scen_select"].label; //document.getElementById("scen_label");
-	scen_label_elem.innerHTML = `Choose scenario for ${scen_array[0][1]}. Map   Width: ${scen_array[0][2]} Map Height: ${scen_array[0][3]}`;	
-	//display first scene as default at index 0
-	myUI.scenChoice = 0;
-	myUI.loadScen();
-	let scen_select_elem = myUI.selects["scen_select"].elem;
-	let child = scen_select_elem.lastElementChild; 
-	while (child) {
-		scen_select_elem.removeChild(child);
-		child = scen_select_elem.lastElementChild;
-	}
-	/* each iteration 
-  [ '9',
-    'Berlin_0_512.map',
-    '512',
-    '512',
-    '173',
-    '435',
-    '156',
-    '467',
-    '39.04163055' ]*/
-	for (let i=0;i<scen_array.length;++i){
-		let scen = scen_array[i]
-		let option = document.createElement("option");
-
-    option.setAttribute("value", i);
-    // when a option is clicked function is runned to redraw start and end points
-    //option.setAttribute("onclick", load_scen());
-		let option_str = "";
-		for (let j=4;j<=7;++j){
-      //adding spaces to ensure each column in the options line up
-      // &nbsp non breaking space, space that will not go to new line
-			option_str+='&nbsp'.repeat(4-scen[j].length) + scen[j] + '&nbsp';
-		}
-		option_str+=scen[8];
-		option.innerHTML = option_str;
-    // options is child of select
-		scen_select_elem.appendChild(option);
-	}	
+    document.querySelector("#scen_start_x").value = myUI.scen_arr[index][5];
+    document.querySelector("#scen_start_y").value = myUI.scen_arr[index][4];
+    document.querySelector("#scen_goal_x").value = myUI.scen_arr[index][7];
+    document.querySelector("#scen_goal_y").value = myUI.scen_arr[index][6];
+  }
+  else{
+    console.log(this.id);
+    if(this.id.includes(x)) this.value = Math.max(0, Math.min(myUI.map_height-1, elem.value));
+    else this.value = Math.max(0, Math.min(myUI.map_width-1, elem.value));
+    document.querySelector('#scen_num').value = 0;
+    myUI.map_start = [
+      Number(document.querySelector("#scen_start_x").value),
+      Number(document.querySelector("#scen_start_y").value)
+    ];//  in Y, X
+    myUI.map_goal = [
+      Number(document.querySelector("#scen_goal_x").value),
+      Number(document.querySelector("#scen_goal_y").value)
+    ];//  in Y, X
+  }
+  myUI.displayScen();
 }
 
-myUI.loadScen = function(){
-	console.log("selected by dropdown");
-	let scen_select_elem = myUI.selects["scen_select"].elem;
-	myUI.scenChoice= scen_select_elem.selectedIndex==-1 ? 0 : scen_select_elem.selectedIndex;
-	let scen_array = myUI.scen_arr;
-
-	let choice = myUI.scenChoice;
- 
-	myUI.map_start = [Number(scen_array[choice][5]),Number(scen_array[choice][4])];//  in Y, X
-	myUI.map_goal = [Number(scen_array[choice][7]), Number(scen_array[choice][6])];//  in Y, X
-	myUI.displayScen();
-}
+document.querySelectorAll(".scen_controls").forEach(elem=>{
+  elem.addEventListener("change", myUI.loadScenario);
+})
 
 myUI.displayScen = function(moved=false){
 	myUI.canvases.start.erase_canvas();
@@ -165,14 +146,22 @@ myUI.displayScen = function(moved=false){
 	myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
 	myUI.scenFail = false;
-	if(myUI.map_name!=myUI.scen_name){
+	if(myUI.map_name!=myUI.scen_name && document.querySelector('#scen_num').value>0){
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
 	}
 	else{
 		console.log(myUI.map_start, myUI.map_goal);
 		myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
 		myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
-		if(!moved){
+		if(moved){
+      // update the inputs
+      document.querySelector('#scen_num').value = 0;
+      document.querySelector("#scen_start_x").value = myUI.map_start[0];
+      document.querySelector("#scen_start_y").value = myUI.map_start[1];
+      document.querySelector("#scen_goal_x").value = myUI.map_goal[0];
+      document.querySelector("#scen_goal_y").value =myUI.map_goal[1];
+    }
+    else{
 			//console.log("moving");
 			myUI.map_start_icon.move(myUI.map_start);
 			myUI.map_goal_icon.move(myUI.map_goal);
@@ -187,14 +176,12 @@ myUI.displayScen = function(moved=false){
 
 function moveDraggable(yx){
 	let bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
-	this.elem.style.top = `${(yx[0]+0.5)*bounds.height / myUI.map_height - this.elem.height/2}px`;
-	this.elem.style.left = `${(yx[1]+0.5)*bounds.width / myUI.map_width - this.elem.width/2}px`;
+	this.elem.style.top = ((yx[0]+0.5)*bounds.height / myUI.map_height - this.elem.height/2) + "px";
+	this.elem.style.left =  ((yx[1]+0.5)*bounds.width / myUI.map_width - this.elem.width/2) + "px";
 }
 
 myUI.map_start_icon.move = moveDraggable;
 myUI.map_goal_icon.move = moveDraggable;
-
-myUI.selects["scen_select"].elem.addEventListener("change", myUI.loadScen);
 
 
 /* PLANNER PARSER */
@@ -274,7 +261,7 @@ myUI.runDefault = function(){
 
 	let default_scen = `version 1\n0\t16x16_default.map\t16\t16\t0\t0\t13\t13\t-1`;
 	myUI.parseScenario(default_scen);
-	myUI.showScenSelection();
+  myUI.loadScenario();
 }
 
 myUI.runDefault();

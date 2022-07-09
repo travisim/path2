@@ -170,3 +170,7 @@ html, body{
 .empty{
 	z-index: -100;
 }
+
+.scen_label{
+	margin: 0px 5px 0px 10px;
+}
