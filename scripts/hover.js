@@ -1,6 +1,6 @@
 myUI.scale_coord = function(y, x){
-	let scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientWidth *  myUI.map_width);
-	let scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientHeight *  myUI.map_height);
+	let scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
+	let scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientHeight * myUI.map_height);
 	return [scaled_y, scaled_x];
 }
 
@@ -111,8 +111,7 @@ function dragElement(elmnt) {
 		let y = y1 - bounds.top;
 		x = Math.max(0, Math.min(bounds.width-e_num, x));  // fix to boundaries
 		y = Math.max(0, Math.min(bounds.height-e_num, y));
-		let scaled_x = Math.floor(x/bounds.width *  myUI.map_width);  //  scale x an dy
-		let scaled_y = Math.floor(y/bounds.height *  myUI.map_height);
+		let [scaled_y, scaled_x] = myUI.scale_coord(y, x);
 		console.log(scaled_x, scaled_y);
 		if(elmnt.id=="map_start_icon"){
 			myUI.map_start = [scaled_y, scaled_x];

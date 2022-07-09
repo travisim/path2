@@ -81,7 +81,7 @@ myUI.sliders.map_width_slider.elem.oninput = function(){
 
 myUI.sliders.map_width_slider.label.onkeypress = function(e){
   if (!e) e = window.event;
-  var keyCode = e.code || e.key;
+  var keyCode = e.key;
   if (keyCode == 'Enter'){
     this.parent.elem.value = this.value;
     myUI.update_map_width(this.value);
@@ -100,7 +100,7 @@ myUI.sliders.map_height_slider.elem.oninput = function(){
 
 myUI.sliders.map_height_slider.label.onkeypress = function(e){
   if (!e) e = window.event;
-  var keyCode = e.code || e.key;
+  var keyCode = e.key;
   if (keyCode == 'Enter'){
     this.parent.elem.value = this.value;
     myUI.update_map_height(this.value);

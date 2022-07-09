@@ -37,6 +37,9 @@ class UICanvas{
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
 
+    this.defaultHeight = this.canvas.clientHeight;
+    this.defaultWidth = this.canvas.clientWidth;
+
     var height = this.canvas.height;
     var width = this.canvas.width;
     if(this.id=="edit_map") console.log(`Height: ${height}, Width: ${width}`);
@@ -49,40 +52,41 @@ class UICanvas{
 		this.set_color_index(0, "all");
   }
 
+  scale_coord(y, x){
+    let scaled_x = Math.floor(x/this.canvas.clientWidth * myUI.map_width);
+    let scaled_y = Math.floor(y/this.canvas.clientHeight * myUI.map_height);
+    return [scaled_y, scaled_x];
+  }
+
   scale_canvas(data_height, data_width, retain_data=false){
 
-    this.data_height = data_height
-    this.data_width = data_width
+    this.data_height = data_height;
+    this.data_width = data_width;
 
-    let originalWidth = data_height
-    let originalHeight = data_width
-
-    const dimensions = UICanvas.getObjectFitSize(
-        true,
-        this.canvas.clientWidth,
-        this.canvas.clientHeight,
-        this.canvas.width,
-        this.canvas.height
-    );
-
+    if(data_height<data_width){
+      this.canvas.style.width = this.defaultWidth + "px";
+      this.canvas.style.height = data_height/data_width*this.defaultHeight + "px";
+    }
+    else{
+      this.canvas.style.height = this.defaultHeight + "px";
+      this.canvas.style.width = data_width/data_height*this.defaultWidth + "px";/* */
+    }
+    
     const dpr = 2;
     //window.devicePixelRatio usually got decimals
-    //console.log(dimensions.height, dimensions.width);
-    this.canvas.width = dimensions.width * dpr; // change js/html canvas width
-    this.canvas.height = dimensions.height * dpr;// change js/html canvas height
 
-    //console.log(this.canvas.clientWidth /  originalWidth,this.canvas.clientHeight / originalHeight);
-    let ratio = Math.min(
-        this.canvas.clientWidth / originalWidth,
-        this.canvas.clientHeight / originalHeight
-    );
-    let widthRatio = this.canvas.clientWidth / originalWidth;
-    let heightRatio = this.canvas.clientHeight / originalHeight;
-    //this.ctx.scale(ratio * dpr, ratio * dpr); //adjust this! context.scale(2,2); 2=200
-    this.ctx.scale(heightRatio * dpr, widthRatio * dpr); //adjust this! context.scale(2,2); 2=200
+    // canvas resolution
+    this.canvas.width = this.canvas.clientWidth*dpr;
+    this.canvas.height = this.canvas.clientHeight*dpr;
 
-    if (data_width > 256 || data_height>256) this.pixelSize = 1.5;
-    else this.pixelSize = 1;
+    let widthRatio = this.canvas.clientHeight / data_height;
+    let heightRatio = this.canvas.clientWidth / data_width;
+    
+    this.ctx.scale(widthRatio*dpr, heightRatio*dpr); //adjust this! context.scale(2,2); 2=200
+    //this.ctx.scale(widthRatio * dpr, heightRatio * dpr); //adjust this! context.scale(2,2); 2=200
+
+    if (data_width > 256 || data_height>256) this.pixelSize = 1.2;
+    else this.pixelSize = 1.02;
 
     if(retain_data){
       //console.log(data_width);
@@ -164,6 +168,7 @@ class UICanvas{
   draw_pixel(yx, virtual=false, val=1, color_index=0, save_in_cache=true){
     this.set_color_index(color_index);
     let [y,x] = yx;
+    if(y>=this.data_height || x>=this.data_width) return;
     if(virtual)
       this.virtualCanvas[y][x] = val;
     else {
@@ -306,15 +311,13 @@ class UICanvas{
   }
 
   _fillEditedCell(canvas_x, canvas_y){
-    let x = Math.floor(canvas_x/this.canvas.clientWidth*this.data_width);
-    let y = Math.floor(canvas_y/this.canvas.clientHeight*this.data_height);
+    let [y, x] = this.scale_coord(canvas_y, canvas_x);
     if(this.erase) this.erase_pixel([y,x]);
     else this.draw_pixel([y,x]);
   }
 
   _drawHover(canvas_x, canvas_y){
-    let x = Math.floor(canvas_x/this.canvas.clientWidth*this.data_width);
-    let y = Math.floor(canvas_y/this.canvas.clientHeight*this.data_height);
+    let [y, x] = this.scale_coord(canvas_y, canvas_x);
     if(this.erase) this.draw_pixel([y,x], false, 1, 2, false);
     else this.draw_pixel([y,x], false, 1, 1, false);
   }

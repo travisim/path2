@@ -26,6 +26,7 @@
 	height: 100%;
 	width: 100%;
 	position: absolute;
+	border: 1px solid black;
 }
 
 #left_axes{
@@ -41,7 +42,7 @@
 	position: absolute;
 	width: var(--canvas-length);
 	height: var(--canvas-remaining);
-	right: 0;
+	left: var(--canvas-remaining);
 	top: 0;
 	overflow: hidden;
 	padding-left: 0px;

@@ -56,6 +56,8 @@ myUI.displayMap = function(){
   */
 	document.getElementById("map_height_axis").innerHTML = myUI.map_arr.length - 1;
 	document.getElementById("map_width_axis").innerHTML = myUI.map_arr[0].length - 1;
+  document.getElementById("left_axes").style.height = myUI.canvases.bg.canvas.clientHeight+"px";
+  document.getElementById("top_axes").style.width = myUI.canvases.bg.canvas.clientWidth+"px";
 
   myUI.canvases["bg"].draw_canvas(myUI.map_arr, "2d", true);
 	myUI.canvases["edit_map"].draw_canvas(myUI.map_arr, "2d", true);
