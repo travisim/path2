@@ -76,7 +76,7 @@ var UIInfoCurrent = {
 
 
 var tableId = 0;
-var lastAddedSlideId;
+var lastAddedSlideId = 0;
 function UIInfoTable(){
   this.InsertAfterSlidesIndex = function(SlidesIndex,x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
     var t = TableColumnDecider(x,y,parent_x,parent_y,f_cost,g_cost,h_cost)
@@ -84,7 +84,8 @@ function UIInfoTable(){
     
   }
   this.removelastSlidebById = function(){
-    removeSlidebById(lastAddedSlideId.toString())
+    removeSlidebById(lastAddedSlideId.toString());
+
   }
   this.Sort = function(){
       var table, i, x, y;
@@ -125,21 +126,24 @@ function UIInfoTable(){
   this.OutBottom = function(){
     let slides = document.getElementsByClassName("slide");
     //animates out last slide
-    if (slides.length >= 1) slides[slides.length-1].style.animation = 'out 0.5s forwards';
-     //deletes HTML of last table(use arrow function to accept parameters)
-    setTimeout(()=>removebyindex(slides.length-1),1000);
+    if (slides.length >= 1){ 
+      slides[slides.length-1].style.animation = 'out 0.5s forwards';
+       //deletes HTML of last table(use arrow function to accept parameters)
+      setTimeout(()=>removebyindex(slides.length-1),1000);
+    }
   };
   this.OutTop = function(){
     //animates out first slide
-    if (slides.length >= 1) slides[0].style.animation = 'out 0.5s forwards';
-     //deletes HTML of last table(use arrow function to accept parameters)
-    setTimeout(()=>removebyindex(0),1000);
+    if (slides.length >= 1){ slides[0].style.animation = 'out 0.5s forwards';
+      //deletes HTML of last table(use arrow function to accept parameters)
+      setTimeout(()=>removebyindex(0),1000);
+    }
   };
   this.InTop = function(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
     //unhighlight second latest table added
     
    for (let i = 0; i < document.getElementsByClassName("highlighting").length; i++) { 
-     if(document.getElementsByClassName("highlighting")[0]){
+      if(document.getElementsByClassName("highlighting")[0]){
   
        document.getElementsByClassName("highlighting")[0].style.border = "none";
        document.getElementsByClassName("highlighting")[0].classList.remove('highlighting');
@@ -212,9 +216,10 @@ function UIInfoTable(){
       c5.innerHTML = g_cost;
       c6.innerHTML = h_cost;
       t.classList.add('slide',"highlighting");
-      t.setAttribute("id", (tableId++).toString() )
-     // console.log("table" + (tableID++).toString(),"uibbnk");
       lastAddedSlideId = tableId;
+      t.setAttribute("id", (tableId++).toString() )
+
+   
       
     
     }
