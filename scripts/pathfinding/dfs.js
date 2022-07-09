@@ -14,14 +14,12 @@ class DFS extends GridPathFinder {
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
 
-    console.log("starting");v
-    this.info_matrix[this.start[0]][this.start[1]]={parent: ["n","n"]};
-    //console.log(this.info_matrix[this.start[0]][this.start[1]].parent,"lop");
+    console.log("starting");
     let start_node = new Node(null, null, null, null, start);
     //var found = false;  // once the program exits the while-loop, this is the variable which determines if the endpoint has been found
     /* ^ deprecated, used a this.path variable to assign */
     this.queue.push(start_node);  // begin with the start; add starting node to rear of []
-    //---------------------checks if visited 2d array has been isited
+    //---------------------checks if visited 2d array has been visited
 
     let planner = this;
 
@@ -40,29 +38,20 @@ class DFS extends GridPathFinder {
       this.current_node = this.queue.pop(); // remove the first node in queue
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
 
+      /* first check if visited */
+      if (this.visited.get_data(this.current_node_YX)>0){
+        this.visited.increment(this.current_node_YX);
+        this.visited_incs.push(this.current_node_YX);
+        continue;  // if the current node has been visited, skip to next one in queue
+      }/* */
+      this.visited.increment(this.current_node_YX); // marks current node YX as visited
 
-/*
-         index 0 to index 4 are canvas ids, must be the same as statics_to_obj 
-  "QU",  queue
-  "VI",  visited
-  "CR",  current
-  "NB",  neighbours
-  "PA",  path
-   rest of the items are dynamics commands/identifiers 
-  "SIMPLE",  shows that the step is a simple step
-  "EC",  erase canvas
-  "DP",  draw pixel
-  "EP",  erase pixel
-  "INC_P", increment pixel
-  "DA",  draw arrow
-  "EA"   erase arrow
-      */
       this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
-      this._create_action(0, STATIC.ICR, this.current_node_YX);
+      this._create_action(STATIC.DI, STATIC.ICR, this.current_node_YX);
       //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
@@ -77,7 +66,7 @@ class DFS extends GridPathFinder {
       this._create_action(STATIC.DP, STATIC.QU, this.current_node_YX);
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
-        this._create_action(0,STATIC.ICR, this.prev_node_YX);
+        this._create_action(STATIC.DI,STATIC.ICR, this.prev_node_YX);
         this.neighbours_YX.forEach(coord => {
           this._create_action(STATIC.DP, STATIC.NB, coord);
         });
@@ -86,11 +75,7 @@ class DFS extends GridPathFinder {
       this._save_step("bck");
 
       this.visited_incs = []; // reset visited_incs after adding them
-
-      /* first check if visited */
-      if (this.visited.get_data(this.current_node_YX)) this.visited.increment(this.current_node_YX);
-      if (this.visited.get_data(this.current_node_YX)) continue; // if the current node has been visited, skip to next one in queue
-      this.visited.set_data(this.current_node_YX, 1); // marks current node YX as visited
+      
       /* FOUND GOAL */
       if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
@@ -110,13 +95,7 @@ class DFS extends GridPathFinder {
       for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
-        /* second check if visited */
         
-        if (this.visited.get_data(next_YX)>0) {
-          this.visited_incs.push(next_YX);
-          this.visited.increment(next_YX);
-        }
-        if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] > 0) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
         if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
             if (this.deltaNWSE[i] == "NW") {
@@ -140,6 +119,14 @@ class DFS extends GridPathFinder {
               }
             }
           }
+
+            /* second check if visited */
+          if (this.visited.get_data(next_YX)>0) {
+            this.visited_incs.push(next_YX);
+            this.visited.increment(next_YX);
+          }
+          if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] > 0) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
+
           this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
 
           this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
@@ -147,17 +134,17 @@ class DFS extends GridPathFinder {
           /* NEW */
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
-          this._create_action(STATIC.DP, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
+          this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
   
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
             this.queue.push(new Node(null, null, null, this.current_node, next_YX));  // add to queue
             this._create_action(STATIC.DP, STATIC.QU, next_YX);
             if (this.draw_arrows) {
               // ARROW
-              ++this.arrow_step;
-              //myUI.create_arrow(this.current_node_YX, next_YX);
-              myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);
-              this._create_action(STATIC.DA);
+              var arrow_index = myUI.create_arrow(next_YX, this.current_node_YX);
+              this.arrow_state[arrow_index] = 1;
+						  //myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
+              this._create_action(STATIC.DA, arrow_index);
               // END OF ARROW
             }
           }
@@ -165,11 +152,11 @@ class DFS extends GridPathFinder {
 
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
-          // this._create_action(STATIC.EP, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
+          this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
             this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
             this._create_action(STATIC.EP, STATIC.QU, next_YX);
-            if (this.draw_arrows) this._create_action(STATIC.EA);
+            if (this.draw_arrows) this._create_action(STATIC.DA, arrow_index);
           }
           this._save_step("bck");
         }
