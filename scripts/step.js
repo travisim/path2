@@ -177,8 +177,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	         
             
             else if(dest==STATIC.ICR ){//draw "current_YX",
-	            //myUI.InfoMapReset; // reset all info NWSE
-              UIInfoMapReset();
+	            
+               myUI.InfoMapReset();
 	            info_map_obstacles(x,y);
 	            info_map_out_of_bound(x,y);
 	            info_map_visited(x,y);

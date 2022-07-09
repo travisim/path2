@@ -174,6 +174,8 @@ myUI.InfoTable = UIInfoTable;
   myUI.tmp = {};
 
   myUI.InfoTable  = new UIInfoTable;//shifting this to top will cause crashed
+    myUI.InfoMapReset =  UIInfoMapReset;
+ // myUI.InfoMapReset = new UIInfoMapReset;
 }
 
 
