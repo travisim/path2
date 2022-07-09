@@ -341,7 +341,6 @@
 						<div class="flex-row">
 							<label class="label_centered">Starting Node:</label>
 							<button id="first_neighbour_btn" class="btn modal_btn">
-								<span id="first_neighbour_label">N</span>
 							</button>
 						</div>
 						<div class="flex-row">
@@ -349,6 +348,10 @@
 							<button id="search_direction_btn" class="btn modal_btn">
 								<span id="search_direction_label">Clockwise</span>
 							</button>
+						</div>
+						<div class="flex-row" id="distance_select_ctn">
+							<label for="distance_select" class="label_centered">Distance Metric:</label>
+							<select name="distance_select" size="1" id="distance_select" class="select-dropdown"></select>
 						</div>
 					</div>
 				</div>
@@ -395,11 +398,11 @@
 		<script src="scripts/controls.js"></script>
 		<script src="scripts/step.js"></script>
 		<script src="scripts/upload.js"></script>
-		<script src="scripts/parser-select-display.js"></script>
+		<script src="scripts/planner_config.js"></script>
     <script src="scripts/darkmode.js"></script>
 		<script src="scripts/hover.js"></script>
 		<script src="scripts/modal.js"></script>
-		<script src="scripts/planner_config.js"></script>
+		<script src="scripts/parser-select-display.js"></script>
 		<script src="scripts/download.js"></script>
     
   </body>

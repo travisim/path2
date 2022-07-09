@@ -6,6 +6,10 @@ class GridPathFinder{
 
 	static get action_buffer(){return 5}
 
+	static get distance_metrics(){
+    return [];
+  }
+
 	static unpack_action(action){
 		let command = (action >> 3) & ones(myUI.planner.static_bit_len);
 		// SPECIAL CASE: draw arrows

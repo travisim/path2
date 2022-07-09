@@ -1,3 +1,11 @@
+myUI.reset_select_options = function(select_elem){
+  let child = select_elem.lastElementChild;
+  while (child) {
+    select_elem.removeChild(child);
+    child = select_elem.lastElementChild;
+  }
+}
+
 /* MAP PARSER & DISPLAY */
 
 myUI.parseMap = function(map_str_var, file_name){
@@ -221,15 +229,17 @@ myUI.showPlanners = function() {
 myUI.loadPlanner = function() {
 	if(this==myUI) var planner_select_elem = myUI.selects["planner_select"].elem;
 	else var planner_select_elem = this; // binds to the planner select element
+  console.log(planner_select_elem);
 	
   myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
+  myUI.planner = new myUI.planners[myUI.planner_choice]();
 
 	// updates both selects
 	myUI.selects["planner_select"].elem.value = myUI.planner_choice;
 	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
   determine_table_header();
-	myUI.planner = new myUI.planners[myUI.planner_choice]();
+  myUI.init_planner_config();
 }
 
 
@@ -270,6 +280,7 @@ myUI.runDefault = function(){
 myUI.runDefault();
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
+myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
 
 
 

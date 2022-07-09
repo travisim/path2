@@ -6,8 +6,46 @@ class A_star extends GridPathFinder{
 		return "A star";
   }
 
+  static get distance_metrics(){
+    return ["Euclidean", "Manhattan", "Chebyshev (Diagonal)"];
+  }
+
   constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbours, diagonal_allow, first_neighbour, search_direction);
+  }
+
+  set_distance_metric(metric){
+    this.distance_metric = metric;
+  }
+
+  calc_cost(successor){
+    function manhattan(c1, c2){
+      return Math.abs(c1[0]-c2[0]) + Math.abs(c1[1]-c2[1]);
+    }
+
+    function euclidean(c1, c2){
+      return Math.hypot(c1[0]-c2[0], c1[1]-c2[1]);
+    }
+    
+    function chebyshev(c1, c2){
+      return Math.max(Math.abs(c1[0]-c2[0]), Math.abs(c1[1]-c2[1]));
+    }
+
+    if(this.distance_metric == "Manhattan"){
+      var g_cost = this.current_node.g_cost + manhattan(this.current_node.self_YX, successor);
+      var h_cost = manhattan(successor, this.goal);
+    }
+    else if(this.distance_metric == "Euclidean"){
+      var g_cost = this.current_node.g_cost + euclidean(this.current_node.self_YX, successor);
+      var h_cost = euclidean(successor, this.goal);
+    }
+    else if(this.distance_metric == "Chebyshev (Diagonal)"){
+      var g_cost = this.current_node.g_cost + chebyshev(this.current_node.self_YX, successor);
+      var h_cost = chebyshev(successor, this.goal);
+    }
+
+    var f_cost = g_cost + h_cost;//++ from bfs.js
+    return [f_cost, g_cost, h_cost];
   }
 
   search(start, goal) {
@@ -133,14 +171,8 @@ class A_star extends GridPathFinder{
             continue;  // if the neighbour has been visited or is already in queue, don't add it to queue
           }
 
-        // start to a node, taking into account obstacles
-          var g_cost = this.current_node.g_cost + ((this.current_node.self_YX[0]-next_YX[0])**2+(this.current_node.self_YX[1]-next_YX[1])**2)**0.5//euclidean //++ from bfs.js
-        //var g_cost = this.current_node.g_value + (math.abs(this.current_node.node_YX[0]-next_YX[0])+math.abs(this.current_node.node_YX[1]-next_YX[1]))//manhatten //++ from bfs.js
-
-          var h_cost = ((this.goal[0]-next_YX[0])**2+(this.goal[1]-next_YX[1])**2)**0.5
-        //var h_cost = (math.abs(this.goal[0]-next_YX[0])+math.abs(this.goal[1]-next_YX[1]))
-
-          var f_cost = g_cost + h_cost //++ from bfs.js
+          // start to a node, taking into account obstacles
+          let [f_cost, g_cost, h_cost] = this.calc_cost(next_YX);
 
           let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_YX);
 

@@ -17,10 +17,6 @@ window.addEventListener("click", event=>{
 		myUI.modals.planner_config.close();
 });
 
-myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
-
-if(myUI.planner.diagonal_allow) document.getElementById("diagonal_block_label").innerHTML = "Blocked";
-else document.getElementById("diagonal_block_label").innerHTML = "Unblocked";
 document.getElementById("diagonal_block_btn").addEventListener("click", e=>{
   myUI.planner.diagonal_allow = !myUI.planner.diagonal_allow;
   if(myUI.planner.diagonal_allow) document.getElementById("diagonal_block_label").innerHTML = "Blocked";
@@ -40,8 +36,6 @@ function toggle_num_neighbours(e){
     document.getElementById("num_neighbours_label").innerHTML = "Cardinal (4-directions)";
   }
 }
-toggle_num_neighbours(null);
-toggle_num_neighbours(null);
 document.getElementById("num_neighbours_btn").addEventListener("click", toggle_num_neighbours);
 
 myUI.buttons.first_neighbour_btn.btn.addEventListener("click", e=>show_modal(myUI.modals.first_neighbour.elem));
@@ -75,6 +69,40 @@ function toggle_search_direction(e){
     document.getElementById("search_direction_label").innerHTML = "Clockwise";
   }
 }
-toggle_search_direction(null);
-toggle_search_direction(null);
 document.getElementById("search_direction_btn").addEventListener("click", toggle_search_direction);
+
+myUI.loadDistanceMetric = function(){
+  let selectElem = document.querySelector("#distance_select");
+  myUI.planner.set_distance_metric(selectElem.value);
+}
+
+document.querySelector("#distance_select").addEventListener("change", myUI.loadDistanceMetric);
+
+myUI.init_planner_config = function(){
+  if(myUI.planner.diagonal_allow) document.getElementById("diagonal_block_label").innerHTML = "Blocked";
+  else document.getElementById("diagonal_block_label").innerHTML = "Unblocked";
+
+  toggle_num_neighbours(null);
+  toggle_num_neighbours(null);
+  
+  toggle_search_direction();
+  toggle_search_direction();
+  
+  myUI.buttons.first_neighbour_btn.btn.innerHTML = myUI.planner.first_neighbour;
+
+  myUI.reset_select_options(document.querySelector("#distance_select"));
+  if(myUI.planner.constructor.distance_metrics.length>0){
+    document.querySelector("#distance_select_ctn").style.display = "block";
+    let arr = myUI.planner.constructor.distance_metrics;
+    for(const metric of arr){
+      let option = document.createElement("option");
+      option.setAttribute("value", metric);
+      option.innerHTML = metric;
+      document.querySelector("#distance_select").appendChild(option);
+    }
+    myUI.loadDistanceMetric();
+  }
+  else{
+    document.querySelector("#distance_select_ctn").style.display = "none";
+  }
+}
