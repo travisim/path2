@@ -140,7 +140,7 @@ myUI.initialize = function(){
     uiCanvas.scale_canvas(myUI.map_height, myUI.map_width);
   });
 
-myUI.InfoTable = UIInfoTable;
+
   
   myUI.animation = {
     running: false,
@@ -174,8 +174,7 @@ myUI.InfoTable = UIInfoTable;
   myUI.tmp = {};
 
   myUI.InfoTable  = new UIInfoTable;//shifting this to top will cause crashed
-    myUI.InfoMapReset =  UIInfoMapReset;
- // myUI.InfoMapReset = new UIInfoMapReset;
+  myUI.InfoMap  = new UIInfoMap;
 }
 
 
