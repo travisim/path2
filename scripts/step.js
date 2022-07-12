@@ -138,7 +138,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           }
           console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, arrow_color]);
           
-          
+            try{
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
               else myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -176,35 +176,41 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             }
 	         
             
-               
-            else if(dest==STATIC.ICR ){//draw "current_YX",
-	            
-              myUI.InfoMap.reset();
-              myUI.InfoMap.drawObstacle(x,y);
-	            myUI.InfoMap.drawOutOfBound(x,y);
-              myUI.InfoMap.drawVisited(x,y);
-	            myUI.InfoMap.drawQueue(x,y);
-              myUI.InfoTable.OutTop();  
-	            myUI.InfoCurrent.DrawCurrent(x,y);
 
-	          }
-	         	//to draw neighbours
-	          else if(command == STATIC.DI ){
-	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
-                
-             myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo);
-             if (slides.length >= 2){
-                myUI.InfoTable.Sort();
-              }
+            else if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
+              else if(dest==STATIC.ICR ){//draw "current_YX",
+                myUI.InfoMap.reset();
+                myUI.InfoMap.drawObstacle(x,y);
+  	            myUI.InfoMap.drawOutOfBound(x,y);
+                myUI.InfoMap.drawVisited(x,y);
+  	            myUI.InfoMap.drawQueue(x,y);
+                myUI.InfoTable.OutTop();  
+  	            myUI.InfoCurrent.DrawCurrent(x,y);
+  
+  	          }
+  	         	//to draw neighbours
+  	          else if(command == STATIC.DI ){
+  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
+                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo);
+                if (slides.length >= 2){
+                  myUI.InfoTable.Sort();
+                }
+  	          }
+  	        	//to erase neighbours
+  	          else if(command == STATIC.EI ){
+  	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
+                removeSlidebById(queueNo.toString())
+  	          }
+	          
+            }
+            else if (myUI.planners[myUI.planner_choice] == Dijkstra){
+              
+            }
+            else if (myUI.planners[myUI.planner_choice] == A_star){
+              
+            }
               
             
-	          }
-	        	//to erase neighbours
-	          else if(command == STATIC.EI ){
-	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-              removeSlidebById(queueNo.toString())
-	          }
-	          
 	
 	
 	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
@@ -213,7 +219,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
-            try{
+
+
+
+
+              
 	         
           }catch(e){
             console.log(command, dest, "failed");
