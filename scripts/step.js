@@ -132,7 +132,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             var g_cost = step[i+1];
             var h_cost = step[i+2];
             var f_cost = (parseInt(g_cost) + parseInt(h_cost)).toPrecision(3); // null + null = 0 this causes f_cost to be 0
-         //  var f_cost = f_cost.toPrecision(3);
+            var queueNo = myUI.animation.step;
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
@@ -192,7 +192,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	          else if(command == STATIC.DI ){
 	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
                 
-             myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost);
+             myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo);
              if (slides.length >= 2){
                 myUI.InfoTable.Sort();
               }
@@ -202,7 +202,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	        	//to erase neighbours
 	          else if(command == STATIC.EI ){
 	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-              myUI.InfoTable.removelastSlidebById();
+              removeSlidebById(queueNo.toString())
 	          }
 	          
 	

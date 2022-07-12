@@ -46,15 +46,12 @@ myUI.initialize = function(){
     document.getElementById(infoNWSE_Id).innerHTML = '  <section>F:<span id="F"></span>G:<span id="G"></span>H:<span id="H"></span>Type:<span id="type"></span></section>';
   //initialise html for info squares as well
   });
-  //myUI.InfoMapReset = UIInfoMapReset();
+ 
 
   
   myUI.InfoCurrent = UIInfoCurrent;
   
   
-  
-  myUI.InfoVisited;
-  myUI.InfoQueue;
 
   
 	[ 
@@ -172,7 +169,6 @@ myUI.initialize = function(){
   myUI.storage = {};
 
   myUI.tmp = {};
-
   myUI.InfoTable  = new UIInfoTable;//shifting this to top will cause crashed
   myUI.InfoMap  = new UIInfoMap;
 }

@@ -183,9 +183,7 @@ function moveDraggable(yx){
 myUI.map_start_icon.move = moveDraggable;
 myUI.map_goal_icon.move = moveDraggable;
 
-
 /* PLANNER PARSER */
-
 /* haven't build yet */
 //var planner_upload_elem = document.getElementById("planner-upload");
 

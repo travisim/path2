@@ -164,10 +164,7 @@ function UIInfoTable(){
     slides[SlidesIndex].after(t);
     
   }
-  this.removelastSlidebById = function(){
-    removeSlidebById(lastAddedSlideId.toString());
 
-  }
   this.Sort = function(){
       var table, i, x, y;
     // var slides = document.getElementsByClassName("slide");
@@ -220,7 +217,7 @@ function UIInfoTable(){
       setTimeout(()=>removebyindex(0),1000);
     }
   };
-  this.InTop = function(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
+  this.InTop = function(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo){
     //unhighlight second latest table added
     
    for (let i = 0; i < document.getElementsByClassName("highlighting").length; i++) { 
@@ -231,12 +228,12 @@ function UIInfoTable(){
       }
     }
     
-    var t = TableColumnDecider(x,y,parent_x,parent_y,f_cost,g_cost,h_cost)   
+    var t = TableColumnDecider(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo)   
     document.getElementById("info-container-dynamic").prepend(t); 
     slides[0].style.border = "2px solid rgb(200,66,64)"; //highlight latest table added
     
   };
-  this.InBottom = function(x,y,parent_x,parent_y,f_cost,g_cost,h_cost){
+  this.InBottom = function(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo){
         //unhighlight second latest table added
       for (let i = 0; i < slides.length; i++) { 
         if(document.getElementById("highlighting")){
@@ -245,12 +242,12 @@ function UIInfoTable(){
         }
       }
       
-    var t = TableColumnDecider(x,y,parent_x,parent_y,f_cost,g_cost,h_cost)
+    var t = TableColumnDecider(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo)
     document.getElementById("info-container-dynamic").append(t); 
     slides[slides.length-1].style.border = "2px solid rgb(200,66,64)";
     
   };
-  function TableColumnDecider(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,){
+  function TableColumnDecider(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo){
     if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
       t = document.createElement('table');
       //t.setAttribute('class', 'slide'); new table automatically set "slide class"
@@ -258,7 +255,7 @@ function UIInfoTable(){
       c1 = r.insertCell(0);
       c2 = r.insertCell(1);
       c3 = r.insertCell(2);
-      c1.innerHTML = "";
+      c1.innerHTML = queueNo;
       c2.innerHTML = x+", "+y;
       c3.innerHTML = parent_x+", "+parent_y;
       t.classList.add('slide',"highlighting");
@@ -272,7 +269,7 @@ function UIInfoTable(){
       c2 = r.insertCell(1);
       c3 = r.insertCell(2);
       c4 = r.insertCell(3);
-      c1.innerHTML = "";
+      c1.innerHTML = queueNo;
       c2.innerHTML = x+", "+y;
       c3.innerHTML = parent_x+", "+parent_y;
       c4.innerHTML = g_cost;
@@ -290,15 +287,14 @@ function UIInfoTable(){
       c4 = r.insertCell(3);
       c5 = r.insertCell(4);
       c6 = r.insertCell(5);
-      c1.innerHTML = "";
+      c1.innerHTML = queueNo;
       c2.innerHTML = x+", "+y;
       c3.innerHTML = parent_x+", "+parent_y;
       c4.innerHTML = f_cost;
       c5.innerHTML = g_cost;
       c6.innerHTML = h_cost;
       t.classList.add('slide',"highlighting");
-      lastAddedSlideId = tableId;
-      t.setAttribute("id", (tableId++).toString() )
+      t.setAttribute("id", (queueNo).toString() )
 
    
       
