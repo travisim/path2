@@ -206,10 +206,10 @@ class A_star extends GridPathFinder{
             this.arrow_state[new_node.arrow_index] = 1;
 						//myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
 						this._create_action(STATIC.DA, new_node.arrow_index);
-            this._create_action(STATIC.DP, STATIC.QU, next_YX);
+            
 						// END OF ARROW
 					}
-          
+          this._create_action(STATIC.DP, STATIC.QU, next_YX);
 					this.queue.push(new_node);  // add to queue
 					this.open_list.set(next_YX, new_node);  // add to open list
           this._save_step("fwd");
