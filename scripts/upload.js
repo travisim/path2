@@ -73,7 +73,7 @@ myUI.fileHandler.handleFiles = function (){
 			}
 			else if(file_type=="scen"){
 				myUI.parseScenario(contents);
-				myUI.showScenSelection();// shows start and goal
+				myUI.loadScenario();// shows start and goal
 			}
 			else if(file_type=="pathf"){ // pathf
 				myUI.showPlanners();
