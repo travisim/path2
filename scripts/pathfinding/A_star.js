@@ -186,7 +186,7 @@ class A_star extends GridPathFinder{
           /* NEW */
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
-          this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, h_cost.toPrecision(3),g_cost.toPrecision(3),this.current_node_YX);
+          this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, h_cost.toPrecision(5),g_cost.toPrecision(5),this.current_node_YX);
 
 					// ++ bfs.js
 

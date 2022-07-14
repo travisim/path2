@@ -333,16 +333,5 @@ function removeSlidebById(Id){
   parentEl.removeChild(slide);
 }
 
-function RemoveAllTableSlides(){
-  var temp = slides.length;// slides.length alawys changes, cannot use
-  if(temp != 0){
-    console.log( temp,"slides length");
-    var i =temp-1;
-    while(i!=-1) {
-      console.log(i,"iter");
-      removebyindex(i);
-      i--;
-    }
-  } 
-}
+
 document.getElementById("currentYX").innerHTML = "(_, _)"; 
