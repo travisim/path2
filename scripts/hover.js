@@ -29,6 +29,7 @@ myUI.handle_map_hover = function(e){
 		if(!isNaN(myUI.planner.cell_map[scaled_y][scaled_x])){
 			myUI.canvases.hover_map.canvas.style.cursor = "pointer";
 			document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_y][scaled_x];
+			document.getElementById("hover_cell_visited").innerHTML = myUI.planner.visited.get_data([scaled_y, scaled_x]);
 			tooltip_data.style.backgroundColor = `#3bd44b`;
 		}
 	}
