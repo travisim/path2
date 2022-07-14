@@ -79,9 +79,9 @@ class GridPathFinder{
 	}
 
 	add_map(map){
-		this.map = map; // 2d array; each 1d array is a row
 		this.map_height = map.length;
 		this.map_width = map[0].length;
+		this.map = BitMatrix.compress_bit_matrix(map); // 2d array; each 1d array is a row
 		this.coord_bit_len = Math.ceil(Math.log2((this.map_height-1) * (this.map_width-1)));
 		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val+1));
 	}

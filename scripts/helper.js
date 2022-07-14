@@ -132,7 +132,7 @@ class BitMatrix{
 				res.set_data([i,j], bit_matrix[i][j]);
       }
     }
-		return res.data;
+		return res;
 	}
 
 	static expand_2_matrix(arr){
@@ -331,6 +331,7 @@ class NBitMatrix{
 
 	static compress_matrix(matrix, cell_val){
 		if(cell_val==undefined){
+			// auto finds maximum cell value
 			cell_val = 0;
 			matrix.forEach(row=>row.forEach(item=>cell_val = Math.max(cell_val, item)));
 		}
@@ -340,7 +341,7 @@ class NBitMatrix{
 				tmp.set_data([i,j], matrix[i][j]);
 			}
 		}
-		return tmp.data;
+		return tmp;
 	}
 
 	static expand_2_matrix(arr){

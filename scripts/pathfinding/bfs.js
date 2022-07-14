@@ -86,9 +86,7 @@ class BFS extends GridPathFinder {
       for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX_temp = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];
         if (next_YX_temp[0] < 0 || next_YX_temp[0] >= this.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= this.map_width) continue;
-        if (this.map[next_YX_temp[0]][next_YX_temp[1]] == 1) {
-          surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
-        }
+        if(this.map.get_data(next_YX_temp) == 1) surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
       }
 
       /* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
@@ -96,7 +94,7 @@ class BFS extends GridPathFinder {
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         
-        if (this.map[next_YX[0]][next_YX[1]] == 1) {  // if neighbour is passable & not visited
+        if (this.map.get_data(next_YX) == 1) {  // if neighbour is passable & not visited
           if (this.diagonal_allow == true && this.num_neighbours == 8) {
             if (this.deltaNWSE[i] == "NW") {
               if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
