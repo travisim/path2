@@ -26,6 +26,8 @@ function compute_path(){
 		document.getElementById("compute_btn").innerHTML = "done!";
 		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
 		myUI.reset_animation();
+    myUI.InfoTable.removeAllTableSlides();
+    
 	}); 
 	
 	
@@ -96,7 +98,8 @@ myUI.start_animation = function(){
 myUI.stop_animation = function(change_svg = false){
 	if(change_svg && myUI.animation.running)
 		myUI.buttons.start_pause_btn.next_svg();
-	myUI.animation.running = false;
+  	myUI.animation.running = false;
+  
 }
 
 myUI.step_forward = function(){

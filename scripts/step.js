@@ -175,7 +175,16 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               myUI.arrow.ctx.putImageData(...data);/* */
             }
 	         
-               else if(dest==STATIC.ICR ){//draw "current_YX",
+              
+
+            if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
+             
+            }
+            else if (myUI.planners[myUI.planner_choice] == Dijkstra){
+              
+            }
+            else if (myUI.planners[myUI.planner_choice] == A_star){
+              if(dest==STATIC.ICR ){//draw "current_YX",
                 myUI.InfoMap.reset();
                 myUI.InfoMap.drawObstacle(x,y);
   	            myUI.InfoMap.drawOutOfBound(x,y);
@@ -198,19 +207,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
                 removeSlidebById(queueNo.toString())
   	          }
-/*
-            else if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
-           
 	          
-            }
-            else if (myUI.planners[myUI.planner_choice] == Dijkstra){
-              
-            }
-            else if (myUI.planners[myUI.planner_choice] == A_star){
               
             }
               
-            */
+            
 	
 	
 	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array

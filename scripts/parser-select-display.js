@@ -277,7 +277,7 @@ function determine_table_header(){
     if(document.getElementById("info_table_header").rows.length == 1){
       document.getElementById("info_table_header").deleteRow(0); 
     }
-    RemoveAllTableSlides()
+    myUI.InfoTable.removeAllTableSlides();
     
     
     var table = document.getElementById("info_table_header");
@@ -315,7 +315,7 @@ function determine_table_header(){
    if(document.getElementById("info_table_header").rows.length == 1){
       document.getElementById("info_table_header").deleteRow(0);
     }
-    RemoveAllTableSlides()
+    myUI.InfoTable.removeAllTableSlides();
     var table = document.getElementById("info_table_header");
     var header = table.createTHead();
     var row = header.insertRow(0);
@@ -356,7 +356,7 @@ function determine_table_header(){
     if(document.getElementById("info_table_header").rows.length == 1){
       document.getElementById("info_table_header").deleteRow(0);
     }
-    RemoveAllTableSlides()
+    myUI.InfoTable.removeAllTableSlides();
     var table = document.getElementById("info_table_header");
     var header = table.createTHead();
     var row = header.insertRow(0);

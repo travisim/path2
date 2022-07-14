@@ -164,7 +164,7 @@ function UIInfoTable(){
     slides[SlidesIndex].after(t);
     
   }
-
+ 
   this.Sort = function(){
       var table, i, x, y;
     // var slides = document.getElementsByClassName("slide");
@@ -302,7 +302,18 @@ function UIInfoTable(){
     }
     return t;
   }
-   
+  this.removeAllTableSlides = function(){
+    var temp = slides.length;// slides.length alawys changes, cannot use
+    if(temp != 0){
+      console.log( temp,"slides length");
+      var i =temp-1;
+      while(i!=-1) {
+        console.log(i,"iter");
+        removebyindex(i);
+        i--;
+      }
+    } 
+  }
 }
 
 
@@ -322,17 +333,16 @@ function removeSlidebById(Id){
   parentEl.removeChild(slide);
 }
 
-//let slides = document.getElementsByClassName("slide");
 function RemoveAllTableSlides(){
   var temp = slides.length;// slides.length alawys changes, cannot use
-   if(temp != 0){
-      console.log( temp,"slides length");
-     var i =temp-1;
-      while(i!=-1) {
-        console.log(i,"iter");
-        removebyindex(i);
-        i--;
-      }
-    } 
+  if(temp != 0){
+    console.log( temp,"slides length");
+    var i =temp-1;
+    while(i!=-1) {
+      console.log(i,"iter");
+      removebyindex(i);
+      i--;
+    }
+  } 
 }
 document.getElementById("currentYX").innerHTML = "(_, _)"; 
