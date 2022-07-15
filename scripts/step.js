@@ -46,6 +46,8 @@ const STATIC_COMMANDS = [
   "DEC_P", // increment pixel
   "DA", // draw arrow (arrow index) [colour index]
   "EA" , // erase arrow (arrow index)
+  "DVC", // draw vertex circle
+  "EVC", // erase vertex circle
   "DI",
   "EI",
   "Dparent",
