@@ -15,7 +15,7 @@ class GridPathFinder{
 		// SPECIAL CASE: draw arrows
 		if(command==STATIC.DA || command==STATIC.EA){
 			var arrow_index = bit_shift(action, -(3 + myUI.planner.static_bit_len + 3));
-			var arrow_color = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(3);
+			var color_index = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(3);
 		}
 		if(action & 1)  // dest exists
 			var dest = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(myUI.planner.static_bit_len);
@@ -30,7 +30,7 @@ class GridPathFinder{
 			var parent_y = Math.floor(parent_coord/myUI.planner.map_width);
 			var parent_x = parent_coord - parent_y * myUI.planner.map_width;
 		}
-		return [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, arrow_color];
+		return [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index];
 	}
 
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){

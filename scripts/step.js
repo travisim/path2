@@ -128,7 +128,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
         let i=0;
         
         while(i<step.length){
-          let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, arrow_color] = GridPathFinder.unpack_action(step[i]);
+          let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
           if(parent_exists){
             console.log("parent exists");
             var g_cost = step[i+1];
@@ -168,13 +168,19 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               let toyx = myUI.arrow.coords[myUI.arrow.step*2+1];
               myUI.draw_arrow(fromyx, toyx, false, 0, false);/* */
               myUI.arrow.elems[arrow_index].classList.remove("hidden");
-              myUI.arrow.elems[arrow_index].style.fill = myUI.arrow.colors[arrow_color];
+              myUI.arrow.elems[arrow_index].style.fill = myUI.arrow.colors[color_index];
             }
             else if(command==STATIC.EA){
               // erase arrow
               myUI.arrow.elems[arrow_index].classList.add("hidden");
               /*let data = myUI.arrow.data[myUI.arrow.step];
               myUI.arrow.ctx.putImageData(...data);/* */
+            }
+            else if(command==STATIC.DVC){
+              // draw vertex circle
+            }
+            else if(command==STATIC.DVC){
+              // erase vertex circle
             }
 	         
               

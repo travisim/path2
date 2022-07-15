@@ -14,19 +14,20 @@ myUI.initialize = function(){
   // Initialize canvases
   [
     ["edit_map", "#000000" ,"#d19b6d", "#AA1945"],
+    ["vertexCircle", "#34d1ea", "#008269", "#74fa4c", "#e14537"],
 		["hover_map", "#d19b6d", "#AA1945"],
     ["bg", "#000000"],
-    ["queue", "rgb(116,250,76)"],
+    ["queue", "#74fa4c"],
     ["visited", "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,33)
-    ["current_YX", "rgb(52,209,234)"],
-    ["neighbours", "rgb(0,130,105)"],
-    ["path", "rgb(52,209,234)"], //  changed from #E2C2B9
-    ["start", "rgb(150,150,150)"],
-    ["goal", "rgb(159,23,231)"]
+    ["current_YX", "#34d1ea"],
+    ["neighbours", "#008269"],
+    ["path", "#34d1ea"], //  changed from #E2C2B9
+    ["start", "#969696"],
+    ["goal", "#9f17e7"]
   ].forEach(item=>{
     let canvasId = item[0];
-    let color = item.slice(1);
-    myUI.canvases[canvasId] = new UICanvas(canvasId, color);
+    let colors = item.slice(1);
+    myUI.canvases[canvasId] = new UICanvas(canvasId, colors);
   });
   myUI.canvases.edit_map.toggle_edit();
  //initialise info

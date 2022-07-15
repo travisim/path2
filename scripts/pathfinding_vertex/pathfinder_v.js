@@ -12,11 +12,6 @@ class GridPathFinder{
 
 	static unpack_action(action){
 		let command = (action >> 3) & ones(myUI.planner.static_bit_len);
-		// SPECIAL CASE: draw arrows
-		if(command==STATIC.DA || command==STATIC.EA){
-			var arrow_index = bit_shift(action, -(3 + myUI.planner.static_bit_len + 3));
-			var arrow_color = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(3);
-		}
 		if(action & 1)  // dest exists
 			var dest = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(myUI.planner.static_bit_len);
 		if(action & (1<<1)){  // coord exists
@@ -30,7 +25,19 @@ class GridPathFinder{
 			var parent_y = Math.floor(parent_coord/myUI.planner.map_width);
 			var parent_x = parent_coord - parent_y * myUI.planner.map_width;
 		}
-		return [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, arrow_color];
+
+    // SPECIAL CASES: draw arrows and draw vertex circle
+		if(command==STATIC.DA || command==STATIC.EA){
+			var arrow_index = bit_shift(action, -(3 + myUI.planner.static_bit_len + 3));
+			var color_index = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(3);
+		}
+    if(command==STATIC.DVC || command==STATIC.EVC){
+      var coord = bit_shift(action, -(3 + myUI.planner.static_bit_len + 3)) & ones(myUI.planner.coord_bit_len);
+      var y = Math.floor(coord/myUI.planner.map_width);
+			var x = coord - y * myUI.planner.map_width;
+			var color_index = bit_shift(action, -(3 + myUI.planner.static_bit_len)) & ones(3);
+		}
+		return [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index];
 	}
 
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
@@ -151,6 +158,15 @@ class GridPathFinder{
 			let color = arguments[2] ? arguments[2] : 0;
 			this.action_cache += bit_shift(color, 3 + this.static_bit_len); // arrow color //  allow up to 8 colors
 			this.action_cache += bit_shift(arguments[1], 3 + this.static_bit_len + 3); // arrow index
+			this.step_cache.push(this.action_cache);
+			return
+		}
+    if(arguments[0]==STATIC.DVC || arguments[0]==STATIC.EVC){ // special case for draw arrow
+			let color = arguments[2] ? arguments[2] : 0;
+      let y = arguments[1][0];
+			let x = arguments[1][1];
+			this.action_cache += bit_shift(color, 3 + this.static_bit_len); // arrow color //  allow up to 8 colors
+			this.action_cache += bit_shift(y * this.map_width + x, 3 + this.static_bit_len + 3); // coordinate
 			this.step_cache.push(this.action_cache);
 			return
 		}
