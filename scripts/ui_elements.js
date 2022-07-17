@@ -162,22 +162,29 @@ class UICanvas{
   }
 
   draw_pixel(yx, virtual=false, val=1, color_index=0, save_in_cache=true){
-    this.set_color_index(color_index);
     let [y,x] = yx;
     if(y>=this.data_height || x>=this.data_width) return;
     if(virtual)
       this.virtualCanvas[y][x] = val;
     else {
       if(save_in_cache) this.canvas_cache[y][x] = val;
-      this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
+      if(this.dynamicScale){
+        this.set_color_index(color_index);
+        this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
+      }
+      else{
+        this.draw_vertex_circle(yx, color_index);
+      }
     }
   }
 
   erase_pixel(yx){
-    let y = yx[0];
-    let x = yx[1];
+    let [y,x] = yx;
     this.canvas_cache[y][x] = 0;
-    this.ctx.clearRect(x, y, this.pixelSize, this.pixelSize);
+    if(this.dynamicScale)
+      this.ctx.clearRect(x, y, this.pixelSize, this.pixelSize);
+    else
+      this.erase_vertex_circle(y, x);
   }
 
   draw_start_goal(point, strokeColor=this.ctx.strokeStyle){
@@ -244,15 +251,23 @@ class UICanvas{
     this.canvas_cache = zero2D(height, width);  // reset to a matrix of 0s (zeroes), height x width
   }
 
-  draw_vertex_circle(yx, virtual=false, val=1, color_index=0, save_in_cache=true){
+  draw_vertex_circle(yx, color_index=0){
     let y = yx[0]*this.data_height/myUI.map_height;
     let x = yx[1]*this.data_width/myUI.map_width;
     this.set_color_index(color_index, "all");
     this.ctx.beginPath();
     let r = this.data_height/myUI.map_height * 5/16;
     this.ctx.lineWidth = r;
-    this.ctx.arc(y, x, r, 0, 2 * Math.PI);
+    this.ctx.arc(x, y, r, 0, 2 * Math.PI);
     this.ctx.stroke();
+  }
+
+  erase_vertex_circle(yx){
+    let y = yx[0]*this.data_height/myUI.map_height;
+    let x = yx[1]*this.data_width/myUI.map_width;
+    let r = this.data_height/myUI.map_height * 5/16;
+    let d = r*1.5;
+    this.ctx.clearRect(x-d, y-d, 2*d, 2*d);
   }
 
   toggle_edit(){

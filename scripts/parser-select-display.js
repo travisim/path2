@@ -148,6 +148,7 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
       myUI.canvases[canvas].scale_canvas(1024, 1024, false);
       myUI.canvases[canvas].dynamicScale = false;
     });
+    myUI.planners = myUI.planners_v;
     console.log("ENABLED VERTEX");
   }
   else{
@@ -155,10 +156,14 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
     ["hover_map", "queue", "visited", "current_YX", "neighbours", "path", "start", "goal"].forEach(canvas=>{
       myUI.canvases[canvas].dynamicScale = true;
     });
+    myUI.planners = myUI.planners_cell;
     myUI.displayMap();
     myUI.displayScen();
     // disable vertex
   }
+  /* first call */
+  myUI.showPlanners();
+  myUI.loadPlanner();
 });
 
 myUI.displayScen = function(moved=false){
@@ -216,12 +221,8 @@ myUI.showPlanners = function() {
   // planner_upload_elem
   // get data from planner_upload_elem
   // add_planner()
-  /*let child = myUI.selects["planner_select"].elem.lastElementChild;
-
-  while (child) {
-    planner_select_elem.removeChild(child);
-    child = planner_select_elem.lastElementChild;
-  }/**/
+  myUI.reset_select_options(myUI.selects["planner_select"].elem);
+  myUI.reset_select_options(myUI.selects["planner_select2"].elem);
   for (i = 0; i < myUI.planners.length; ++i) {
     let option = document.createElement("option");
     option.setAttribute("value", i);

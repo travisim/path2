@@ -113,7 +113,8 @@ myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){
   }
 }
 
-myUI.create_arrow = function(start_YX, end_YX, head_pc, vertex=false){
+myUI.create_arrow = function(start_YX, end_YX, vertex=false, head_pc=0.7){
+  // head_pc is defined as the proportion of line is in front of the pointer
   const start_coord = {y:start_YX[0], x:start_YX[1]};
   const end_coord = {y:end_YX[0], x:end_YX[1]};
   const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;
@@ -128,8 +129,6 @@ myUI.create_arrow = function(start_YX, end_YX, head_pc, vertex=false){
   elem.style.width = String(elem_window_length+3)+"px";
   elem.style.transform = `rotate(${angle}rad)`;
   let total_len = 3+elem_window_length;
-  if(head_pc===undefined) // head_pc is defined as the proportion of line is in front of the pointer
-    head_pc = 0.7;
   let front_len = head_pc * total_len - 1.5 - 3;
   let back_len = (1-head_pc) * total_len - 1.5 - 3;
   if(elem_window_length<14) elem.innerHTML = `<path d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${elem_window_length} a 1.5 1.5, 0, 0, 0, 0 -3 z"></path>`;

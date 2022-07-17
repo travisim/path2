@@ -46,8 +46,6 @@ const STATIC_COMMANDS = [
   "DEC_P", // increment pixel
   "DA", // draw arrow (arrow index) [colour index]
   "EA" , // erase arrow (arrow index)
-  "DVC", // draw vertex circle
-  "EVC", // erase vertex circle
   "DI",
   "EI",
   "Dparent",
@@ -126,11 +124,12 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       else return;
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
         let i=0;
-        
+        console.log(step);
         while(i<step.length){
           let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
           if(parent_exists){
             console.log("parent exists");
+            console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parent_y, parent_x, parent_exists, arrow_index, color_index]);
             var g_cost = step[i+1].toPrecision(5);
             var h_cost = step[i+2].toPrecision(5);
             var f_cost = (step[i+1]+step[i+2]).toPrecision(5);

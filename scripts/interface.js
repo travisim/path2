@@ -128,7 +128,9 @@ myUI.initialize = function(){
 	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), move: false}
 	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), move: false}
 
-  myUI.planners = [A_star,BFS,DFS,Dijkstra];
+  myUI.planners_cell = [A_star,BFS,DFS,Dijkstra];
+  myUI.planners_v = [BFS_Vertex];
+  myUI.planners = myUI.planners_cell;
   myUI.planner_choice = 0;
   myUI.planner =  new myUI.planners[myUI.planner_choice]();
 

@@ -86,7 +86,7 @@ class GridPathFinder{
 		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val+1));
 	}
 
-	_init_search(start, goal){
+	_init_search(start, goal, vertex=false){
     this.start = start; //in array form [y,x]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
@@ -100,7 +100,10 @@ class GridPathFinder{
 		this.current_node = undefined;
 
     // generate empty 2d array
-
+		if(vertex){
+			this.map_height++;
+			this.map_width++;
+		}
     this.info_matrix = zero2D(this.map_height, this.map_width,65537);
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new NBitMatrix(this.map_height, this.map_width, 7);
@@ -164,7 +167,7 @@ class GridPathFinder{
 			let x = arguments[2][1];
 			this.action_cache += bit_shift(y * this.map_width + x, 3 + this.static_bit_len * 2);
 		}
-		if (arguments[3]!==undefined){
+		if (arguments[3]!==undefined && arguments[3]!==null){
 			this.action_cache += 1<<2; // parent, g & h exists?
 			let y = arguments[5][0];
 			let x = arguments[5][1];

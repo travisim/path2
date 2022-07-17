@@ -1,9 +1,9 @@
 'use strict';
 
-class BFS_Vertex extends GridPathFinder_Vertex {
+class BFS_Vertex extends GridPathFinder {
 
   static get display_name() {
-    return "Breadth-First Search (BFS)";
+    return "Breadth-First Search (BFS) (Vertex)";
   }
 
   constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
@@ -12,7 +12,7 @@ class BFS_Vertex extends GridPathFinder_Vertex {
 
   search(start, goal) {
     // this method finds the path using the prescribed map, start & goal coordinates
-    this._init_search(start, goal);
+    this._init_search(start, goal, true);
 
     console.log("starting");
     let start_node = new Node(null, null, null, null, start);
@@ -101,62 +101,69 @@ class BFS_Vertex extends GridPathFinder_Vertex {
 
         if(next_YX[0]!=this.current_node_YX[0] && next_YX[1]!=this.current_node_YX[1]){
           // diagonal crossing
-          // consider [min(next_YX[0], this.current_node_YX[0]), min(next_YX[1], this.current_node_YX[1])];
+          // consider [Math.min(next_YX[0], this.current_node_YX[0]), Math.min(next_YX[1], this.current_node_YX[1])];
+          let coord = [Math.min(next_YX[0], this.current_node_YX[0]), Math.min(next_YX[1], this.current_node_YX[1])];
+          if(this.map.get_data(coord)==0) continue; // not passable
         }
         else{
           // cardinal crossing
           if(next_YX[0]!=this.current_node_YX[0]){
-            // consider [min(next_YX[0], this.current_node_YX[0]), next_YX[1]]
-            // consider [min(next_YX[0], this.current_node_YX[0]), next_YX[1]-1] 
+            // consider [Math.min(next_YX[0], this.current_node_YX[0]), next_YX[1]]
+            // consider [Math.min(next_YX[0], this.current_node_YX[0]), next_YX[1]-1]
+            var c1 =  [Math.min(next_YX[0], this.current_node_YX[0]), next_YX[1]];
+            var c2 = [Math.min(next_YX[0], this.current_node_YX[0]), next_YX[1]-1];
           }
           else{
-            // consider [next_YX[0], min(next_YX[1], this.current_node_YX[1])]
-            // consider [next_YX[0]-1, min(next_YX[1], this.current_node_YX[1])] 
+            // consider [next_YX[0], Math.min(next_YX[1], this.current_node_YX[1])]
+            // consider [next_YX[0]-1, Math.min(next_YX[1], this.current_node_YX[1])] 
+            var c1 = [next_YX[0], Math.min(next_YX[1], this.current_node_YX[1])];
+            var c2 = [next_YX[0]-1, Math.min(next_YX[1], this.current_node_YX[1])];
           }
+          if(this.map.get_data(c1)==0 && this.map.get_data(c2)==0) continue; // not passable
         }
         
-        if (this.map.get_data(next_YX) == 1) {  // if neighbour is passable
+        // neighbour is passable
 
-            /* second check if visited */
-          if (this.visited.get_data(next_YX)>0) {
-            this.visited_incs.push(next_YX);
-            this.visited.increment(next_YX);
-          }
-          if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]]) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
-
-          this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
-
-          this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
-
-          /* NEW */
-          this._create_step();
-          this._create_action(STATIC.DP, STATIC.NB, next_YX);
-          this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
-  
-          if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
-            this.queue.push(new Node(null, null, null, this.current_node, next_YX));  // add to queue
-            this._create_action(STATIC.DP, STATIC.QU, next_YX);
-            if (this.draw_arrows) {
-              // ARROW
-              var arrow_index = myUI.create_arrow(next_YX, this.current_node_YX, true);
-              this.arrow_state[arrow_index] = 1;
-						  //myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
-              this._create_action(STATIC.DA, arrow_index);
-              // END OF ARROW
-            }
-          }
-          this._save_step("fwd");
-
-          this._create_step();
-          this._create_action(STATIC.EP, STATIC.NB, next_YX);
-          this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
-          if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
-            this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
-            this._create_action(STATIC.EP, STATIC.QU, next_YX);
-            if (this.draw_arrows) this._create_action(STATIC.DA, arrow_index);
-          }
-          this._save_step("bck");
+        /* second check if visited */
+        if (this.visited.get_data(next_YX)>0) {
+          this.visited_incs.push(next_YX);
+          this.visited.increment(next_YX);
         }
+        if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]]) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
+
+        this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
+
+        this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
+
+        /* NEW */
+        this._create_step();
+        this._create_action(STATIC.DP, STATIC.NB, next_YX);
+        this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
+
+        if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
+          this.queue.push(new Node(null, null, null, this.current_node, next_YX));  // add to queue
+          this._create_action(STATIC.DP, STATIC.QU, next_YX);
+          if (this.draw_arrows) {
+            // ARROW
+            var arrow_index = myUI.create_arrow(next_YX, this.current_node_YX, true);
+            this.arrow_state[arrow_index] = 1;
+            //myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
+            this._create_action(STATIC.DA, arrow_index);
+            // END OF ARROW
+          }
+        }
+        this._save_step("fwd");
+
+        this._create_step();
+        this._create_action(STATIC.EP, STATIC.NB, next_YX);
+        this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
+        if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
+          this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
+          this._create_action(STATIC.EP, STATIC.QU, next_YX);
+          if (this.draw_arrows) this._create_action(STATIC.DA, arrow_index);
+        }
+        this._save_step("bck");
+        
       }
 
       this._assign_cell_index(this.current_node_YX);
