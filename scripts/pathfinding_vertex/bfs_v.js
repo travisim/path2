@@ -93,15 +93,36 @@ class BFS_Vertex extends GridPathFinder_Vertex {
       for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_YX[0] < 0 || next_YX[0] >= this.map_height || next_YX[1] < 0 || next_YX[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
+
+        // THIS PART CHECKS IF A NEIGHBOUR IS PASSABLE OR NOT
+        /*
+          1) Assumes that borders of the map are traversable
+        */
+
+        if(next_YX[0]!=this.current_node_YX[0] && next_YX[1]!=this.current_node_YX[1]){
+          // diagonal crossing
+          // consider [min(next_YX[0], this.current_node_YX[0]), min(next_YX[1], this.current_node_YX[1])];
+        }
+        else{
+          // cardinal crossing
+          if(next_YX[0]!=this.current_node_YX[0]){
+            // consider [min(next_YX[0], this.current_node_YX[0]), next_YX[1]]
+            // consider [min(next_YX[0], this.current_node_YX[0]), next_YX[1]-1] 
+          }
+          else{
+            // consider [next_YX[0], min(next_YX[1], this.current_node_YX[1])]
+            // consider [next_YX[0]-1, min(next_YX[1], this.current_node_YX[1])] 
+          }
+        }
         
-        if (this.map.get_data(next_YX) == 1) {  // if neighbour is passable & not visited
+        if (this.map.get_data(next_YX) == 1) {  // if neighbour is passable
 
             /* second check if visited */
           if (this.visited.get_data(next_YX)>0) {
             this.visited_incs.push(next_YX);
             this.visited.increment(next_YX);
           }
-          if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] > 0) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
+          if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]]) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
 
           this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
 

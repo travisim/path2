@@ -3,6 +3,8 @@ var myUI = {}
 myUI.initialize = function(){
 
   myUI.top_Z = 99;
+
+  myUI.vertex = false;
   
   myUI.canvases = {};
   myUI.buttons = {};
@@ -13,21 +15,21 @@ myUI.initialize = function(){
 
   // Initialize canvases
   [
-    ["edit_map", "#000000" ,"#d19b6d", "#AA1945"],
-    ["vertexCircle", "#34d1ea", "#008269", "#74fa4c", "#e14537"],
-		["hover_map", "#d19b6d", "#AA1945"],
-    ["bg", "#000000"],
-    ["queue", "#74fa4c"],
-    ["visited", "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,33)
-    ["current_YX", "#34d1ea"],
-    ["neighbours", "#008269"],
-    ["path", "#34d1ea"], //  changed from #E2C2B9
-    ["start", "#969696"],
-    ["goal", "#9f17e7"]
+    ["edit_map", true, "#000000" ,"#d19b6d", "#AA1945"],
+		["hover_map", true, "#d19b6d", "#AA1945"],
+    ["bg", true, "#000000"],
+    ["queue", true, "#74fa4c"],
+    ["visited", true, "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
+    ["current_YX", true, "#34d1ea"],
+    ["neighbours", true, "#008269"],
+    ["path", true, "#34d1ea"], //  changed from #E2C2B9
+    ["start", true, "#96996"],
+    ["goal", true, "#9f17e7"]
   ].forEach(item=>{
     let canvasId = item[0];
-    let colors = item.slice(1);
-    myUI.canvases[canvasId] = new UICanvas(canvasId, colors);
+    let colors = item.slice(2);
+    let dynamicScale = item[1];
+    myUI.canvases[canvasId] = new UICanvas(canvasId, colors, dynamicScale);
   });
   myUI.canvases.edit_map.toggle_edit();
  //initialise info
@@ -133,12 +135,6 @@ myUI.initialize = function(){
   myUI.map_arr;
   myUI.map_height = myUI.canvases.bg.canvas.height;
   myUI.map_width = myUI.canvases.bg.canvas.width;
-
-  Object.values(myUI.canvases).forEach(uiCanvas=>{
-    uiCanvas.scale_canvas(myUI.map_height, myUI.map_width);
-  });
-
-
   
   myUI.animation = {
     running: false,

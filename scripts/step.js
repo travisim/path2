@@ -138,7 +138,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
-          console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, arrow_color]);
+          console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, color_index]);
           
             try{
             if(command==STATIC.EC){

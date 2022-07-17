@@ -51,6 +51,7 @@ myUI.displayMap = function(){
 	const width = myUI.map_arr[0].length;
 
   Object.values(myUI.canvases).forEach(uiCanvas=>{
+    if(uiCanvas.dynamicScale==false) return;
     uiCanvas.scale_canvas(height, width);
 		console.log(uiCanvas.id, height, width);
   });
@@ -138,6 +139,27 @@ myUI.loadScenario = function(){
 document.querySelectorAll(".scen_controls").forEach(elem=>{
   elem.addEventListener("change", myUI.loadScenario);
 })
+
+document.getElementById("vertexToggle").addEventListener("change", e=>{
+  if(document.getElementById("vertexToggle").checked){
+    // enable vertex
+    myUI.vertex = true;
+    ["hover_map", "queue", "visited", "current_YX", "neighbours", "path", "start", "goal"].forEach(canvas=>{
+      myUI.canvases[canvas].scale_canvas(1024, 1024, false);
+      myUI.canvases[canvas].dynamicScale = false;
+    });
+    console.log("ENABLED VERTEX");
+  }
+  else{
+    myUI.vertex = false;
+    ["hover_map", "queue", "visited", "current_YX", "neighbours", "path", "start", "goal"].forEach(canvas=>{
+      myUI.canvases[canvas].dynamicScale = true;
+    });
+    myUI.displayMap();
+    myUI.displayScen();
+    // disable vertex
+  }
+});
 
 myUI.displayScen = function(moved=false){
 	myUI.canvases.start.erase_canvas();

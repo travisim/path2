@@ -32,7 +32,7 @@ class UICanvas{
     };
   }
 
-  constructor(canvas_id, colors){
+  constructor(canvas_id, colors, dynamicScale){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
@@ -50,6 +50,8 @@ class UICanvas{
     
     this.colors = colors;
 		this.set_color_index(0, "all");
+
+    this.dynamicScale = dynamicScale;
   }
 
   scale_coord(y, x){
@@ -63,14 +65,8 @@ class UICanvas{
     this.data_height = data_height;
     this.data_width = data_width;
 
-    if(data_height<data_width){
-      this.canvas.style.width = this.defaultWidth + "px";
-      this.canvas.style.height = data_height/data_width*this.defaultHeight + "px";
-    }
-    else{
-      this.canvas.style.height = this.defaultHeight + "px";
-      this.canvas.style.width = data_width/data_height*this.defaultWidth + "px";/* */
-    }
+    this.canvas.style.width = Math.min(this.defaultWidth, data_width/data_height*this.defaultWidth) + "px";
+    this.canvas.style.height = Math.min(this.defaultHeight, data_height/data_width*this.defaultHeight) + "px";
     
     const dpr = 2;
     //window.devicePixelRatio usually got decimals
@@ -246,6 +242,17 @@ class UICanvas{
     let width = this.data_width ? this.data_width : this.canvas.width;
     this.ctx.clearRect(0, 0, width, height);
     this.canvas_cache = zero2D(height, width);  // reset to a matrix of 0s (zeroes), height x width
+  }
+
+  draw_vertex_circle(yx, virtual=false, val=1, color_index=0, save_in_cache=true){
+    let y = yx[0]*this.data_height/myUI.map_height;
+    let x = yx[1]*this.data_width/myUI.map_width;
+    this.set_color_index(color_index, "all");
+    this.ctx.beginPath();
+    let r = this.data_height/myUI.map_height * 5/16;
+    this.ctx.lineWidth = r;
+    this.ctx.arc(y, x, r, 0, 2 * Math.PI);
+    this.ctx.stroke();
   }
 
   toggle_edit(){
