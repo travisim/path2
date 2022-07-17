@@ -54,7 +54,6 @@ class A_star extends GridPathFinder{
 		this.closed_list =  new Empty2D(this.map_height, this.map_width);
 		this.open_list =  new Empty2D(this.map_height, this.map_width);
     // "Producing Code" (May take some time)
-    if(myUI.testing) return new Promise((resolve, reject) => {resolve(1)});
 
     console.log("starting");
     let start_node = new Node(0, 0, 0, null, this.start);
