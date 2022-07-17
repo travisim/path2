@@ -69,7 +69,7 @@ class UIInfoMap{
   for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
     var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
     if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-      if (myUI.planner.map[next_YX_temp[0]][next_YX_temp[1]] != 1) {
+      if (myUI.planner.map.get_data([next_YX_temp[0]][next_YX_temp[1]]) != 1) {
         surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
       }
     }

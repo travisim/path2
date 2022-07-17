@@ -131,16 +131,16 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
           if(parent_exists){
             console.log("parent exists");
-            var g_cost = step[i+1];
-            var h_cost = step[i+2];
-            var f_cost = (parseInt(g_cost) + parseInt(h_cost)).toPrecision(5); // null + null = 0 this causes f_cost to be 0
+            var g_cost = step[i+1].toPrecision(5);
+            var h_cost = step[i+2].toPrecision(5);
+            var f_cost = (step[i+1]+step[i+2]).toPrecision(5);
             var queueNo = myUI.animation.step;
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
-          console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, arrow_color]);
+          //console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, arrow_color]);
           
-            try{
+            
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
               else myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -232,7 +232,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 
 
 
-              
+            try{  
 	         
           }catch(e){
             console.log(command, dest, "failed");
@@ -258,6 +258,9 @@ steps_arr = [
 ]
 */
 
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}
 
 myUI.run_combined_step = function(step_direction="fwd"){
   let tmp_step = myUI.animation.step, start_step = myUI.animation.step;
