@@ -128,6 +128,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           console.log(step);
         while(i<step.length){
           let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
+          var stepNo = myUI.animation.step;
           if(parent_exists){
             if(myUI.testing){
               console.log("parent exists");
@@ -136,7 +137,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             var g_cost = step[i+1].toPrecision(5);
             var h_cost = step[i+2].toPrecision(5);
             var f_cost = (step[i+1]+step[i+2]).toPrecision(5);
-            var queueNo = myUI.animation.step;
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
@@ -204,20 +204,24 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	            myUI.InfoCurrent.DrawCurrent(x,y);
   
   	          }
-  	         	//to draw neighbours
+  	          //to draw neighbours
   	          else if(command == STATIC.DI ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
-                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,queueNo);
+                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);
+                console.log(myUI.animation.step);
+                myUI.InfoTable.recordLastStepNo(stepNo);
                 if (slides.length >= 2){
                   myUI.InfoTable.Sort(); // emulats insert at based on F cost
+                  
                 }
+                
   	          }
   	        	//to erase neighbours
   	          else if(command == STATIC.EI ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-                removeSlidebById(queueNo.toString());
+                myUI.InfoTable.removeSlidebById((myUI.InfoTable.lastStepNo()).toString());
+                
   	          }
-	          
               
             }
               
