@@ -46,10 +46,14 @@ const STATIC_COMMANDS = [
   "DEC_P", // increment pixel
   "DA", // draw arrow (arrow index) [colour index]
   "EA" , // erase arrow (arrow index)
-  "DI",
-  "EI",
-  "Dparent",
-  "Eparent",
+  "DICRF", // draw infocurrent foreward
+  "DICRB", // draw infocurrent backwards
+  "DIM",
+  "DIT",
+  "EIM",
+  "EIT",
+  "InTop",
+  "InBottom",
   "Einfomap",
   "TableAdd",
   "Tableremove"
@@ -73,7 +77,7 @@ const STATIC_DESTS = [
   "IF",
   "IG",
   "IH",
-  "ICR", //info current path
+  "ICR" //info current path
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -194,7 +198,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               
             }
             else if (myUI.planners[myUI.planner_choice] == A_star){
-              if(dest==STATIC.ICR ){//draw "current_YX",
+              if(command == STATIC.DICRF && dest==STATIC.ICR){//draw "current_YX",
                 myUI.InfoMap.reset();
                 myUI.InfoMap.drawObstacle(x,y);
   	            myUI.InfoMap.drawOutOfBound(x,y);
@@ -204,8 +208,18 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	            myUI.InfoCurrent.DrawCurrent(x,y);
   
   	          }
+              if(command == STATIC.DICRB && dest==STATIC.ICR){//draw "current_YX",
+                myUI.InfoMap.reset();
+                myUI.InfoMap.drawObstacle(x,y);
+  	            myUI.InfoMap.drawOutOfBound(x,y);
+                myUI.InfoMap.drawVisited(x,y);
+  	            myUI.InfoMap.drawQueue(x,y);
+  	            myUI.InfoCurrent.DrawCurrent(x,y);
+                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo-1)
+  
+  	          }
   	          //to draw neighbours
-  	          else if(command == STATIC.DI ){
+  	          else if(command == STATIC.DIM){
   	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
                 myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);
                 console.log(myUI.animation.step);
@@ -217,7 +231,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
                 
   	          }
   	        	//to erase neighbours
-  	          else if(command == STATIC.EI ){
+  	          else if(command == STATIC.EIM ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
                 myUI.InfoTable.removeSlidebById((myUI.InfoTable.lastStepNo()).toString());
                 
@@ -235,6 +249,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
 
+          
 
 
 

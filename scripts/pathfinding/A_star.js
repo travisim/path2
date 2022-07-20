@@ -75,8 +75,21 @@ class A_star extends GridPathFinder{
            //++ from bfs.js
       this.queue.sort(function (a, b){return a.f_cost - b.f_cost});   
                //++ from bfs.js
-      if (this.current_node)
+      if (this.current_node){
+        if (this.prev_node_YX){
+          this.prev_prev_node_YX = this.prev_node_YX;
+        }
+        else if (!this.prev_node_YX){
+          this.prev_prev_node_YX =[100,100];
+        }
+       
+        this.prev_g_cost = this.current_node.g_cost;
+        this.prev_h_cost = this.current_node.h_cost;
         this.prev_node_YX = this.current_node_YX;
+      }
+        
+        
+      
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_YX = this.current_node.self_YX; // first node in queue YX
       this.open_list[this.current_node_YX] = undefined;
@@ -94,7 +107,7 @@ class A_star extends GridPathFinder{
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
-      this._create_action(STATIC.DI, STATIC.ICR, this.current_node_YX);
+      this._create_action(STATIC.DICRF, STATIC.ICR, this.current_node_YX);
       //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
@@ -109,7 +122,8 @@ class A_star extends GridPathFinder{
       this._create_action(STATIC.DP, STATIC.QU, this.current_node_YX);
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
-        this._create_action(STATIC.DI,STATIC.ICR, this.prev_node_YX);
+        this._create_action(STATIC.DICRB,STATIC.ICR, this.prev_node_YX);
+        this._create_action(STATIC.DIT,STATIC.InTop, this.prev_prev_node_YX, this.prev_f_cost, this.prev_h_cost, this.prev_g_cost,this.prev_node_YX,)
         this.neighbours_YX.forEach(coord => {
           this._create_action(STATIC.DP, STATIC.NB, coord);
         });
@@ -170,7 +184,8 @@ class A_star extends GridPathFinder{
 
           // start to a node, taking into account obstacles
           let [f_cost, g_cost, h_cost] = this.calc_cost(next_YX);
-
+          
+          
           let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_YX);
 
 					let open_node = this.open_list.get(next_YX);
@@ -183,7 +198,7 @@ class A_star extends GridPathFinder{
           /* NEW */
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
-          this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, h_cost, g_cost,this.current_node_YX);
+          this._create_action(STATIC.DIM, this.deltaNWSE_STATICS[i], next_YX, h_cost, g_cost,this.current_node_YX);
 
 					// ++ bfs.js
 
@@ -213,7 +228,7 @@ class A_star extends GridPathFinder{
 
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
-          this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i]);
+          this._create_action(STATIC.EIM, this.deltaNWSE_STATICS[i]);
 					this._create_action(STATIC.EP, STATIC.QU, next_YX);
 					if (this.draw_arrows){
             this._create_action(STATIC.EA, new_node.arrow_index);

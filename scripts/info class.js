@@ -132,6 +132,7 @@ class UIInfoMap{
     }
     
     
+    
     recordDrawnQueue(x,y){
       myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
      // console.log(visited.get_data([y,x]));
@@ -207,14 +208,14 @@ function UIInfoTable(){
     if (slides.length >= 1){ 
       slides[slides.length-1].style.animation = 'out 0.5s forwards';
        //deletes HTML of last table(use arrow function to accept parameters)
-      setTimeout(()=>removebyindex(slides.length-1),1000);
+      setTimeout(()=>this.removebyindex(slides.length-1),1000);
     }
   };
   this.OutTop = function(){
     //animates out first slide
     if (slides.length >= 1){ slides[0].style.animation = 'out 0.5s forwards';
       //deletes HTML of last table(use arrow function to accept parameters)
-      setTimeout(()=>removebyindex(0),1000);
+      setTimeout(()=>this.removebyindex(0),1000);
     }
   };
   this.InTop = function(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo){
@@ -307,7 +308,7 @@ function UIInfoTable(){
     if(temp != 0){
       var i = temp-1;
       while(i!=-1) { 
-        removebyindex(i);
+        this.removebyindex(i);
         i--;
       }
     } 
@@ -325,6 +326,11 @@ function UIInfoTable(){
   }
   this.lastStepNo = function(){
     return previousStepNo--;
+  }
+  this.removebyindex = function(index){
+    var slide = slides[index];
+    var parentEl = slide.parentElement;
+    parentEl.removeChild(slide)
   }
   
 }
