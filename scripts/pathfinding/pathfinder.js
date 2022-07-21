@@ -81,12 +81,16 @@ class GridPathFinder{
 	add_map(map){
 		this.map_height = map.length;
 		this.map_width = map[0].length;
+		if(this.vertexEnabled){
+			++this.map_height;
+			++this.map_width;
+		}
 		this.map = BitMatrix.compress_bit_matrix(map); // 2d array; each 1d array is a row
-		this.coord_bit_len = Math.ceil(Math.log2((this.map_height-1) * (this.map_width-1)));
+		this.coord_bit_len = Math.ceil(Math.log2(this.map_height * this.map_width - 1));
 		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val+1));
 	}
 
-	_init_search(start, goal, vertex=false){
+	_init_search(start, goal){
     this.start = start; //in array form [y,x]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
@@ -94,16 +98,12 @@ class GridPathFinder{
     this.path = null;
     this._clear_steps();
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
-    this.draw_arrows = this.map_height <= 64 && this.map_width <= 64;
+    this.draw_arrows = this.map_height <= 65 && this.map_width <= 65;
     this.states = {};
 		this.visited_incs = [];
 		this.current_node = undefined;
 
     // generate empty 2d array
-		if(vertex){
-			this.map_height++;
-			this.map_width++;
-		}
     this.info_matrix = zero2D(this.map_height, this.map_width,65537);
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new NBitMatrix(this.map_height, this.map_width, 7);
@@ -154,6 +154,7 @@ class GridPathFinder{
 			let color = arguments[2] ? arguments[2] : 0;
 			this.action_cache += bit_shift(color, 3 + this.static_bit_len); // arrow color //  allow up to 8 colors
 			this.action_cache += bit_shift(arguments[1], 3 + this.static_bit_len + 3); // arrow index
+			//console.log(this.action_cache);
 			this.step_cache.push(this.action_cache);
 			return
 		}

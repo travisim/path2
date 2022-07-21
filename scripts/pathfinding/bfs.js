@@ -134,13 +134,15 @@ class BFS extends GridPathFinder {
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
           this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
   
+          let node = new Node(null, null, null, this.current_node, next_YX);
           if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
-            this.queue.push(new Node(null, null, null, this.current_node, next_YX));  // add to queue
+            this.queue.push(node);  // add to queue
             this._create_action(STATIC.DP, STATIC.QU, next_YX);
             if (this.draw_arrows) {
               // ARROW
               var arrow_index = myUI.create_arrow(next_YX, this.current_node_YX);
               this.arrow_state[arrow_index] = 1;
+              node.arrow_index = arrow_index;
 						  //myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
               this._create_action(STATIC.DA, arrow_index);
               // END OF ARROW

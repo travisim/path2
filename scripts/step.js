@@ -136,7 +136,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           if(parent_exists){
             if(myUI.testing){
               console.log("parent exists");
-              console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parent_y, parent_x, parent_exists, arrow_index, color_index]);
             }
             var g_cost = step[i+1].toPrecision(5);
             var h_cost = step[i+2].toPrecision(5);
@@ -144,7 +143,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
-          //console.log([command, dest, y, x, parent_y, parent_x, g_cost, h_cost, arrow_index, color_index]);
+          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parent_y, parent_x, parent_exists, arrow_index, color_index]);
           
             
             if(command==STATIC.EC){

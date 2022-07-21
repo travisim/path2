@@ -254,9 +254,16 @@ class UICanvas{
   draw_vertex_circle(yx, color_index=0){
     let y = yx[0]*this.data_height/myUI.map_height;
     let x = yx[1]*this.data_width/myUI.map_width;
+    let r = 7;//this.data_height/myUI.map_height * 5/16;
+
+    this.ctx.beginPath();
+    this.set_color("#000000", "all");
+    this.ctx.lineWidth = r*3;
+    this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+    this.ctx.stroke();
+
     this.set_color_index(color_index, "all");
     this.ctx.beginPath();
-    let r = this.data_height/myUI.map_height * 5/16;
     this.ctx.lineWidth = r;
     this.ctx.arc(x, y, r, 0, 2 * Math.PI);
     this.ctx.stroke();

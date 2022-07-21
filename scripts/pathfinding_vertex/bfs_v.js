@@ -8,11 +8,12 @@ class BFS_Vertex extends GridPathFinder {
 
   constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbours, diagonal_allow, first_neighbour, search_direction);
+    this.vertexEnabled = true;
   }
 
   search(start, goal) {
     // this method finds the path using the prescribed map, start & goal coordinates
-    this._init_search(start, goal, true);
+    this._init_search(start, goal);
 
     console.log("starting");
     let start_node = new Node(null, null, null, null, start);
@@ -141,12 +142,14 @@ class BFS_Vertex extends GridPathFinder {
         this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
 
         if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
-          this.queue.push(new Node(null, null, null, this.current_node, next_YX));  // add to queue
+          let node = new Node(null, null, null, this.current_node, next_YX);
+          this.queue.push(node);  // add to queue
           this._create_action(STATIC.DP, STATIC.QU, next_YX);
           if (this.draw_arrows) {
             // ARROW
             var arrow_index = myUI.create_arrow(next_YX, this.current_node_YX, true);
             this.arrow_state[arrow_index] = 1;
+            node.arrow_index = arrow_index;
             //myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
             this._create_action(STATIC.DA, arrow_index);
             // END OF ARROW
