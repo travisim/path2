@@ -165,6 +165,8 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
   myUI.showPlanners();
   myUI.loadPlanner();
 });
+if(myUI.vertex) document.getElementById("vertexToggle").checked=true;
+else document.getElementById("vertexToggle").checked=false;
 
 myUI.displayScen = function(moved=false){
 	myUI.canvases.start.erase_canvas();

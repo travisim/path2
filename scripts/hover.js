@@ -1,6 +1,14 @@
 myUI.scale_coord = function(y, x){
-	let scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
-	let scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientHeight * myUI.map_height);
+	if(myUI.vertex){
+		let sx = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
+		let sy = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
+		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientWidth+sx) * (myUI.map_width+1));
+		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientHeight+sy) * (myUI.map_height+1));
+	}
+	else{
+		var scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
+		var scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientHeight * myUI.map_height);
+	}
 	return [scaled_y, scaled_x];
 }
 
@@ -16,7 +24,7 @@ myUI.handle_map_hover = function(e){
 	document.getElementById("hover_y").innerHTML = scaled_y;
 	myUI.canvases.hover_map.erase_canvas();
 	myUI.canvases.hover_map.set_color_index(0, "both");
-	if(myUI.map_arr)
+	if(myUI.map_arr && !myUI.vertex)
 		if(myUI.map_arr[scaled_y][scaled_x]==0)
 			myUI.canvases.hover_map.set_color_index(1, "both");
 	//console.log(myUI.canvases.hover_map.ctx.strokeStyle);
