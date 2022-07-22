@@ -207,13 +207,18 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	            myUI.InfoCurrent.DrawCurrent(x,y);
   
   	          }
-              if(command == STATIC.DICRB && dest==STATIC.ICR){//draw "current_YX",
+              else if(command == STATIC.DICRB && dest==STATIC.ICR){//draw "current_YX",
                 myUI.InfoMap.reset();
                 myUI.InfoMap.drawObstacle(x,y);
   	            myUI.InfoMap.drawOutOfBound(x,y);
                 myUI.InfoMap.drawVisited(x,y);
   	            myUI.InfoMap.drawQueue(x,y);
   	            myUI.InfoCurrent.DrawCurrent(x,y);
+                
+  
+  	          }
+              else if(command == STATIC.DIT && dest==STATIC.InTop){//draw "current_YX",
+                
                 myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo-1)
   
   	          }

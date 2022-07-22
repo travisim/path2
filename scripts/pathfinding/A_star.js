@@ -123,7 +123,7 @@ class A_star extends GridPathFinder{
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
         this._create_action(STATIC.DICRB,STATIC.ICR, this.prev_node_YX);
-        this._create_action(STATIC.DIT,STATIC.InTop, this.prev_prev_node_YX, this.prev_f_cost, this.prev_h_cost, this.prev_g_cost,this.prev_node_YX,)
+        this._create_action(STATIC.DIT,STATIC.InTop, this.current_node_YX, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_YX);
         this.neighbours_YX.forEach(coord => {
           this._create_action(STATIC.DP, STATIC.NB, coord);
         });
