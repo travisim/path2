@@ -79,8 +79,8 @@ myUI.jump_to_step = function(target_step){
 
     myUI.canvases.queue.draw_canvas(state.queue, `1d`, false, true);
 
-    let curr_visited = myUI.planner.get_visited(state.visited_tuple);
-    myUI.canvases.visited.draw_canvas(NBitMatrix.expand_2_matrix(curr_visited), `2d_heatmap`, false, true);
+    let curr_visited = NBitMatrix.expand_2_matrix(myUI.planner.get_visited(state.visited_tuple));
+    myUI.canvases.visited.draw_canvas(curr_visited, `2d_heatmap`, false, true);
 
     myUI.canvases.current_YX.draw_canvas([state.node_YX], `1d`, false, true);
 
@@ -134,7 +134,11 @@ myUI.create_arrow = function(start_YX, end_YX, vertex=false, head_pc=0.7){
   if(elem_window_length<14) elem.innerHTML = `<path d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${elem_window_length} a 1.5 1.5, 0, 0, 0, 0 -3 z"></path>`;
   else elem.innerHTML = `<path d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${back_len} v 3 l 6 -3 h ${front_len} a 1.5 1.5, 0, 0, 0, 0 -3 h ${0-front_len} l -6 -3 v 3 z"></path>`;
   document.getElementById("canvas_container").appendChild(elem);
-  if(vertex) var displayOffset = 0; else var displayOffset = 0.5;
+  let displayOffset = 0.5;
+  if(vertex){
+    displayOffset = 0;
+    elem.style.zIndex = 40
+  }
   elem.style.top = (start_coord.y + elem_path_length * Math.sin(angle)/2 + displayOffset) * display_ratio - 4.5 +"px";
   elem.style.left = (start_coord.x + displayOffset - elem_path_length * (1-Math.cos(angle))/2) * display_ratio - 1.5 +"px";
   elem.id = `${start_coord.y},${start_coord.x} ${end_coord.y},${end_coord.x}`;

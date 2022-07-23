@@ -128,6 +128,6 @@ function dragElement(elmnt) {
 		else if(elmnt.id=="map_goal_icon"){
 			myUI.map_goal = [scaled_y, scaled_x];
 		}
-		myUI.displayScen(moved=true);
+		myUI.displayScen(true, true);
   }
 }

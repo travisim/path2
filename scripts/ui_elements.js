@@ -32,7 +32,7 @@ class UICanvas{
     };
   }
 
-  constructor(canvas_id, colors, dynamicScale){
+  constructor(canvas_id, colors, fixedRes=false, fixedResVal=1024){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
@@ -51,7 +51,8 @@ class UICanvas{
     this.colors = colors;
 		this.set_color_index(0, "all");
 
-    this.dynamicScale = dynamicScale;
+    this.fixedRes = fixedRes;
+    this.fixedResVal = fixedResVal;
   }
 
   scale_coord(y, x){
@@ -61,15 +62,22 @@ class UICanvas{
   }
 
   scale_canvas(data_height, data_width, retain_data=false){
-
-    this.data_height = data_height;
-    this.data_width = data_width;
+    //if(this.fixedRes) return;
+    const dpr = 2;
+    //window.devicePixelRatio usually got decimals
 
     this.canvas.style.width = Math.min(this.defaultWidth, data_width/data_height*this.defaultWidth) + "px";
     this.canvas.style.height = Math.min(this.defaultHeight, data_height/data_width*this.defaultHeight) + "px";
     
-    const dpr = 2;
-    //window.devicePixelRatio usually got decimals
+    if(this.fixedRes){
+      this.canvas.width = this.fixedResVal * this.canvas.clientWidth/this.defaultWidth;
+      this.canvas.height = this.fixedResVal * this.canvas.clientHeight/this.defaultHeight;
+      this.data_height = this.canvas.height;
+      this.data_width = this.canvas.width;
+      return
+    }
+    this.data_height = data_height;
+    this.data_width = data_width;
 
     // canvas resolution
     this.canvas.width = this.canvas.clientWidth*dpr;
@@ -79,7 +87,6 @@ class UICanvas{
     let heightRatio = this.canvas.clientWidth / data_width;
     
     this.ctx.scale(widthRatio*dpr, heightRatio*dpr); //adjust this! context.scale(2,2); 2=200
-    //this.ctx.scale(widthRatio * dpr, heightRatio * dpr); //adjust this! context.scale(2,2); 2=200
 
     if (data_width > 256 || data_height>256) this.pixelSize = 1.2;
     else this.pixelSize = 1.02;
@@ -168,7 +175,7 @@ class UICanvas{
       this.virtualCanvas[y][x] = val;
     else {
       if(save_in_cache) this.canvas_cache[y][x] = val;
-      if(this.dynamicScale){
+      if(!this.fixedRes){
         this.set_color_index(color_index);
         this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
       }
@@ -181,15 +188,15 @@ class UICanvas{
   erase_pixel(yx){
     let [y,x] = yx;
     this.canvas_cache[y][x] = 0;
-    if(this.dynamicScale)
+    if(!this.fixedRes)
       this.ctx.clearRect(x, y, this.pixelSize, this.pixelSize);
     else
-      this.erase_vertex_circle(y, x);
+      this.erase_vertex_circle(yx);
   }
 
   draw_start_goal(point, strokeColor=this.ctx.strokeStyle){
     this.set_color(strokeColor, "all");
-    if (myUI.map_height < 64){
+    if (myUI.map_height < 64 || this.fixedRes){
       this.draw_pixel(point);
     }
     else{
@@ -254,17 +261,17 @@ class UICanvas{
   draw_vertex_circle(yx, color_index=0){
     let y = yx[0]*this.data_height/myUI.map_height;
     let x = yx[1]*this.data_width/myUI.map_width;
-    let r = 7;//this.data_height/myUI.map_height * 5/16;
+    let r = 6;//this.data_height/myUI.map_height * 5/16;
 
-    this.ctx.beginPath();
+    /*this.ctx.beginPath();
     this.set_color("#000000", "all");
     this.ctx.lineWidth = r*3;
     this.ctx.arc(x, y, r, 0, 2 * Math.PI);
-    this.ctx.stroke();
+    this.ctx.stroke();*/
 
     this.set_color_index(color_index, "all");
     this.ctx.beginPath();
-    this.ctx.lineWidth = r;
+    this.ctx.lineWidth = r*1.8;
     this.ctx.arc(x, y, r, 0, 2 * Math.PI);
     this.ctx.stroke();
   }

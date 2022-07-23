@@ -15,21 +15,21 @@ myUI.initialize = function(){
 
   // Initialize canvases
   [
-    ["edit_map", true, "#000000" ,"#d19b6d", "#AA1945"],
-		["hover_map", true, "#d19b6d", "#AA1945"],
-    ["bg", true, "#000000"],
-    ["queue", true, "#74fa4c"],
-    ["visited", true, "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
-    ["current_YX", true, "#34d1ea"],
-    ["neighbours", true, "#008269"],
-    ["path", true, "#34d1ea"], //  changed from #E2C2B9
-    ["start", true, "#96996"],
-    ["goal", true, "#9f17e7"]
+    ["edit_map", false, "#000000" ,"#d19b6d", "#AA1945"],
+		["hover_map", false, "#d19b6d", "#AA1945"],
+    ["bg", false, "#000000"],
+    ["queue", false, "#74fa4c"],
+    ["visited", false, "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
+    ["current_YX", false, "#34d1ea"],
+    ["neighbours", false, "#008269"],
+    ["path", false, "#34d1ea"], //  changed from #E2C2B9
+    ["start", false, "#96996"],
+    ["goal", false, "#9f17e7"]
   ].forEach(item=>{
     let canvasId = item[0];
     let colors = item.slice(2);
-    let dynamicScale = item[1];
-    myUI.canvases[canvasId] = new UICanvas(canvasId, colors, dynamicScale);
+    let fixedRes = item[1];
+    myUI.canvases[canvasId] = new UICanvas(canvasId, colors, fixedRes);
   });
   myUI.canvases.edit_map.toggle_edit();
  //initialise info
@@ -153,7 +153,7 @@ myUI.initialize = function(){
     data: [],
     canvas: document.getElementById("arrows"),
     ctx: document.getElementById("arrows").getContext("2d"),
-    colors: ["purple", "#1000FF"],//
+    colors: ["#acaabb", "#1000FF"],//
     coords: [],
     elems: [],//
     step: -1

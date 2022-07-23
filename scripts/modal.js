@@ -69,7 +69,7 @@ myUI.toggleDrawErase = function(){
 }
 myUI.buttons.draw_erase_btn.btn.addEventListener("click", myUI.toggleDrawErase);
 
-myUI.update_map_width = function(val){
+/*myUI.update_map_width = function(val){
   myUI.map_width = val;
   myUI.canvases.edit_map.scale_canvas(myUI.map_height, myUI.map_width, retain_data = true);
 }
@@ -105,7 +105,27 @@ myUI.sliders.map_height_slider.label.onkeypress = function(e){
     this.parent.elem.value = this.value;
     myUI.update_map_height(this.value);
   }
+}*/
+
+function updateMapWidth(e){
+  if (!e) e = window.event;
+  if (e.key == 'Enter' || e.type == 'focusout'){
+    myUI.map_width = Number(this.value);
+    myUI.canvases.edit_map.scale_canvas(myUI.map_height, myUI.map_width, retain_data = true);
+  }
 }
+myUI.sliders.map_width_slider.label.addEventListener("keydown", updateMapWidth);
+myUI.sliders.map_width_slider.label.addEventListener("focusout", updateMapWidth);
+
+function updateMapHeight(e){
+  if (!e) e = window.event;
+  if (e.key == 'Enter' || e.type == 'focusout'){
+    myUI.map_height = Number(this.value);
+    myUI.canvases.edit_map.scale_canvas(myUI.map_height, myUI.map_width, retain_data = true);
+  }
+}
+myUI.sliders.map_height_slider.label.addEventListener("keydown", updateMapHeight);
+myUI.sliders.map_height_slider.label.addEventListener("focusout", updateMapHeight);
 
 function modal_await_keypress(e){
 	e = e || window.event

@@ -18,7 +18,6 @@ myUI.parseMap = function(map_str_var, file_name){
   console.log(myUI.map_height);
 	console.log(myUI.map_width)
 	
-  let map_array_final = [];
   let map_array = map_str_var.split("\n").splice(4).filter((el) => {
     return el !== null && typeof el !== 'undefined' && el.length > 0;
   });
@@ -51,7 +50,6 @@ myUI.displayMap = function(){
 	const width = myUI.map_arr[0].length;
 
   Object.values(myUI.canvases).forEach(uiCanvas=>{
-    if(uiCanvas.dynamicScale==false) return;
     uiCanvas.scale_canvas(height, width);
 		console.log(uiCanvas.id, height, width);
   });
@@ -106,24 +104,22 @@ myUI.loadScenario = function(){
   if(elem==myUI) elem = document.querySelector('#scen_num');
   if(elem==document.querySelector('#scen_num')){
     // selected by scenario
+    elem.value = Math.max(0, Math.min(myUI.scen_arr.length, elem.value));
     if(elem.value==0){
       if(myUI.scen_arr.length>0) elem.value = 1;
     }
-    elem.value = Math.max(0, Math.min(myUI.scen_arr.length, elem.value));
     let index = elem.value-1;
     myUI.map_start = [Number(myUI.scen_arr[index][5]),Number(myUI.scen_arr[index][4])];//  in Y, X
     myUI.map_goal = [Number(myUI.scen_arr[index][7]), Number(myUI.scen_arr[index][6])];//  in Y, X
 
-    document.querySelector("#scen_start_x").value = myUI.scen_arr[index][5];
-    document.querySelector("#scen_start_y").value = myUI.scen_arr[index][4];
-    document.querySelector("#scen_goal_x").value = myUI.scen_arr[index][7];
-    document.querySelector("#scen_goal_y").value = myUI.scen_arr[index][6];
+    myUI.displayScen(true, false);
   }
   else{
     console.log(this.id);
-    if(this.id.includes(x)) this.value = Math.max(0, Math.min(myUI.map_height-1, elem.value));
-    else this.value = Math.max(0, Math.min(myUI.map_width-1, elem.value));
-    document.querySelector('#scen_num').value = 0;
+    let change=0;
+    if(myUI.vertex) change=1
+    if(this.id.includes(x)) this.value = Math.max(0, Math.min(myUI.map_height-1+change, elem.value));
+    else this.value = Math.max(0, Math.min(myUI.map_width-1+change, elem.value));
     myUI.map_start = [
       Number(document.querySelector("#scen_start_x").value),
       Number(document.querySelector("#scen_start_y").value)
@@ -132,8 +128,8 @@ myUI.loadScenario = function(){
       Number(document.querySelector("#scen_goal_x").value),
       Number(document.querySelector("#scen_goal_y").value)
     ];//  in Y, X
+    myUI.displayScen(false, true);
   }
-  myUI.displayScen();
 }
 
 document.querySelectorAll(".scen_controls").forEach(elem=>{
@@ -146,7 +142,7 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
     myUI.vertex = true;
     ["hover_map", "queue", "visited", "current_YX", "neighbours", "path", "start", "goal"].forEach(canvas=>{
       myUI.canvases[canvas].scale_canvas(1024, 1024, false);
-      myUI.canvases[canvas].dynamicScale = false;
+      myUI.canvases[canvas].fixedRes = true;
     });
     myUI.planners = myUI.planners_v;
     console.log("ENABLED VERTEX");
@@ -154,13 +150,13 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
   else{
     myUI.vertex = false;
     ["hover_map", "queue", "visited", "current_YX", "neighbours", "path", "start", "goal"].forEach(canvas=>{
-      myUI.canvases[canvas].dynamicScale = true;
+      myUI.canvases[canvas].fixedRes = false;
     });
     myUI.planners = myUI.planners_cell;
-    myUI.displayMap();
-    myUI.displayScen();
     // disable vertex
   }
+  myUI.displayMap();
+  myUI.displayScen();
   /* first call */
   myUI.showPlanners();
   myUI.loadPlanner();
@@ -168,7 +164,7 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
 if(myUI.vertex) document.getElementById("vertexToggle").checked=true;
 else document.getElementById("vertexToggle").checked=false;
 
-myUI.displayScen = function(moved=false){
+myUI.displayScen = function(update=false, reset_zero=false){
 	myUI.canvases.start.erase_canvas();
 	myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
@@ -182,21 +178,19 @@ myUI.displayScen = function(moved=false){
 		console.log(myUI.map_start, myUI.map_goal);
 		myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
 		myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
-		if(moved){
+		if(update){
       // update the inputs
-      document.querySelector('#scen_num').value = 0;
       document.querySelector("#scen_start_x").value = myUI.map_start[0];
       document.querySelector("#scen_start_y").value = myUI.map_start[1];
       document.querySelector("#scen_goal_x").value = myUI.map_goal[0];
       document.querySelector("#scen_goal_y").value =myUI.map_goal[1];
     }
-    else{
-			//console.log("moving");
-			myUI.map_start_icon.move(myUI.map_start);
-			myUI.map_goal_icon.move(myUI.map_goal);
-		}
+    if(reset_zero) document.querySelector('#scen_num').value = 0;
+    console.log("moving");
+    myUI.map_start_icon.move(myUI.map_start);
+    myUI.map_goal_icon.move(myUI.map_goal);
+		
 	}
-
 	/*clear all canvases*/
 	["visited",	"neighbours", "queue",	"current_YX",	"path"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
@@ -205,8 +199,13 @@ myUI.displayScen = function(moved=false){
 
 function moveDraggable(yx){
 	let bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
-	this.elem.style.top = ((yx[0]+0.5)*bounds.height / myUI.map_height - this.elem.height/2) + "px";
-	this.elem.style.left =  ((yx[1]+0.5)*bounds.width / myUI.map_width - this.elem.width/2) + "px";
+  let offset = 0.5;
+  if(myUI.vertex)
+    offset = 0;
+
+  this.elem.style.top = ((yx[0]+offset)*bounds.height / myUI.map_height - this.elem.height/2) + "px";
+  this.elem.style.left =  ((yx[1]+offset)*bounds.width / myUI.map_width - this.elem.width/2) + "px";
+  
 }
 
 myUI.map_start_icon.move = moveDraggable;
@@ -239,7 +238,6 @@ myUI.showPlanners = function() {
 myUI.loadPlanner = function() {
 	if(this==myUI) var planner_select_elem = myUI.selects["planner_select"].elem;
 	else var planner_select_elem = this; // binds to the planner select element
-  console.log(planner_select_elem);
 	
   myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
   myUI.planner = new myUI.planners[myUI.planner_choice]();

@@ -7,7 +7,7 @@ class A_star extends GridPathFinder{
   }
 
   static get distance_metrics(){
-    return ["Euclidean", "Manhattan", "Chebyshev (Diagonal)"];
+    return ["Euclidean", "Manhattan", "Chebyshev"];
   }
 
   constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
@@ -39,7 +39,7 @@ class A_star extends GridPathFinder{
       var g_cost = this.current_node.g_cost + euclidean(this.current_node.self_YX, successor);
       var h_cost = euclidean(successor, this.goal);
     }
-    else if(this.distance_metric == "Chebyshev (Diagonal)"){
+    else if(this.distance_metric == "Chebyshev"){
       var g_cost = this.current_node.g_cost + chebyshev(this.current_node.self_YX, successor);
       var h_cost = chebyshev(successor, this.goal);
     }

@@ -163,7 +163,7 @@ class BFS_Vertex extends GridPathFinder {
         if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
           this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
           this._create_action(STATIC.EP, STATIC.QU, next_YX);
-          if (this.draw_arrows) this._create_action(STATIC.DA, arrow_index);
+          if (this.draw_arrows) this._create_action(STATIC.EA, arrow_index);
         }
         this._save_step("bck");
         

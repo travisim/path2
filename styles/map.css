@@ -52,7 +52,7 @@
 /* controls map order and how the cells are displayed */
 #hover_map{z-index:60}
 #vertexCircle{z-index:48}
-#bg, #arrows{z-index:47}
+#bg, #arrows{z-index:39}
 #current_YX{z-index:46}
 #start, #goal{z-index:45}
 #path{z-index:44}
@@ -68,8 +68,8 @@
 .arrow{
 	display: block;
 	position: absolute;
-	z-index: 59;
-	fill: purple;
+	z-index: 61;
+	fill: #bcbacb;
 }
 
 .hover_popup{
