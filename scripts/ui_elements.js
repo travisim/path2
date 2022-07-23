@@ -280,7 +280,7 @@ class UICanvas{
     let y = yx[0]*this.data_height/myUI.map_height;
     let x = yx[1]*this.data_width/myUI.map_width;
     let r = 6//this.data_height/myUI.map_height * 5/16;
-    let d = r*1.8;
+    let d = r*2;
     this.ctx.clearRect(x-d, y-d, 2*d, 2*d);
   }
 
