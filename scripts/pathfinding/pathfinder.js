@@ -94,6 +94,7 @@ class GridPathFinder{
     this.start = start; //in array form [y,x]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
+    this.neighbours = [];
     this.neighbours_YX = [];  // current cell's neighbours; only contains passable cells
     this.path = null;
     this._clear_steps();
@@ -104,7 +105,6 @@ class GridPathFinder{
 		this.current_node = undefined;
 
     // generate empty 2d array
-    this.info_matrix = zero2D(this.map_height, this.map_width,65537);
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new NBitMatrix(this.map_height, this.map_width, 7);
 		this.arrow_state = new Uint8Array(this.map_height*this.map_width); // stores the visibility of arrows; 1 is shown, 0 is hidden
@@ -247,8 +247,8 @@ class GridPathFinder{
 			let visited_tuple = new Uint32Array([curr_visited_section, this.states.visited_index, nxt_index]);//this.states.visited_index + this.visited.arr_length]);
 			//this.states.visited_index+=this.visited.arr_length;
 			this.states.visited_index = nxt_index;
-
-			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost: null, H_cost: null, queue: nodes_to_array(this.queue, "self_YX"), neighbours: deep_copy_matrix(this.neighbours_YX), visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
+console.log("state","this.step_index",this.step_index,this.neighbours);
+			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue: nodes_to_array(this.queue, "self_YX"), queue_node:this.queue, neighbours_node:this.neighbours, neighbours: deep_copy_matrix(this.neighbours_YX), visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
 			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(...myUI.arrow.full_canvas);
 
 		}
@@ -322,7 +322,7 @@ class GridPathFinder{
 
 	final_state() {
     if (!this.start) return alert("haven't computed!");
-    return { path: this.path, queue: this.queue, visited: this.visited.copy_data(),info_matrix:this.info_matrix};
+    return { path: this.path, queue: this.queue, visited: this.visited.copy_data()};
   }
 
   max_step(){
