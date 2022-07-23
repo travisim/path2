@@ -109,7 +109,7 @@ class UIInfoMap{
       });//visited
   }
   
-    drawQueue(x,y){ //using pre obtained map of surrounding point
+  drawQueue(x,y){ //using pre obtained map of surrounding point
     var surrounding_map_deltaNWSE = []
     for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
       var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
@@ -125,18 +125,20 @@ class UIInfoMap{
 
 
 
-    recordDrawnVisited(x,y){
-     //  console.log(myUI.InfoVisited.get_data([y,x]),"visited record before");
-       myUI.InfoVisited.set_data([y,x], 1); // marks current node YX as visited
-    //   console.log(myUI.InfoVisited.get_data([y,x]),"visited record after");
-    }
+  recordDrawnVisited(x,y){
+   //  console.log(myUI.InfoVisited.get_data([y,x]),"visited record before");
+     myUI.InfoVisited.set_data([y,x], 1); // marks current node YX as visited
+  //   console.log(myUI.InfoVisited.get_data([y,x]),"visited record after");
+  }
     
     
     
-    recordDrawnQueue(x,y){
-      myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
-     // console.log(visited.get_data([y,x]));
-    }
+  recordDrawnQueue(x,y){
+    myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
+   // console.log(visited.get_data([y,x]));
+  }
+
+   
 
   
 }

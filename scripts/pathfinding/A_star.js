@@ -138,7 +138,7 @@ class A_star extends GridPathFinder{
 
       // NOTE, a node is only visited if all its neighbours have been added to the queue
       this.neighbours_YX = [];  // reset the neighbours for each new node
-
+      this.neighbours = [];
       var surrounding_map_deltaNWSE = [];
       for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX_temp = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];
@@ -192,7 +192,7 @@ class A_star extends GridPathFinder{
 					if(open_node !== undefined) if(open_node.f_cost<=f_cost) continue;
 					let closed_node = this.closed_list.get(next_YX);
 					if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
-
+          this.neighbours.push(new_node);
           this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
 
           /* NEW */
