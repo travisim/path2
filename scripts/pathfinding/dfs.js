@@ -125,7 +125,7 @@ class DFS extends GridPathFinder {
           }
           if (this.visited.get_data(next_YX) || this.queue_matrix[next_YX[0]][next_YX[1]] > 0) continue; // if the neighbour has been visited or is already in queue, don't add it to queue
 
-          this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
+          //this.info_matrix[next_YX[0]][next_YX[1]]={parent: this.current_node_YX};
 
           this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
 
