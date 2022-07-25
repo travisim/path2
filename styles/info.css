@@ -145,7 +145,7 @@ tr{
   0%   {  top:0px;}
   100% { top:20px;}
 }
-
+/*
 .slide {
 	animation: append-animate .5s linear;
 }
@@ -161,7 +161,7 @@ tr{
 		opacity: 1;	
 	}
 }
-
+*/
 #infoTableScroll::-webkit-scrollbar {
   display: none;
 }

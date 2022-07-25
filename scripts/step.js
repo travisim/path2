@@ -145,7 +145,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           }
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parent_y, parent_x, parent_exists, arrow_index, color_index]);
           
-            
+             console.log(myUI.animation.step,"step");
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
               else myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -203,6 +203,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	            myUI.InfoMap.drawOutOfBound(x,y);
                 myUI.InfoMap.drawVisited(x,y);
   	            myUI.InfoMap.drawQueue(x,y);
+               if (slides.length >= 1) myUI.InfoTable.recordLastStepNo(slides[0].rows[0].cells[0].firstChild.nodeValue);
                 myUI.InfoTable.OutTop();  
   	            myUI.InfoCurrent.DrawCurrent(x,y);
   
@@ -219,15 +220,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	          }
               else if(command == STATIC.DIT && dest==STATIC.InTop){//draw "current_YX",
                 
-                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo-1)
+                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost, myUI.InfoTable.lastStepNo())
   
   	          }
   	          //to draw neighbours
   	          else if(command == STATIC.DIM){
   	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
                 myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);
-                console.log(myUI.animation.step);
-                myUI.InfoTable.recordLastStepNo(stepNo);
+               
+            
                 if (slides.length >= 2){
                   myUI.InfoTable.Sort(); // emulats insert at based on F cost
                   
@@ -237,8 +238,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	        	//to erase neighbours
   	          else if(command == STATIC.EIM ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-                myUI.InfoTable.removeSlidebById((myUI.InfoTable.lastStepNo()).toString());
-                
+            
+                myUI.InfoTable.removeSlidebById((stepNo+1).toString());
+              
   	          }
               
             }
@@ -323,6 +325,3 @@ myUI.run_combined_step = function(step_direction="fwd"){
 
 
 
-//start of js for info table
-
-var slides = document.getElementsByClassName("slide");

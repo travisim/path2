@@ -56,6 +56,9 @@ class UIInfoNWSE{
 
 
 
+var slides = document.getElementsByClassName("slide");
+
+
 class UIInfoMap{
   reset(){
    myUI.planner.deltaNWSE.forEach(deltaNWSE => {myUI.InfoNWSE[deltaNWSE].resetOne();
@@ -205,19 +208,22 @@ function UIInfoTable(){
 
   } 
   this.OutBottom = function(){
-    let slides = document.getElementsByClassName("slide");
+   
     //animates out last slide
     if (slides.length >= 1){ 
-      slides[slides.length-1].style.animation = 'out 0.5s forwards';
+     // slides[slides.length-1].style.animation = 'out 0.5s forwards';
        //deletes HTML of last table(use arrow function to accept parameters)
-      setTimeout(()=>this.removebyindex(slides.length-1),1000);
+     // setTimeout(()=>this.removebyindex(slides.length-1),1000);
+      this.removebyindex(slides.length-1)
     }
   };
   this.OutTop = function(){
     //animates out first slide
-    if (slides.length >= 1){ slides[0].style.animation = 'out 0.5s forwards';
+    if (slides.length >= 1){ 
+      //slides[0].style.animation = 'out 0.5s forwards';
       //deletes HTML of last table(use arrow function to accept parameters)
-      setTimeout(()=>this.removebyindex(0),1000);
+     // setTimeout(()=>this.removebyindex(0),1000);
+      this.removebyindex(0)
     }
   };
   this.InTop = function(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo){
@@ -262,6 +268,7 @@ function UIInfoTable(){
       c2.innerHTML = x+", "+y;
       c3.innerHTML = parent_x+", "+parent_y;
       t.classList.add('slide',"highlighting");
+      t.setAttribute("id", (stepNo).toString());
      
     }
     else if (myUI.planners[myUI.planner_choice] == Dijkstra){
@@ -277,6 +284,7 @@ function UIInfoTable(){
       c3.innerHTML = parent_x+", "+parent_y;
       c4.innerHTML = g_cost;
       t.classList.add('slide',"highlighting");
+      t.setAttribute("id", (stepNo).toString());
     
       
     }
@@ -297,7 +305,7 @@ function UIInfoTable(){
       c5.innerHTML = g_cost;
       c6.innerHTML = h_cost;
       t.classList.add('slide',"highlighting");
-      t.setAttribute("id", (stepNo).toString() )
+      t.setAttribute("id", (stepNo).toString());
 
    
       
@@ -322,12 +330,15 @@ function UIInfoTable(){
       parentEl.removeChild(slide);
     }
   }
-  var previousStepNo;
+  var lastStepNo = [];
   this.recordLastStepNo = function(StepNo){
-    previousStepNo = StepNo;
+    lastStepNo.push(StepNo);
+  }
+  this.subtractStepNo = function(){
+    lastStepNo--;
   }
   this.lastStepNo = function(){
-    return previousStepNo--;
+    return lastStepNo.pop();
   }
   this.removebyindex = function(index){
     var slide = slides[index];
