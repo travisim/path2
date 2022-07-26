@@ -108,6 +108,7 @@ class A_star extends GridPathFinder{
       this._create_action(STATIC.EC, STATIC.NB);
       this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
       this._create_action(STATIC.DICRF, STATIC.ICR, this.current_node_YX);
+      this._create_action(STATIC.OutTop, STATIC.DIT);
       //this._create_action(STATIC.DP, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
@@ -123,7 +124,8 @@ class A_star extends GridPathFinder{
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
         this._create_action(STATIC.DICRB,STATIC.ICR, this.prev_node_YX);
-        this._create_action(STATIC.DIT,STATIC.InTop, this.current_node_YX, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_YX);
+        this._create_action(STATIC.InTopTemp,STATIC.DIT, this.current_node_YX, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_YX);
+        
         this.neighbours_YX.forEach(coord => {
           this._create_action(STATIC.DP, STATIC.NB, coord);
         });
@@ -145,7 +147,7 @@ class A_star extends GridPathFinder{
         if (next_YX_temp[0] < 0 || next_YX_temp[0] >= this.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= this.map_width) continue;
         if(this.map.get_data(next_YX_temp) == 1) surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
       }
-
+      this.deltaNWSE_STATICS_Temp = [];//temporarily stores the deltaNWSE_STATICS_Temp to allow display of neighbours if stepping backwards from a current node to previous node
       /* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
       for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
@@ -199,7 +201,9 @@ class A_star extends GridPathFinder{
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
           this._create_action(STATIC.DIM, this.deltaNWSE_STATICS[i], next_YX, h_cost, g_cost,this.current_node_YX);
-
+          this._create_action(STATIC.InTop, STATIC.DIT, next_YX, h_cost, g_cost,this.current_node_YX);
+          this._create_action(STATIC.Sort);
+          this.deltaNWSE_STATICS_Temp.push(i);
 					// ++ bfs.js
 
 					// since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
@@ -229,6 +233,7 @@ class A_star extends GridPathFinder{
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
           this._create_action(STATIC.EIM, this.deltaNWSE_STATICS[i]);
+         // this._create_action(STATIC.EIT, this.deltaNWSE_STATICS[i], next_YX, h_cost, g_cost,this.current_node_YX);
 					this._create_action(STATIC.EP, STATIC.QU, next_YX);
 					if (this.draw_arrows){
             this._create_action(STATIC.EA, new_node.arrow_index);

@@ -103,6 +103,7 @@ class GridPathFinder{
     this.states = {};
 		this.visited_incs = [];
 		this.current_node = undefined;
+    
 
     // generate empty 2d array
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width

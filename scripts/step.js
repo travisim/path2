@@ -52,11 +52,13 @@ const STATIC_COMMANDS = [
   "DIT",
   "EIM",
   "EIT",
+  "InTopTemp",
   "InTop",
   "InBottom",
+  "Sort",
   "Einfomap",
-  "TableAdd",
-  "Tableremove"
+  "OutLastAddedTable",
+ 
 ];
 
 const STATIC_DESTS = [
@@ -77,7 +79,8 @@ const STATIC_DESTS = [
   "IF",
   "IG",
   "IH",
-  "ICR" //info current path
+  "ICR", //info current path
+  "IT" //info table
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -203,9 +206,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	            myUI.InfoMap.drawOutOfBound(x,y);
                 myUI.InfoMap.drawVisited(x,y);
   	            myUI.InfoMap.drawQueue(x,y);
-               if (slides.length >= 1) myUI.InfoTable.recordLastStepNo(slides[0].rows[0].cells[0].firstChild.nodeValue);
-                myUI.InfoTable.OutTop();  
   	            myUI.InfoCurrent.DrawCurrent(x,y);
+                if (slides.length >= 1) myUI.InfoTable.recordLastStepNo(slides[0].rows[0].cells[0].firstChild.nodeValue);  
   
   	          }
               else if(command == STATIC.DICRB && dest==STATIC.ICR){//draw "current_YX",
@@ -218,23 +220,33 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
                 
   
   	          }
-              else if(command == STATIC.DIT && dest==STATIC.InTop){//draw "current_YX",
+              
+  	          //to draw neighbours
+  	          else if(command == STATIC.DIM){
+  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
+             
+                
+  	          }
+              else if(command == STATIC.InTopTemp && dest == STATIC.DIT  ){//draw "current_YX",
                 
                 myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost, myUI.InfoTable.lastStepNo())
   
   	          }
-  	          //to draw neighbours
-  	          else if(command == STATIC.DIM){
-  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
-                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);
-               
-            
+              else if(command == STATIC.InTop && dest==STATIC.DIT){
+                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);                
+  	          }
+              else if(command == STATIC.OutTop && dest==STATIC.DIT){
+                myUI.InfoTable.OutTop();             
+  	          }
+              else if(command == STATIC.Sort){
                 if (slides.length >= 2){
                   myUI.InfoTable.Sort(); // emulats insert at based on F cost
                   
                 }
                 
   	          }
+              
+                
   	        	//to erase neighbours
   	          else if(command == STATIC.EIM ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
