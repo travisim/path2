@@ -54,6 +54,7 @@ const STATIC_COMMANDS = [
   "EIT",
   "InTopTemp",
   "InTop",
+  "OutTop",
   "InBottom",
   "Sort",
   "Einfomap",
@@ -200,6 +201,12 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               
             }
             else if (myUI.planners[myUI.planner_choice] == A_star){
+             if(dest==STATIC.CR && command == STATIC.EP ){//record  "visiters" in 2d array
+  	            myUI.InfoMap.recordErasedVisited(x,y);            	            
+  	          }
+  	          if(dest== STATIC.QU && command == STATIC.EP ){//record  "visiters" in 2d array
+  	            myUI.InfoMap.recordErasedQueue(x,y);
+  	          }
               if(command == STATIC.DICRF && dest==STATIC.ICR){//draw "current_YX",
                 myUI.InfoMap.reset();
                 myUI.InfoMap.drawObstacle(x,y);
@@ -266,6 +273,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
+       
 
           
 

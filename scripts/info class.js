@@ -133,10 +133,19 @@ class UIInfoMap{
      myUI.InfoVisited.set_data([y,x], 1); // marks current node YX as visited
   //   console.log(myUI.InfoVisited.get_data([y,x]),"visited record after");
   }
+   recordErasedVisited(x,y){
+   //  console.log(myUI.InfoVisited.get_data([y,x]),"visited record before");
+     myUI.InfoVisited.set_data([y,x], 0); // marks current node YX as visited
+  //   console.log(myUI.InfoVisited.get_data([y,x]),"visited record after");
+  }
     
     
     
   recordDrawnQueue(x,y){
+    myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
+   // console.log(visited.get_data([y,x]));
+  }
+   recordErasedQueue(x,y){
     myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
    // console.log(visited.get_data([y,x]));
   }

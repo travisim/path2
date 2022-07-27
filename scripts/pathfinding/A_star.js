@@ -126,9 +126,10 @@ class A_star extends GridPathFinder{
         this._create_action(STATIC.DICRB,STATIC.ICR, this.prev_node_YX);
         this._create_action(STATIC.InTopTemp,STATIC.DIT, this.current_node_YX, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_YX);
         
-        this.neighbours_YX.forEach(coord => {
-          this._create_action(STATIC.DP, STATIC.NB, coord);
-        });
+       for (let i = 0; i < this.neighbours.length; ++i){
+          this._create_action(STATIC.DP, STATIC.NB,  this.neighbours[i].self_YX);
+          this._create_action(STATIC.DIM, this.neighbours_deltaNWSE_STATICS[i],this.neighbours[i].self_YX,this.neighbours[i].h_cost, this.neighbours[i].g_cost,this.current_node_YX);
+        }
       }
       this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
       this._save_step("bck");
@@ -139,8 +140,8 @@ class A_star extends GridPathFinder{
       this.visited_incs = []; // reset visited_incs after adding them
 
       // NOTE, a node is only visited if all its neighbours have been added to the queue
-      this.neighbours_YX = [];  // reset the neighbours for each new node
       this.neighbours = [];
+      this.neighbours_deltaNWSE_STATICS = [];
       var surrounding_map_deltaNWSE = [];
       for (let i = 0; i < this.num_neighbours; ++i) {
         var next_YX_temp = [this.current_node_YX[0] + this.delta[i][0], this.current_node_YX[1] + this.delta[i][1]];
@@ -195,7 +196,7 @@ class A_star extends GridPathFinder{
 					let closed_node = this.closed_list.get(next_YX);
 					if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
           this.neighbours.push(new_node);
-          this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
+          this.neighbours_deltaNWSE_STATICS.push(this.deltaNWSE_STATICS[i]);
 
           /* NEW */
           this._create_step();
