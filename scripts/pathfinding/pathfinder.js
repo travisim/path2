@@ -95,7 +95,6 @@ class GridPathFinder{
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
     this.neighbours = [];
-    this.neighbours_YX = [];  // current cell's neighbours; only contains passable cells
     this.path = null;
     this._clear_steps();
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
@@ -169,19 +168,23 @@ class GridPathFinder{
 			let x = arguments[2][1];
 			this.action_cache += bit_shift(y * this.map_width + x, 3 + this.static_bit_len * 2);
 		}
-		if (arguments[3]!==undefined && arguments[3]!==null){
+		if (arguments[4]!==undefined && arguments[4]!==null){
 			this.action_cache += 1<<2; // parent, g & h exists?
-			let y = arguments[5][0];
-			let x = arguments[5][1];
+			let y = arguments[6][0];
+			let x = arguments[6][1];
 			this.action_cache += bit_shift(y * this.map_width + x, 3 + this.static_bit_len * 2 + this.coord_bit_len);
 		}
 		this.step_cache.push(this.action_cache);
-		if (arguments[3]!==undefined){ // for g & h cost
-			this.step_cache.push(arguments[3]);
+		if (arguments[4]!==undefined){ // for g & h cost
 			this.step_cache.push(arguments[4]);
+			this.step_cache.push(arguments[5]);
 		}
-	}
-
+    if (arguments[3]!==undefined){ // for stepNo 
+			this.step_cache.push(arguments[3]);
+		}
+	}   //  stepcache = [action_cache,hcost,fcost,stepno]
+  //   this._create_action(STATIC.InTopTemp,STATIC.DIT, this.current_node_YX,this.step_index, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_YX);
+//this.step_index: 
 	_save_step(step_direction="fwd"){
 		if(step_direction=="fwd"){
 			this.step_index_map.fwd.push(this.steps_forward.length);
@@ -249,7 +252,7 @@ class GridPathFinder{
 			//this.states.visited_index+=this.visited.arr_length;
 			this.states.visited_index = nxt_index;
 console.log("state","this.step_index",this.step_index,this.neighbours);
-			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue: nodes_to_array(this.queue, "self_YX"), queue_node:this.queue, neighbours_node:this.neighbours, neighbours: deep_copy_matrix(this.neighbours_YX), visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
+			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:this.queue, neighbours:this.neighbours,/* neighbours: deep_copy_matrix(this.neighbours_YX), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
 			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(...myUI.arrow.full_canvas);
 
 		}

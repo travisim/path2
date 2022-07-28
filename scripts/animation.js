@@ -77,14 +77,14 @@ myUI.jump_to_step = function(target_step){
 
   function draw_canvas_from_state(state){
 
-    myUI.canvases.queue.draw_canvas(state.queue, `1d`, false, true);
+    myUI.canvases.queue.draw_canvas(nodes_to_array(state.queue, "self_YX"), `1d`, false, true);
 
     let curr_visited = NBitMatrix.expand_2_matrix(myUI.planner.get_visited(state.visited_tuple));
     myUI.canvases.visited.draw_canvas(curr_visited, `2d_heatmap`, false, true);
 
     myUI.canvases.current_YX.draw_canvas([state.node_YX], `1d`, false, true);
-console.log("state",state.visited_tuple);
-    myUI.canvases.neighbours.draw_canvas(state.neighbours, `1d`, false, true);
+//console.log("state",state.visited_tuple);
+    myUI.canvases.neighbours.draw_canvas(deep_copy_matrix(nodes_to_array(state.neighbours, "self_YX")), `1d`, false, true);
 
     if(state.path) myUI.canvases.neighbours.draw_canvas(state.path, `1d`, false, true);
     

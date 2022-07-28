@@ -113,6 +113,7 @@ class A_star extends GridPathFinder{
       this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_YX);
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
       this.visited_incs.forEach(coord=>this._create_action(STATIC.INC_P, STATIC.VI, coord));
+      //setTimeout( console.log("step_index","current",this.step_index),1000)
       this._save_step("fwd");
 
       this._create_step();
@@ -124,15 +125,16 @@ class A_star extends GridPathFinder{
       if (this.prev_node_YX) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_YX);
         this._create_action(STATIC.DICRB,STATIC.ICR, this.prev_node_YX);
-        this._create_action(STATIC.InTopTemp,STATIC.DIT, this.current_node_YX, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_YX);
+        this._create_action(STATIC.InTop,STATIC.DIT, this.current_node_YX,this.step_index, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_YX);
         
        for (let i = 0; i < this.neighbours.length; ++i){
           this._create_action(STATIC.DP, STATIC.NB,  this.neighbours[i].self_YX);
-          this._create_action(STATIC.DIM, this.neighbours_deltaNWSE_STATICS[i],this.neighbours[i].self_YX,this.neighbours[i].h_cost, this.neighbours[i].g_cost,this.current_node_YX);
+          this._create_action(STATIC.DIM, this.neighbours_deltaNWSE_STATICS[i],this.neighbours[i].self_YX,this.step_index,this.neighbours[i].h_cost, this.neighbours[i].g_cost,this.current_node_YX);
         }
       }
       this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
       this._save_step("bck");
+     
 
       /* FOUND GOAL */
       if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
@@ -201,8 +203,8 @@ class A_star extends GridPathFinder{
           /* NEW */
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
-          this._create_action(STATIC.DIM, this.deltaNWSE_STATICS[i], next_YX, h_cost, g_cost,this.current_node_YX);
-          this._create_action(STATIC.InTop, STATIC.DIT, next_YX, h_cost, g_cost,this.current_node_YX);
+          this._create_action(STATIC.DIM, this.deltaNWSE_STATICS[i], next_YX,this.step_index, h_cost, g_cost,this.current_node_YX);
+          this._create_action(STATIC.InTop, STATIC.DIT, next_YX,this.step_index, h_cost, g_cost,this.current_node_YX);
           this._create_action(STATIC.Sort);
           this.deltaNWSE_STATICS_Temp.push(i);
 					// ++ bfs.js
@@ -229,6 +231,9 @@ class A_star extends GridPathFinder{
           this._create_action(STATIC.DP, STATIC.QU, next_YX);
 					this.queue.push(new_node);  // add to queue
 					this.open_list.set(next_YX, new_node);  // add to open list
+       //   setTimeout( console.log("step_index","neighbours",this.step_index),1000)
+          //step_index starts from -1
+          
           this._save_step("fwd");
 
           this._create_step();

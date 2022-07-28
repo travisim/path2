@@ -339,6 +339,7 @@ function UIInfoTable(){
       parentEl.removeChild(slide);
     }
   }
+/* 
   var lastStepNo = [];
   this.recordLastStepNo = function(StepNo){
     lastStepNo.push(StepNo);
@@ -349,6 +350,7 @@ function UIInfoTable(){
   this.lastStepNo = function(){
     return lastStepNo.pop();
   }
+  */
   this.removebyindex = function(index){
     var slide = slides[index];
     var parentEl = slide.parentElement;

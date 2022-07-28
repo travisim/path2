@@ -136,13 +136,14 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           console.log(step);
         while(i<step.length){
           let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
-          var stepNo = myUI.animation.step;
+         // var stepno = myUI.animation.step;
           if(parent_exists){
             if(myUI.testing){
               console.log("parent exists");
             }
             var g_cost = step[i+1].toPrecision(5);
             var h_cost = step[i+2].toPrecision(5);
+            var stepNo = step[i+3];
             var f_cost = (step[i+1]+step[i+2]).toPrecision(5);
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
@@ -214,7 +215,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
                 myUI.InfoMap.drawVisited(x,y);
   	            myUI.InfoMap.drawQueue(x,y);
   	            myUI.InfoCurrent.DrawCurrent(x,y);
-                if (slides.length >= 1) myUI.InfoTable.recordLastStepNo(slides[0].rows[0].cells[0].firstChild.nodeValue);  
+                //if (slides.length >= 1) myUI.InfoTable.recordLastStepNo(slides[0].rows[0].cells[0].firstChild.nodeValue);  
   
   	          }
               else if(command == STATIC.DICRB && dest==STATIC.ICR){//draw "current_YX",
@@ -234,11 +235,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
              
                 
   	          }
-              else if(command == STATIC.InTopTemp && dest == STATIC.DIT  ){//draw "current_YX",
-                
-                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost, myUI.InfoTable.lastStepNo())
-  
-  	          }
+            
               else if(command == STATIC.InTop && dest==STATIC.DIT){
                 myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);                
   	          }
