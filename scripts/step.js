@@ -149,8 +149,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             i+=2;
           }
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parent_y, parent_x, parent_exists, arrow_index, color_index]);
-          
-             console.log(myUI.animation.step,"step");
+          try{  
+            console.log(myUI.animation.step,"step");
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
               else myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -270,16 +270,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
-       
-
-          
-
-
-
-            try{  
 	         
           }catch(e){
-            console.log(command, dest, "failed");
+            console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
             console.log(i, step);
           }
           ++i;

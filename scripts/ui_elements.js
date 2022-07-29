@@ -228,7 +228,7 @@ class UICanvas{
     if (array_type == "1d") 
       array_data.forEach(coord=>{
         // coord is in row-major form
-        if(isInt(coord)){
+        if(Number.isInteger(coord)){
           var y = Math.floor(coord/myUI.planner.map_width);
           var x = coord - y * myUI.planner.map_width;
           coord = [y,x];

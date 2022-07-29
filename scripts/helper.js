@@ -99,11 +99,6 @@ function bit_and(a, b){
 	return res;
 }
 
-function isInt(value) {
-  var x;
-  return isNaN(value) ? !1 : (x = parseFloat(value), (0 | x) === x);
-}
-
 class BitMatrix{
 
 	// THIS IS A CUSTOM CLASS THAT USES THE UINT8 ARRAYS TO MORE EFFICIENTLY STORE 2D BIT ARRAYS
