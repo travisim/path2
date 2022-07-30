@@ -135,8 +135,19 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
         if(myUI.testing)
           console.log(step);
         while(i<step.length){
-          let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
-         // var stepno = myUI.animation.step;
+          let j=i+1;
+          while(j<step.length){
+            if(Number.isInteger(step[j]) && step[j]&1) break;
+            ++j;
+          }
+          if(myUI.testing) console.log(i,j);
+          let [command, dest, y, x, parentY, parentX, colorIndex, stepIndex, arrowIndex, gCost, hCost] = GridPathFinder.unpack_action(step.slice(i, j));
+          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepIndex, arrowIndex, gCost, hCost]);
+
+          /* OLD */
+
+          /*let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
+          
           if(parent_exists){
             if(myUI.testing){
               console.log("parent exists");
@@ -148,8 +159,10 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             if(g_cost == null || h_cost == null ) f_cost = null; 
             i+=2;
           }
-          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parent_y, parent_x, parent_exists, arrow_index, color_index]);
-          try{  
+          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parent_y, parent_x, parent_exists, arrow_index, color_index]);/* */
+
+          /* OLD */
+          /*try{  
             console.log(myUI.animation.step,"step");
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
@@ -174,27 +187,13 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             }
             else if(command==STATIC.DA){
               // draw arrow
-              /*let fromyx = myUI.arrow.coords[myUI.arrow.step*2];
-              let toyx = myUI.arrow.coords[myUI.arrow.step*2+1];
-              myUI.draw_arrow(fromyx, toyx, false, 0, false);/* */
               myUI.arrow.elems[arrow_index].classList.remove("hidden");
               myUI.arrow.elems[arrow_index].style.fill = myUI.arrow.colors[color_index];
             }
             else if(command==STATIC.EA){
               // erase arrow
               myUI.arrow.elems[arrow_index].classList.add("hidden");
-              /*let data = myUI.arrow.data[myUI.arrow.step];
-              myUI.arrow.ctx.putImageData(...data);/* */
             }
-            else if(command==STATIC.DVC){
-              // draw vertex circle
-            }
-            else if(command==STATIC.DVC){
-              // erase vertex circle
-            }
-	         
-              
-
             if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
              
             }
@@ -245,37 +244,132 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               else if(command == STATIC.Sort){
                 if (slides.length >= 2){
                   myUI.InfoTable.Sort(); // emulats insert at based on F cost
-                  
                 }
-                
   	          }
-              
-                
   	        	//to erase neighbours
   	          else if(command == STATIC.EIM ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
             
                 myUI.InfoTable.removeSlidebById((stepNo+1).toString());
-              
   	          }
-              
             }
-              
-            
-	
-	
 	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnVisited(x,y);            	            
 	          }
 	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
-	         
           }catch(e){
             console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
             console.log(i, step);
+          }/* */
+
+          try{
+            console.log(myUI.animation.step,"step");
+            if(command==STATIC.EC){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
+              else myUI.canvases[statics_to_obj[dest]].erase_canvas();
+            }
+            else if(command==STATIC.DP){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
+              else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
+            }
+            else if(command==STATIC.EP){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
+              else myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
+            }
+            else if(command==STATIC.INC_P){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
+              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
+              
+            }
+            else if(command==STATIC.DEC_P){
+              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
+              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
+            }
+            else if(command==STATIC.DA){
+              // draw arrow
+              myUI.arrow.elems[arrowIndex].classList.remove("hidden");
+              myUI.arrow.elems[arrowIndex].style.fill = myUI.arrow.colors[colorIndex];
+            }
+            else if(command==STATIC.EA){
+              // erase arrow
+              myUI.arrow.elems[arrowIndex].classList.add("hidden");
+            }
+            if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
+             
+            }
+            else if (myUI.planners[myUI.planner_choice] == Dijkstra){
+              
+            }
+            else if (myUI.planners[myUI.planner_choice] == A_star){
+             if(dest==STATIC.CR && command == STATIC.EP ){//record  "visiters" in 2d array
+  	            myUI.InfoMap.recordErasedVisited(x,y);            	            
+  	          }
+  	          if(dest== STATIC.QU && command == STATIC.EP ){//record  "visiters" in 2d array
+  	            myUI.InfoMap.recordErasedQueue(x,y);
+  	          }
+              if(command == STATIC.DICRF && dest==STATIC.ICR){//draw "current_YX",
+                myUI.InfoMap.reset();
+                myUI.InfoMap.drawObstacle(x,y);
+  	            myUI.InfoMap.drawOutOfBound(x,y);
+                myUI.InfoMap.drawVisited(x,y);
+  	            myUI.InfoMap.drawQueue(x,y);
+  	            myUI.InfoCurrent.DrawCurrent(x,y);
+                //if (slides.length >= 1) myUI.InfoTable.recordLastStepNo(slides[0].rows[0].cells[0].firstChild.nodeValue);  
+  
+  	          }
+              else if(command == STATIC.DICRB && dest==STATIC.ICR){//draw "current_YX",
+                myUI.InfoMap.reset();
+                myUI.InfoMap.drawObstacle(x,y);
+  	            myUI.InfoMap.drawOutOfBound(x,y);
+                myUI.InfoMap.drawVisited(x,y);
+  	            myUI.InfoMap.drawQueue(x,y);
+  	            myUI.InfoCurrent.DrawCurrent(x,y);
+                
+  
+  	          }
+              
+  	          //to draw neighbours
+  	          else if(command == STATIC.DIM){
+  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
+             
+                
+  	          }
+            
+              else if(command == STATIC.InTop && dest==STATIC.DIT){
+                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);                
+  	          }
+              else if(command == STATIC.OutTop && dest==STATIC.DIT){
+                myUI.InfoTable.OutTop();             
+  	          }
+              else if(command == STATIC.Sort){
+                if (slides.length >= 2){
+                  myUI.InfoTable.Sort(); // emulats insert at based on F cost
+                }
+  	          }
+  	        	//to erase neighbours
+  	          else if(command == STATIC.EIM ){
+  	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
+            
+                myUI.InfoTable.removeSlidebById((stepNo+1).toString());
+  	          }
+            }
+	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
+	            myUI.InfoMap.recordDrawnVisited(x,y);            	            
+	          }
+	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
+	            myUI.InfoMap.recordDrawnQueue(x,y);
+	          }
+          }catch(e){
+            console.log(e);
+            console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
+            console.log(step[i], i, step);
+            debugger;
           }
-          ++i;
+          
+          /*++i;*/
+          i=j;
         }
         run_next_step();
       });

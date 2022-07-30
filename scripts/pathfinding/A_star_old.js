@@ -103,18 +103,6 @@ class A_star extends GridPathFinder{
       this.visited.increment(this.current_node_YX); // marks current node YX as visited
 
       this._create_step();
-      this._create_action({command: STATIC.SIMPLE});
-      this._create_action({command: STATIC.EC, dest: STATIC.CR});
-      this._create_action({command: STATIC.EC, dest: STATIC.NB});
-      this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_YX});
-      this._create_action({command: STATIC.DICRF, dest: STATIC.ICR, nodeCoord: this.current_node_YX});
-      this._create_action({command: STATIC.OutTop, dest: STATIC.DIT});
-      this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: this.current_node_YX});
-      this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_YX});
-      this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
-      this._save_step("fwd");
-      /*
-      this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
@@ -126,24 +114,7 @@ class A_star extends GridPathFinder{
       this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
       this.visited_incs.forEach(coord=>this._create_action(STATIC.INC_P, STATIC.VI, coord));
       //setTimeout( console.log("step_index","current",this.step_index),1000)
-      this._save_step("fwd");*/
-
-      this._create_step();
-      this._create_action({command: STATIC.SIMPLE});
-      this._create_action({command: STATIC.EC, dest: STATIC.CR});
-      this._create_action({command: STATIC.EP, dest: STATIC.VI, nodeCoord: this.current_node_YX});
-      this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: this.current_node_YX});
-      if(this.prev_node_YX){
-        this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.prev_node_YX});
-        this._create_action({command: STATIC.DICRB, dest: STATIC.ICR, nodeCoord: this.prev_node_YX});
-        this._create_action({command: STATIC.InTop, dest: STATIC.DIT, nodeCoord: this.current_node_YX, stepIndex: this.step_index, hCost: this.current_node.h_cost, gCost: this.current_node.g_cost, parentCoord: this.prev_node_YX});
-        for(let i=0;i<this.neighbours.length;++i){
-          this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: this.neighbours[i].self_YX});
-          this._create_action({command: STATIC.DIM, dest: this.neighbours_deltaNWSE_STATICS[i], nodeCoord: this.neighbours[i].self_YX, stepIndex: this.step_index, hCost: this.neighbours[i].h_cost, gCost: this.neighbours[i].g_cost, parentCoord: this.current_node_YX});
-        }
-        this.visited_incs.forEach(coord=>this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: coord}));
-      }
-      this._save_step("bck");/*
+      this._save_step("fwd");
 
       this._create_step();
       this._create_action(STATIC.SIMPLE);
@@ -162,7 +133,7 @@ class A_star extends GridPathFinder{
         }
       }
       this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
-      this._save_step("bck");/* */
+      this._save_step("bck");
      
 
       /* FOUND GOAL */
@@ -229,49 +200,42 @@ class A_star extends GridPathFinder{
           this.neighbours.push(new_node);
           this.neighbours_deltaNWSE_STATICS.push(this.deltaNWSE_STATICS[i]);
 
-          /* OLD *//*
+          /* NEW */
           this._create_step();
           this._create_action(STATIC.DP, STATIC.NB, next_YX);
           this._create_action(STATIC.DIM, this.deltaNWSE_STATICS[i], next_YX,this.step_index, h_cost, g_cost,this.current_node_YX);
           this._create_action(STATIC.InTop, STATIC.DIT, next_YX,this.step_index, h_cost, g_cost,this.current_node_YX);
           this._create_action(STATIC.Sort);
           this.deltaNWSE_STATICS_Temp.push(i);
-					*/
-          /* NEW */
-          this._create_step();
-          this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_YX});
-          this._create_action({command: STATIC.DIM, dest: this.neighbours_deltaNWSE_STATICS[i], nodeCoord: next_YX, stepIndex: this.step_index, hCost: h_cost, gCost: g_cost, parentCoord: this.current_node_YX});
-          this._create_action({command: STATIC.InTop, dest: STATIC.DIT, nodeCoord: next_YX, stepIndex: this.step_index, hCost: h_cost, gCost: g_cost, parentCoord: this.current_node_YX});
-          this._create_action({command: STATIC.Sort});
-          this.deltaNWSE_STATICS_Temp.push(i);
+					// ++ bfs.js
 
 					// since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
 					// see https://www.geeksforgeeks.org/a-search-algorithm/
 					if (this.draw_arrows) {
 						// ARROW
             if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-              //this._create_action(STATIC.EA, open_node.arrow_index);
-              this._create_action({command: STATIC.EA, arrowIndex: open_node.arrow_index});
+              this._create_action(STATIC.EA, open_node.arrow_index);
               this.arrow_state[open_node.arrow_index] = 0;
             }
             if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-              //this._create_action(STATIC.EA, closed_node.arrow_index);
-              this._create_action({command: STATIC.EA, arrowIndex: closed_node.arrow_index});
+              this._create_action(STATIC.EA, closed_node.arrow_index);
               this.arrow_state[closed_node.arrow_index] = 0;
             }
             new_node.arrow_index = myUI.create_arrow(next_YX, this.current_node_YX); // node is reference typed so properties can be modified after adding to queue or open list
             this.arrow_state[new_node.arrow_index] = 1;
-						//this._create_action(STATIC.DA, new_node.arrow_index);
-            this._create_action({command: STATIC.DA, arrowIndex: new_node.arrow_index});
+						//myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
+						this._create_action(STATIC.DA, new_node.arrow_index);
+            
 						// END OF ARROW
 					}
-          //this._create_action(STATIC.DP, STATIC.QU, next_YX);
-          this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_YX});
+          this._create_action(STATIC.DP, STATIC.QU, next_YX);
 					this.queue.push(new_node);  // add to queue
 					this.open_list.set(next_YX, new_node);  // add to open list
+       //   setTimeout( console.log("step_index","neighbours",this.step_index),1000)
+          //step_index starts from -1
+          
           this._save_step("fwd");
 
-          /* OLD *//*
           this._create_step();
           this._create_action(STATIC.EP, STATIC.NB, next_YX);
           this._create_action(STATIC.EIM, this.deltaNWSE_STATICS[i]);
@@ -286,24 +250,6 @@ class A_star extends GridPathFinder{
             if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
               this._create_action(STATIC.DA, closed_node.arrow_index);
               this._create_action(STATIC.DP, STATIC.QU, next_YX);
-            }
-          }
-          this._save_step("bck");/* */
-
-          this._create_step();
-          this._create_action({command: STATIC.EP, dest: STATIC.NB, nodeCoord: next_YX});
-          this._create_action({command: STATIC.EIM, dest: this.deltaNWSE_STATICS[i]});
-         // this._create_action(STATIC.EIT, this.deltaNWSE_STATICS[i], next_YX, h_cost, g_cost,this.current_node_YX);
-					this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: next_YX});
-					if (this.draw_arrows){
-            this._create_action({command: STATIC.EA, arrowIndex: new_node.arrow_index});
-            if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-              this._create_action({command: STATIC.DA, arrowIndex: open_node.arrow_index});
-              this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_YX});
-            }
-            if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-              this._create_action({command: STATIC.DA, arrowIndex: closed_node.arrow_index});
-              this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_YX});
             }
           }
           this._save_step("bck");
