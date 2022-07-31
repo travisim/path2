@@ -76,7 +76,7 @@ myUI.jump_to_step = function(target_step){
   myUI.run_steps(target_step - myUI.animation.step, "fwd");
 
   function draw_canvas_from_state(state){
-
+    
     myUI.canvases.queue.draw_canvas(nodes_to_array(state.queue, "self_YX"), `1d`, false, true);
 
     let curr_visited = NBitMatrix.expand_2_matrix(myUI.planner.get_visited(state.visited_tuple));
@@ -84,39 +84,44 @@ myUI.jump_to_step = function(target_step){
 
     myUI.canvases.current_YX.draw_canvas([state.node_YX], `1d`, false, true);
 //console.log("state",state.visited_tuple);
-    myUI.canvases.neighbours.draw_canvas(deep_copy_matrix(nodes_to_array(state.neighbours, "self_YX")), `1d`, false, true);
+    myUI.canvases.neighbours.draw_canvas(nodes_to_array(state.neighbours, "self_YX"), `1d`, false, true);
 
     if(state.path) myUI.canvases.neighbours.draw_canvas(state.path, `1d`, false, true);
-    
+
     if(state.arrow_state) for(let i=0;i<myUI.arrow.elems.length;++i){
+      myUI.arrow.elems[i].style.fill = myUI.arrow.colors[0];
       if(state.arrow_state[i]) myUI.arrow.elems[i].classList.remove("hidden");
       else myUI.arrow.elems[i].classList.add("hidden");
-
-        myUI.InfoMap.reset();
-        myUI.InfoTable.removeAllTableSlides();
-      
-        myUI.InfoMap.drawObstacle(state.node_YX[1],state.node_YX[0]);
-        myUI.InfoMap.drawOutOfBound(state.node_YX[1],state.node_YX[0]);
-        myUI.InfoCurrent.DrawCurrent(state.node_YX[1],state.node_YX[0]);
-      	myUI.InfoQueue = new BitMatrix(myUI.map_height, myUI.map_width); // recreates the visited 2d array from tha steps for the display of the info map
-        myUI.InfoVisited = new BitMatrix(myUI.map_height, myUI.map_width); // recreates the visited 2d array from tha steps for the display of the info map
-        state.queue.forEach(yx=>{ 
-          myUI.InfoQueue.set_data(yx, 1);
-        });
-        myUI.InfoMap.drawQueue(x,y);
-
-        /*
-      forEach(yx=>{ 
-         myUI.InfoVisited.set_data(yx, 1);
-       });
-      
-    
-        myUI.InfoMap.drawVisitedFromState(x,y);
-        
-        
-      */
     }
-    //if(state.arrow_img) myUI.arrow.ctx.putImageData(state.arrow_img, 0, 0);
+
+    try{
+      myUI.InfoMap.reset();
+      myUI.InfoTable.removeAllTableSlides();
+    
+      myUI.InfoMap.drawObstacle(state.node_YX[1],state.node_YX[0]);
+      myUI.InfoMap.drawOutOfBound(state.node_YX[1],state.node_YX[0]);
+      myUI.InfoCurrent.DrawCurrent(state.node_YX[1],state.node_YX[0]);
+      myUI.InfoQueue = new BitMatrix(myUI.map_height, myUI.map_width); // recreates the visited 2d array from tha steps for the display of the info map
+      myUI.InfoVisited = new BitMatrix(myUI.map_height, myUI.map_width); // recreates the visited 2d array from tha steps for the display of the info map
+      state.queue.forEach(yx=>{ 
+        myUI.InfoQueue.set_data(yx, 1);
+      });
+      myUI.InfoMap.drawQueue(x,y);
+
+      /*
+    forEach(yx=>{ 
+      myUI.InfoVisited.set_data(yx, 1);
+    });
+    
+  
+      myUI.InfoMap.drawVisitedFromState(x,y);
+      
+      
+    */
+    }
+    catch(e){
+      debugger;
+    }
   }
 }
 

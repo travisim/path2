@@ -141,8 +141,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             ++j;
           }
           if(myUI.testing) console.log(i,j);
-          let [command, dest, y, x, parentY, parentX, colorIndex, stepIndex, arrowIndex, gCost, hCost] = GridPathFinder.unpack_action(step.slice(i, j));
+          let [command, dest, y, x, parentY, parentX, colorIndex, stepNo, arrowIndex, gCost, hCost] = GridPathFinder.unpack_action(step.slice(i, j));
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepIndex, arrowIndex, gCost, hCost]);
+          if(gCost!==undefined && hCost!==undefined) var fCost=gCost+hCost;
 
           /* OLD */
 
@@ -338,7 +339,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	          }
             
               else if(command == STATIC.InTop && dest==STATIC.DIT){
-                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);                
+                myUI.InfoTable.InTop(x,y,parentX,parentY,fCost,gCost,hCost,stepNo);                
   	          }
               else if(command == STATIC.OutTop && dest==STATIC.DIT){
                 myUI.InfoTable.OutTop();             
@@ -365,7 +366,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log(e);
             console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
             console.log(step[i], i, step);
-            debugger;
           }
           
           /*++i;*/

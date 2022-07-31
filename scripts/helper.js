@@ -28,6 +28,14 @@ function deep_copy_matrix(matrix, flip_bit=false){
   return res;
 }
 
+function deepCopyNodeArray(nodeArray){
+	let res = [];
+	for(const node of nodeArray){
+		res.push(node.clone());
+	}
+	return res;
+}
+
 function zero2D(rows, cols, max_val=255) {
   var array = new Array(rows);
   while(rows--){

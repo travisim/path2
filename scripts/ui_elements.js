@@ -89,7 +89,7 @@ class UICanvas{
     this.ctx.scale(widthRatio*dpr, heightRatio*dpr); //adjust this! context.scale(2,2); 2=200
 
     if (data_width > 256 || data_height>256) this.pixelSize = 1.2;
-    else this.pixelSize = 1.02;
+    else this.pixelSize = 1;
 
     if(retain_data){
       //console.log(data_width);

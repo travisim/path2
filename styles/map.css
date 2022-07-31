@@ -68,7 +68,7 @@
 .arrow{
 	display: block;
 	position: absolute;
-	z-index: 61;
+	z-index: 59;
 	fill: #bcbacb;
 }
 
@@ -80,7 +80,7 @@
   position: absolute;
   z-index: 1000;
   width:200px;
-  height:80px;
+  height:auto;
 }
 
 #hover_x, #hover_y{

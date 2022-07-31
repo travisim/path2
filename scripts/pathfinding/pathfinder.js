@@ -367,7 +367,7 @@ class GridPathFinder{
 
 	_manage_state(){
 		// [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
-		if (this.step_index - this.prev_count >= 115) {  
+		if (this.step_index - this.prev_count >= 80) {  
 			this.prev_count = this.step_index;
 			++this.state_counter;
 			if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
@@ -388,7 +388,7 @@ class GridPathFinder{
 			//this.states.visited_index+=this.visited.arr_length;
 			this.states.visited_index = nxt_index;
 console.log("state","this.step_index",this.step_index,this.neighbours);
-			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:this.queue, neighbours:this.neighbours,/* neighbours: deep_copy_matrix(this.neighbours_YX), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
+			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:deepCopyNodeArray(this.queue), neighbours:deepCopyNodeArray(this.neighbours),/* neighbours: deep_copy_matrix(this.neighbours_YX), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
 			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(...myUI.arrow.full_canvas);
 
 		}
@@ -503,5 +503,11 @@ class Node{
 		  this.self_YX = self_YX[0]>255 || self_YX[1]>255 ? new Uint16Array(self_YX) : new Uint8Array(self_YX);
 			this.arrow_index = arrow_index;  // refers to the index (or arrow array) at which the arrow points from the node to the parent
 			// arrow index is used to construct the steps/states when computing the path
+	}
+
+	clone(){
+		let node = new this.constructor(this.f_cost, this.g_cost, this.h_cost, null, this.self_YX, this.arrow_index);
+		node.parent = {self_YX: this.parent.self_YX};
+		return node;
 	}
 }
