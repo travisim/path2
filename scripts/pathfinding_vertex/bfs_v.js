@@ -47,6 +47,7 @@ class BFS_Vertex extends GridPathFinder {
       }/* */
       this.visited.increment(this.current_node_YX); // marks current node YX as visited
 
+      /* OLD *//*
       this._create_step();
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
@@ -73,6 +74,30 @@ class BFS_Vertex extends GridPathFinder {
         });
       }
       this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
+      this._save_step("bck");
+
+      /* NEW */
+      this._create_step();
+      this._create_action({command: STATIC.EC, dest: STATIC.CR});
+      this._create_action({command: STATIC.EC, dest: STATIC.NB});
+      this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_YX});
+      this._create_action({command: STATIC.DI, dest: STATIC.ICR, nodeCoord: this.current_node_YX});
+      this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: this.current_node_YX});
+      this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_YX});
+      this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
+      this._save_step("fwd");
+
+      this._create_step();
+      this._create_action({command: STATIC.SIMPLE});
+      this._create_action({command: STATIC.EC, dest: STATIC.CR});
+      this._create_action({command: STATIC.EP, dest: STATIC.VI, nodeCoord: this.current_node_YX});
+      this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: this.current_node_YX});
+      if(this.prev_node_YX){
+        this._create_action({command: STATIC.DP, dest: STATIC.ICR, nodeCoord: this.prev_node_YX});
+        this._create_action({command: STATIC.DI, dest: STATIC.ICR, nodeCoord: this.prev_node_YX});
+        this.neighbours_YX.forEach(coord=>this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: coord}));
+      }
+      this.visited_incs.forEach(coord=>this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: coord}));
       this._save_step("bck");
 
       this.visited_incs = []; // reset visited_incs after adding them
@@ -136,34 +161,47 @@ class BFS_Vertex extends GridPathFinder {
 
         this.neighbours_YX.push(next_YX);  // add to neighbours, only need YX as don't need to search parents
 
-        /* NEW */
         this._create_step();
+        /* OLD *//*
         this._create_action(STATIC.DP, STATIC.NB, next_YX);
         this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
+        /* NEW */
+        this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_YX});
+        this._create_action({command: STATIC.DI, dest: this.deltaNWSE_STATICS[i], nodeCoord: next_YX, parentCoord: this.current_node_YX});
 
         if (!this.queue_matrix[next_YX[0]][next_YX[1]]) { // prevent from adding to queue again
           let node = new Node(null, null, null, this.current_node, next_YX);
           this.queue.push(node);  // add to queue
-          this._create_action(STATIC.DP, STATIC.QU, next_YX);
+          //this._create_action(STATIC.DP, STATIC.QU, next_YX);
+          this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_YX});
           if (this.draw_arrows) {
             // ARROW
             var arrow_index = myUI.create_arrow(next_YX, this.current_node_YX, true);
             this.arrow_state[arrow_index] = 1;
             node.arrow_index = arrow_index;
             //myUI.draw_arrow(next_YX,  this.current_node_YX, true, 0, false);  // draw arrows backwards; point to parent
-            this._create_action(STATIC.DA, arrow_index);
+            //this._create_action(STATIC.DA, arrow_index);
+            this._create_action({command: STATIC.DA, arrowIndex: arrow_index});
             // END OF ARROW
           }
         }
         this._save_step("fwd");
 
         this._create_step();
+        /* OLD *//*
         this._create_action(STATIC.EP, STATIC.NB, next_YX);
         this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_YX, null,null,this.current_node_YX);
+        /* NEW */
+        this._create_action({command: STATIC.EP, dest: STATIC.NB, nodeCoord: next_YX});
+        this._create_action({command: STATIC.EI, dest: this.deltaNWSE_STATICS[i], nodeCoord: next_YX, parentCoord: this.current_node_YX});
         if (!this.queue_matrix[next_YX[0]][next_YX[1]]) {
           this.queue_matrix[next_YX[0]][next_YX[1]] = 1;  // add to matrix marker
-          this._create_action(STATIC.EP, STATIC.QU, next_YX);
-          if (this.draw_arrows) this._create_action(STATIC.EA, arrow_index);
+          //this._create_action(STATIC.EP, STATIC.QU, next_YX);
+          this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: next_YX});
+          if (this.draw_arrows){
+            //this._create_action(STATIC.EA, arrow_index);
+            this._create_action({command: STATIC.EA, arrowIndex: arrow_index});
+          }
         }
         this._save_step("bck");
         
