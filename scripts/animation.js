@@ -137,7 +137,7 @@ myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){
   }
 }
 
-myUI.create_arrow = function(start_YX, end_YX, vertex=false, head_pc=0.7){
+myUI.create_arrow = function(start_YX, end_YX, head_pc=0.7){
   // head_pc is defined as the proportion of line is in front of the pointer
   const start_coord = {y:start_YX[0], x:start_YX[1]};
   const end_coord = {y:end_YX[0], x:end_YX[1]};
@@ -159,7 +159,7 @@ myUI.create_arrow = function(start_YX, end_YX, vertex=false, head_pc=0.7){
   else elem.innerHTML = `<path d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${back_len} v 3 l 6 -3 h ${front_len} a 1.5 1.5, 0, 0, 0, 0 -3 h ${0-front_len} l -6 -3 v 3 z"></path>`;
   document.getElementById("canvas_container").appendChild(elem);
   let displayOffset = 0.5;
-  if(vertex){
+  if(myUI.vertex){
     displayOffset = 0;
     elem.style.zIndex = 40
   }
