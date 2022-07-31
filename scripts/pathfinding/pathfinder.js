@@ -404,32 +404,50 @@ console.log("state","this.step_index",this.step_index,this.neighbours);
 		myUI.node = originalNode;
 		while (node != null) {
 			this.path.unshift(node.self_YX);
+			/* OLD *//*
 			this._create_action(STATIC.DP, STATIC.PA, node.self_YX);
 			this._create_action(STATIC.DA, node.arrow_index, 1);
+			/* NEW */
+			this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_YX});
+			this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
 			node = node.parent;
 		}
 		console.log("found");
+		/* OLD *//*
 		this._create_action(STATIC.SIMPLE);
 		this._create_action(STATIC.EC, STATIC.CR);
+		/* NEW */
+		this._create_action({command: STATIC.SIMPLE});
+		this._create_action({command: STATIC.EC, dest: STATIC.CR});
 		this._save_step("fwd");
 
 		this._create_step();
+		/* OLD *//*
 		this._create_action(STATIC.SIMPLE);
 		this._create_action(STATIC.EC, STATIC.PA);
 		this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
+		/* NEW */
+		this._create_action({command: STATIC.SIMPLE});
+		this._create_action({command: STATIC.EC, dest: STATIC.PA});
+		this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_YX});
 		node = originalNode;
 		while (node != null) {
+			/* OLD *//*
 			this._create_action(STATIC.DA, node.arrow_index, 0);
+			/* NEW */
+			this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 0});
 			node = node.parent;
 		}
 		this._save_step("bck");
 
 		this._create_step();
-		this._create_action(STATIC.SIMPLE);
+		//this._create_action(STATIC.SIMPLE);
+		this._create_action({command: STATIC.SIMPLE});
 		this._save_step("fwd");
 
 		this._create_step();
-		this._create_action(STATIC.SIMPLE);
+		//this._create_action(STATIC.SIMPLE);
+		this._create_action({command: STATIC.SIMPLE});
 		this._save_step("bck");
 		return true;
 	}
