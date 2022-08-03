@@ -222,21 +222,21 @@ class GridPathFinder{
 		// command is assumed to exist
 		idx = this._manageAction(this.static_bit_len);
 		this.actionCache[idx] += bit_shift(command, this.bitOffset - this.static_bit_len);
-		console.log("NEW ACTION")
-		console.log(this.actionCache);
+		//console.log("NEW ACTION")
+		//console.log(this.actionCache);
 		if(dest!==undefined){
 			idx = this._manageAction(this.static_bit_len);
 			this.actionCache[0] += 1<<1;
 			this.actionCache[idx] += bit_shift(dest, this.bitOffset - this.static_bit_len);
-			console.log(this.actionCache);
+			//console.log(this.actionCache);
 		}
 		if(nodeCoord!==undefined){
-			console.log(nodeCoord);
+			//console.log(nodeCoord);
 			idx = this._manageAction(this.coord_bit_len);
 			this.actionCache[0] += 1<<2;
-			console.log(this.bitOffset - this.coord_bit_len);
+			//console.log(this.bitOffset - this.coord_bit_len);
 			this.actionCache[idx] += bit_shift(nodeCoord[0]*this.map_width+nodeCoord[1], this.bitOffset - this.coord_bit_len);
-			console.log(this.actionCache);
+			//console.log(this.actionCache);
 		}
 		if(parentCoord!==undefined){
 			idx = this._manageAction(this.coord_bit_len);
@@ -387,7 +387,7 @@ class GridPathFinder{
 			let visited_tuple = new Uint32Array([curr_visited_section, this.states.visited_index, nxt_index]);//this.states.visited_index + this.visited.arr_length]);
 			//this.states.visited_index+=this.visited.arr_length;
 			this.states.visited_index = nxt_index;
-console.log("state","this.step_index",this.step_index,this.neighbours);
+//console.log("state","this.step_index",this.step_index,this.neighbours);
 			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:deepCopyNodeArray(this.queue), neighbours:deepCopyNodeArray(this.neighbours),/* neighbours: deep_copy_matrix(this.neighbours_YX), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
 			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(...myUI.arrow.full_canvas);
 

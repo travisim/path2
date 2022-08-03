@@ -110,6 +110,7 @@ table {
    width: 100%;
    position: relative;
    table-layout: fixed;
+   border-spacing: 2px 2px; /*spacing,initial spacing*/
 }
 .table_header_cell{
   border: 1px solid black;

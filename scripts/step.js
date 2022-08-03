@@ -143,7 +143,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           if(myUI.testing) console.log(i,j);
           let [command, dest, y, x, parentY, parentX, colorIndex, stepNo, arrowIndex, gCost, hCost] = GridPathFinder.unpack_action(step.slice(i, j));
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepIndex, arrowIndex, gCost, hCost]);
-          if(gCost!==undefined && hCost!==undefined) var fCost=gCost+hCost;
+          if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost);
 
           /* OLD */
 
@@ -297,13 +297,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               // erase arrow
               myUI.arrow.elems[arrowIndex].classList.add("hidden");
             }
-            if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
-             
-            }
-            else if (myUI.planners[myUI.planner_choice] == Dijkstra){
-              
-            }
-            else if (myUI.planners[myUI.planner_choice] == A_star){
+           
              if(dest==STATIC.CR && command == STATIC.EP ){//record  "visiters" in 2d array
   	            myUI.InfoMap.recordErasedVisited(x,y);            	            
   	          }
@@ -333,35 +327,36 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               
   	          //to draw neighbours
   	          else if(command == STATIC.DIM){
-  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
+  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost.toPrecision(5),g_cost.toPrecision(5),h_cost.toPrecision(5));
              
                 
   	          }
             
               else if(command == STATIC.InTop && dest==STATIC.DIT){
-                myUI.InfoTable.InTop(x,y,parentX,parentY,fCost,gCost,hCost,stepNo);                
+                myUI.InfoTable.inTop(stepNo,[x+", "+y,parentX+", "+parentY,fCost.toPrecision(5),gCost.toPrecision(5),hCost.toPrecision(5)]);                
   	          }
               else if(command == STATIC.OutTop && dest==STATIC.DIT){
-                myUI.InfoTable.OutTop();             
+                myUI.InfoTable.outTop();             
   	          }
               else if(command == STATIC.Sort){
                 if (slides.length >= 2){
-                  myUI.InfoTable.Sort(); // emulats insert at based on F cost
+                  myUI.InfoTable.sort(); // emulats insert at based on F cost
                 }
   	          }
   	        	//to erase neighbours
   	          else if(command == STATIC.EIM ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-            
                 myUI.InfoTable.removeSlidebById((stepNo+1).toString());
   	          }
-            }
+            
 	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnVisited(x,y);            	            
 	          }
 	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
+
+            
           }catch(e){
             console.log(e);
             console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
