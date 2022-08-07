@@ -246,7 +246,7 @@ myUI.loadPlanner = function() {
 	myUI.selects["planner_select"].elem.value = myUI.planner_choice;
 	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
-  determine_table_header();
+  myUI.InfoTable.setTableHeader(myUI.planner.display_table_header_name());
   myUI.init_planner_config();
 }
 
@@ -291,7 +291,7 @@ myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner)
 myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
 
 
-
+/*
 //determines the type of info table
 function determine_table_header(){
 
@@ -420,4 +420,4 @@ function determine_table_header(){
     });
   }
 }
-
+*/

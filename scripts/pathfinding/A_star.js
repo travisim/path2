@@ -5,6 +5,9 @@ class A_star extends GridPathFinder{
 	static get display_name(){
 		return "A star";
   }
+  display_table_header_name(){
+		return ["Queue No","Vertex","Parent","F cost","G cost","H cost"];
+  }
 
   static get distance_metrics(){
     return ["Euclidean", "Manhattan", "Chebyshev"];
@@ -17,7 +20,7 @@ class A_star extends GridPathFinder{
   set_distance_metric(metric){
     this.distance_metric = metric;
   }
-
+  
   calc_cost(successor){
     function manhattan(c1, c2){
       return Math.abs(c1[0]-c2[0]) + Math.abs(c1[1]-c2[1]);
