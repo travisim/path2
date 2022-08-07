@@ -243,7 +243,7 @@ class A_star extends GridPathFinder{
           /* NEW */
           this._create_step();
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_YX});
-          this._create_action({command: STATIC.DIM, dest: this.neighbours_deltaNWSE_STATICS[i], nodeCoord: next_YX, stepIndex: this.step_index, hCost: h_cost, gCost: g_cost, parentCoord: this.current_node_YX});
+          this._create_action({command: STATIC.DIM, dest: this.deltaNWSE_STATICS[i], nodeCoord: next_YX, stepIndex: this.step_index, hCost: h_cost, gCost: g_cost, parentCoord: this.current_node_YX});
           this._create_action({command: STATIC.InTop, dest: STATIC.DIT, nodeCoord: next_YX, stepIndex: this.step_index, hCost: h_cost, gCost: g_cost, parentCoord: this.current_node_YX});
           this._create_action({command: STATIC.Sort});
           this.deltaNWSE_STATICS_Temp.push(i);

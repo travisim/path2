@@ -1,8 +1,9 @@
 
 class UIInfoTable{
-  constructor(slidesID=document.getElementsByClassName("slide")){ //input titles of table in string
-    this.slides = slidesID;
+  constructor(slidesElement=document.getElementsByClassName("slide")){ //input titles of table in string
+    this.slides = slidesElement;
   }
+  
   setTableHeader(titles){
     var table = document.getElementById("info_table_header");
     var header = table.createTHead();
@@ -89,7 +90,7 @@ class UIInfoTable{
     
     
   }
-  sort(indexOfColumnToBeSorted){
+  sort(indexOfColumnToBeSorted=3){
     var table, i, x, y;
   // var slides = document.getElementsByClassName("slide");
     var switching = true;
@@ -98,7 +99,7 @@ class UIInfoTable{
     while (switching) {
       switching = false;
       // Loop to go through all rows
-       for (i = 0; i < (slides.length-1); i++){
+       for (i = 0; i < (this.slides.length-1); i++){
          var Switch = false;
          // Fetch 2 elements that need to be compared
          x = this.slides[i].cells[indexOfColumnToBeSorted].firstChild.nodeValue;
@@ -112,7 +113,7 @@ class UIInfoTable{
        }
       if (Switch){
         // Function to switch rows and mark switch as completed
-        slides[i+1].after(slides[i]);
+        this.slides[i+1].after(this.slides[i]);
         switching = true;
       }
     }
@@ -139,7 +140,7 @@ class UIInfoTable{
   }
 
   removeSlideByIndex(index){
-    var slide = slides[index];
+    var slide = this.slides[index];
     var parentEl = slide.parentElement;
     parentEl.removeChild(slide)
   }

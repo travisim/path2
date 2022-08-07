@@ -247,6 +247,7 @@ myUI.loadPlanner = function() {
 	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
   myUI.InfoTable.setTableHeader(myUI.planner.display_table_header_name());
+  determine_info_map_header()
   myUI.init_planner_config();
 }
 
@@ -291,33 +292,13 @@ myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner)
 myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
 
 
-/*
+
 //determines the type of info table
-function determine_table_header(){
+function determine_info_map_header(){
 
   if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
   // delete previous header
-    if(document.getElementById("info_table_header").rows.length == 1){
-      document.getElementById("info_table_header").deleteRow(0); 
-    }
-    myUI.InfoTable.removeAllTableSlides();
-    
-    
-    var table = document.getElementById("info_table_header");
-    var header = table.createTHead();
-    var row = header.insertRow(0);
-    var cell0 = row.insertCell(0);
-    var cell1 = row.insertCell(1);
-    var cell2 = row.insertCell(2);
-  
-  
-    cell0.className = 'table_header_cell';
-    cell1.className = 'table_header_cell';
-    cell2.className = 'table_header_cell';
-    cell0.innerHTML = "<b>Queue No.</b>";
-    cell1.innerHTML = "<b>Vertex</b>";
-    cell2.innerHTML = "<b>Parent</b>";
-  
+   
     [
     ["N"],
 		["NE"],
@@ -335,27 +316,7 @@ function determine_table_header(){
     
   }
   else if (myUI.planners[myUI.planner_choice] == Dijkstra){
-   if(document.getElementById("info_table_header").rows.length == 1){
-      document.getElementById("info_table_header").deleteRow(0);
-    }
-    myUI.InfoTable.removeAllTableSlides();
-    var table = document.getElementById("info_table_header");
-    var header = table.createTHead();
-    var row = header.insertRow(0);
-    var cell0 = row.insertCell(0);
-    var cell1 = row.insertCell(1);
-    var cell2 = row.insertCell(2);
-    var cell3 = row.insertCell(3);
-
-    cell0.className = 'table_header_cell';
-    cell1.className = 'table_header_cell';
-    cell2.className = 'table_header_cell';
-    cell3.className = 'table_header_cell';
-    cell0.innerHTML = "<b>Queue No.</b>";
-    cell1.innerHTML = "<b>Vertex</b>";
-    cell2.innerHTML = "<b>Parent</b>";
-    cell3.innerHTML = "<b>G cost</b>";
-
+  
     [
     ["N"],
 		["NE"],
@@ -376,33 +337,7 @@ function determine_table_header(){
 
     
   else if (myUI.planners[myUI.planner_choice] == A_star){
-    if(document.getElementById("info_table_header").rows.length == 1){
-      document.getElementById("info_table_header").deleteRow(0);
-    }
-    myUI.InfoTable.removeAllTableSlides();
-    var table = document.getElementById("info_table_header");
-    var header = table.createTHead();
-    var row = header.insertRow(0);
-    var cell0 = row.insertCell(0);
-    var cell1 = row.insertCell(1);
-    var cell2 = row.insertCell(2);
-    var cell3 = row.insertCell(3);
-    var cell4 = row.insertCell(4);
-    var cell5 = row.insertCell(5);
-
-    cell0.className = 'table_header_cell';
-    cell1.className = 'table_header_cell';
-    cell2.className = 'table_header_cell';
-    cell3.className = 'table_header_cell';
-    cell4.className = 'table_header_cell';
-    cell5.className = 'table_header_cell';
-    cell0.innerHTML = "<b>Queue No.</b>";
-    cell1.innerHTML = "<b>Vertex</b>";
-    cell2.innerHTML = "<b>Parent</b>";
-    cell3.innerHTML = "<b>F cost</b>";
-    cell4.innerHTML = "<b>G cost</b>";
-    cell5.innerHTML = "<b>H cost</b>";
-  
+ 
 
     [
     ["N"],
@@ -420,4 +355,3 @@ function determine_table_header(){
     });
   }
 }
-*/

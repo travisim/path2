@@ -265,7 +265,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log(i, step);
           }/* */
 
-          try{
+          
             console.log(myUI.animation.step,"step");
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
@@ -327,7 +327,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               
   	          //to draw neighbours
   	          else if(command == STATIC.DIM){
-  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost.toPrecision(5),g_cost.toPrecision(5),h_cost.toPrecision(5));
+                console.log(dest);
+  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost.toPrecision(5),gCost.toPrecision(5),hCost.toPrecision(5));
              
                 
   	          }
@@ -339,7 +340,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
                 myUI.InfoTable.outTop();             
   	          }
               else if(command == STATIC.Sort){
-                if (slides.length >= 2){
+                if (myUI.InfoTable.slides.length >= 2){
                   myUI.InfoTable.sort(); // emulats insert at based on F cost
                 }
   	          }
@@ -356,7 +357,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
 
-            
+            try{
           }catch(e){
             console.log(e);
             console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
