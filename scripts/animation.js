@@ -74,6 +74,7 @@ myUI.jump_to_step = function(target_step){
     myUI.canvases[id].draw_canvas(data, `2d_heatmap`);
   });/* */
   myUI.run_steps(target_step - myUI.animation.step, "fwd");
+  myUI.determine_header
 
   function draw_canvas_from_state(state){
     

@@ -227,8 +227,9 @@ class GridPathFinder{
 		if(dest!==undefined){
 			idx = this._manageAction(this.static_bit_len);
 			this.actionCache[0] += 1<<1; //
+     
 			this.actionCache[idx] += bit_shift(dest, this.bitOffset - this.static_bit_len);
-			//console.log(this.actionCache);
+  		
 		}
 		if(nodeCoord!==undefined){
 			//console.log(nodeCoord);
@@ -258,11 +259,11 @@ class GridPathFinder{
 		}
 		if(gCost!==undefined){
 			this.actionCache[0] += 1<<7;
-			this.actionCache.push(gCost);
+			this.actionCache[idx+1] = gCost;
 		}
 		if(hCost!==undefined){
 			this.actionCache[0] += 1<<8;
-			this.actionCache.push(hCost);
+			this.actionCache[idx+2] = hCost;
 		}
 
 		this.actionCache.forEach(val=>{
@@ -270,7 +271,30 @@ class GridPathFinder{
 		});
 		return
 	}
-
+  /*
+console.log(STATIC_COMMANDS)
+(21) ["SIMPLE", "EC", "DP", "EP", "INC_P", "DEC_P", "DA", "EA", "DICRF", "DICRB", "DIM", "DIT", "EIM", "EIT", "InTopTemp", "InTop", "OutTop", "InBottom", "Sort", "Einfomap", "OutLastAddedTable"]
+0: "SIMPLE"
+1: "EC"
+2: "DP"
+3: "EP"
+4: "INC_P"
+5: "DEC_P"
+6: "DA"
+7: "EA"
+8: "DICRF"
+9: "DICRB"
+10: "DIM"
+11: "DIT"
+12: "EIM"
+13: "EIT"
+14: "InTopTemp"
+15: "InTop"
+16: "OutTop"
+17: "InBottom"
+18: "Sort"
+19: "Einfomap"
+20: "OutLastAddedTable"*/
 	_create_action_old(){
 		/* OLD */
 		/* use bitmasking to compress every action into a series of Uint8 numbers */
