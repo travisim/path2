@@ -141,6 +141,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             ++j;
           }
           if(myUI.testing) console.log(i,j);
+          console.log(step.slice(i, j))
           let [command, dest, y, x, parentY, parentX, colorIndex, stepNo, arrowIndex, gCost, hCost] = GridPathFinder.unpack_action(step.slice(i, j));
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepIndex, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost);
@@ -334,7 +335,7 @@ console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost);
   	          }
             
               else if(command == STATIC.InTop && dest==STATIC.DIT){
-                myUI.InfoTable.inTop(stepNo,[x+", "+y,parentX+", "+parentY,fCost.toPrecision(5),gCost.toPrecision(5),hCost.toPrecision(5)]);                
+                myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost.toPrecision(5),gCost.toPrecision(5),hCost.toPrecision(5)]);                
   	          }
               else if(command == STATIC.OutTop && dest==STATIC.DIT){
                 myUI.InfoTable.outTop();             

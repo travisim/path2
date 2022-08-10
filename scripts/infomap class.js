@@ -148,7 +148,43 @@ class UIInfoMap{
     myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
    // console.log(visited.get_data([y,x]));
   }
-  
+
+  infoMapDisplayMode(mode='A_star'){
+    var infoMapInnerHTML;
+    if (mode == 'BFS' || mode == 'DFS'){
+      infoMapInnerHTML = '<section>Type:&nbsp<span class="type"></span></section>';
+  //initialise html for info squares as well
+    
+    }
+    else if (mode == 'Dijkstra'){
+      infoMapInnerHTML  = '<section>G:&nbsp<span class="G"></span>Type:&nbsp<span class="type"></span></section>';
+      //initialise html for info squares as well
+    }
+    else if (mode == 'A_star'){
+      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
+      //initialise html for info squares as well
+    }
+     else if (mode == 'none'){
+      document.getElementById("infomap").style.display = "none";
+      document.getElementById("infodivider").style.display = "none";
+      //initialise html for info squares as well
+    }
+
+     [
+    ["N"],
+		["NE"],
+    ["E"],
+    ["SE"],
+    ["S"],
+    ["SW"],
+    ["W"],
+    ["NW"] 
+    ].forEach(item=>{
+    let infoNWSE_Id = item[0];
+    document.getElementById(infoNWSE_Id).innerHTML = infoMapInnerHTML;
+  //initialise html for info squares as well
+    });
+  }
 }
 
 

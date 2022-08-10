@@ -247,7 +247,8 @@ myUI.loadPlanner = function() {
 	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
   myUI.InfoTable.setTableHeader(myUI.planner.display_table_header_name());
-  determine_info_map_header()
+   myUI.InfoMap.infoMapDisplayMode(myUI.planner.infoMapDisplayMode());
+  //determine_info_map_header();
   myUI.init_planner_config();
 }
 
@@ -292,66 +293,3 @@ myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner)
 myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
 
 
-
-//determines the type of info table
-function determine_info_map_header(){
-
-  if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
-  // delete previous header
-   
-    [
-    ["N"],
-		["NE"],
-    ["E"],
-    ["SE"],
-    ["S"],
-    ["SW"],
-    ["W"],
-    ["NW"] 
-    ].forEach(item=>{
-    let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section>Type:&nbsp<span class="type"></span></section>';
-  //initialise html for info squares as well
-    });
-    
-  }
-  else if (myUI.planners[myUI.planner_choice] == Dijkstra){
-  
-    [
-    ["N"],
-		["NE"],
-    ["E"],
-    ["SE"],
-    ["S"],
-    ["SW"],
-    ["W"],
-    ["NW"] 
-    ].forEach(item=>{
-    let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section>G:&nbsp<span class="G"></span>Type:&nbsp<span class="type"></span></section>';
-  //initialise html for info squares as well
-    });
-  
-    
-  }
-
-    
-  else if (myUI.planners[myUI.planner_choice] == A_star){
- 
-
-    [
-    ["N"],
-		["NE"],
-    ["E"],
-    ["SE"],
-    ["S"],
-    ["SW"],
-    ["W"],
-    ["NW"] 
-    ].forEach(item=>{
-    let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
-  //initialise html for info squares as well
-    });
-  }
-}

@@ -226,21 +226,21 @@ class GridPathFinder{
 		//console.log(this.actionCache);
 		if(dest!==undefined){
 			idx = this._manageAction(this.static_bit_len);
-			this.actionCache[0] += 1<<1;
+			this.actionCache[0] += 1<<1; //
 			this.actionCache[idx] += bit_shift(dest, this.bitOffset - this.static_bit_len);
 			//console.log(this.actionCache);
 		}
 		if(nodeCoord!==undefined){
 			//console.log(nodeCoord);
 			idx = this._manageAction(this.coord_bit_len);
-			this.actionCache[0] += 1<<2;
+			this.actionCache[0] += 1<<2;//
 			//console.log(this.bitOffset - this.coord_bit_len);
 			this.actionCache[idx] += bit_shift(nodeCoord[0]*this.map_width+nodeCoord[1], this.bitOffset - this.coord_bit_len);
 			//console.log(this.actionCache);
 		}
 		if(parentCoord!==undefined){
 			idx = this._manageAction(this.coord_bit_len);
-			this.actionCache[0] += 1<<3;
+			this.actionCache[0] += 1<<3;//
 			this.actionCache[idx] += bit_shift(parentCoord[0]*this.map_width+parentCoord[1], this.bitOffset - this.coord_bit_len);
 		}
 		if(colorIndex!==undefined){

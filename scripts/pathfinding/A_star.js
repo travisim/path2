@@ -8,6 +8,10 @@ class A_star extends GridPathFinder{
   display_table_header_name(){
 		return ["Queue No","Vertex","Parent","F cost","G cost","H cost"];
   }
+  infoMapDisplayMode(){
+    return "A_star";
+    
+  }
 
   static get distance_metrics(){
     return ["Euclidean", "Manhattan", "Chebyshev"];

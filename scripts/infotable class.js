@@ -91,30 +91,32 @@ class UIInfoTable{
     
   }
   sort(indexOfColumnToBeSorted=3){
-    var table, i, x, y;
-  // var slides = document.getElementsByClassName("slide");
-    var switching = true;
-
-    // Run loop until no switching is needed
-    while (switching) {
-      switching = false;
-      // Loop to go through all rows
-       for (i = 0; i < (this.slides.length-1); i++){
-         var Switch = false;
-         // Fetch 2 elements that need to be compared
-         x = this.slides[i].cells[indexOfColumnToBeSorted].firstChild.nodeValue;
-         y = this.slides[i+1].cells[indexOfColumnToBeSorted].firstChild.nodeValue;
-         // Check if 2 rows need to be switched
-         if (x > y){
-           // If yes, mark Switch as needed and break loop
-           Switch = true;
-           break;
+   if(this.slides.length > 1){
+      var table, i, x, y;
+    // var slides = document.getElementsByClassName("slide");
+      var switching = true;
+  
+      // Run loop until no switching is needed
+      while (switching) {
+        switching = false;
+        // Loop to go through all rows
+         for (i = 0; i < (this.slides.length-1); i++){
+           var Switch = false;
+           // Fetch 2 elements that need to be compared
+           x = this.slides[i].cells[indexOfColumnToBeSorted].firstChild.nodeValue;
+           y = this.slides[i+1].cells[indexOfColumnToBeSorted].firstChild.nodeValue;
+           // Check if 2 rows need to be switched
+           if (x > y){
+             // If yes, mark Switch as needed and break loop
+             Switch = true;
+             break;
+           }
          }
-       }
-      if (Switch){
-        // Function to switch rows and mark switch as completed
-        this.slides[i+1].after(this.slides[i]);
-        switching = true;
+        if (Switch){
+          // Function to switch rows and mark switch as completed
+          this.slides[i+1].after(this.slides[i]);
+          switching = true;
+        }
       }
     }
   } 
