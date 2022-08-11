@@ -132,20 +132,26 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
       else return;
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
+        console.log(step, 'step')
         let i=0;
         if(myUI.testing)
           console.log(step);
         while(i<step.length){
           let j=i+1;
           while(j<step.length){
+            console.log(Number.isInteger(step[j]) && step[j]&1,Number.isInteger(step[j]),step[j],step[j]&1,"while j")
             if(Number.isInteger(step[j]) && step[j]&1) break;
             ++j;
           }
           if(myUI.testing) console.log(i,j);
-          console.log(step.slice(i, j))
-          let [command, dest, y, x, parentY, parentX, colorIndex, stepNo, arrowIndex, gCost, hCost] = GridPathFinder.unpack_action(step.slice(i, j));
+          console.log(i,j,"i,j")
+          console.log(step.slice(i, j),"step slice")
+          let [command, dest, y, x, parentY, parentX, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str] = GridPathFinder.unpack_action(step.slice(i, j));
+          var gCost = Number(gCost_str);
+          var hCost = Number(hCost_str);
+          
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepIndex, arrowIndex, gCost, hCost]);
-          if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost);
+          if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
           console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,i,j);
           /* OLD */
 
@@ -330,13 +336,13 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	          //to draw neighbours
   	          else if(command == STATIC.DIM){
                 console.log(dest);
-  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost.toPrecision(5),gCost.toPrecision(5),hCost.toPrecision(5));
+  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost,gCost,hCost);
              
                 
   	          }
             
               else if(command == STATIC.InTop && dest==STATIC.DIT){
-                myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost.toPrecision(5),gCost.toPrecision(5),hCost.toPrecision(5)]);                
+                myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
   	          }
               else if(command == STATIC.OutTop && dest==STATIC.DIT){
                 myUI.InfoTable.outTop();             
