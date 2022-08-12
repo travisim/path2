@@ -1,4 +1,4 @@
-/*const STATIC_NAMES = [
+  /*const STATIC_NAMES = [
   // index 0 to index 4 are canvas ids, must be the same as statics_to_obj 
   "QU", // queue
   "VI", // visited
@@ -46,19 +46,17 @@ const STATIC_COMMANDS = [
   "DEC_P", // increment pixel
   "DA", // draw arrow (arrow index) [colour index]
   "EA" , // erase arrow (arrow index)
-  "DICRF", // draw infocurrent foreward
-  "DICRB", // draw infocurrent backwards
+  "DICR", // draw infocurrent 
   "DIM",
   "DIT",
   "EIM",
   "EIT",
-  "InTopTemp",
   "InTop",
   "OutTop",
   "InBottom",
+  "OutBottom",
   "Sort",
-  "Einfomap",
-  "OutLastAddedTable",
+  "RemoveRowByID",
  
 ];
 
@@ -77,9 +75,6 @@ const STATIC_DESTS = [
   "ISE", //10
   "IE",
   "INE",
-  "IF",
-  "IG",
-  "IH",
   "ICR", //info current path
   "IT" //info table
 ];
@@ -139,20 +134,20 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
         while(i<step.length){
           let j=i+1;
           while(j<step.length){
-            console.log(Number.isInteger(step[j]) && step[j]&1,Number.isInteger(step[j]),step[j],step[j]&1,"while j")
+           // console.log(Number.isInteger(step[j]) && step[j]&1,Number.isInteger(step[j]),step[j],step[j]&1,"while j")
             if(Number.isInteger(step[j]) && step[j]&1) break;
             ++j;
           }
           if(myUI.testing) console.log(i,j);
-          console.log(i,j,"i,j")
-          console.log(step.slice(i, j),"step slice")
-          let [command, dest, y, x, parentY, parentX, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str] = GridPathFinder.unpack_action(step.slice(i, j));
+          //console.log(i,j,"i,j")
+         // console.log(step.slice(i, j),"step slice")
+          let [command, dest, y, x, parentY, parentX, colorIndex, stepNo=999, arrowIndex, gCost_str, hCost_str] = GridPathFinder.unpack_action(step.slice(i, j));
           var gCost = Number(gCost_str);
           var hCost = Number(hCost_str);
-          
+           if(dest == "IT") console.log(stepNo," stepNo");
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepIndex, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
-          console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,i,j);
+          console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo);
           /* OLD */
 
           /*let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
@@ -312,40 +307,35 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	          if(dest== STATIC.QU && command == STATIC.EP ){//record  "visiters" in 2d array
   	            myUI.InfoMap.recordErasedQueue(x,y);
   	          }
-              if(command == STATIC.DICRF && dest==STATIC.ICR){//draw "current_YX",
+              if(command == STATIC.DICR   && dest==STATIC.ICR){//draw "current_YX",
                 myUI.InfoMap.reset();
                 myUI.InfoMap.drawObstacle(x,y);
   	            myUI.InfoMap.drawOutOfBound(x,y);
                 myUI.InfoMap.drawVisited(x,y);
   	            myUI.InfoMap.drawQueue(x,y);
   	            myUI.InfoCurrent.DrawCurrent(x,y);
-                //if (slides.length >= 1) myUI.InfoTable.recordLastStepNo(slides[0].rows[0].cells[0].firstChild.nodeValue);  
-  
   	          }
-              else if(command == STATIC.DICRB && dest==STATIC.ICR){//draw "current_YX",
-                myUI.InfoMap.reset();
-                myUI.InfoMap.drawObstacle(x,y);
-  	            myUI.InfoMap.drawOutOfBound(x,y);
-                myUI.InfoMap.drawVisited(x,y);
-  	            myUI.InfoMap.drawQueue(x,y);
-  	            myUI.InfoCurrent.DrawCurrent(x,y);
-                
-  
-  	          }
+       
               
   	          //to draw neighbours
   	          else if(command == STATIC.DIM){
-                console.log(dest);
+          
   	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost,gCost,hCost);
              
                 
   	          }
             
-              else if(command == STATIC.InTop && dest==STATIC.DIT){
+              else if(command == STATIC.InTop && dest==STATIC.IT){
                 myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
   	          }
-              else if(command == STATIC.OutTop && dest==STATIC.DIT){
+              else if(command == STATIC.InBottom && dest==STATIC.IT){
+                myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
+  	          }
+              else if(command == STATIC.OutTop && dest==STATIC.IT){
                 myUI.InfoTable.outTop();             
+  	          }
+              else if(command == STATIC.OutBottom && dest==STATIC.IT){
+                myUI.InfoTable.outBottom();             
   	          }
               else if(command == STATIC.Sort){
                 if (myUI.InfoTable.slides.length >= 2){
@@ -355,7 +345,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	        	//to erase neighbours
   	          else if(command == STATIC.EIM ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-                myUI.InfoTable.removeSlidebById((stepNo+1).toString());
+           
   	          }
             
 	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
@@ -364,7 +354,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
-
+            if(dest== STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
+	            myUI.InfoTable.removeSlideById(stepNo);
+	          }
             try{
           }catch(e){
             console.log(e);
