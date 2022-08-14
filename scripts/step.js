@@ -143,7 +143,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           let [command, dest, y, x, parentY, parentX, colorIndex, stepNo=999, arrowIndex, gCost_str, hCost_str] = GridPathFinder.unpack_action(step.slice(i, j));
           var gCost = Number(gCost_str);
           var hCost = Number(hCost_str);
-           if(dest == "IT") console.log(stepNo," stepNo");
+           if(dest == "IT") console.log(stepNo," stepNo");  
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepNo, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
           console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo);
