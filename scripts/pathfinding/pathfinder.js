@@ -618,7 +618,7 @@ console.log(STATIC_COMMANDS)
 			this.states.visited_index = nxt_index;
 //console.log("state","this.step_index",this.step_index,this.neighbours);
 			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:deepCopyNodeArray(this.queue), neighbours:deepCopyNodeArray(this.neighbours),/* neighbours: deep_copy_matrix(this.neighbours_YX), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
-			if(this.draw_arrows) this.states[this.step_index].arrow_img = myUI.arrow.ctx.getImageData(...myUI.arrow.full_canvas);
+
 
 		}
 	}

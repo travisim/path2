@@ -1,41 +1,3 @@
-  /*const STATIC_NAMES = [
-  // index 0 to index 4 are canvas ids, must be the same as statics_to_obj 
-  "QU", // queue
-  "VI", // visited
-  "CR", // current
-  "NB", // neighbours
-  "PA", //
-   "IN", // info NWSE
-  "INE",
-  "IE",
-  "ISE",
-  "IS",
-  "ISW",
-  "IW",
-  "INW",
-  "ICR", //info current path
-  // rest of the items are dynamics commands/identifiers
-  "SIMPLE", // shows that the step is a simple step
-  "EC", // erase canvas
-  "DP", // draw pixel
-  "EP", // erase pixel
-  "INC_P", // increment pixel
-  "DEC_P", // increment pixel
-  "DA", // draw, arrow
-  "EA" , // erase arrow
-  "DF",
-  "EF",
-  "DG",
-  "EG",
-  "DH",
-  "EH",
-  "Dparent",
-  "Eparent",
-  "Einfomap",
-  "TableAdd",
-  "Tableremove"
-];*/
-
 const STATIC_COMMANDS = [
   /* rest of the items are dynamics commands/identifiers */
   "SIMPLE", // shows that the step is a simple step
@@ -147,148 +109,24 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepNo, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
           console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo);
-          /* OLD */
-
-          /*let [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index] = GridPathFinder.unpack_action(step[i]);
-          
-          if(parent_exists){
-            if(myUI.testing){
-              console.log("parent exists");
-            }
-            var g_cost = step[i+1].toPrecision(5);
-            var h_cost = step[i+2].toPrecision(5);
-            var stepNo = step[i+3];
-            var f_cost = (step[i+1]+step[i+2]).toPrecision(5);
-            if(g_cost == null || h_cost == null ) f_cost = null; 
-            i+=2;
-          }
-          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parent_y, parent_x, parent_exists, arrow_index, color_index]);/* */
-
-          /* OLD */
-          /*try{  
-            console.log(myUI.animation.step,"step");
-            if(command==STATIC.EC){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
-              else myUI.canvases[statics_to_obj[dest]].erase_canvas();
-            }
-            else if(command==STATIC.DP){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
-              else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
-            }
-            else if(command==STATIC.EP){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
-              else myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
-            }
-            else if(command==STATIC.INC_P){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
-              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
-              
-            }
-            else if(command==STATIC.DEC_P){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
-              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
-            }
-            else if(command==STATIC.DA){
-              // draw arrow
-              myUI.arrow.elems[arrow_index].classList.remove("hidden");
-              myUI.arrow.elems[arrow_index].style.fill = myUI.arrow.colors[color_index];
-            }
-            else if(command==STATIC.EA){
-              // erase arrow
-              myUI.arrow.elems[arrow_index].classList.add("hidden");
-            }
-            if (myUI.planners[myUI.planner_choice] == BFS || myUI.planners[myUI.planner_choice] == DFS){
-             
-            }
-            else if (myUI.planners[myUI.planner_choice] == Dijkstra){
-              
-            }
-            else if (myUI.planners[myUI.planner_choice] == A_star){
-             if(dest==STATIC.CR && command == STATIC.EP ){//record  "visiters" in 2d array
-  	            myUI.InfoMap.recordErasedVisited(x,y);            	            
-  	          }
-  	          if(dest== STATIC.QU && command == STATIC.EP ){//record  "visiters" in 2d array
-  	            myUI.InfoMap.recordErasedQueue(x,y);
-  	          }
-              if(command == STATIC.DICRF && dest==STATIC.ICR){//draw "current_YX",
-                myUI.InfoMap.reset();
-                myUI.InfoMap.drawObstacle(x,y);
-  	            myUI.InfoMap.drawOutOfBound(x,y);
-                myUI.InfoMap.drawVisited(x,y);
-  	            myUI.InfoMap.drawQueue(x,y);
-  	            myUI.InfoCurrent.DrawCurrent(x,y);
-                //if (slides.length >= 1) myUI.InfoTable.recordLastStepNo(slides[0].rows[0].cells[0].firstChild.nodeValue);  
-  
-  	          }
-              else if(command == STATIC.DICRB && dest==STATIC.ICR){//draw "current_YX",
-                myUI.InfoMap.reset();
-                myUI.InfoMap.drawObstacle(x,y);
-  	            myUI.InfoMap.drawOutOfBound(x,y);
-                myUI.InfoMap.drawVisited(x,y);
-  	            myUI.InfoMap.drawQueue(x,y);
-  	            myUI.InfoCurrent.DrawCurrent(x,y);
-                
-  
-  	          }
-              
-  	          //to draw neighbours
-  	          else if(command == STATIC.DIM){
-  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(f_cost,g_cost,h_cost);
-             
-                
-  	          }
-            
-              else if(command == STATIC.InTop && dest==STATIC.DIT){
-                myUI.InfoTable.InTop(x,y,parent_x,parent_y,f_cost,g_cost,h_cost,stepNo);                
-  	          }
-              else if(command == STATIC.OutTop && dest==STATIC.DIT){
-                myUI.InfoTable.OutTop();             
-  	          }
-              else if(command == STATIC.Sort){
-                if (slides.length >= 2){
-                  myUI.InfoTable.Sort(); // emulats insert at based on F cost
-                }
-  	          }
-  	        	//to erase neighbours
-  	          else if(command == STATIC.EIM ){
-  	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-            
-                myUI.InfoTable.removeSlidebById((stepNo+1).toString());
-  	          }
-            }
-	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
-	            myUI.InfoMap.recordDrawnVisited(x,y);            	            
-	          }
-	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
-	            myUI.InfoMap.recordDrawnQueue(x,y);
-	          }
-          }catch(e){
-            console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
-            console.log(i, step);
-          }/* */
-
+         
           try{
             console.log(myUI.animation.step,"step");
             if(command==STATIC.EC){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
-              else myUI.canvases[statics_to_obj[dest]].erase_canvas();
+              myUI.canvases[statics_to_obj[dest]].erase_canvas();
             }
             else if(command==STATIC.DP){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
-              else myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
+              myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
             }
             else if(command==STATIC.EP){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
-              else myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
+               myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
             }
             else if(command==STATIC.INC_P){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 1;
-              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
+               myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
               
             }
             else if(command==STATIC.DEC_P){
-              if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]][y][x] = 0;
-              else myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
+               myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
             }
             else if(command==STATIC.DA){
               // draw arrow
@@ -384,9 +222,6 @@ steps_arr = [
 ]
 */
 
-function getKeyByValue(object, value) {
-  return Object.keys(object).find(key => object[key] === value);
-}
 
 myUI.run_combined_step = function(step_direction="fwd"){
   let tmp_step = myUI.animation.step, start_step = myUI.animation.step;

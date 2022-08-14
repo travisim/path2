@@ -69,44 +69,6 @@ myUI.toggleDrawErase = function(){
 }
 myUI.buttons.draw_erase_btn.btn.addEventListener("click", myUI.toggleDrawErase);
 
-/*myUI.update_map_width = function(val){
-  myUI.map_width = val;
-  myUI.canvases.edit_map.scale_canvas(myUI.map_height, myUI.map_width, retain_data = true);
-}
-
-myUI.sliders.map_width_slider.elem.oninput = function(){
-  this.parent.label.value = this.value;
-  myUI.update_map_width(this.value);
-}
-
-myUI.sliders.map_width_slider.label.onkeypress = function(e){
-  if (!e) e = window.event;
-  var keyCode = e.key;
-  if (keyCode == 'Enter'){
-    this.parent.elem.value = this.value;
-    myUI.update_map_width(this.value);
-  }
-}
-
-myUI.update_map_height = function(val){
-  myUI.map_height = val;
-  myUI.canvases.edit_map.scale_canvas(myUI.map_height, myUI.map_width, retain_data = true);
-}
-
-myUI.sliders.map_height_slider.elem.oninput = function(){
-  this.parent.label.value = this.value;
-  myUI.update_map_height(this.value);
-}
-
-myUI.sliders.map_height_slider.label.onkeypress = function(e){
-  if (!e) e = window.event;
-  var keyCode = e.key;
-  if (keyCode == 'Enter'){
-    this.parent.elem.value = this.value;
-    myUI.update_map_height(this.value);
-  }
-}*/
-
 function updateMapWidth(e){
   if (!e) e = window.event;
   if (e.key == 'Enter' || e.type == 'focusout'){

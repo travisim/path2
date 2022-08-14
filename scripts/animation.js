@@ -184,7 +184,6 @@ myUI.reset_arrow = function(clear_data=false){
     myUI.arrow.elems = [];
   }
   else{
-    myUI.arrow.ctx.clearRect(...myUI.arrow.full_canvas);
     myUI.arrow.elems.forEach(el=>{
       el.classList.add("hidden");
       el.style.fill = myUI.arrow.colors[0];

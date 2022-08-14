@@ -129,7 +129,7 @@ myUI.initialize = function(){
 	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), move: false}
 	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), move: false}
 
-  myUI.planners_cell = [A_star,BFS,DFS,Dijkstra];
+  myUI.planners_cell = [A_star];
   myUI.planners_v = [BFS_Vertex];
   myUI.planners = myUI.planners_cell;
   myUI.planner_choice = 0;
@@ -151,15 +151,10 @@ myUI.initialize = function(){
 
   // START OF ARROW
   myUI.arrow = {
-    data: [],
-    canvas: document.getElementById("arrows"),
-    ctx: document.getElementById("arrows").getContext("2d"),
     colors: ["#acaabb", "#1000FF"],//
-    coords: [],
     elems: [],//
     step: -1
   }
-  myUI.arrow.full_canvas = [0, 0, myUI.arrow.canvas.width, myUI.arrow.canvas.height];
   // END OF ARROW
 
   myUI.map_edit = {
