@@ -6,7 +6,7 @@ function nodes_to_array(obj_array,property_in_obj){
   let max_val = 0;
   for(let i=0;i<obj_array.length;++i){
     var res = obj_array[i][property_in_obj];
-    if(property_in_obj=="self_YX"){
+    if(property_in_obj=="self_XY"){
       res = res[0] * myUI.planner.map_width + res[1]; // row-major form
       max_val = Math.max(max_val, res);
     }
@@ -62,12 +62,12 @@ class Empty2D{
 		while(rows--) this.data.push(new Array(cols));
 	}
 
-	set(yx, item){
-		this.data[yx[0]][yx[1]] = item;
+	set(xy, item){
+		this.data[xy[0]][xy[1]] = item;
 	}
 
-	get(yx){
-		return this.data[yx[0]][yx[1]];
+	get(xy){
+		return this.data[xy[0]][xy[1]];
 	}
 
 	clear(){
@@ -169,8 +169,8 @@ class BitMatrix{
 		return this.data.length;
 	}
 
-	set_data(yx, new_data){
-    let index = this.constructor.max_size_bit*2 + yx[0] * this.num_cols + yx[1];
+	set_data(xy, new_data){
+    let index = this.constructor.max_size_bit*2 + xy[0] * this.num_cols + xy[1];
     let arr_index = Math.floor(index/this.constructor.chunk_len);
 		// alternatives are for chunk_lens > 30 as js bit shifting doesn't work for n>30;
 
@@ -186,8 +186,8 @@ class BitMatrix{
     this.data[arr_index] = (this.data[arr_index] & mask) + new_data;
 	}
 
-	get_data(yx){
-		let index = this.constructor.max_size_bit*2 + yx[0] * this.num_cols + yx[1];
+	get_data(xy){
+		let index = this.constructor.max_size_bit*2 + xy[0] * this.num_cols + xy[1];
 		if(index>this.data.length*this.constructor.chunk_len) return 0; // for truncated bitmatrices
     let arr_index = Math.floor(index/this.constructor.chunk_len);
 		let rem = (index % this.constructor.chunk_len);
@@ -379,25 +379,25 @@ class NBitMatrix{
 		return this.data.length;
 	}
 
-	set_data(yx, new_data){
+	set_data(xy, new_data){
 		// find the bit-index of the item in the array
     if(new_data>this.cell_val || new_data<0) return;
-    let index = this.constructor.bit_offset + (yx[0] * this.num_cols + yx[1])*this.cell_val_bits;
+    let index = this.constructor.bit_offset + (xy[0] * this.num_cols + xy[1])*this.cell_val_bits;
 		//console.log("first",  this.constructor, this.num_cols, this.cell_val_bits);
 
 		BitArray.set_range(this.data, index, new_data, this.cell_val_bits);
 	}
 
-	get_data(yx){
+	get_data(xy){
 		// find the bit-index of the item in the array
-    let index = this.constructor.bit_offset + (yx[0] * this.num_cols + yx[1])*this.cell_val_bits;
+    let index = this.constructor.bit_offset + (xy[0] * this.num_cols + xy[1])*this.cell_val_bits;
 		if(index>this.data.length*this.constructor.chunk_len) return 0; // for truncated nbitmatrices
 
 		return BitArray.get_range(this.data, index, this.cell_val_bits);
 	}
 
-	increment(yx){
-		this.set_data(yx, this.get_data(yx)+1);
+	increment(xy){
+		this.set_data(xy, this.get_data(xy)+1);
 	}
 
 	copy_data(){

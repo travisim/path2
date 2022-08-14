@@ -52,7 +52,7 @@
 /* controls map order and how the cells are displayed */
 #hover_map{z-index:60}
 #dotted{z-index:48}
-#current_YX{z-index:46}
+#current_XY{z-index:46}
 #start, #goal{z-index:45}
 #path{z-index:44}
 #neighbours{z-index:43}

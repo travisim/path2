@@ -21,7 +21,7 @@ myUI.initialize = function(){
     ["bg", false, "#000000"],
     ["queue", false, "#74fa4c"],
     ["visited", false, "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
-    ["current_YX", false, "#34d1ea"],
+    ["current_XY", false, "#34d1ea"],
     ["neighbours", false, "#008269"],
     ["path", false, "#34d1ea"], //  changed from #E2C2B9
     ["start", false, "#96996"],

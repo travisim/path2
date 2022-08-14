@@ -140,7 +140,7 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
   if(document.getElementById("vertexToggle").checked){
     // enable vertex
     myUI.vertex = true;
-    ["hover_map", "queue", "visited", "current_YX", "neighbours", "path", "start", "goal"].forEach(canvas=>{
+    ["hover_map", "queue", "visited", "current_XY", "neighbours", "path", "start", "goal"].forEach(canvas=>{
       myUI.canvases[canvas].scale_canvas(1024, 1024, false);
       myUI.canvases[canvas].fixedRes = true;
     });
@@ -149,7 +149,7 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
   }
   else{
     myUI.vertex = false;
-    ["hover_map", "queue", "visited", "current_YX", "neighbours", "path", "start", "goal"].forEach(canvas=>{
+    ["hover_map", "queue", "visited", "current_XY", "neighbours", "path", "start", "goal"].forEach(canvas=>{
       myUI.canvases[canvas].fixedRes = false;
     });
     myUI.planners = myUI.planners_cell;
@@ -197,19 +197,19 @@ myUI.displayScen = function(update=false, reset_zero=false){
 		
 	}
 	/*clear all canvases*/
-	["visited",	"neighbours", "queue",	"current_YX",	"path"].forEach(canvas_id=>{
+	["visited",	"neighbours", "queue",	"current_XY",	"path"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	})
 }
 
-function moveDraggable(yx){
+function moveDraggable(xy){
 	let bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
   let offset = 0.5;
   if(myUI.vertex)
     offset = 0;
 
-  this.elem.style.top = ((yx[0]+offset)*bounds.height / myUI.map_height - this.elem.height/2) + "px";
-  this.elem.style.left =  ((yx[1]+offset)*bounds.width / myUI.map_width - this.elem.width/2) + "px";
+  this.elem.style.top = ((xy[0]+offset)*bounds.height / myUI.map_height - this.elem.height/2) + "px";
+  this.elem.style.left =  ((xy[1]+offset)*bounds.width / myUI.map_width - this.elem.width/2) + "px";
   
 }
 

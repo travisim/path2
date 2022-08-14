@@ -11,10 +11,11 @@ class UIInfoNWSE{
   this.element.style.outlineColor = "black";
   this.element.style.color = "black";
   this.element.querySelector(".type").innerHTML = "";
-  if (myUI.planners[myUI.planner_choice] == A_star)  this.element.querySelector(".F").innerHTML = "";
+  /*if (myUI.planners[myUI.planner_choice] == A_star)  this.element.querySelector(".F").innerHTML = "";
   if (myUI.planners[myUI.planner_choice] == Dijkstra || myUI.planners[myUI.planner_choice] == A_star)  this.element.querySelector(".G").innerHTML = "";
   if (myUI.planners[myUI.planner_choice] == A_star)  this.element.querySelector(".H").innerHTML = "";
      //reset a square in info map 
+  /**/
   }
 
   drawOneObstacle(){
@@ -69,9 +70,9 @@ class UIInfoMap{
 
   var surrounding_map_deltaNWSE = []
   for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
-    var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
-    if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-      if (myUI.planner.map.get_data(next_YX_temp) != 1) {
+    var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+    if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
+      if (myUI.planner.map.get_data(next_XY_temp) != 1) {
         surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
       }
     }
@@ -86,8 +87,8 @@ class UIInfoMap{
 
     var surrounding_map_deltaNWSE = []
     for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
-      var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
-      if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) {
+      var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+      if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) {
         surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
       }
     }
@@ -100,9 +101,9 @@ class UIInfoMap{
   drawVisited(x,y){ //using pre obtained map of surrounding point
     var surrounding_map_deltaNWSE = []
     for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
-      var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
-      if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-      if (myUI.InfoVisited.get_data(next_YX_temp)) {// if the current node has been visited
+      var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+      if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
+      if (myUI.InfoVisited.get_data(next_XY_temp)) {// if the current node has been visited
         surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
       }
     }
@@ -114,9 +115,9 @@ class UIInfoMap{
   drawQueue(x,y){ //using pre obtained map of surrounding point
     var surrounding_map_deltaNWSE = []
     for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
-      var next_YX_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
-      if (next_YX_temp[0] < 0 || next_YX_temp[0] >= myUI.planner.map_height || next_YX_temp[1] < 0 || next_YX_temp[1] >= myUI.planner.map_width) continue;
-      if (myUI.InfoQueue.get_data(next_YX_temp)) {// if the current node has been visited
+      var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
+      if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
+      if (myUI.InfoQueue.get_data(next_XY_temp)) {// if the current node has been visited
         surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
       }
     }
@@ -128,25 +129,25 @@ class UIInfoMap{
 
 
   recordDrawnVisited(x,y){
-   //  console.log(myUI.InfoVisited.get_data([y,x]),"visited record before");
-     myUI.InfoVisited.set_data([y,x], 1); // marks current node YX as visited
-  //   console.log(myUI.InfoVisited.get_data([y,x]),"visited record after");
+   //  console.log(myUI.InfoVisited.get_data([x,y]),"visited record before");
+     myUI.InfoVisited.set_data([x,y], 1); // marks current node XY as visited
+  //   console.log(myUI.InfoVisited.get_data([x,y]),"visited record after");
   }
    recordErasedVisited(x,y){
-   //  console.log(myUI.InfoVisited.get_data([y,x]),"visited record before");
-     myUI.InfoVisited.set_data([y,x], 0); // marks current node YX as visited
-  //   console.log(myUI.InfoVisited.get_data([y,x]),"visited record after");
+   //  console.log(myUI.InfoVisited.get_data([x,y]),"visited record before");
+     myUI.InfoVisited.set_data([x,y], 0); // marks current node XY as visited
+  //   console.log(myUI.InfoVisited.get_data([x,y]),"visited record after");
   }
     
     
     
   recordDrawnQueue(x,y){
-    myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
-   // console.log(visited.get_data([y,x]));
+    myUI.InfoQueue.set_data([x,y], 1); // marks current node XY as visited // marks current node XY as visited
+   // console.log(visited.get_data([x,y]));
   }
    recordErasedQueue(x,y){
-    myUI.InfoQueue.set_data([y,x], 1); // marks current node YX as visited // marks current node YX as visited
-   // console.log(visited.get_data([y,x]));
+    myUI.InfoQueue.set_data([x,y], 1); // marks current node XY as visited // marks current node XY as visited
+   // console.log(visited.get_data([x,y]));
   }
 
   infoMapDisplayMode(mode='A_star'){
@@ -193,7 +194,7 @@ class UIInfoMap{
 
 var UIInfoCurrent = {
   DrawCurrent(x,y){
-    document.getElementById("currentYX").innerHTML =  "( "+y+", "+x+")"; // flipped x and y because of matrix transformation
+    document.getElementById("currentXY").innerHTML =  "( "+y+", "+x+")"; // flipped x and y because of matrix transformation
   }
 }
 
@@ -201,4 +202,4 @@ var UIInfoCurrent = {
 //object with only 1 method
 
 
-document.getElementById("currentYX").innerHTML = "(_, _)"; 
+document.getElementById("currentXY").innerHTML = "(_, _)"; 

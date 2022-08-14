@@ -53,7 +53,7 @@ myUI.update_search_slider = function(value){
 myUI.jump_to_step = function(target_step){
   myUI.animation.step = myUI.planner.search_state(target_step);
 
-  const canvas_ids = [`queue`, `neighbours`, `current_YX`, `visited`, `path`];
+  const canvas_ids = [`queue`, `neighbours`, `current_XY`, `visited`, `path`];
   // create a virtual representation of all the canvases
   myUI.tmp.virtual_canvases = {};
   canvas_ids.forEach(id=>{
@@ -78,14 +78,14 @@ myUI.jump_to_step = function(target_step){
 
   function draw_canvas_from_state(state){
     
-    myUI.canvases.queue.draw_canvas(nodes_to_array(state.queue, "self_YX"), `1d`, false, true);
+    myUI.canvases.queue.draw_canvas(nodes_to_array(state.queue, "self_XY"), `1d`, false, true);
 
     let curr_visited = NBitMatrix.expand_2_matrix(myUI.planner.get_visited(state.visited_tuple));
     myUI.canvases.visited.draw_canvas(curr_visited, `2d_heatmap`, false, true);
 
-    myUI.canvases.current_YX.draw_canvas([state.node_YX], `1d`, false, true);
+    myUI.canvases.current_XY.draw_canvas([state.node_XY], `1d`, false, true);
 //console.log("state",state.visited_tuple);
-    myUI.canvases.neighbours.draw_canvas(nodes_to_array(state.neighbours, "self_YX"), `1d`, false, true);
+    myUI.canvases.neighbours.draw_canvas(nodes_to_array(state.neighbours, "self_XY"), `1d`, false, true);
 
     if(state.path) myUI.canvases.neighbours.draw_canvas(state.path, `1d`, false, true);
 
@@ -99,19 +99,19 @@ myUI.jump_to_step = function(target_step){
       myUI.InfoMap.reset();
       myUI.InfoTable.removeAllTableSlides();
     
-      myUI.InfoMap.drawObstacle(state.node_YX[1],state.node_YX[0]);
-      myUI.InfoMap.drawOutOfBound(state.node_YX[1],state.node_YX[0]);
-      myUI.InfoCurrent.DrawCurrent(state.node_YX[1],state.node_YX[0]);
+      myUI.InfoMap.drawObstacle(state.node_XY[1],state.node_XY[0]);
+      myUI.InfoMap.drawOutOfBound(state.node_XY[1],state.node_XY[0]);
+      myUI.InfoCurrent.DrawCurrent(state.node_XY[1],state.node_XY[0]);
       myUI.InfoQueue = new BitMatrix(myUI.map_height, myUI.map_width); // recreates the visited 2d array from tha steps for the display of the info map
       myUI.InfoVisited = new BitMatrix(myUI.map_height, myUI.map_width); // recreates the visited 2d array from tha steps for the display of the info map
-      state.queue.forEach(yx=>{ 
-        myUI.InfoQueue.set_data(yx, 1);
+      state.queue.forEach(xy=>{ 
+        myUI.InfoQueue.set_data(xy, 1);
       });
       myUI.InfoMap.drawQueue(x,y);
 
       /*
-    forEach(yx=>{ 
-      myUI.InfoVisited.set_data(yx, 1);
+    forEach(xy=>{ 
+      myUI.InfoVisited.set_data(xy, 1);
     });
     
   
@@ -132,7 +132,7 @@ myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){
       // coord is in row-major form
       var y = Math.floor(coord/myUI.planner.map_width);
       var x = coord - y * myUI.planner.map_width;
-      myUI.tmp.virtual_canvases[canvas_id][y][x] = 1;
+      myUI.tmp.virtual_canvases[canvas_id][x][y] = 1;
     });
   }
   else if(array_type == "2d") {  //eg [ [ 8, 6 ], [ 9, 7 ], [ 8, 8 ] ]
@@ -143,10 +143,10 @@ myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){
   }
 }
 
-myUI.create_arrow = function(start_YX, end_YX, head_pc=0.7){
+myUI.create_arrow = function(start_XY, end_XY, head_pc=0.7){
   // head_pc is defined as the proportion of line is in front of the pointer
-  const start_coord = {y:start_YX[0], x:start_YX[1]};
-  const end_coord = {y:end_YX[0], x:end_YX[1]};
+  const start_coord = {y:start_XY[0], x:start_XY[1]};
+  const end_coord = {y:end_XY[0], x:end_XY[1]};
   const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;
   let elem = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   elem.classList.add("arrow");
@@ -191,13 +191,13 @@ myUI.reset_arrow = function(clear_data=false){
   }
 }
 
-myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vertex=false, canvas=null){
+myUI.draw_arrow = function(start_XY, end_XY, save_data=false, color_index=0,vertex=false, canvas=null){
 
-  function scale_coord(yx){
-    return [yx[0]*canvas.height / myUI.map_height, yx[1]*canvas.width / myUI.map_width];
+  function scale_coord(xy){
+    return [xy[0]*canvas.height / myUI.map_height, xy[1]*canvas.width / myUI.map_width];
   }
 
-  console.log(`drawing ${start_YX} ${end_YX}`);
+  console.log(`drawing ${start_XY} ${end_XY}`);
   let color = "black";
   if(canvas==null){
     canvas = myUI.arrow.canvas;
@@ -209,18 +209,18 @@ myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vert
 	const ctx = canvas.getContext('2d');
   
   if(save_data)
-    myUI.arrow.coords.push(start_YX, end_YX);
+    myUI.arrow.coords.push(start_XY, end_XY);
   if(!vertex){
     // offset coordinates based on vertex to draw arrows
-    start_YX = [start_YX[0]+0.5, start_YX[1]+0.5];
-    end_YX = [end_YX[0]+0.5, end_YX[1]+0.5];
+    start_XY = [start_XY[0]+0.5, start_XY[1]+0.5];
+    end_XY = [end_XY[0]+0.5, end_XY[1]+0.5];
   }
   if(save_data){
     // save data before drawing the arrow
-    let min_x = Math.min(start_YX[1], end_YX[1])-0.25;
-    let min_y = Math.min(start_YX[0], end_YX[0])-0.25;
-    let max_x = Math.max(start_YX[1], end_YX[1])+0.25;
-    let max_y = Math.max(start_YX[0], end_YX[0])+0.25;
+    let min_x = Math.min(start_XY[1], end_XY[1])-0.25;
+    let min_y = Math.min(start_XY[0], end_XY[0])-0.25;
+    let max_x = Math.max(start_XY[1], end_XY[1])+0.25;
+    let max_y = Math.max(start_XY[0], end_XY[0])+0.25;
     [min_y, min_x] = scale_coord([min_y, min_x]);
     [max_y, max_x] = scale_coord([max_y, max_x]);
     console.log(min_x, min_y, max_x, max_y);
@@ -229,8 +229,8 @@ myUI.draw_arrow = function(start_YX, end_YX, save_data=false, color_index=0,vert
     myUI.arrow.data.push([img_data, min_x, min_y]);
   }
 	
-	let [fromy, fromx] = scale_coord(start_YX);
-	let [toy, tox] = scale_coord(end_YX);
+	let [fromy, fromx] = scale_coord(start_XY);
+	let [toy, tox] = scale_coord(end_XY);
 
 	/*fromx *= canvas.width / myUI.map_width;
 	fromy *= canvas.height / myUI.map_height;

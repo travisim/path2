@@ -55,10 +55,10 @@ class UICanvas{
     this.fixedResVal = fixedResVal;
   }
 
-  scale_coord(y, x){
-    let scaled_x = Math.floor(x/this.canvas.clientWidth * myUI.map_width);
-    let scaled_y = Math.floor(y/this.canvas.clientHeight * myUI.map_height);
-    return [scaled_y, scaled_x];
+  scale_coord(x,y){
+    let scaled_y = Math.floor(x/this.canvas.clientWidth * myUI.map_width);
+    let scaled_x = Math.floor(y/this.canvas.clientHeight * myUI.map_height);
+    return [scaled_x, scaled_y];
   }
 
   scale_canvas(data_height, data_width, retain_data=false){
@@ -160,35 +160,35 @@ class UICanvas{
     this.virtualCanvas = zero2D(this.data_height, this.data_width);
   }
 
-  change_pixel(yx, direction, virtual=false){
-    let [y,x] = yx;
-    let val = this.canvas_cache[y][x];
+  change_pixel(xy, direction, virtual=false){
+    let [x,y] = xy;
+    let val = this.canvas_cache[x][y];
     if(direction=="inc") ++val; else --val;
     val = Math.min(this.colors.length, Math.max(val, 0));
-    this.draw_pixel(yx, virtual, val, val-1);
+    this.draw_pixel(xy, virtual, val, val-1);
   }
 
-  draw_pixel(yx, virtual=false, val=1, color_index=0, save_in_cache=true){
-    let [y,x] = yx;
-    if(y>=this.data_height || x>=this.data_width) return;
+  draw_pixel(xy, virtual=false, val=1, color_index=0, save_in_cache=true){
+    let [x,y] = xy;
+    if(x>=this.data_height || y>=this.data_width) return;
     if(virtual)
-      this.virtualCanvas[y][x] = val;
+      this.virtualCanvas[x][y] = val;
     else {
-      if(save_in_cache) this.canvas_cache[y][x] = val;
-      if(this.canvas.id=="dotted") this.draw_dotted_square(yx);
-      else if(this.fixedRes) this.draw_vertex_circle(yx, color_index);
+      if(save_in_cache) this.canvas_cache[x][y] = val;
+      if(this.canvas.id=="dotted") this.draw_dotted_square(xy);
+      else if(this.fixedRes) this.draw_vertex_circle(xy, color_index);
       else{
         this.set_color_index(color_index);
-        this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
+        this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
       }
     }
   }
 
-  erase_pixel(yx){
-    let [y,x] = yx;
-    this.canvas_cache[y][x] = 0;
-    if(this.fixedRes) this.erase_vertex_circle(yx);
-    else this.ctx.clearRect(x, y, this.pixelSize, this.pixelSize);
+  erase_pixel(xy){
+    let [x,y] = xy;
+    this.canvas_cache[x][y] = 0;
+    if(this.fixedRes) this.erase_vertex_circle(xy);
+    else this.ctx.clearRect(y, x, this.pixelSize, this.pixelSize);
   }
 
   draw_start_goal(point, strokeColor=this.ctx.strokeStyle){
@@ -203,16 +203,15 @@ class UICanvas{
 
   draw_scaled_cross(array_data, strokeColor){
     let ctx = this.ctx;
-    var scaled_cross_length = Math.round(this.data_height*0.02);
-    var x = scaled_cross_length;
+    const scaled_cross_length = Math.round(this.data_height*0.02);
     //drawing the crosses from top left down and top right down
     ctx.beginPath();
     ctx.lineWidth = this.data_height/128;
    // context.arc(point[1], point[0], 7.5, 0, 2 * Math.PI);
-    ctx.moveTo(array_data[1]-x, array_data[0]-x);
-    ctx.lineTo(array_data[1]+x, array_data[0]+x);
-    ctx.moveTo(array_data[1]-x, array_data[0]+x);
-    ctx.lineTo(array_data[1]+x, array_data[0]-x);
+    ctx.moveTo(array_data[1]-scaled_cross_length, array_data[0]-scaled_cross_length);
+    ctx.lineTo(array_data[1]+scaled_cross_length, array_data[0]+scaled_cross_length);
+    ctx.moveTo(array_data[1]-scaled_cross_length, array_data[0]+scaled_cross_length);
+    ctx.lineTo(array_data[1]+scaled_cross_length, array_data[0]-scaled_cross_length);
     this.set_color(strokeColor, "stroke");
     ctx.stroke();
   }
@@ -228,7 +227,7 @@ class UICanvas{
         if(Number.isInteger(coord)){
           var y = Math.floor(coord/myUI.planner.map_width);
           var x = coord - y * myUI.planner.map_width;
-          coord = [y,x];
+          coord = [x,y];
         }
         this.draw_pixel(coord, virtual);
       });
@@ -255,9 +254,9 @@ class UICanvas{
     this.canvas_cache = zero2D(height, width);  // reset to a matrix of 0s (zeroes), height x width
   }
 
-  draw_vertex_circle(yx, color_index=0){
-    let y = yx[0]*this.data_height/myUI.map_height;
-    let x = yx[1]*this.data_width/myUI.map_width;
+  draw_vertex_circle(xy, color_index=0){
+    let y = xy[0]*this.data_height/myUI.map_height;
+    let x = xy[1]*this.data_width/myUI.map_width;
     let r = 6;//this.data_height/myUI.map_height * 5/16;
     if(myUI.map_height>32 || myUI.map_width>32){
       r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
@@ -277,9 +276,9 @@ class UICanvas{
     this.ctx.stroke();
   }
 
-  erase_vertex_circle(yx){
-    let y = yx[0]*this.data_height/myUI.map_height;
-    let x = yx[1]*this.data_width/myUI.map_width;
+  erase_vertex_circle(xy){
+    let y = xy[0]*this.data_height/myUI.map_height;
+    let x = xy[1]*this.data_width/myUI.map_width;
     let r = 6//this.data_height/myUI.map_height * 5/16;
     if(myUI.map_height>32 || myUI.map_width>32){
       r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
@@ -289,11 +288,11 @@ class UICanvas{
     this.ctx.clearRect(x-d, y-d, 2*d, 2*d);
   }
 
-  draw_dotted_square(yx){
-    let y = yx[0]*this.data_height/myUI.map_height;
-    let x = yx[1]*this.data_width/myUI.map_width;
+  draw_dotted_square(xy){
+    let y = xy[0]*this.data_height/myUI.map_height;
+    let x = xy[1]*this.data_width/myUI.map_width;
     let side = this.data_height/myUI.map_height;
-    console.log(y, x);
+    console.log(x,y);
     this.set_color_index(0, "all");
     this.ctx.setLineDash([12, 6]);/*dashes are 2px and spaces are 2px*/
     this.ctx.lineWidth = 6;
@@ -369,15 +368,15 @@ class UICanvas{
   }
 
   _fillEditedCell(canvas_x, canvas_y){
-    let [y, x] = this.scale_coord(canvas_y, canvas_x);
-    if(this.erase) this.erase_pixel([y,x]);
-    else this.draw_pixel([y,x]);
+    let [x,y] = this.scale_coord(canvas_y, canvas_x);
+    if(this.erase) this.erase_pixel([x,y]);
+    else this.draw_pixel([x,y]);
   }
 
   _drawHover(canvas_x, canvas_y){
-    let [y, x] = this.scale_coord(canvas_y, canvas_x);
-    if(this.erase) this.draw_pixel([y,x], false, 1, 2, false);
-    else this.draw_pixel([y,x], false, 1, 1, false);
+    let [x,y] = this.scale_coord(canvas_y, canvas_x);
+    if(this.erase) this.draw_pixel([x,y], false, 1, 2, false);
+    else this.draw_pixel([x,y], false, 1, 1, false);
   }
 
   toggle_draw_erase(){
@@ -424,7 +423,7 @@ class UIButton{
 // below 23 lines have been adapted from https://stackoverflow.com/a/4663129
 var CP = window.CanvasRenderingContext2D && CanvasRenderingContext2D.prototype;
 if (CP && CP.lineTo) {
-  CP.dashedLine = CP.dashedLine || function(x, y, x2, y2, da) {
+  CP.dashedLine = CP.dashedLine || function(x, x,y2, y2, da) {
     if (!da) da = [10,5];
     this.save();
     var dx = (x2-x), dy = (y2-y);

@@ -33,14 +33,14 @@ class GridPathFinder{
 		if(action[0]&(1<<2)){
 			[mask, bitOffset, idx] = this._manageOffset(myUI.planner.coord_bit_len, bitOffset, idx);
 			let coord = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
-			var y = Math.floor(coord/myUI.planner.map_width);
-			var x = coord - y * myUI.planner.map_width;
+			var x = Math.floor(coord/myUI.planner.map_width);
+			var y = coord - x * myUI.planner.map_width;
 		}
 		if(action[0]&(1<<3)){
 			[mask, bitOffset, idx] = this._manageOffset(myUI.planner.coord_bit_len, bitOffset, idx);
 			let coord = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
-			var parentY = Math.floor(coord/myUI.planner.map_width);
-			var parentX = coord - parentY * myUI.planner.map_width;
+			var parentX = Math.floor(coord/myUI.planner.map_width);
+			var parentY = coord - parentX * myUI.planner.map_width;
 		}
 		if(action[0]&(1<<4)){
 			[mask, bitOffset, idx] = this._manageOffset(myUI.planner.color_bit_len, bitOffset, idx);
@@ -60,7 +60,7 @@ class GridPathFinder{
 			++idx;
 			var hCost_str = action[idx];
 		}
-		return [command, dest, y, x, parentY, parentX, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str];/**/
+		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str];/**/
 		/* OLD */
 		/*var command = (action >> 3) & ones(myUI.planner.static_bit_len);
 		// SPECIAL CASE: draw arrows
@@ -81,7 +81,7 @@ class GridPathFinder{
 			var parent_y = Math.floor(parent_coord/myUI.planner.map_width);
 			var parent_x = parent_coord - parent_y * myUI.planner.map_width;
 		}
-		return [command, dest, y, x, parent_y, parent_x, parent_exists, arrow_index, color_index];/**/
+		return [command, dest, x,y, parent_y, parent_x, parent_exists, arrow_index, color_index];/**/
 	}
 
 	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
@@ -143,7 +143,7 @@ class GridPathFinder{
 	}
 
 	_init_search(start, goal){
-    this.start = start; //in array form [y,x]  [0,0] is top left  [512,512] is bottom right
+    this.start = start; //in array form [x,y]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
     this.neighbours = [];
@@ -170,7 +170,7 @@ class GridPathFinder{
     // step_index is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
     // this balances between processer and memory usage
-		this.prev_node_YX = undefined;
+		this.prev_node_XY = undefined;
 		
 		if(this.map_height<=32) this.batch_size = 10;
 		else if(this.map_height<=64) this.batch_size = 40;
@@ -197,7 +197,7 @@ class GridPathFinder{
 		return this.actionCache.length - 1;
 	}
 
-  // this._create_action(STATIC.EP, STATIC.QU, this.current_node_YX);
+  // this._create_action(STATIC.EP, STATIC.QU, this.current_node_XY);
 	_create_action({
 		command,
 		dest,
@@ -343,7 +343,7 @@ console.log(STATIC_COMMANDS)
 			this.step_cache.push(arguments[3]);
 		}
 	}   //  stepcache = [action_cache,hcost,fcost,stepno]
-  //   this._create_action(STATIC.InTopTemp,STATIC.DIT, this.current_node_YX,this.step_index, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_YX);
+  //   this._create_action(STATIC.InTopTemp,STATIC.DIT, this.current_node_XY,this.step_index, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_XY);
 //this.step_index: 
 	_save_step(step_direction="fwd"){
 		if(step_direction=="fwd"){
@@ -368,10 +368,10 @@ console.log(STATIC_COMMANDS)
 		this.cell_map = zero2D(this.map_height, this.map_width, Number.MAX_SAFE_INTEGER);
 	}
 
-	_assign_cell_index(yx){
+	_assign_cell_index(xy){
 		// index is the step index for the first expansion of that cell
-		let [y,x] = yx;
-		this.cell_map[y][x] = this.step_index;
+		let [x,y] = xy;
+		this.cell_map[x][y] = this.step_index;
 	}
   /*
 0: 1
@@ -595,7 +595,7 @@ console.log(STATIC_COMMANDS)
 	}
 
 	_manage_state(){
-		// [node YX, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
+		// [node XY, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
 		if (this.step_index - this.prev_count >= 80) {  
 			this.prev_count = this.step_index;
 			++this.state_counter;
@@ -617,7 +617,7 @@ console.log(STATIC_COMMANDS)
 			//this.states.visited_index+=this.visited.arr_length;
 			this.states.visited_index = nxt_index;
 //console.log("state","this.step_index",this.step_index,this.neighbours);
-			this.states[this.step_index] = { node_YX: this.current_node.self_YX, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:deepCopyNodeArray(this.queue), neighbours:deepCopyNodeArray(this.neighbours),/* neighbours: deep_copy_matrix(this.neighbours_YX), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
+			this.states[this.step_index] = { node_XY: this.current_node.self_XY, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:deepCopyNodeArray(this.queue), neighbours:deepCopyNodeArray(this.neighbours),/* neighbours: deep_copy_matrix(this.neighbours_XY), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
 
 
 		}
@@ -625,19 +625,19 @@ console.log(STATIC_COMMANDS)
 
 	_found_goal(node){
 		// found the goal & exits the loop
-		if (node.self_YX[0] != this.goal[0] || node.self_YX[1] != this.goal[1]) return false;
+		if (node.self_XY[0] != this.goal[0] || node.self_XY[1] != this.goal[1]) return false;
 		this._create_step();
 		this.path = [];
 		// retraces the entire parent tree until start is found
 		const originalNode = node;
 		myUI.node = originalNode;
 		while (node != null) {
-			this.path.unshift(node.self_YX);
+			this.path.unshift(node.self_XY);
 			/* OLD *//*
-			this._create_action(STATIC.DP, STATIC.PA, node.self_YX);
+			this._create_action(STATIC.DP, STATIC.PA, node.self_XY);
 			this._create_action(STATIC.DA, node.arrow_index, 1);
 			/* NEW */
-			this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_YX});
+			this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_XY});
 			if(!isNaN(node.arrow_index))
 				this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
 			node = node.parent;
@@ -655,11 +655,11 @@ console.log(STATIC_COMMANDS)
 		/* OLD *//*
 		this._create_action(STATIC.SIMPLE);
 		this._create_action(STATIC.EC, STATIC.PA);
-		this._create_action(STATIC.DP, STATIC.CR, this.current_node_YX);
+		this._create_action(STATIC.DP, STATIC.CR, this.current_node_XY);
 		/* NEW */
 		this._create_action({command: STATIC.SIMPLE});
 		this._create_action({command: STATIC.EC, dest: STATIC.PA});
-		this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_YX});
+		this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_XY});
 		node = originalNode;
 		while (node != null) {
 			/* OLD *//*
@@ -725,20 +725,20 @@ console.log(STATIC_COMMANDS)
 }
 
 class Node{
-	constructor(f_cost, g_cost, h_cost, parent, self_YX, arrow_index,id=999){
+	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index,id=999){
 	  	this.f_cost = f_cost;
       this.g_cost = g_cost;
       this.h_cost = h_cost;
 		  this.parent = parent;
-		  this.self_YX = self_YX[0]>255 || self_YX[1]>255 ? new Uint16Array(self_YX) : new Uint8Array(self_YX);
+		  this.self_XY = self_XY[0]>255 || self_XY[1]>255 ? new Uint16Array(self_XY) : new Uint8Array(self_XY);
 			this.arrow_index = arrow_index;  // refers to the index (or arrow array) at which the arrow points from the node to the parent
 			// arrow index is used to construct the steps/states when computing the path
       this.id = id;
   }
 
 	clone(){
-		let node = new this.constructor(this.f_cost, this.g_cost, this.h_cost, null, this.self_YX, this.arrow_index);
-		node.parent = {self_YX: this.parent.self_YX};
+		let node = new this.constructor(this.f_cost, this.g_cost, this.h_cost, null, this.self_XY, this.arrow_index);
+		node.parent = {self_XY: this.parent.self_XY};
 		return node;
 	}
 }

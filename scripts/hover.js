@@ -1,15 +1,15 @@
-myUI.scale_coord = function(y, x){
+myUI.scale_coord = function(x,y){
 	if(myUI.vertex){
-		let sx = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
-		let sy = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
-		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientWidth+sx) * (myUI.map_width+1));
-		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientHeight+sy) * (myUI.map_height+1));
+		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
+		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
+		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1));
+		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientHeight+sx) * (myUI.map_height+1));
 	}
 	else{
-		var scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
-		var scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientHeight * myUI.map_height);
+		var scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
+		var scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientHeight * myUI.map_height);
 	}
-	return [scaled_y, scaled_x];
+	return [scaled_x, scaled_y];
 }
 
 myUI.handle_map_hover = function(e){
@@ -19,25 +19,25 @@ myUI.handle_map_hover = function(e){
 	e = e || window.event;
   e.preventDefault();
 	/* colours the map on hover */
-	let [scaled_y, scaled_x] = myUI.scale_coord(e.offsetY, e.offsetX);
-	document.getElementById("hover_x").innerHTML = scaled_x;
+	let [scaled_x, scaled_y] = myUI.scale_coord(e.offsetY, e.offsetX);
 	document.getElementById("hover_y").innerHTML = scaled_y;
+	document.getElementById("hover_x").innerHTML = scaled_x;
 	myUI.canvases.hover_map.erase_canvas();
 	myUI.canvases.hover_map.set_color_index(0, "both");
 	if(myUI.map_arr && !myUI.vertex)
-		if(myUI.map_arr[scaled_y][scaled_x]==0)
+		if(myUI.map_arr[scaled_x][scaled_y]==0)
 			myUI.canvases.hover_map.set_color_index(1, "both");
 	//console.log(myUI.canvases.hover_map.ctx.strokeStyle);
-	myUI.canvases.hover_map.draw_start_goal([scaled_y, scaled_x]);
+	myUI.canvases.hover_map.draw_start_goal([scaled_x, scaled_y]);
 
 	myUI.canvases.hover_map.canvas.style.cursor = "auto";
 	document.getElementById("hover_cell_index").innerHTML = "-";
 	tooltip_data.style.backgroundColor = ``;
 	if(myUI.planner.cell_map){
-		if(!isNaN(myUI.planner.cell_map[scaled_y][scaled_x])){
+		if(!isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
 			myUI.canvases.hover_map.canvas.style.cursor = "pointer";
-			document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_y][scaled_x];
-			document.getElementById("hover_cell_visited").innerHTML = myUI.planner.visited.get_data([scaled_y, scaled_x]);
+			document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_x][scaled_y];
+			document.getElementById("hover_cell_visited").innerHTML = myUI.planner.visited.get_data([scaled_x, scaled_y]);
 			tooltip_data.style.backgroundColor = `#3bd44b`;
 		}
 	}
@@ -52,10 +52,10 @@ myUI.handle_map_hover = function(e){
 myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
 
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
-	let [scaled_y, scaled_x] = myUI.scale_coord(e.offsetY, e.offsetX);
+	let [scaled_x, scaled_y] = myUI.scale_coord(e.offsetY, e.offsetX);
 	if(myUI.planner.cell_map){
-		if(!isNaN(myUI.planner.cell_map[scaled_y][scaled_x])){
-			let idx = myUI.planner.cell_map[scaled_y][scaled_x];
+		if(!isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
+			let idx = myUI.planner.cell_map[scaled_x][scaled_y];
 			myUI.update_search_slider(idx);
 			myUI.jump_to_step(idx);
 		}
@@ -116,17 +116,17 @@ function dragElement(elmnt) {
     document.onmousemove = null;
 		e = e || window.event;
     e.preventDefault();
-		let x = x1 - bounds.left;
-		let y = y1 - bounds.top;
-		x = Math.max(0, Math.min(bounds.width-e_num, x));  // fix to boundaries
-		y = Math.max(0, Math.min(bounds.height-e_num, y));
-		let [scaled_y, scaled_x] = myUI.scale_coord(y, x);
+		let y = x1 - bounds.left;
+		let x = y1 - bounds.top;
+		y = Math.max(0, Math.min(bounds.width-e_num, y));  // fix to boundaries
+		x = Math.max(0, Math.min(bounds.height-e_num, x));
+		let [scaled_x, scaled_y] = myUI.scale_coord(x,y);
 		console.log(scaled_x, scaled_y);
 		if(elmnt.id=="map_start_icon"){
-			myUI.map_start = [scaled_y, scaled_x];
+			myUI.map_start = [scaled_x, scaled_y];
 		}
 		else if(elmnt.id=="map_goal_icon"){
-			myUI.map_goal = [scaled_y, scaled_x];
+			myUI.map_goal = [scaled_x, scaled_y];
 		}
 		myUI.displayScen(true, true);
   }

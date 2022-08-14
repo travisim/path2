@@ -67,7 +67,7 @@ Actions
 const statics_to_obj = {
   0: "queue",
   1: "visited",
-  2: "current_YX",
+  2: "current_XY",
   3: "neighbours",
   4: "path",
   5: "N",
@@ -102,11 +102,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             ++j;
           }
           if(myUI.testing) console.log(i,j);
-          let [command, dest, y, x, parentY, parentX, colorIndex, stepNo=999, arrowIndex, gCost_str, hCost_str] = GridPathFinder.unpack_action(step.slice(i, j));
+          let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str] = GridPathFinder.unpack_action(step.slice(i, j));
           var gCost = Number(gCost_str);
           var hCost = Number(hCost_str);
            if(dest == "IT") console.log(stepNo," stepNo");  
-          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepNo, arrowIndex, gCost, hCost]);
+          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
           console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo);
          
@@ -116,17 +116,17 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
               myUI.canvases[statics_to_obj[dest]].erase_canvas();
             }
             else if(command==STATIC.DP){
-              myUI.canvases[statics_to_obj[dest]].draw_pixel([y, x]);
+              myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y]);
             }
             else if(command==STATIC.EP){
-               myUI.canvases[statics_to_obj[dest]].erase_pixel([y, x]);
+               myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y]);
             }
             else if(command==STATIC.INC_P){
-               myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "inc");
+               myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc");
               
             }
             else if(command==STATIC.DEC_P){
-               myUI.canvases[statics_to_obj[dest]].change_pixel([y, x], "dec");
+               myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec");
             }
             else if(command==STATIC.DA){
               // draw arrow
@@ -144,7 +144,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
   	          if(dest== STATIC.QU && command == STATIC.EP ){//record  "visiters" in 2d array
   	            myUI.InfoMap.recordErasedQueue(x,y);
   	          }
-              if(command == STATIC.DICR   && dest==STATIC.ICR){//draw "current_YX",
+              if(command == STATIC.DICR   && dest==STATIC.ICR){//draw "current_XY",
                 myUI.InfoMap.reset();
                 myUI.InfoMap.drawObstacle(x,y);
   	            myUI.InfoMap.drawOutOfBound(x,y);
