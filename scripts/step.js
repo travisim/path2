@@ -76,7 +76,8 @@ const STATIC_DESTS = [
   "IE",
   "INE",
   "ICR", //info current path
-  "IT" //info table
+  "IT", //info table
+  "DT",
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -114,7 +115,8 @@ const statics_to_obj = {
   9: "S",
   10:"SE",
   11:"E",
-  12:"NE"
+  12:"NE",
+  15: "dotted",
 }
 
 
@@ -130,22 +132,19 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
         console.log(step, 'step')
         let i=0;
         if(myUI.testing)
-          console.log(step);
+          console.log(step, 'step');
         while(i<step.length){
           let j=i+1;
           while(j<step.length){
-           // console.log(Number.isInteger(step[j]) && step[j]&1,Number.isInteger(step[j]),step[j],step[j]&1,"while j")
             if(Number.isInteger(step[j]) && step[j]&1) break;
             ++j;
           }
           if(myUI.testing) console.log(i,j);
-          //console.log(i,j,"i,j")
-         // console.log(step.slice(i, j),"step slice")
           let [command, dest, y, x, parentY, parentX, colorIndex, stepNo=999, arrowIndex, gCost_str, hCost_str] = GridPathFinder.unpack_action(step.slice(i, j));
           var gCost = Number(gCost_str);
           var hCost = Number(hCost_str);
            if(dest == "IT") console.log(stepNo," stepNo");
-          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepIndex, arrowIndex, gCost, hCost]);
+          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], y, x, parentY, parentX, stepNo, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
           console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo);
           /* OLD */
@@ -268,7 +267,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             console.log(i, step);
           }/* */
 
-          
+          try{
             console.log(myUI.animation.step,"step");
             if(command==STATIC.EC){
               if(virtual) myUI.tmp.virtual_canvases[statics_to_obj[dest]] = zero2D(myUI.map_height, myUI.map_width);
@@ -357,11 +356,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             if(dest== STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
 	            myUI.InfoTable.removeSlideById(stepNo);
 	          }
-            try{
           }catch(e){
             console.log(e);
             console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
-            console.log(step[i], i, step);
+            console.log(step.slice(i, j));
+            debugger;
           }
           
           /*++i;*/

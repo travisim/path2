@@ -112,6 +112,8 @@ class A_star extends GridPathFinder{
 
       this._create_step();
       this._create_action({command: STATIC.SIMPLE});
+      this._create_action({command: STATIC.EC, dest: STATIC.DT});
+      this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_YX});
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
       this._create_action({command: STATIC.EC, dest: STATIC.NB});
       this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_YX});
@@ -234,8 +236,8 @@ class A_star extends GridPathFinder{
 					if(open_node !== undefined) if(open_node.f_cost<=f_cost) continue;
 					let closed_node = this.closed_list.get(next_YX);
 					if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
-          this.neighbours.push(new_node);
-          this.neighbours_deltaNWSE_STATICS.push(this.deltaNWSE_STATICS[i]);
+          this.neighbours.unshift(new_node);
+          this.neighbours_deltaNWSE_STATICS.unshift(this.deltaNWSE_STATICS[i]);
 
           /* OLD *//*
           this._create_step();
@@ -247,6 +249,8 @@ class A_star extends GridPathFinder{
 					*/
           /* NEW */
           this._create_step();
+          this._create_action({command: STATIC.EC, dest: STATIC.DT});
+          this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: next_YX});
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_YX});
           this._create_action({command: STATIC.DIM, dest: this.deltaNWSE_STATICS[i], nodeCoord: next_YX, stepIndex: this.step_index, hCost: h_cost.toPrecision(5), gCost: g_cost.toPrecision(5), parentCoord: this.current_node_YX});
           this._create_action({command: STATIC.InBottom, dest: STATIC.IT, nodeCoord: next_YX, stepIndex: this.step_index, hCost: h_cost.toPrecision(5), gCost: g_cost.toPrecision(5), parentCoord: this.current_node_YX});
@@ -299,6 +303,9 @@ class A_star extends GridPathFinder{
           this._save_step("bck");/* */
 
           this._create_step();
+          this._create_action({command: STATIC.EC, dest: STATIC.DT});
+          if(this.neighbours.length==1) this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_YX});
+          else this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.neighbours[1].self_YX});
           this._create_action({command: STATIC.EP, dest: STATIC.NB, nodeCoord: next_YX});
           this._create_action({command: STATIC.EIM, dest: this.deltaNWSE_STATICS[i]});
           this._create_action({command: STATIC.RemoveRowByID, dest: STATIC.IT,stepIndex: this.step_index});

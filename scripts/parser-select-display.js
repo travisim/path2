@@ -176,6 +176,11 @@ myUI.displayScen = function(update=false, reset_zero=false){
 	}
 	else{
 		console.log(myUI.map_start, myUI.map_goal);
+    let change = myUI.vertex ? 1 : 0;
+    myUI.map_start[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_start[0]));
+    myUI.map_goal[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_goal[0]));
+    myUI.map_start[1] = Math.max(0, Math.min(myUI.map_width-1+change, myUI.map_start[1]));
+    myUI.map_goal[1] = Math.max(0, Math.min(myUI.map_width-1+change, myUI.map_goal[1]));
 		myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
 		myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
 		if(update){

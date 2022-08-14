@@ -175,12 +175,11 @@ class UICanvas{
       this.virtualCanvas[y][x] = val;
     else {
       if(save_in_cache) this.canvas_cache[y][x] = val;
-      if(!this.fixedRes){
+      if(this.canvas.id=="dotted") this.draw_dotted_square(yx);
+      else if(this.fixedRes) this.draw_vertex_circle(yx, color_index);
+      else{
         this.set_color_index(color_index);
         this.ctx.fillRect(x, y, this.pixelSize, this.pixelSize);
-      }
-      else{
-        this.draw_vertex_circle(yx, color_index);
       }
     }
   }
@@ -188,10 +187,8 @@ class UICanvas{
   erase_pixel(yx){
     let [y,x] = yx;
     this.canvas_cache[y][x] = 0;
-    if(!this.fixedRes)
-      this.ctx.clearRect(x, y, this.pixelSize, this.pixelSize);
-    else
-      this.erase_vertex_circle(yx);
+    if(this.fixedRes) this.erase_vertex_circle(yx);
+    else this.ctx.clearRect(x, y, this.pixelSize, this.pixelSize);
   }
 
   draw_start_goal(point, strokeColor=this.ctx.strokeStyle){
@@ -262,6 +259,10 @@ class UICanvas{
     let y = yx[0]*this.data_height/myUI.map_height;
     let x = yx[1]*this.data_width/myUI.map_width;
     let r = 6;//this.data_height/myUI.map_height * 5/16;
+    if(myUI.map_height>32 || myUI.map_width>32){
+      r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
+      debugger;
+    }
 
     /*this.ctx.beginPath();
     this.set_color("#000000", "all");
@@ -280,8 +281,29 @@ class UICanvas{
     let y = yx[0]*this.data_height/myUI.map_height;
     let x = yx[1]*this.data_width/myUI.map_width;
     let r = 6//this.data_height/myUI.map_height * 5/16;
+    if(myUI.map_height>32 || myUI.map_width>32){
+      r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
+      debugger;
+    }
     let d = r*2;
     this.ctx.clearRect(x-d, y-d, 2*d, 2*d);
+  }
+
+  draw_dotted_square(yx){
+    let y = yx[0]*this.data_height/myUI.map_height;
+    let x = yx[1]*this.data_width/myUI.map_width;
+    let side = this.data_height/myUI.map_height;
+    console.log(y, x);
+    this.set_color_index(0, "all");
+    this.ctx.setLineDash([12, 6]);/*dashes are 2px and spaces are 2px*/
+    this.ctx.lineWidth = 6;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(x+side, y);
+    this.ctx.lineTo(x+side, y+side);
+    this.ctx.lineTo(x, y+side);
+    this.ctx.lineTo(x, y);
+    this.ctx.stroke();
   }
 
   toggle_edit(){

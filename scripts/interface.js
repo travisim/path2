@@ -17,6 +17,7 @@ myUI.initialize = function(){
   [
     ["edit_map", false, "#000000" ,"#d19b6d", "#AA1945"],
 		["hover_map", false, "#d19b6d", "#AA1945"],
+    ["dotted", true, "hsl(5,74%,55%)"],
     ["bg", false, "#000000"],
     ["queue", false, "#74fa4c"],
     ["visited", false, "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)

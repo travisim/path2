@@ -638,7 +638,8 @@ console.log(STATIC_COMMANDS)
 			this._create_action(STATIC.DA, node.arrow_index, 1);
 			/* NEW */
 			this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_YX});
-			this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
+			if(!isNaN(node.arrow_index))
+				this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
 			node = node.parent;
 		}
 		console.log("found");

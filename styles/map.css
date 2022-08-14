@@ -51,14 +51,14 @@
 
 /* controls map order and how the cells are displayed */
 #hover_map{z-index:60}
-#vertexCircle{z-index:48}
-#bg, #arrows{z-index:39}
+#dotted{z-index:48}
 #current_YX{z-index:46}
 #start, #goal{z-index:45}
 #path{z-index:44}
 #neighbours{z-index:43}
 #visited{z-index:42}
 #queue{z-index:41}
+#bg, #arrows{z-index:39}
 
 .draggable{
 	position: absolute;
