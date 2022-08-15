@@ -252,7 +252,7 @@ myUI.loadPlanner = function() {
 	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
   myUI.InfoTable.setTableHeader(myUI.planner.display_table_header_name());
-   myUI.InfoMap.infoMapDisplayMode(myUI.planner.infoMapDisplayMode());
+  myUI.InfoMap.PlannerMode(myUI.planner.infoMapPlannerMode());
   //determine_info_map_header();
   myUI.init_planner_config();
 }

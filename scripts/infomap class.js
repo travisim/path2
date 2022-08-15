@@ -6,16 +6,15 @@ class UIInfoNWSE{
      
   resetOne(){
   this.element.style.borderColor = "transparent";
-  this.element.style.borderColor = "transparent";
   this.element.style.background = "rgb(188,186,201)";
   this.element.style.outlineColor = "black";
   this.element.style.color = "black";
   this.element.querySelector(".type").innerHTML = "";
-  /*if (myUI.planners[myUI.planner_choice] == A_star)  this.element.querySelector(".F").innerHTML = "";
-  if (myUI.planners[myUI.planner_choice] == Dijkstra || myUI.planners[myUI.planner_choice] == A_star)  this.element.querySelector(".G").innerHTML = "";
-  if (myUI.planners[myUI.planner_choice] == A_star)  this.element.querySelector(".H").innerHTML = "";
+  if ( this.element.querySelector(".F"))  this.element.querySelector(".F").innerHTML = "";
+  if (this.element.querySelector(".G"))  this.element.querySelector(".G").innerHTML = "";
+  if (this.element.querySelector(".H"))  this.element.querySelector(".H").innerHTML = "";
      //reset a square in info map 
-  /**/
+  
   }
 
   drawOneObstacle(){
@@ -150,28 +149,29 @@ class UIInfoMap{
    // console.log(visited.get_data([x,y]));
   }
 
-  infoMapDisplayMode(mode='A_star'){
+  PlannerMode(planner='A_star'){
     var infoMapInnerHTML;
-    if (mode == 'BFS' || mode == 'DFS'){
+    if (planner == 'BFS' || planner == 'DFS'){
       infoMapInnerHTML = '<section>Type:&nbsp<span class="type"></span></section>';
   //initialise html for info squares as well
-    
     }
-    else if (mode == 'Dijkstra'){
+    else if (planner == 'Dijkstra'){
       infoMapInnerHTML  = '<section>G:&nbsp<span class="G"></span>Type:&nbsp<span class="type"></span></section>';
       //initialise html for info squares as well
     }
-    else if (mode == 'A_star'){
+    else if (planner == 'A_star'){
       infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
       //initialise html for info squares as well
     }
-     else if (mode == 'none'){
+     else if (planner == 'none'){
       document.getElementById("infomap").style.display = "none";
       document.getElementById("infodivider").style.display = "none";
       //initialise html for info squares as well
     }
 
-     [
+   
+    
+    [
     ["N"],
 		["NE"],
     ["E"],
@@ -186,10 +186,48 @@ class UIInfoMap{
   //initialise html for info squares as well
     });
   }
+
+
+  NumNeighboursMode(num_neighbours=8){
+    console.log("hihu")
+   if (num_neighbours == 8){
+    [
+  		["NE"],
+      ["SE"],
+      ["SW"],
+      ["NW"] 
+      ].forEach(item=>{
+      let element = document.getElementById(item[0]);
+      element.style.borderColor = "transparent";
+      element.style.background = "rgb(188,186,201)";
+      element.style.outlineColor = "black";
+      element.style.color = "black";
+      element.querySelector(".type").innerHTML = "";
+      if (element.querySelector(".F"))  element.querySelector(".F").innerHTML = "";
+      if (element.querySelector(".G"))  element.querySelector(".G").innerHTML = "";
+      if (element.querySelector(".H"))  element.querySelector(".H").innerHTML = "";
+      });
+ 
+     
+
+    }
+   else  if (num_neighbours == 4){
+      [
+  		["NE"],
+      ["SE"],
+      ["SW"],
+      ["NW"] 
+      ].forEach(item=>{
+      let element = document.getElementById(item[0]);
+      element.style.borderColor = "transparent";
+      element.style.background = "transparent";
+      element.style.outlineColor = "transparent";
+      element.style.color = "transparent";
+      });
+    }
+  }
+
 }
-
-
-
 
 
 var UIInfoCurrent = {
@@ -199,7 +237,6 @@ var UIInfoCurrent = {
 }
 
 
-//object with only 1 method
 
 
 document.getElementById("currentXY").innerHTML = "(_, _)"; 

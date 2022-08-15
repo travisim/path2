@@ -29,14 +29,20 @@ function toggle_num_neighbours(e){
     myUI.planner.init_neighbours(8);
     document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = myUI.top_Z});
     document.getElementById("num_neighbours_label").innerHTML = "Octal (8-directions)";
+    myUI.InfoMap.NumNeighboursMode(8);
   }
   else{
     myUI.planner.init_neighbours(4);
     document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = -100});
     document.getElementById("num_neighbours_label").innerHTML = "Cardinal (4-directions)";
+     myUI.InfoMap.NumNeighboursMode(4);
+
+    
   }
 }
 document.getElementById("num_neighbours_btn").addEventListener("click", toggle_num_neighbours);
+
+
 
 myUI.buttons.first_neighbour_btn.btn.addEventListener("click", e=>show_modal(myUI.modals.first_neighbour.elem));
 

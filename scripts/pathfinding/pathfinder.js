@@ -725,7 +725,7 @@ console.log(STATIC_COMMANDS)
 }
 
 class Node{
-	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index,id=999){
+	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index,id){
 	  	this.f_cost = f_cost;
       this.g_cost = g_cost;
       this.h_cost = h_cost;
