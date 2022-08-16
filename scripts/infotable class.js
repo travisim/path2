@@ -77,7 +77,8 @@ class UIInfoTable{
       this.removeSlideByIndex(0)
     }
   };
-  insertAfterSlidesIndex(SlidesIndex,rowId,values){
+  
+  insertSlidesAfterIndex(SlidesIndex,rowId,values){
     for (let i = 0; i < document.getElementsByClassName("highlighting").length; i++) { 
       if(document.getElementsByClassName("highlighting")[0]){
         document.getElementsByClassName("highlighting")[0].style.outlineColor = "transparent";
@@ -86,10 +87,10 @@ class UIInfoTable{
     }
     var r = this.rowGenerator(rowId,values)
     r.style.outline = "2px solid red";//highlight latest table added
+    document.getElementById("info-container-dynamic").append(r); // to allow next line to work
     this.slides[SlidesIndex].after(r); //highlight latest table added
-    
-    
   }
+  
   sort(indexOfColumnToBeSorted=3){
    if(this.slides.length > 1){
       var table, i, x, y;
