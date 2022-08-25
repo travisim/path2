@@ -164,8 +164,9 @@ myUI.initialize = function(){
   myUI.storage = {};
 
   myUI.tmp = {};
-  myUI.InfoTable  = new UIInfoTable();//shifting this to top will cause crashed
-  myUI.InfoMap  = new UIInfoMap();
+  myUI.InfoTable  = new UIInfoTable("Queue");//shifting this to top will cause crashed
+  myUI.InfoTable.setTableActive();
+  myUI.InfoMap  = new UIInfoMap();X
 }
 
 
