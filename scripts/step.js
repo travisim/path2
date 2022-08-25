@@ -109,8 +109,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
           console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo);
-         
-          try{
+       
             console.log(myUI.animation.step,"step");
             if(command==STATIC.EC){
               myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -175,7 +174,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
                 myUI.InfoTable.outBottom();             
   	          }
               else if(command == STATIC.Sort){
-                if (myUI.InfoTable.slides.length >= 2){
+                if (myUI.InfoTable.rows.length >= 2){
                   myUI.InfoTable.sort(); // emulats insert at based on F cost
                 }
   	          }
@@ -192,8 +191,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
             if(dest== STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
-	            myUI.InfoTable.removeSlideById(stepNo);
-	          }
+	            myUI.InfoTable.removeRowById(stepNo);
+	          }  
+          try{
           }catch(e){
             console.log(e);
             console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");

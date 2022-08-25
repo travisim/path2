@@ -1,6 +1,6 @@
 
 function openTab(evt,tableName) {
-  console.log(evt,"evt")
+  
   //remove all previosly displayed tabs
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
@@ -51,9 +51,9 @@ document.getElementById("info-container").append(div);
 
 class UIInfoTable{
   constructor(tableIdentifier){ //input titles of table in string
-     this.tableGenerator(tableIdentifier)
+    this.tableGenerator(tableIdentifier)
     this.tableContainer = document.querySelector('#'+`t${tableIdentifier}`);
-   this.button = document.querySelector('#'+`b${tableIdentifier}`);
+    this.button = document.querySelector('#'+`b${tableIdentifier}`);
     this.rows = this.tableContainer.getElementsByClassName('row');
     this.tableHeader = this.tableContainer.getElementsByClassName('table_header');
     this.highlightedRows = this.tableContainer.getElementsByClassName('highlighting');
