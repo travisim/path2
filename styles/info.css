@@ -24,10 +24,7 @@ padding: 3px;
   grid-template-rows: repeat(5, 1fr);
   aspect-ratio: 1;
   position: relative;
-
-  
- 
-
+  max-height: 500px;
 }
 
 

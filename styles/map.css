@@ -4,11 +4,14 @@
 }
 
 #map-container{
-	width: 512px;
+	flex-grow: 5;
 }
 
 #map{
+	overflow: hidden;
 	position: relative;
+	min-width:520px;
+	height: 520px;
 }
 
 #canvas_container{
@@ -85,4 +88,10 @@
 
 #hover_x, #hover_y{
 	display: inline;
+}
+
+#layer-controls{
+	overflow: hidden;
+	height: calc(var(--canvas-remaining) + var(--canvas-length));
+	flex-grow: 1;
 }

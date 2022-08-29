@@ -68,7 +68,7 @@ myUI.sliders.search_progress_slider.elem.oninput = function(){
 myUI.reset_animation = function(){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
 	myUI.update_search_slider(-1);
-	["visited",	"neighbours", "queue",	"current_XY",	"path"].forEach(canvas_id=>{
+	["visited",	"neighbours", "queue",	"current_XY",	"path", "dotted"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
 	myUI.reset_arrow(false);
@@ -158,3 +158,24 @@ myUI.toggleMapDetail = function(){
 	// do other stuff
 }
 myUI.buttons.detail_btn.btn.addEventListener("click", myUI.toggleMapDetail);
+
+document.getElementById("show_visited").addEventListener("click", function(e){
+	if(this.checked) myUI.canvases.visited.canvas.classList.remove("hidden");
+	else myUI.canvases.visited.canvas.classList.add("hidden");
+});
+
+document.getElementById("show_queue").addEventListener("click", function(e){
+	if(this.checked) myUI.canvases.queue.canvas.classList.remove("hidden");
+	else myUI.canvases.queue.canvas.classList.add("hidden");
+});
+
+document.getElementById("show_neighbours").addEventListener("click", function(e){
+	if(this.checked) myUI.canvases.neighbours.canvas.classList.remove("hidden");
+	else myUI.canvases.neighbours.canvas.classList.add("hidden");
+});
+
+document.getElementById("show_f_cost").addEventListener("click", function(e){
+});
+
+document.getElementById("show_g_cost").addEventListener("click", function(e){
+});

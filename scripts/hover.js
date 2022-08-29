@@ -38,7 +38,11 @@ myUI.handle_map_hover = function(e){
 			myUI.canvases.hover_map.canvas.style.cursor = "pointer";
 			document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_x][scaled_y];
 			document.getElementById("hover_cell_visited").innerHTML = myUI.planner.visited.get_data([scaled_x, scaled_y]);
-			tooltip_data.style.backgroundColor = `#3bd44b`;
+			/*tooltip_data.style.backgroundColor = `#3bd44b`;
+			for(const obj of hoverData){
+				
+				document.getElementById(`hover_cell_${obj.t}`).innerHTML = +obj.sources[i];
+			}/* */
 		}
 	}
 

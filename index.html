@@ -29,6 +29,7 @@
 		<link rel="stylesheet" href="styles/modal.css" />
 		<link rel="stylesheet" href="styles/map.css" />
 		<link rel="stylesheet" href="styles/info.css" />
+		<link rel="stylesheet" href="styles/dd2.css" />
 		<link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet">
 
     
@@ -144,34 +145,52 @@
 			
       <div id="map-container" class="container">
 				<div class="sub-container">
-					<div id="map" class="interface overlay">
-						<div id="canvas_container">
-							<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
-							<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
-							<canvas id="hover_map" class="map_canvas" height="8" width="8"></canvas>
-							<canvas id="dotted" class="map_canvas" height="8" width="8"></canvas>
-							<canvas id="bg" class="map_canvas" height="8" width="8"></canvas><!-- loaded .map file -->
-							<canvas id="queue" class="map_canvas" height="8" width="8" ></canvas> <!-- neighbouring nodes that are in the queue -->
-							<canvas id="visited" class="map_canvas" height="8" width="8" ></canvas>
-							<canvas id="current_XY" class="map_canvas" height="8" width="8" ></canvas>
-							<canvas id="neighbours" class="map_canvas" height="8" width="8" ></canvas>
-							<canvas id="path" class="map_canvas" height="8" width="8" ></canvas>
-							<canvas id="start" class="map_canvas" height="8" width="8"></canvas>
-							<canvas id="goal" class="map_canvas" height="8" width="8" ></canvas>
-						</div>
-						<div id="left_axes" class="flex-col">
-							<span class="label_centered">0</span>
-							<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 9 1665" xml:space="preserve" class="shrink">
-								<path d="M 0 10 a 5 5, 0, 0, 1, 10 0 v 1600 h 30 l -35 60 l -35 -60 h 30 z "></path>
-							</svg>
-							<span id="map_height_axis" class="label_centered">15</span>
-						</div>
-						<div id="top_axes" class="flex-row">
-							<span class="label_centered">0</span>
-							<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1665 9" xml:space="preserve" class="shrink">
-									<path d="M 5 -10 a 5 5, 0, 0, 0, 0 10 h 1600 v 30 l 60 -35 l -60 -35 v 30 z "></path>
+					<div class="flex-row">
+						<div id="map" class="interface overlay">
+							<div id="canvas_container">
+								<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
+								<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
+								<canvas id="hover_map" class="map_canvas" height="8" width="8"></canvas>
+								<canvas id="dotted" class="map_canvas" height="8" width="8"></canvas>
+								<canvas id="bg" class="map_canvas" height="8" width="8"></canvas><!-- loaded .map file -->
+								<canvas id="queue" class="map_canvas" height="8" width="8" ></canvas> <!-- neighbouring nodes that are in the queue -->
+								<canvas id="visited" class="map_canvas" height="8" width="8" ></canvas>
+								<canvas id="current_XY" class="map_canvas" height="8" width="8" ></canvas>
+								<canvas id="neighbours" class="map_canvas" height="8" width="8" ></canvas>
+								<canvas id="path" class="map_canvas" height="8" width="8" ></canvas>
+								<canvas id="start" class="map_canvas" height="8" width="8"></canvas>
+								<canvas id="goal" class="map_canvas" height="8" width="8" ></canvas>
+							</div>
+							<div id="left_axes" class="flex-col">
+								<span class="label_centered">0</span>
+								<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 9 1665" xml:space="preserve" class="shrink">
+									<path d="M 0 10 a 5 5, 0, 0, 1, 10 0 v 1600 h 30 l -35 60 l -35 -60 h 30 z "></path>
 								</svg>
-							<span id="map_width_axis" class="label_centered">15</span>
+								<span id="map_height_axis" class="label_centered">15</span>
+							</div>
+							<div id="top_axes" class="flex-row">
+								<span class="label_centered">0</span>
+								<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1665 9" xml:space="preserve" class="shrink">
+										<path d="M 5 -10 a 5 5, 0, 0, 0, 0 10 h 1600 v 30 l 60 -35 l -60 -35 v 30 z "></path>
+									</svg>
+								<span id="map_width_axis" class="label_centered">15</span>
+							</div>
+						</div>
+						<div id="layer-controls">
+							<input type="checkbox" id="show_visited" name="show_visited" checked>
+							<label for="show_visited">Visited</label>
+							<br>
+							<input type="checkbox" id="show_queue" name="show_queue" checked>
+							<label for="show_queue">Queue</label>
+							<br>
+							<input type="checkbox" id="show_neighbours" name="show_neighbours" checked>
+							<label for="show_neighbours">Neighbours</label>
+							<br>
+							<input type="checkbox" id="show_f_cost" name="show_f_cost">
+							<label for="show_f_cost">F-Cost</label>
+							<br>
+							<input type="checkbox" id="show_g_cost" name="show_g_cost">
+							<label for="show_g_cost">G-Cost</label>
 						</div>
 					</div>
 					<div class="flex-row">
@@ -190,7 +209,6 @@
 					</div>
 				</div>
 			</div>
-      
 			<div id="controls-container" class="container">
 				<div class="sub-container">
 					<div id="controls" class="interface overlay">
@@ -417,6 +435,7 @@
     <script src="scripts/infomap class.js"></script>
     <script src="scripts/infotable class.js"></script>
 		<script src="scripts/interface.js"></script><!-- creates myUI -->
+		<script src="scripts/hover_config.js"></script>
 		<script src="scripts/hover.js"></script>
 		<script src="scripts/animation.js"></script>
 		<script src="scripts/controls.js"></script>
@@ -427,8 +446,7 @@
 		<script src="scripts/hover.js"></script>
 		<script src="scripts/modal.js"></script>
 		<script src="scripts/parser-select-display.js"></script>
-		<script src="scripts/download.js"></script> 
-		<script src="scripts/tooltip.js"></script> 
+		<script src="scripts/download.js"></script>
    
     
   </body>
