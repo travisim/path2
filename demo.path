@@ -1,0 +1,49 @@
+{
+	"config":{
+    "hoverData":[
+      {
+        "name": "Step Number",
+        "tag": "index"
+      },
+      {
+        "name": "Times Visited",
+        "tag": "visited"
+      },
+      {
+        "name": "F_cost",
+        "tag": "f_cost"
+      },
+      {
+        "name": "G_cost",
+        "tag": "g_cost"
+      },
+      {
+        "name": "H_cost",
+        "tag": "h_cost"
+      },
+    ],
+    "canvas":[
+      {
+        "name":"visited",
+        "displayOrder":1
+      },
+      {
+        "name":"queue",
+        "displayOrder":2
+      }
+    ],
+    "ENUM":{
+      "DRAW_PIXEL":1,
+      "ERASE_PIXEL":2,
+      "QUEUE":3,
+      "VISITED":4
+    },
+    "rENUM":{
+      "3":"QUEUE",
+      "4":"VISITED"
+    }
+	},
+  "expansion":{
+    "data":[]
+  }
+}
