@@ -121,6 +121,7 @@ class A_star extends GridPathFinder{
       this._create_action({command: STATIC.OutTop, dest: STATIC.IT});
       this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
+      this._create_action({command: STATIC.HP, dest: STATIC.PC});
       this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
       this._save_step("fwd");
       /*

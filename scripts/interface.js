@@ -166,7 +166,10 @@ myUI.initialize = function(){
   myUI.tmp = {};
   myUI.InfoTable  = new UIInfoTable("Queue");//shifting this to top will cause crashed
   myUI.InfoTable.setTableActive();
-  myUI.InfoMap  = new UIInfoMap();X
+  myUI.InfoMap  = new UIInfoMap();
+  myUI.PseudoCode = new UIInfoPseudoCode();
+  var pseudoCodeRaw = 'def astar(map, start_vertex, goal_vertex): \n&emsp;list = OpenList() \n&emsp;path = [ ] \n&emsp;# Initialise h-cost for all \n&emsp;for vertex in map.vertices(): \n &emsp;&emsp;  vertex.set_h_cost(goal_vertex)  \n &emsp;&emsp;  vertex.g_cost = ∞  \n &emsp;&emsp;  vertex.visited = False \n&emsp; # Assign 0 g-cost to start_vertex  \n &emsp;start_vertex.g_cost = 0 \n &emsp;list.add(start_vertex) \n &emsp;while list.not_empty(): \n    &emsp;&emsp;current_vertex = list.remove() \n    &emsp;&emsp;# Skip if visited: a cheaper path  \n    &emsp;&emsp;# was already found \n   &emsp;&emsp; if current_vertex.visited: \n   &emsp;&emsp;&emsp;   continue \n   &emsp;&emsp; # Trace back and return the path if at the goal \n   &emsp;&emsp; if current_vertex is goal_vertex : \n    &emsp;&emsp;&emsp;  while current_vertex is not None: \n&emsp;&emsp;&emsp;&emsp;  path.push(current_vertex) \n      &emsp;&emsp;&emsp;&emsp;  current_vertex = current_vertex.parent \n    &emsp;&emsp;&emsp;  return path # exit the function \n    &emsp;&emsp;# Add all free, neighboring vertices which \n   &emsp;&emsp; # are cheaper, into the list  \n    &emsp;&emsp;for vertex in get_free_neighbors(map, current_vertex):  \n    &emsp;&emsp;&emsp;&emsp;  # f or h-costs are not checked bcos obstacles \n    &emsp;&emsp;&emsp;&emsp; # affects the optimal path cost from the g-cost \n    &emsp;&emsp;&emsp;&emsp; tentative_g = calc_g_cost(vertex, current_vertex)  \n    &emsp;&emsp;&emsp;&emsp; if tentative_g < vertex.g_cost: \n     &emsp;&emsp;&emsp;&emsp;&emsp;  vertex.g_cost = tentative_g  \n      &emsp;&emsp;&emsp;&emsp;&emsp; vertex.parent = current_vertex  \n      &emsp;&emsp;&emsp;&emsp;&emsp; list.add(vertex) \n return path';
+  myUI.PseudoCode.rowGenerator(pseudoCodeRaw);
 }
 
 

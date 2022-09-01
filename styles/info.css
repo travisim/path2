@@ -159,7 +159,7 @@ padding: 3px;
   border-radius: 5px;
   border: 1px solid black;
 
-	width: 55px;
+	width: fit-content;
    text-align: center;
   vertical-align: middle;
 }
@@ -192,10 +192,10 @@ th{
    border: 1px solid black;
   border-radius: 10px;
 }
-tr{
+.infoTableRow{
  
   line-height: 20px;}
-
+}
 
 
 @keyframes out {
@@ -236,4 +236,36 @@ tr{
 }
 /*end of css for info table*/
 /*end of CSS for info panel*/
+/*start of CSS for pseudo panel*/
+.psuedoRow{
+  line-height: 10px;
+  outline: transparent;
+  width: fit-content;
+}
+.psuedoRow.highlightingPri{
 
+  background: #FFFFFF;
+}
+
+.psuedoRow.highlightingSec{
+ 
+  background: #dadada;
+}
+
+
+
+ .pseudo_title{
+   
+ margin-right:auto;
+  margin-left:auto;
+padding: 3px;
+  background: #bcbacb;
+
+  border-radius: 5px;
+  border: 1px solid black;
+
+	width: fit-content;
+   text-align: center;
+  vertical-align: middle;
+}
+/*end of CSS for pseudo panel*/

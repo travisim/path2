@@ -54,7 +54,7 @@ class UIInfoTable{
     this.tableGenerator(tableIdentifier)
     this.tableContainer = document.querySelector('#'+`t${tableIdentifier}`);
     this.button = document.querySelector('#'+`b${tableIdentifier}`);
-    this.rows = this.tableContainer.getElementsByClassName('row');
+    this.rows = this.tableContainer.getElementsByClassName('infoTableRow');
     this.tableHeader = this.tableContainer.getElementsByClassName('table_header');
     this.highlightedRows = this.tableContainer.getElementsByClassName('highlighting');
     this.dynamicTable = this.tableContainer.querySelector('.dynamic_table_container');
@@ -131,7 +131,7 @@ class UIInfoTable{
     for (let i = 0; i < values.length; i++) { 
       r.insertCell(i).innerHTML = values[i];
     }
-    r.classList.add('row','highlighting',(rowId).toString());
+    r.classList.add('infoTableRow','highlighting',(rowId).toString());
     return r;
   }
   outBottom(){

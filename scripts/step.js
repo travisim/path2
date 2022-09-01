@@ -19,6 +19,9 @@ const STATIC_COMMANDS = [
   "OutBottom",
   "Sort",
   "RemoveRowByID",
+  "HP", //highlight Pseudo
+  "UHP" // unhighlight Pseudo
+  
  
 ];
 
@@ -40,6 +43,7 @@ const STATIC_DESTS = [
   "ICR", //info current path
   "IT", //info table
   "DT",
+  "PC" // Pseudo Code
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
