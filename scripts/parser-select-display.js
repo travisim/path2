@@ -312,7 +312,7 @@ myUI.runDefault = function(){
       {
         "name": "H_cost",
         "tag": "h_cost"
-      },
+      }
     ]
   }`;
 

@@ -61,7 +61,7 @@
 #neighbours{z-index:43}
 #visited{z-index:42}
 #queue{z-index:41}
-#bg, #arrows{z-index:39}
+#bg{z-index:39}
 
 .draggable{
 	position: absolute;

@@ -368,13 +368,13 @@ class UICanvas{
   }
 
   _fillEditedCell(canvas_x, canvas_y){
-    let [x,y] = this.scale_coord(canvas_y, canvas_x);
+    let [x,y] = this.scale_coord(canvas_x, canvas_y);
     if(this.erase) this.erase_pixel([x,y]);
     else this.draw_pixel([x,y]);
   }
 
   _drawHover(canvas_x, canvas_y){
-    let [x,y] = this.scale_coord(canvas_y, canvas_x);
+    let [x,y] = this.scale_coord(canvas_x, canvas_y);
     if(this.erase) this.draw_pixel([x,y], false, 1, 2, false);
     else this.draw_pixel([x,y], false, 1, 1, false);
   }
