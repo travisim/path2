@@ -26,7 +26,7 @@ function compute_path(){
 		document.getElementById("compute_btn").innerHTML = "done!";
 		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
 		myUI.reset_animation();
-    myUI.InfoTable.removeAllTableSlides();
+    myUI.InfoTable.removeAllTableRows();
     
 	}); 
 	

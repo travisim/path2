@@ -60,7 +60,11 @@ class GridPathFinder{
 			++idx;
 			var hCost_str = action[idx];
 		}
-		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str];/**/
+		if(action[0]&(1<<9)){
+			++idx;
+			var pseudoCodeRow = action[idx];
+		}
+		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str, pseudoCodeRow];/**/
 		/* OLD */
 		/*var command = (action >> 3) & ones(myUI.planner.static_bit_len);
 		// SPECIAL CASE: draw arrows
@@ -207,7 +211,8 @@ class GridPathFinder{
 		colorIndex,
 		arrowIndex,
 		gCost,
-		hCost
+		hCost,
+    pseudoCodeRow
 	} = {}){
 		/* NEW */
 		/*
@@ -264,6 +269,10 @@ class GridPathFinder{
 		if(hCost!==undefined){
 			this.actionCache[0] += 1<<8;
 			this.actionCache[idx+2] = hCost;
+		}
+    if(pseudoCodeRow!==undefined){
+			this.actionCache[0] += 1<<9;
+			this.actionCache[idx+3] = pseudoCodeRow;
 		}
 
 		this.actionCache.forEach(val=>{
