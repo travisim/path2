@@ -34,7 +34,7 @@ function compute_path(){
 }
 
 /* displays the solved path */
-document.getElementById("display_btn").addEventListener("click", display_path);
+/*document.getElementById("display_btn").addEventListener("click", display_path);
 
 function display_path(){
 	if(!myUI.planner_choice) return alert("no planner loaded!");
@@ -46,7 +46,7 @@ function display_path(){
   if(final_state.length<=1) return;
 
   myUI.canvases.path.draw_canvas(final_state.path, "1d");
-}
+}/* */
 //displays value of slider
 
 myUI.sliders.animation_speed_slider.elem.oninput = function(){
@@ -191,6 +191,6 @@ function openControlTab(evt, tabId) {
     tl.className = tl.className.replace(" active", "");
 
   // Show the current tab, and add an "active" class to the button that opened the tab
+	evt.currentTarget.className += " active";
   document.getElementById(tabId).style.display = "block";
-  evt.currentTarget.className += " active";
 }

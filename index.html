@@ -231,12 +231,6 @@
 							</button>
 						</div>
 						<div id="edit_controls" class="flex-row">
-							<button id="edit_map_btn" class="btn grid-overlay">
-								<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
-							</button>
-							<button id="planner_config_btn" class="btn grid-overlay">
-								<img src="assets/planner-config-svgrepo-com.svg" id="planner_config_icon" class="icon overlay" alt="config planner">
-							</button>
 							<button id="detail_btn" class="btn grid-overlay">
 								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
 								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
@@ -284,13 +278,19 @@
 
 						</div>
 						<div class="flex-row">
-							<button class="btn controlTabLink" onclick="openControlTab(event, 'plannerTab')">Planner</button>
+							<button class="btn controlTabLink active" onclick="openControlTab(event, 'configTab')">Config</button>
 							<button class="btn controlTabLink" onclick="openControlTab(event, 'otherTab')">Other</button>
 						</div>
-						<div id="plannerTab" class="controlTabContent">
+						<div id="configTab" class="controlTabContent">
 							<div class="flex-row">
 								<button id="compute_btn" class="btn">Compute Path</button>
-								<button id="display_btn" class="btn">Display Path</button>
+								<!--button id="display_btn" class="btn">Display Path</button-->
+								<button id="edit_map_btn" class="btn grid-overlay">
+									<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
+								</button>
+								<button id="planner_config_btn" class="btn grid-overlay">
+									<img src="assets/planner-config-svgrepo-com.svg" id="planner_config_icon" class="icon overlay" alt="config planner">
+								</button>
 							</div>
 							<div class="select_pane">
 								<label class="scen_label">Scenario Number:</label>
@@ -316,14 +316,14 @@
 								<label for="planner_select" class="label_centered">Choose planner:</label>
 								<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
 							</div>
+							<div id="file_droparea" class="upload overlay">
+								<form class="my-form">
+									<p>Drag map/scen/pathf/path file here <a target="_blank" href="https://movingai.com/benchmarks/street/index.html">(source)</a></p>
+									<input type="file" id="file_input" class="file_input" accept=".map,.scen,.pathf,.path" multiple>
+									<label class="upload-btn" for="file_input">Select files</label>
+								</form>
+							</div>
 						</div>
-					</div>
-					<div id="file_droparea" class="upload overlay">
-					  <form class="my-form">
-					    <p>Drag map/scen/pathf/path file here <a target="_blank" href="https://movingai.com/benchmarks/street/index.html">(source)</a></p>
-					    <input type="file" id="file_input" class="file_input" accept=".map,.scen,.pathf,.path" multiple>
-					    <label class="upload-btn" for="file_input">Select files</label>
-					  </form>
 					</div>
 				</div>
 			</div>
