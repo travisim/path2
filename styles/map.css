@@ -5,6 +5,7 @@
 
 #map-container{
 	flex-grow: 5;
+	min-width:520px;
 }
 
 #map{

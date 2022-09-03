@@ -179,3 +179,18 @@ document.getElementById("show_f_cost").addEventListener("click", function(e){
 
 document.getElementById("show_g_cost").addEventListener("click", function(e){
 });
+
+function openControlTab(evt, tabId) {
+
+  // Get all elements with class="tabcontent" and hide them
+  for (const tc of document.getElementsByClassName("controlTabContent")) 
+		tc.style.display = "none";
+
+  // Get all elements with class="tablinks" and remove the class "active"
+  for (const tl of document.getElementsByClassName("controlTabLink"))
+    tl.className = tl.className.replace(" active", "");
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(tabId).style.display = "block";
+  evt.currentTarget.className += " active";
+}

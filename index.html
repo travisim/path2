@@ -210,14 +210,6 @@
 			<div id="controls-container" class="container">
 				<div class="sub-container">
 					<div id="controls" class="interface overlay">
-						<div class="flex-row" class="btn">
-							<button id="compute_btn" class="btn">Compute Path</button>
-							<button id="display_btn" class="btn">Display Path</button>
-							<button id="detail_btn" class="btn grid-overlay">
-								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
-								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
-							</button>
-						</div>
 						<div id="display_controls" class="flex-row">
 							<button id="clear_btn" class="btn">
 								<img src="assets/clear.svg" class="icon" alt="clear">
@@ -244,6 +236,10 @@
 							</button>
 							<button id="planner_config_btn" class="btn grid-overlay">
 								<img src="assets/planner-config-svgrepo-com.svg" id="planner_config_icon" class="icon overlay" alt="config planner">
+							</button>
+							<button id="detail_btn" class="btn grid-overlay">
+								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
+								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
 							</button>
 						</div>
 						<div id="slider_controls">
@@ -287,29 +283,39 @@
 							</div>
 
 						</div>
-						<div class="select_pane">
-							<label class="scen_label">Scenario Number:</label>
-							<input id="scen_num" class="scen_controls" type="number" min="0">
+						<div class="flex-row">
+							<button class="btn controlTabLink" onclick="openControlTab(event, 'plannerTab')">Planner</button>
+							<button class="btn controlTabLink" onclick="openControlTab(event, 'otherTab')">Other</button>
+						</div>
+						<div id="plannerTab" class="controlTabContent">
 							<div class="flex-row">
-								<label class="scen_label">X1:</label>
-								<input id="scen_start_x" class="shrink scen_controls" type="number" min="0">
-								<label class="scen_label">Y1:</label>
-								<input id="scen_start_y" class="shrink scen_controls" type="number" min="0">
+								<button id="compute_btn" class="btn">Compute Path</button>
+								<button id="display_btn" class="btn">Display Path</button>
 							</div>
-							<div class="flex-row">
-								<label class="scen_label">X2:</label>
-								<input id="scen_goal_x" class="shrink scen_controls" type="number" min="0">
-								<label class="scen_label">Y2:</label>
-								<input id="scen_goal_y" class="shrink scen_controls" type="number" min="0">
+							<div class="select_pane">
+								<label class="scen_label">Scenario Number:</label>
+								<input id="scen_num" class="scen_controls" type="number" min="0">
+								<div class="flex-row">
+									<label class="scen_label">X1:</label>
+									<input id="scen_start_x" class="shrink scen_controls" type="number" min="0">
+									<label class="scen_label">Y1:</label>
+									<input id="scen_start_y" class="shrink scen_controls" type="number" min="0">
+								</div>
+								<div class="flex-row">
+									<label class="scen_label">X2:</label>
+									<input id="scen_goal_x" class="shrink scen_controls" type="number" min="0">
+									<label class="scen_label">Y2:</label>
+									<input id="scen_goal_y" class="shrink scen_controls" type="number" min="0">
+								</div>
+								<div class="label_centered">
+									<input type="checkbox" id="vertexToggle" name="vertexToggle" value="vertex">
+									<label for="vertexToggle">Vertex-based expansions: </label><br>
+								</div>
+								
+								<p id="planner_label"></p>
+								<label for="planner_select" class="label_centered">Choose planner:</label>
+								<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
 							</div>
-							<div class="label_centered">
-								<input type="checkbox" id="vertexToggle" name="vertexToggle" value="vertex">
-								<label for="vertexToggle">Vertex-based expansions: </label><br>
-							</div>
-							
-							<p id="planner_label"></p>
-							<label for="planner_select" class="label_centered">Choose planner:</label>
-							<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
 						</div>
 					</div>
 					<div id="file_droparea" class="upload overlay">
