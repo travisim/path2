@@ -121,7 +121,7 @@ class A_star extends GridPathFinder{
       this._create_action({command: STATIC.OutTop, dest: STATIC.IT});
       this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
-      this._create_action({command: STATIC.HP, dest: STATIC.PC});
+      this._create_action({command: STATIC.RemoveRowByID, dest: STATIC.PC, pseudoCodeRow: 12});
       this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
       this._save_step("fwd");
       /*
@@ -186,6 +186,11 @@ class A_star extends GridPathFinder{
       this.neighbours_deltaNWSE_STATICS = [];
       var surrounding_map_deltaNWSE = [];
       for (let i = 0; i < this.num_neighbours; ++i) {
+    /*
+      this._create_step();
+      this._create_action({command: STATIC.RemoveRowByID, dest: STATIC.PC, pseudoCodeRow: 25});
+      this._save_step("fwd");
+        */
         var next_XY_temp = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];
         if (next_XY_temp[0] < 0 || next_XY_temp[0] >= this.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= this.map_width) continue;
         if(this.map.get_data(next_XY_temp) == 1) surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
@@ -256,6 +261,7 @@ class A_star extends GridPathFinder{
           this._create_action({command: STATIC.DIM, dest: this.deltaNWSE_STATICS[i], nodeCoord: next_XY, stepIndex: this.step_index, hCost: h_cost.toPrecision(5), gCost: g_cost.toPrecision(5), parentCoord: this.current_node_XY});
           this._create_action({command: STATIC.InBottom, dest: STATIC.IT, nodeCoord: next_XY, stepIndex: this.step_index, hCost: h_cost.toPrecision(5), gCost: g_cost.toPrecision(5), parentCoord: this.current_node_XY});
           this._create_action({command: STATIC.Sort});
+          this._create_action({command: STATIC.RemoveRowByID, dest: STATIC.PC, pseudoCodeRow: 32});
           this.deltaNWSE_STATICS_Temp.push(i);
 
 					// since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue

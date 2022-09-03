@@ -83,6 +83,7 @@ const statics_to_obj = {
   11:"E",
   12:"NE",
   15: "dotted",
+  16:"pseudocode"
 }
 
 
@@ -95,7 +96,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
       else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
       else return;
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
-        console.log(step, 'step')
+
         let i=0;
         if(myUI.testing)
           console.log(step, 'step');
@@ -106,13 +107,13 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
             ++j;
           }
           if(myUI.testing) console.log(i,j);
-          let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str] = GridPathFinder.unpack_action(step.slice(i, j));
+          let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow] = GridPathFinder.unpack_action(step.slice(i, j));
           var gCost = Number(gCost_str);
           var hCost = Number(hCost_str);
            if(dest == "IT") console.log(stepNo," stepNo");  
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
-          console.log("cmd",STATIC_COMMANDS[command],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo);
+          console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
        
             console.log(myUI.animation.step,"step");
             if(command==STATIC.EC){
@@ -196,6 +197,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
 	          }
             if(dest== STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
 	            myUI.InfoTable.removeRowById(stepNo);
+	          }  
+            if(dest== STATIC.PC && command == STATIC.HP ){//record  "visiters" in 2d array
+      	      myUI.PseudoCode.highlightPri(pseudoCodeRow);
 	          }  
           try{
           }catch(e){

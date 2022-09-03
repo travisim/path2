@@ -121,7 +121,7 @@ class UIInfoTable{
    }
     var r = this.rowGenerator(rowId,values);
     r.style.outline = "2px solid red";//highlight latest table added
-    console.log(r);
+   
     this.dynamicTable.append(r);
 
   }
