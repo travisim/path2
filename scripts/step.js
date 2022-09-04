@@ -87,7 +87,7 @@ const statics_to_obj = {
 }
 
 
-myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
+myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
   run_next_step();
 
   function run_next_step(){
@@ -116,7 +116,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd", virtual=false){
           console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
        
             console.log(myUI.animation.step,"step");
-            if(command==STATIC.EC){
+            if(command==STATIC.SIMPLE && findSimple>=0){
+              if(findSimple==1) findSimple--;
+              else{
+                if(step_direction=="fwd") --myUI.animation.step;
+                else ++myUI.animation.step;
+                return;
+              }
+            }
+            else if(command==STATIC.EC){
               myUI.canvases[statics_to_obj[dest]].erase_canvas();
             }
             else if(command==STATIC.DP){
@@ -232,14 +240,17 @@ steps_arr = [
 
 
 myUI.run_combined_step = function(step_direction="fwd"){
+
+  this.run_steps(Number.MAX_SAFE_INTEGER, step_direction, 1);
+  return;
   let tmp_step = myUI.animation.step, start_step = myUI.animation.step;
   
   if(step_direction=="fwd") ++tmp_step;
   search_for_simple();
   function search_for_simple(){
     if(step_direction!="fwd"){
-      myUI.planner.get_step(tmp_step, true).then(step=>{
-        let first_command = (step[0] >> 2) & ((1 << myUI.planner.static_bit_len) - 1);
+      myUI.planner.get_step(tmp_step, "bck").then(step=>{
+        let first_command = myUI.planner.constructor.unpack_action(step)
         if(first_command!=STATIC.SIMPLE && tmp_step>0){
           --tmp_step;
           search_for_simple();

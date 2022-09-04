@@ -21,7 +21,7 @@ class GridPathFinder{
 
 	static unpack_action(action){
 		/* NEW */
-		let bitOffset = 9;
+		let bitOffset = 10;
 		let idx = 0;
 		let mask;
 		[mask, bitOffset, idx] = this._manageOffset(myUI.planner.static_bit_len, bitOffset, idx);
@@ -221,7 +221,7 @@ class GridPathFinder{
 		/* bits are read from right to left */
 		/* 1111111111*/
 		this.actionCache = [1];
-		this.bitOffset = 9;
+		this.bitOffset = 10;
 		let idx = 0;
 
 		// command is assumed to exist
