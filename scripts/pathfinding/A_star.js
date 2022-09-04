@@ -87,12 +87,6 @@ class A_star extends GridPathFinder{
        
         this.prev_g_cost = this.current_node.g_cost;
         this.prev_h_cost = this.current_node.h_cost;
-        if (this.prev_node_XY){ //if third node and on 
-          this.prev_prev_node_XY = this.prev_node_XY;
-        }
-       else if (!this.prev_node_XY){
-          this.prev_prev_node_XY =  this.start; // insert start coordinates here
-        }
         this.prev_node_XY = this.current_node_XY;
       }
         
@@ -147,7 +141,7 @@ class A_star extends GridPathFinder{
       if(this.prev_node_XY){
         this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.prev_node_XY});
         this._create_action({command: STATIC.DICR, dest: STATIC.ICR, nodeCoord: this.prev_node_XY});
-        this._create_action({command: STATIC.InTop, dest: STATIC.IT, nodeCoord: this.current_node_XY, stepIndex: this.current_node.id, hCost: this.current_node.h_cost.toPrecision(5), gCost: this.current_node.g_cost.toPrecision(5), parentCoord: this.prev_prev_node_XY});
+        this._create_action({command: STATIC.InTop, dest: STATIC.IT, nodeCoord: this.current_node_XY, stepIndex: this.current_node.id, hCost: this.current_node.h_cost.toPrecision(5), gCost: this.current_node.g_cost.toPrecision(5), parentCoord: this.prev_node_XY});
         for(let i=0;i<this.neighbours.length;++i){
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: this.neighbours[i].self_XY});
           this._create_action({command: STATIC.DIM, dest: this.neighbours_deltaNWSE_STATICS[i], nodeCoord: this.neighbours[i].self_XY, stepIndex: this.neighbours[i].id, hCost: this.neighbours[i].h_cost.toPrecision(5), gCost: this.neighbours[i].g_cost.toPrecision(5), parentCoord: this.current_node_XY});
