@@ -1,6 +1,6 @@
 
 function openTab(evt,tableName) {
-  
+  /*
   //remove all previosly displayed tabs
   tabcontent = document.getElementsByClassName("tabcontent");
   for (i = 0; i < tabcontent.length; i++) {
@@ -11,7 +11,7 @@ function openTab(evt,tableName) {
   for (i = 0; i < tablinks.length; i++) {
     tablinks[i].className = tablinks[i].className.replace(" active", "");
   }
-  
+  */
   
   
 
