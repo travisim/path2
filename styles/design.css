@@ -25,6 +25,7 @@ html, body{
 #main{
 	width: 100%;
 	min-width: 1400px;
+  height: 1500px;
 	height: 90%;
 	display: flex;
 	display: -webkit-flex;
@@ -37,7 +38,15 @@ html, body{
  background-color: #d1cfe2 ;
 }
 
+#map-container{
+  min-width: 650px;
+}
 
+#info-container{
+  min-width: 395px;
+  max-width: 395px;
+ 
+}
 .container{
 	display: inline-block;
 	vertical-align:middle;

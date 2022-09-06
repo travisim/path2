@@ -48,11 +48,6 @@
 		 	<button onclick="darkmode()" >Light/Dark</button>
 		</div>
 		<div id="main" >
-
-      <div id="pseudo-code-container" class="container">
-         <div class="pseudo_title">Pseudo Code</div>
-        <table id='dynamic-pseudo-code-table'></table>
-      </div>
       
 			<div id="info-container" class="container">
 				<div class="sub-container">
@@ -62,72 +57,72 @@
             <div id = "infomap" class="grid">
               
               <div style = "position: relative;">
-                <div style = "position: absolute;left: 14px;bottom: 0;" class ="NWSE">NW</div>
+                <div style = "position: absolute;right: -15px;bottom: -5px;" class ="NWSE">SW</div>
               </div>
               
               <div class ="spacer"></div>
               
               <div style = "position: relative;display: flex;
               justify-content: center;">
-                <div style = "position: absolute; bottom: 0;"class ="NWSE">N
+                <div style = "position: absolute; bottom: -5px;"class ="NWSE">W
                 </div>
               </div>
               
             
               <div class ="spacer"></div>
               <div style = "position: relative;">
-                <div style = "position: absolute;bottom: 0;right: 14px;"class ="NWSE">NE</div>
+                <div style = "position: absolute;bottom: -5px;left: -15px;"class ="NWSE">NW</div>
               </div>
               
               <div class ="spacer"></div>
-              <div class ="info_neighbours"id="NW"></div>
-              <div class ="info_neighbours"id="N"></div>
-              <div class ="info_neighbours"id="NE">item</div>  
+              <div class ="info_neighbours"id="SW"></div>
+              <div class ="info_neighbours"id="W"></div>
+              <div class ="info_neighbours"id="NW">item</div>  
               <div class ="spacer"></div>
               
             
               <div style = "position: relative;display: flex;
              align-items: center;">
-                <div style = "position: absolute;right:0;"class ="NWSE">W</div>
+                <div style = "position: absolute;right:-5px;"class ="NWSE">S</div>
               </div>
               
               
-              <div class ="info_neighbours"id="W">item</div>
+              <div class ="info_neighbours"id="S">item</div>
               
               <div style = "position: relative;display: flex;
              align-items: center;justify-content: center;">
                 <div style = "position: absolute;" class ="info_currentXY" id="currentXY">item</div>
               </div>
               
-              <div class ="info_neighbours"id="E">item</div>
+              <div class ="info_neighbours"id="N">item</div>
               
               <div style = "position: relative; display: flex;
              align-items: center;">
-                <div style = "position: absolute;left:0;"class ="NWSE">E</div>
+                <div style = "position: absolute;left:-5px;"class ="NWSE">N</div>
               </div>
               
             
               <div class ="spacer"></div>
-              <div class ="info_neighbours"id="SW">item</div>
-              <div class ="info_neighbours"id="S">item</div>  
               <div class ="info_neighbours"id="SE">item</div>
+              <div class ="info_neighbours"id="E">item</div>  
+              <div class ="info_neighbours"id="NE">item</div>
               <div class ="spacer"></div>
                
               <div style = "position: relative;">
-                <div style = "position: absolute;left: 14px;top:0;"class ="NWSE">SW</div>
+                <div style = "position: absolute;right: -15px;top:-5px;"class ="NWSE">SE</div>
               </div>
               
               <div class ="spacer"></div>
                 
               <div style = "position: relative;;display: flex;
               justify-content: center;">
-                <div style = "position: absolute;top:0;"class ="NWSE">S</div>
+                <div style = "position: absolute;top:-5px;"class ="NWSE">E</div>
               </div>
               
               <div class ="spacer" ></div>
               
               <div style = "position: relative;">
-                <div style = "position: absolute;right: 14px;top:0;"class ="NWSE">SE</div>
+                <div style = "position: absolute;left: -15px;top:-5px;"class ="NWSE">NE</div>
               </div>
               
             </div>
@@ -136,7 +131,10 @@
             <div class="tab">  
             </div>
           	<div id="info-tables-dynamic" > 
-            </div>    
+            </div>
+<hr id = "infodivider" style ="height:3px; width: 100%; background:black;margin:0px;margin-bottom: 7px;">
+            <div class="pseudo_title">Pseudo Code</div>
+            <table id='dynamic-pseudo-code-table'></table>
 					</div>
 				</div>
 			</div>

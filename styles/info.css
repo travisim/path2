@@ -178,7 +178,7 @@ table {
   border: 1px solid black;
   border-radius: 5px;
   border-collapse: separate;
- text-align: center;
+  text-align: center;
   vertical-align: middle;
 }
 td {
@@ -225,17 +225,25 @@ th{
 	}
 }
 */
-#infoTableScroll::-webkit-scrollbar {
+.info_Table_Scroll::-webkit-scrollbar {
   display: none;
 }
 
 /* Hide scrollbar for IE, Edge and Firefox */
-#infoTableScroll {
+.info_Table_Scroll {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+  overflow: scroll;
+  width: 100%;
+  height: 200px;
+  overflow-x: hidden; 
+  /* Hide horizontal scrollbar */
 }
 /*end of css for info table*/
 /*end of CSS for info panel*/
+
+
+
 /*start of CSS for pseudo panel*/
 .psuedoRow{
   line-height: 10px;
