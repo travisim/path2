@@ -81,9 +81,9 @@ class A_star extends GridPathFinder{
       if (this.queue.length == 0) return this._terminate_search();
            //++ from bfs.js
       this.queue.sort(function (a, b){return a.f_cost - b.f_cost});   
-               //++ from bfs.js
+      //++ from bfs.js
+      
       if (this.current_node){// if second node and on 
-        
        
         this.prev_g_cost = this.current_node.g_cost;
         this.prev_h_cost = this.current_node.h_cost;
@@ -147,6 +147,13 @@ class A_star extends GridPathFinder{
           this._create_action({command: STATIC.DIM, dest: this.neighbours_deltaNWSE_STATICS[i], nodeCoord: this.neighbours[i].self_XY, stepIndex: this.neighbours[i].id, hCost: this.neighbours[i].h_cost.toPrecision(5), gCost: this.neighbours[i].g_cost.toPrecision(5), parentCoord: this.current_node_XY});
         }
         this.visited_incs.forEach(coord=>this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: coord}));
+        this._create_action({command: STATIC.EC, dest: STATIC.DT});
+        if(this.neighbours.length>0){
+          this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.neighbours[0].self_XY});
+        }
+        else{
+          this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.prev_node_XY});
+        }
       }
       this._save_step("bck");/*
 

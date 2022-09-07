@@ -96,10 +96,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
       else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
       else return;
       myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
-
+        console.log(step, 'step');
         let i=0;
-        if(myUI.testing)
-          console.log(step, 'step');
         while(i<step.length){
           let j=i+1;
           while(j<step.length){
@@ -113,14 +111,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
            if(dest == "IT") console.log(stepNo," stepNo");  
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
-          console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
-       
-            console.log(myUI.animation.step,"step");
+          console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
             if(command==STATIC.SIMPLE && findSimple>=0){
               if(findSimple==1) findSimple--;
               else{
                 if(step_direction=="fwd") --myUI.animation.step;
-                else ++myUI.animation.step;
+                else{
+                  ++myUI.animation.step;
+                  myUI.run_steps(1, "bck");
+                }
                 return;
               }
             }
@@ -240,8 +239,7 @@ steps_arr = [
 
 
 myUI.run_combined_step = function(step_direction="fwd"){
-
-  this.run_steps(Number.MAX_SAFE_INTEGER, step_direction, 1);
+  this.run_steps(Number.MAX_SAFE_INTEGER, step_direction, step_direction=="fwd");
   return;
   let tmp_step = myUI.animation.step, start_step = myUI.animation.step;
   
