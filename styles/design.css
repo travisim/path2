@@ -35,7 +35,7 @@ html, body{
 	margin-right: auto;
 	white-space: nowrap; /* this does the trick */
   overflow: hidden; /* this prevents the grey divs from overflowing */
- background-color: #d1cfe2 ;
+  background-color: #d1cfe2 ;
 }
 
 #map-container{

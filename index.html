@@ -52,8 +52,9 @@
 			<div id="info-container" class="container">
 				<div class="sub-container">
 					<div id="info-pane" class="interface overlay">
-         <!--start of html for info map-->
-         
+          <!--start of html for info map-->
+          <button class="collapsible  ">Info Map</button>
+           <div class="content ">
             <div id = "infomap" class="grid">
               
               <div style = "position: relative;">
@@ -126,17 +127,22 @@
               </div>
               
             </div>
+        </div>
 
-            <hr id = "infodivider" style ="height:3px; width: 100%; background:black;margin:0px;margin-bottom: 7px;">
-            <div class="tab">  
-            </div>
-          	<div id="info-tables-dynamic" > 
-            </div>
-<hr id = "infodivider" style ="height:3px; width: 100%; background:black;margin:0px;margin-bottom: 7px;">
-            <div class="pseudo_title">Pseudo Code</div>
-            <div id="pseudo-code-container" >
-              <table id='dynamic-pseudo-code-table'></table>
-            </div>
+
+        <button class="collapsible ">Info Table</button>
+        <div class="content">
+          <div class="tab">  </div>
+          <div id="info-tables-dynamic" ></div>
+        </div>
+
+        <button class="collapsible ">Info Pseudo Code</button>
+        <div class="content">
+          <div id="pseudo-code-container" >
+            <table id='dynamic-pseudo-code-table'></table>
+          </div>
+        </div>
+          
 					</div>
 				</div>
 			</div>
