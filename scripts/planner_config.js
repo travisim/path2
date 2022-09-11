@@ -24,23 +24,23 @@ document.getElementById("diagonal_block_btn").addEventListener("click", e=>{
 });
 
 
-function toggle_num_neighbours(e){
-  if(myUI.planner.num_neighbours!=8){
-    myUI.planner.init_neighbours(8);
+function toggle_num_neighbors(e){
+  if(myUI.planner.num_neighbors!=8){
+    myUI.planner.init_neighbors(8);
     document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = myUI.top_Z});
-    document.getElementById("num_neighbours_label").innerHTML = "Octal (8-directions)";
-    myUI.InfoMap.NumNeighboursMode(8);
+    document.getElementById("num_neighbors_label").innerHTML = "Octal (8-directions)";
+    myUI.InfoMap.NumneighborsMode(8);
   }
   else{
-    myUI.planner.init_neighbours(4);
+    myUI.planner.init_neighbors(4);
     document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = -100});
-    document.getElementById("num_neighbours_label").innerHTML = "Cardinal (4-directions)";
-     myUI.InfoMap.NumNeighboursMode(4);
+    document.getElementById("num_neighbors_label").innerHTML = "Cardinal (4-directions)";
+     myUI.InfoMap.NumneighborsMode(4);
 
     
   }
 }
-document.getElementById("num_neighbours_btn").addEventListener("click", toggle_num_neighbours);
+document.getElementById("num_neighbors_btn").addEventListener("click", toggle_num_neighbors);
 
 
 
@@ -88,15 +88,15 @@ myUI.init_planner_config = function(){
   if(myUI.planner.diagonal_allow) document.getElementById("diagonal_block_label").innerHTML = "Blocked";
   else document.getElementById("diagonal_block_label").innerHTML = "Unblocked";
 
-  toggle_num_neighbours(null);
-  toggle_num_neighbours(null);
+  toggle_num_neighbors(null);
+  toggle_num_neighbors(null);
   
   toggle_search_direction();
   toggle_search_direction();
   
   myUI.buttons.first_neighbour_btn.btn.innerHTML = myUI.planner.first_neighbour;
 
-  myUI.reset_select_options(document.querySelector("#distance_select"));
+  myUI.resetSelectOptions(document.querySelector("#distance_select"));
   if(myUI.planner.constructor.distance_metrics.length>0){
     document.querySelector("#distance_select_ctn").style.display = "block";
     let arr = myUI.planner.constructor.distance_metrics;

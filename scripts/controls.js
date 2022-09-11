@@ -68,7 +68,7 @@ myUI.sliders.search_progress_slider.elem.oninput = function(){
 myUI.reset_animation = function(){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
 	myUI.update_search_slider(-1);
-	["visited",	"neighbours", "queue",	"current_XY",	"path", "dotted"].forEach(canvas_id=>{
+	["visited",	"neighbors", "queue",	"current_XY",	"path", "dotted"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
 	myUI.reset_arrow(false);
@@ -169,9 +169,9 @@ document.getElementById("show_queue").addEventListener("click", function(e){
 	else myUI.canvases.queue.canvas.classList.add("hidden");
 });
 
-document.getElementById("show_neighbours").addEventListener("click", function(e){
-	if(this.checked) myUI.canvases.neighbours.canvas.classList.remove("hidden");
-	else myUI.canvases.neighbours.canvas.classList.add("hidden");
+document.getElementById("show_neighbors").addEventListener("click", function(e){
+	if(this.checked) myUI.canvases.neighbors.canvas.classList.remove("hidden");
+	else myUI.canvases.neighbors.canvas.classList.add("hidden");
 });
 
 document.getElementById("show_f_cost").addEventListener("click", function(e){
@@ -180,7 +180,7 @@ document.getElementById("show_f_cost").addEventListener("click", function(e){
 document.getElementById("show_g_cost").addEventListener("click", function(e){
 });
 
-function openControlTab(evt, tabId) {
+function openControlTab(evt, tabId, linkId) {
 
   // Get all elements with class="tabcontent" and hide them
   for (const tc of document.getElementsByClassName("controlTabContent")) 
@@ -191,6 +191,8 @@ function openControlTab(evt, tabId) {
     tl.className = tl.className.replace(" active", "");
 
   // Show the current tab, and add an "active" class to the button that opened the tab
-	evt.currentTarget.className += " active";
+	if(evt) evt.currentTarget.className += " active";
+	else document.getElementById(linkId).className += " active";
   document.getElementById(tabId).style.display = "block";
 }
+openControlTab(null, "configTab", "configLink");

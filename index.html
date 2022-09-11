@@ -76,9 +76,9 @@
               </div>
               
               <div class ="spacer"></div>
-              <div class ="info_neighbours"id="SW"></div>
-              <div class ="info_neighbours"id="W"></div>
-              <div class ="info_neighbours"id="NW">item</div>  
+              <div class ="info_neighbors"id="SW"></div>
+              <div class ="info_neighbors"id="W"></div>
+              <div class ="info_neighbors"id="NW">item</div>  
               <div class ="spacer"></div>
               
             
@@ -88,14 +88,14 @@
               </div>
               
               
-              <div class ="info_neighbours"id="S">item</div>
+              <div class ="info_neighbors"id="S">item</div>
               
               <div style = "position: relative;display: flex;
              align-items: center;justify-content: center;">
                 <div style = "position: absolute;" class ="info_currentXY" id="currentXY">item</div>
               </div>
               
-              <div class ="info_neighbours"id="N">item</div>
+              <div class ="info_neighbors"id="N">item</div>
               
               <div style = "position: relative; display: flex;
              align-items: center;">
@@ -104,9 +104,9 @@
               
             
               <div class ="spacer"></div>
-              <div class ="info_neighbours"id="SE">item</div>
-              <div class ="info_neighbours"id="E">item</div>  
-              <div class ="info_neighbours"id="NE">item</div>
+              <div class ="info_neighbors"id="SE">item</div>
+              <div class ="info_neighbors"id="E">item</div>  
+              <div class ="info_neighbors"id="NE">item</div>
               <div class ="spacer"></div>
                
               <div style = "position: relative;">
@@ -160,7 +160,7 @@
 								<canvas id="queue" class="map_canvas" height="8" width="8" ></canvas> <!-- neighbouring nodes that are in the queue -->
 								<canvas id="visited" class="map_canvas" height="8" width="8" ></canvas>
 								<canvas id="current_XY" class="map_canvas" height="8" width="8" ></canvas>
-								<canvas id="neighbours" class="map_canvas" height="8" width="8" ></canvas>
+								<canvas id="neighbors" class="map_canvas" height="8" width="8" ></canvas>
 								<canvas id="path" class="map_canvas" height="8" width="8" ></canvas>
 								<canvas id="start" class="map_canvas" height="8" width="8"></canvas>
 								<canvas id="goal" class="map_canvas" height="8" width="8" ></canvas>
@@ -187,8 +187,8 @@
 							<input type="checkbox" id="show_queue" name="show_queue" checked>
 							<label for="show_queue">Queue</label>
 							<br>
-							<input type="checkbox" id="show_neighbours" name="show_neighbours" checked>
-							<label for="show_neighbours">Neighbours</label>
+							<input type="checkbox" id="show_neighbors" name="show_neighbors" checked>
+							<label for="show_neighbors">neighbors</label>
 							<br>
 							<input type="checkbox" id="show_f_cost" name="show_f_cost">
 							<label for="show_f_cost">F-Cost</label>
@@ -284,8 +284,8 @@
 
 						</div>
 						<div class="flex-row">
-							<button class="btn controlTabLink active" onclick="openControlTab(event, 'configTab')">Config</button>
-							<button class="btn controlTabLink" onclick="openControlTab(event, 'otherTab')">Other</button>
+							<button id="configLink" class="btn controlTabLink" onclick="openControlTab(event, 'configTab')">Config</button>
+							<button id="manualLink" class="btn controlTabLink" onclick="openControlTab(event, 'manualTab')">Other</button>
 						</div>
 						<div id="configTab" class="controlTabContent">
 							<div class="flex-row">
@@ -324,9 +324,18 @@
 							</div>
 							<div id="file_droparea" class="upload overlay">
 								<form class="my-form">
-									<p>Drag map/scen/pathf/path file here <a target="_blank" href="https://movingai.com/benchmarks/street/index.html">(source)</a></p>
-									<input type="file" id="file_input" class="file_input" accept=".map,.scen,.pathf,.path" multiple>
-									<label class="upload-btn" for="file_input">Select files</label>
+									<p>Drag map/scen/pathf file here <a target="_blank" href="https://movingai.com/benchmarks/street/index.html">(source)</a></p>
+									<input type="file" id="fileInput1" class="file_input" accept=".map,.scen,.pathf" multiple>
+									<label class="upload-btn" for="fileInput1">Select files</label>
+								</form>
+							</div>
+						</div>
+						<div id="manualTab" class="controlTabContent">
+							<div class="upload overlay">
+								<form class="my-form">
+									<p>Drag json file here</p>
+									<input type="file" id="fileInput2" class="file_input" accept=".json">
+									<label class="upload-btn" for="fileInput2">Select files</label>
 								</form>
 							</div>
 						</div>
@@ -386,9 +395,9 @@
 							</button>
 						</div>
 						<div class="flex-row">
-							<label class="label_centered">Neighbours:</label>
-							<button id="num_neighbours_btn" class="btn modal_btn">
-								<span id="num_neighbours_label">Octal (8-directions)</span>
+							<label class="label_centered">neighbors:</label>
+							<button id="num_neighbors_btn" class="btn modal_btn">
+								<span id="num_neighbors_label">Octal (8-directions)</span>
 							</button>
 						</div>
 						<div class="flex-row">

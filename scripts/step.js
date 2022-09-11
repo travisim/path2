@@ -30,7 +30,7 @@ const STATIC_DESTS = [
   "QU", // queue
   "VI", // visited
   "CR", // current
-  "NB", // neighbours
+  "NB", // neighbors
   "PA", // path
   "IN", // info NWSE 5
   "INW",
@@ -72,7 +72,7 @@ const statics_to_obj = {
   0: "queue",
   1: "visited",
   2: "current_XY",
-  3: "neighbours",
+  3: "neighbors",
   4: "path",
   5: "N",
   6: "NW",
@@ -165,7 +165,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
   	          }
        
               
-  	          //to draw neighbours
+  	          //to draw neighbors
   	          else if(command == STATIC.DIM){
           
   	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost,gCost,hCost);
@@ -190,7 +190,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
                   myUI.InfoTable.sort(); // emulats insert at based on F cost
                 }
   	          }
-  	        	//to erase neighbours
+  	        	//to erase neighbors
   	          else if(command == STATIC.EIM ){
   	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
            

@@ -1,9 +1,17 @@
-myUI.reset_select_options = function(select_elem){
-  let child = select_elem.lastElementChild;
-  while (child) {
-    select_elem.removeChild(child);
-    child = select_elem.lastElementChild;
+function removeChildren(elem, childTag, omitIds=[]){
+  childTag = childTag.toUpperCase();
+  for (const child of elem.children){
+    let flag = false;
+    for(const id of omitIds){
+      if(child.id == id) flag = true;
+    }
+    if(flag) continue;
+    if(child.tagName.toUpperCase()==childTag) elem.removeChild(child);
   }
+}
+
+myUI.resetSelectOptions = function(select_elem){
+  removeChildren(select_elem, "OPTION");
 }
 
 /* MAP PARSER & DISPLAY */
@@ -140,17 +148,17 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
   if(document.getElementById("vertexToggle").checked){
     // enable vertex
     myUI.vertex = true;
-    ["hover_map", "queue", "visited", "current_XY", "neighbours", "path", "start", "goal"].forEach(canvas=>{
+    ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal"].forEach(canvas=>{
       myUI.canvases[canvas].scale_canvas(1024, 1024, false);
-      myUI.canvases[canvas].fixedRes = true;
+      myUI.canvases[canvas].setDrawType("vertexCircle");
     });
     myUI.planners = myUI.planners_v;
     console.log("ENABLED VERTEX");
   }
   else{
     myUI.vertex = false;
-    ["hover_map", "queue", "visited", "current_XY", "neighbours", "path", "start", "goal"].forEach(canvas=>{
-      myUI.canvases[canvas].fixedRes = false;
+    ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal"].forEach(canvas=>{
+      myUI.canvases[canvas].setDrawType("pixel");
     });
     myUI.planners = myUI.planners_cell;
     // disable vertex
@@ -197,7 +205,7 @@ myUI.displayScen = function(update=false, reset_zero=false){
 		
 	}
 	/*clear all canvases*/
-	["visited",	"neighbours", "queue",	"current_XY",	"path"].forEach(canvas_id=>{
+	["visited",	"neighbors", "queue",	"current_XY",	"path"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	})
 }
@@ -227,8 +235,8 @@ myUI.showPlanners = function() {
   // planner_upload_elem
   // get data from planner_upload_elem
   // add_planner()
-  myUI.reset_select_options(myUI.selects["planner_select"].elem);
-  myUI.reset_select_options(myUI.selects["planner_select2"].elem);
+  myUI.resetSelectOptions(myUI.selects["planner_select"].elem);
+  myUI.resetSelectOptions(myUI.selects["planner_select2"].elem);
   for (i = 0; i < myUI.planners.length; ++i) {
     let option = document.createElement("option");
     option.setAttribute("value", i);
@@ -291,37 +299,27 @@ myUI.runDefault = function(){
 	myUI.parseScenario(default_scen);
   myUI.loadScenario();
 
-  let defaultConfig = `{
-    "hoverData":[
-      {
-        "name": "Step Number",
-        "tag": "index"
-      },
-      {
-        "name": "Times Visited",
-        "tag": "visited"
-      },
-      {
-        "name": "F_cost",
-        "tag": "f_cost"
-      },
-      {
-        "name": "G_cost",
-        "tag": "g_cost"
-      },
-      {
-        "name": "H_cost",
-        "tag": "h_cost"
-      }
-    ]
-  }`;
-
-  myUI.hoverData = JSON.parse(defaultConfig).hoverData;
-  //myUI.initHover(myUI.hoverData);
 }
 myUI.runDefault();
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
 myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
 
+myUI.parseCustom = function(contents){
+  const STRUCT = JSON.parse(contents);
+  if(STRUCT.config.canvas){
+    let keepCanvases = ["edit_map", "bg", "hover_map"];
+    const CONTAINER = document.getElementById("canvas_container");
+    removeChildren(CONTAINER, "canvas", keepCanvases);
+    Object.keys(myUI.canvases).forEach((key) => keepCanvases.includes(key) || delete myUI.canvases[key]);
+    for(const cvInfo of STRUCT.config.canvas){
+      console.log(cvInfo.name);
+      let myCanvas = document.createElement("canvas");
+      myCanvas.setAttribute("id", cvInfo.name);
+      myCanvas.className += "map_canvas";
+      CONTAINER.appendChild(myCanvas);
+      myUI.canvases[cvInfo.name] = new UICanvas(cvInfo.name, cvInfo.colors, cvInfo.drawType);
+    }
+  }
+}
 

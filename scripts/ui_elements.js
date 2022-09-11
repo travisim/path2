@@ -32,7 +32,7 @@ class UICanvas{
     };
   }
 
-  constructor(canvas_id, colors, fixedRes=false, fixedResVal=1024){
+  constructor(canvas_id, colors, drawType="pixel", fixedResVal=1024){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
@@ -42,7 +42,7 @@ class UICanvas{
 
     var height = this.canvas.height;
     var width = this.canvas.width;
-    if(this.id=="edit_map") console.log(`Height: ${height}, Width: ${width}`);
+    //if(this.id=="edit_map") console.log(`Height: ${height}, Width: ${width}`);
     this.canvas_cache = zero2D(height, width);  // initialise a matrix of 0s (zeroes), height x width
 
     this.data_height = this.canvas.height;
@@ -51,8 +51,21 @@ class UICanvas{
     this.colors = colors;
 		this.set_color_index(0, "all");
 
-    this.fixedRes = fixedRes;
     this.fixedResVal = fixedResVal;
+    this.setDrawType(drawType);
+  }
+
+  setDrawType(drawType="pixel"){
+    this.drawType = drawType;
+
+    switch(drawType){
+      case "vertexCircle":
+      case "dotted":
+        this.fixedRes = true;
+        break;
+      default:
+        this.fixedRes = false;
+    }
   }
 
   scale_coord(x,y){
@@ -62,7 +75,6 @@ class UICanvas{
   }
 
   scale_canvas(data_height, data_width, retain_data=false){
-    //if(this.fixedRes) return;
     const dpr = 2;
     //window.devicePixelRatio usually got decimals
 
@@ -175,11 +187,16 @@ class UICanvas{
       this.virtualCanvas[x][y] = val;
     else {
       if(save_in_cache) this.canvas_cache[x][y] = val;
-      if(this.canvas.id=="dotted") this.draw_dotted_square(xy);
-      else if(this.fixedRes) this.draw_vertex_circle(xy, color_index);
-      else{
-        this.set_color_index(color_index);
-        this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
+      switch(this.drawType){
+        case "dotted":
+          this.draw_dotted_square(xy);
+          break;
+        case "vertexCircle":
+          this.draw_vertex_circle(xy, color_index);
+          break;
+        default:
+          this.set_color_index(color_index);
+          this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
       }
     }
   }
@@ -380,7 +397,7 @@ class UICanvas{
   }
 
   toggle_draw_erase(){
-    // initial state => set his.erase to true, because draw is default and calling of function means it has been clicked to erase
+    // initial state => set this.erase to true, because draw is default and calling of function means it has been clicked to erase
     this.erase = !this.erase;
     return this.erase;
   }
@@ -410,13 +427,6 @@ class UIButton{
     this.svgs[this.svg_index].classList.add("hidden");  // hide the current one
     this.svg_index = (this.svg_index+1)%this.svgs.length;  // increment to next svg in list
     this.svgs[this.svg_index].classList.remove("hidden");  // show the next one
-  }
-
-  toggle_display(){
-    if(this.btn.style.display == "none")
-      this.btn.style.display = "inline-grid";
-    else
-      this.btn.style.display = "none";
   }
 }
 

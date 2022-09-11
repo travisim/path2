@@ -88,20 +88,20 @@ class GridPathFinder{
 		return [command, dest, x,y, parent_y, parent_x, parent_exists, arrow_index, color_index];/**/
 	}
 
-	constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
-		this.init_neighbours(num_neighbours, first_neighbour, search_direction);
+	constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
+		this.init_neighbors(num_neighbors, first_neighbour, search_direction);
 		this.diagonal_allow = diagonal_allow;
 	}
 
-	init_neighbours(num_neighbours, first_neighbour=this.first_neighbour, search_direction=this.search_direction){
-		this.num_neighbours = num_neighbours;
+	init_neighbors(num_neighbors, first_neighbour=this.first_neighbour, search_direction=this.search_direction){
+		this.num_neighbors = num_neighbors;
 		
-		if(this.num_neighbours==8){
+		if(this.num_neighbors==8){
 			this.delta = [[0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1]];;
 			this.deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
       this.deltaNWSE_STATICS = [5,6,7,8,9,10,11,12];
 		}
-		else{ // if(this.num_neighbours==4)
+		else{ // if(this.num_neighbors==4)
 			this.delta = [[0, 1], [-1, 0], [0, -1], [1, 0]];
 			this.deltaNWSE = ["N", "W", "S", "E"];
       this.deltaNWSE_STATICS = [5,7,9,11];
@@ -150,7 +150,7 @@ class GridPathFinder{
     this.start = start; //in array form [x,y]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
-    this.neighbours = [];
+    this.neighbors = [];
     this.path = null;
     this._clear_steps();
     this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
@@ -604,7 +604,7 @@ console.log(STATIC_COMMANDS)
 	}
 
 	_manage_state(){
-		// [node XY, FGH cost, arrayof queue, 2d array of current visited points, valid neighbours array, visited array]
+		// [node XY, FGH cost, arrayof queue, 2d array of current visited points, valid neighbors array, visited array]
 		if (this.step_index - this.prev_count >= 80) {  
 			this.prev_count = this.step_index;
 			++this.state_counter;
@@ -625,8 +625,8 @@ console.log(STATIC_COMMANDS)
 			let visited_tuple = new Uint32Array([curr_visited_section, this.states.visited_index, nxt_index]);//this.states.visited_index + this.visited.arr_length]);
 			//this.states.visited_index+=this.visited.arr_length;
 			this.states.visited_index = nxt_index;
-//console.log("state","this.step_index",this.step_index,this.neighbours);
-			this.states[this.step_index] = { node_XY: this.current_node.self_XY, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:deepCopyNodeArray(this.queue), neighbours:deepCopyNodeArray(this.neighbours),/* neighbours: deep_copy_matrix(this.neighbours_XY), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
+//console.log("state","this.step_index",this.step_index,this.neighbors);
+			this.states[this.step_index] = { node_XY: this.current_node.self_XY, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:deepCopyNodeArray(this.queue), neighbors:deepCopyNodeArray(this.neighbors),/* neighbors: deep_copy_matrix(this.neighbors_XY), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
 
 
 		}

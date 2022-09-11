@@ -26,79 +26,79 @@
       {
         "name":"hoverMap",
         "displayOrder":1,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["#d19b6d", "#AA1945"]
       },
       {
         "name":"fCostMap",
         "displayOrder":2,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["hsv(24,100%,46%)"]
       },
       {
         "name":"gCostMap",
         "displayOrder":3,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["hsv(270,100%,46%)"]
       },
       {
         "name":"hCostMap",
         "displayOrder":4,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["hsv(142,100%,46%)"]
       },
       {
         "name":"dotted",
         "displayOrder":5,
-        "fixedRes": true,
+        "drawType": "dotted",
         "colors":["hsl(5,74%,55%)"]
       },
       {
-        "name":"currentXY",
+        "name":"current_XY",
         "displayOrder":6,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["#34d1ea"]
       },
       {
         "name":"start",
         "displayOrder":7,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["#96996"]
       },
       {
         "name":"goal",
         "displayOrder":8,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["#9f17e7"]
       },
       {
         "name":"path",
         "displayOrder":9,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["#34d1ea"]
       },
       {
         "name":"neighbors",
         "displayOrder":10,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["008269"]
       },
       {
         "name":"visited",
         "displayOrder":11,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"]
       },
       {
         "name":"queue",
         "displayOrder":12,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["#74fa4c"]
       },
       {
         "name":"bg",
         "displayOrder":13,
-        "fixedRes": false,
+        "drawType": "pixel",
         "colors":["#000000"]
       }
     ],
@@ -114,6 +114,7 @@
     }
 	},
   "expansion":{
-    "data":[]
+    "steps":[],
+    "map":[]
   }
 }

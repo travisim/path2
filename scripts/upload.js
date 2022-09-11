@@ -48,7 +48,7 @@ myUI.fileHandler = {}
 
 myUI.fileHandler.handleFiles = function (){
 	// takes first map, scen & path file
-	let found = {map: false, scen: false, pathf: false}
+	let found = {map: false, scen: false, pathf: false, json: false}
 	Object.keys(found).forEach(key=>{
 		for(let i=0;i<this.files.length;++i){
 			if(this.files[i].name.endsWith(`.${key}`)){
@@ -61,25 +61,29 @@ myUI.fileHandler.handleFiles = function (){
 		}
 	});
 
-	function processFile(file_type, file){
+	function processFile(fileType, file){
 		let reader = new FileReader();
 
 		reader.addEventListener("load", function(e) {
 			let contents = e.target.result;
 
-			if(file_type=="map"){
+			if(fileType=="map"){
 				myUI.parseMap(contents, file.name);
   			myUI.displayMap();
 			}
-			else if(file_type=="scen"){
+			else if(fileType=="scen"){
 				myUI.parseScenario(contents);
 				myUI.loadScenario();// shows start and goal
 			}
-			else if(file_type=="pathf"){ // pathf
+			else if(fileType=="pathf"){ // pathf
 				myUI.showPlanners();
+			}
+			else if(fileType=="json"){
+				myUI.parseCustom(contents);
 			}
 		});
 		reader.readAsText(file);
 	}
 }
-document.getElementById("file_input").addEventListener("change", myUI.fileHandler.handleFiles);
+document.getElementById("fileInput1").addEventListener("change", myUI.fileHandler.handleFiles);
+document.getElementById("fileInput2").addEventListener("change", myUI.fileHandler.handleFiles);

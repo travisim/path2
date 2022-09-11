@@ -15,22 +15,22 @@ myUI.initialize = function(){
 
   // Initialize canvases
   [
-    ["edit_map", false, "#000000" ,"#d19b6d", "#AA1945"],
-		["hover_map", false, "#d19b6d", "#AA1945"],
-    ["dotted", true, "hsl(5,74%,55%)"],
-    ["bg", false, "#000000"],
-    ["queue", false, "#74fa4c"],
-    ["visited", false, "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
-    ["current_XY", false, "#34d1ea"],
-    ["neighbours", false, "#008269"],
-    ["path", false, "#34d1ea"], //  changed from #E2C2B9
-    ["start", false, "#96996"],
-    ["goal", false, "#9f17e7"]
+    ["edit_map", "pixel", "#000000" ,"#d19b6d", "#AA1945"],
+		["hover_map", "pixel", "#d19b6d", "#AA1945"],
+    ["dotted", "dotted", "hsl(5,74%,55%)"],
+    ["bg", "pixel", "#000000"],
+    ["queue", "pixel", "#74fa4c"],
+    ["visited", "pixel", "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
+    ["current_XY", "pixel", "#34d1ea"],
+    ["neighbors", "pixel", "#008269"],
+    ["path", "pixel", "#34d1ea"], //  changed from #E2C2B9
+    ["start", "pixel", "#96996"],
+    ["goal", "pixel", "#9f17e7"]
   ].forEach(item=>{
     let canvasId = item[0];
     let colors = item.slice(2);
-    let fixedRes = item[1];
-    myUI.canvases[canvasId] = new UICanvas(canvasId, colors, fixedRes);
+    let drawType = item[1];
+    myUI.canvases[canvasId] = new UICanvas(canvasId, colors, drawType);
   });
   myUI.canvases.edit_map.toggle_edit();
  //initialise info

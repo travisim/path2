@@ -54,25 +54,25 @@
 }
 
 /* controls map order and how the cells are displayed */
-#hover_map{z-index:60}
+#hover_map{z-index:62}
 #dotted{z-index:48}
 #current_XY{z-index:46}
 #start, #goal{z-index:45}
 #path{z-index:44}
-#neighbours{z-index:43}
+#neighbors{z-index:43}
 #visited{z-index:42}
 #queue{z-index:41}
-#bg{z-index:39}
+#bg{z-index:40}
 
 .draggable{
 	position: absolute;
-	z-index: 61;
+	z-index: 63;
 }
 
 .arrow{
 	display: block;
 	position: absolute;
-	z-index: 59;
+	z-index: 61;
 	fill: #bcbacb;
 }
 

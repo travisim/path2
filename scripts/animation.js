@@ -53,7 +53,7 @@ myUI.update_search_slider = function(value){
 myUI.jump_to_step = function(target_step){
   myUI.animation.step = myUI.planner.search_state(target_step);
 
-  const canvas_ids = [`queue`, `neighbours`, `current_XY`, `visited`, `path`];
+  const canvas_ids = [`queue`, `neighbors`, `current_XY`, `visited`, `path`];
   // create a virtual representation of all the canvases
   myUI.tmp.virtual_canvases = {};
   canvas_ids.forEach(id=>{
@@ -85,9 +85,9 @@ myUI.jump_to_step = function(target_step){
 
     myUI.canvases.current_XY.draw_canvas([state.node_XY], `1d`, false, true);
 //console.log("state",state.visited_tuple);
-    myUI.canvases.neighbours.draw_canvas(nodes_to_array(state.neighbours, "self_XY"), `1d`, false, true);
+    myUI.canvases.neighbors.draw_canvas(nodes_to_array(state.neighbors, "self_XY"), `1d`, false, true);
 
-    if(state.path) myUI.canvases.neighbours.draw_canvas(state.path, `1d`, false, true);
+    if(state.path) myUI.canvases.neighbors.draw_canvas(state.path, `1d`, false, true);
 
     if(state.arrow_state) for(let i=0;i<myUI.arrow.elems.length;++i){
       myUI.arrow.elems[i].style.fill = myUI.arrow.colors[0];

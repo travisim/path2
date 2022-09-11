@@ -17,8 +17,8 @@ class A_star extends GridPathFinder{
     return ["Euclidean", "Manhattan", "Chebyshev"];
   }
 
-  constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
-    super(num_neighbours, diagonal_allow, first_neighbour, search_direction);
+  constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
+    super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
   }
 
   set_distance_metric(metric){
@@ -142,14 +142,14 @@ class A_star extends GridPathFinder{
         this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.prev_node_XY});
         this._create_action({command: STATIC.DICR, dest: STATIC.ICR, nodeCoord: this.prev_node_XY});
         this._create_action({command: STATIC.InTop, dest: STATIC.IT, nodeCoord: this.current_node_XY, stepIndex: this.current_node.id, hCost: this.current_node.h_cost.toPrecision(5), gCost: this.current_node.g_cost.toPrecision(5), parentCoord: this.prev_node_XY});
-        for(let i=0;i<this.neighbours.length;++i){
-          this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: this.neighbours[i].self_XY});
-          this._create_action({command: STATIC.DIM, dest: this.neighbours_deltaNWSE_STATICS[i], nodeCoord: this.neighbours[i].self_XY, stepIndex: this.neighbours[i].id, hCost: this.neighbours[i].h_cost.toPrecision(5), gCost: this.neighbours[i].g_cost.toPrecision(5), parentCoord: this.current_node_XY});
+        for(let i=0;i<this.neighbors.length;++i){
+          this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: this.neighbors[i].self_XY});
+          this._create_action({command: STATIC.DIM, dest: this.neighbors_deltaNWSE_STATICS[i], nodeCoord: this.neighbors[i].self_XY, stepIndex: this.neighbors[i].id, hCost: this.neighbors[i].h_cost.toPrecision(5), gCost: this.neighbors[i].g_cost.toPrecision(5), parentCoord: this.current_node_XY});
         }
         this.visited_incs.forEach(coord=>this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: coord}));
         this._create_action({command: STATIC.EC, dest: STATIC.DT});
-        if(this.neighbours.length>0){
-          this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.neighbours[0].self_XY});
+        if(this.neighbors.length>0){
+          this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.neighbors[0].self_XY});
         }
         else{
           this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.prev_node_XY});
@@ -168,9 +168,9 @@ class A_star extends GridPathFinder{
         this._create_action(STATIC.DICRB,STATIC.ICR, this.prev_node_XY);
         this._create_action(STATIC.InTop,STATIC.DIT, this.current_node_XY,this.step_index, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_XY);
         
-       for (let i = 0; i < this.neighbours.length; ++i){
-          this._create_action(STATIC.DP, STATIC.NB,  this.neighbours[i].self_XY);
-          this._create_action(STATIC.DIM, this.neighbours_deltaNWSE_STATICS[i],this.neighbours[i].self_XY,this.step_index,this.neighbours[i].h_cost, this.neighbours[i].g_cost,this.current_node_XY);
+       for (let i = 0; i < this.neighbors.length; ++i){
+          this._create_action(STATIC.DP, STATIC.NB,  this.neighbors[i].self_XY);
+          this._create_action(STATIC.DIM, this.neighbors_deltaNWSE_STATICS[i],this.neighbors[i].self_XY,this.step_index,this.neighbors[i].h_cost, this.neighbors[i].g_cost,this.current_node_XY);
         }
       }
       this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
@@ -182,11 +182,11 @@ class A_star extends GridPathFinder{
 
       this.visited_incs = []; // reset visited_incs after adding them
 
-      // NOTE, a node is only visited if all its neighbours have been added to the queue
-      this.neighbours = [];
-      this.neighbours_deltaNWSE_STATICS = [];
+      // NOTE, a node is only visited if all its neighbors have been added to the queue
+      this.neighbors = [];
+      this.neighbors_deltaNWSE_STATICS = [];
       var surrounding_map_deltaNWSE = [];
-      for (let i = 0; i < this.num_neighbours; ++i) {
+      for (let i = 0; i < this.num_neighbors; ++i) {
     /*
       this._create_step();
       this._create_action({command: STATIC.RemoveRowByID, dest: STATIC.PC, pseudoCodeRow: 25});
@@ -196,14 +196,14 @@ class A_star extends GridPathFinder{
         if (next_XY_temp[0] < 0 || next_XY_temp[0] >= this.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= this.map_width) continue;
         if(this.map.get_data(next_XY_temp) == 1) surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
       }
-      this.deltaNWSE_STATICS_Temp = [];//temporarily stores the deltaNWSE_STATICS_Temp to allow display of neighbours if stepping backwards from a current node to previous node
-      /* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
-      for (let i = 0; i < this.num_neighbours; ++i) {
+      this.deltaNWSE_STATICS_Temp = [];//temporarily stores the deltaNWSE_STATICS_Temp to allow display of neighbors if stepping backwards from a current node to previous node
+      /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
+      for (let i = 0; i < this.num_neighbors; ++i) {
         var next_XY = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_XY[0] < 0 || next_XY[0] >= this.map_height || next_XY[1] < 0 || next_XY[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         
         if (this.map.get_data(next_XY) == 1) {  // if neighbour is passable
-          if (this.diagonal_allow == true && this.num_neighbours == 8) { // if neighbour is not blocked
+          if (this.diagonal_allow == true && this.num_neighbors == 8) { // if neighbour is not blocked
             if (this.deltaNWSE[i] == "NW") {
               if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
                 continue;
@@ -243,8 +243,8 @@ class A_star extends GridPathFinder{
 					if(open_node !== undefined) if(open_node.f_cost<=f_cost) continue;
 					let closed_node = this.closed_list.get(next_XY);
 					if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
-          this.neighbours.unshift(new_node);
-          this.neighbours_deltaNWSE_STATICS.unshift(this.deltaNWSE_STATICS[i]);
+          this.neighbors.unshift(new_node);
+          this.neighbors_deltaNWSE_STATICS.unshift(this.deltaNWSE_STATICS[i]);
 
           /* OLD *//*
           this._create_step();
@@ -312,8 +312,8 @@ class A_star extends GridPathFinder{
 
           this._create_step();
           this._create_action({command: STATIC.EC, dest: STATIC.DT});
-          if(this.neighbours.length==1) this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
-          else this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.neighbours[1].self_XY});
+          if(this.neighbors.length==1) this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
+          else this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.neighbors[1].self_XY});
           this._create_action({command: STATIC.EP, dest: STATIC.NB, nodeCoord: next_XY});
           this._create_action({command: STATIC.EIM, dest: this.deltaNWSE_STATICS[i]});
           this._create_action({command: STATIC.RemoveRowByID, dest: STATIC.IT,stepIndex: this.step_index});

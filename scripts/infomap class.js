@@ -68,7 +68,7 @@ class UIInfoMap{
   drawObstacle(x,y){
 
   var surrounding_map_deltaNWSE = []
-  for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+  for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
     var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
     if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
       if (myUI.planner.map.get_data(next_XY_temp) != 1) {
@@ -85,7 +85,7 @@ class UIInfoMap{
   drawOutOfBound(x,y){
 
     var surrounding_map_deltaNWSE = []
-    for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
       var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
       if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) {
         surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
@@ -99,7 +99,7 @@ class UIInfoMap{
   }
   drawVisited(x,y){ //using pre obtained map of surrounding point
     var surrounding_map_deltaNWSE = []
-    for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
       var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
       if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
       if (myUI.InfoVisited.get_data(next_XY_temp)) {// if the current node has been visited
@@ -113,7 +113,7 @@ class UIInfoMap{
   
   drawQueue(x,y){ //using pre obtained map of surrounding point
     var surrounding_map_deltaNWSE = []
-    for (let i = 0; i < myUI.planner.num_neighbours; ++i) { 
+    for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
       var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
       if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
       if (myUI.InfoQueue.get_data(next_XY_temp)) {// if the current node has been visited
@@ -188,9 +188,9 @@ class UIInfoMap{
   }
 
 
-  NumNeighboursMode(num_neighbours=8){
+  NumneighborsMode(num_neighbors=8){
     console.log("hihu")
-   if (num_neighbours == 8){
+   if (num_neighbors == 8){
     [
   		["NE"],
       ["SE"],
@@ -211,7 +211,7 @@ class UIInfoMap{
      
 
     }
-   else  if (num_neighbours == 4){
+   else  if (num_neighbors == 4){
       [
   		["NE"],
       ["SE"],

@@ -6,8 +6,8 @@ class BFS_Vertex extends GridPathFinder {
     return "Breadth-First Search (BFS) (Vertex)";
   }
 
-  constructor(num_neighbours = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
-    super(num_neighbours, diagonal_allow, first_neighbour, search_direction);
+  constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
+    super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
     this.vertexEnabled = true;
   }
 
@@ -69,7 +69,7 @@ class BFS_Vertex extends GridPathFinder {
       if (this.prev_node_XY) {
         this._create_action(STATIC.DP, STATIC.CR, this.prev_node_XY);
         this._create_action(STATIC.DI,STATIC.ICR, this.prev_node_XY);
-        this.neighbours_XY.forEach(coord => {
+        this.neighbors_XY.forEach(coord => {
           this._create_action(STATIC.DP, STATIC.NB, coord);
         });
       }
@@ -95,7 +95,7 @@ class BFS_Vertex extends GridPathFinder {
       if(this.prev_node_XY){
         this._create_action({command: STATIC.DP, dest: STATIC.ICR, nodeCoord: this.prev_node_XY});
         this._create_action({command: STATIC.DI, dest: STATIC.ICR, nodeCoord: this.prev_node_XY});
-        this.neighbours_XY.forEach(coord=>this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: coord}));
+        this.neighbors_XY.forEach(coord=>this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: coord}));
       }
       this.visited_incs.forEach(coord=>this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: coord}));
       this._save_step("bck");
@@ -105,18 +105,18 @@ class BFS_Vertex extends GridPathFinder {
       /* FOUND GOAL */
       if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
-      // NOTE, a node is only visited if all its neighbours have been added to the queue
-      this.neighbours_XY = [];  // reset the neighbours for each new node
+      // NOTE, a node is only visited if all its neighbors have been added to the queue
+      this.neighbors_XY = [];  // reset the neighbors for each new node
 
       var surrounding_map_deltaNWSE = [];
-      for (let i = 0; i < this.num_neighbours; ++i) {
+      for (let i = 0; i < this.num_neighbors; ++i) {
         var next_XY_temp = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];
         if (next_XY_temp[0] < 0 || next_XY_temp[0] >= this.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= this.map_width) continue;
         if(this.map.get_data(next_XY_temp) == 1) surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
       }
 
-      /* iterates through the 4 or 8 neighbours and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
-      for (let i = 0; i < this.num_neighbours; ++i) {
+      /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
+      for (let i = 0; i < this.num_neighbors; ++i) {
         var next_XY = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_XY[0] < 0 || next_XY[0] >= this.map_height || next_XY[1] < 0 || next_XY[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
 
@@ -159,7 +159,7 @@ class BFS_Vertex extends GridPathFinder {
 
         //this.info_matrix[next_XY[0]][next_XY[1]]={parent: this.current_node_XY};
 
-        this.neighbours_XY.push(next_XY);  // add to neighbours, only need XY as don't need to search parents
+        this.neighbors_XY.push(next_XY);  // add to neighbors, only need XY as don't need to search parents
 
         this._create_step();
         /* OLD *//*
