@@ -81,7 +81,7 @@
         "name":"neighbors",
         "displayOrder":10,
         "drawType": "pixel",
-        "colors":["008269"]
+        "colors":["#008269"]
       },
       {
         "name":"visited",

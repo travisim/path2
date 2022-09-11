@@ -32,7 +32,7 @@ class UICanvas{
     };
   }
 
-  constructor(canvas_id, colors, drawType="pixel", fixedResVal=1024){
+  constructor(canvas_id, colors, drawType="cell", fixedResVal=1024){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
@@ -59,7 +59,7 @@ class UICanvas{
     this.drawType = drawType;
 
     switch(drawType){
-      case "vertexCircle":
+      case "vertex":
       case "dotted":
         this.fixedRes = true;
         break;
@@ -191,7 +191,7 @@ class UICanvas{
         case "dotted":
           this.draw_dotted_square(xy);
           break;
-        case "vertexCircle":
+        case "vertex":
           this.draw_vertex_circle(xy, color_index);
           break;
         default:
@@ -299,7 +299,6 @@ class UICanvas{
     let r = 6//this.data_height/myUI.map_height * 5/16;
     if(myUI.map_height>32 || myUI.map_width>32){
       r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
-      debugger;
     }
     let d = r*2;
     this.ctx.clearRect(x-d, y-d, 2*d, 2*d);

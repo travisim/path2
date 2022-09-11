@@ -150,7 +150,7 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
     myUI.vertex = true;
     ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal"].forEach(canvas=>{
       myUI.canvases[canvas].scale_canvas(1024, 1024, false);
-      myUI.canvases[canvas].setDrawType("vertexCircle");
+      myUI.canvases[canvas].setDrawType("vertex");
     });
     myUI.planners = myUI.planners_v;
     console.log("ENABLED VERTEX");

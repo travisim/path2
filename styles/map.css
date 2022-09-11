@@ -72,7 +72,7 @@
 .arrow{
 	display: block;
 	position: absolute;
-	z-index: 61;
+	z-index: 60;
 	fill: #bcbacb;
 }
 

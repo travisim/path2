@@ -194,5 +194,14 @@ function openControlTab(evt, tabId, linkId) {
 	if(evt) evt.currentTarget.className += " active";
 	else document.getElementById(linkId).className += " active";
   document.getElementById(tabId).style.display = "block";
+	var drags = document.getElementsByClassName('draggable');
+	if(tabId=="manualTab"){
+		for(i = 0; i < drags.length; i++) 
+			drags[i].style.zIndex = 61;
+	}
+	else{
+		for(i = 0; i < drags.length; i++) 
+			drags[i].style.zIndex = 63;
+	}
 }
 openControlTab(null, "configTab", "configLink");
