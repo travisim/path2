@@ -10,7 +10,7 @@ class GridPathFinder{
     return [];
   }
 
-	static _manageOffset(numBits, offset, idx){
+	static _manageUnpacking(numBits, offset, idx){
 		offset += numBits;
 		if(offset>=32){
 			idx++;
@@ -19,31 +19,31 @@ class GridPathFinder{
 		return [numBits, offset, idx];
 	}
 
-	static unpack_action(action){
+	static unpackAction(action){
 		/* NEW */
 		let bitOffset = 10;
 		let idx = 0;
 		let mask;
-		[mask, bitOffset, idx] = this._manageOffset(myUI.planner.static_bit_len, bitOffset, idx);
+		[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.static_bit_len, bitOffset, idx);
 		let command = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
 		if(action[0]&(1<<1)){
-			[mask, bitOffset, idx] = this._manageOffset(myUI.planner.static_bit_len, bitOffset, idx);
+			[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.static_bit_len, bitOffset, idx);
 			var dest = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
 		}
 		if(action[0]&(1<<2)){
-			[mask, bitOffset, idx] = this._manageOffset(myUI.planner.coord_bit_len, bitOffset, idx);
+			[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.coord_bit_len, bitOffset, idx);
 			let coord = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
 			var x = Math.floor(coord/myUI.planner.map_width);
 			var y = coord - x * myUI.planner.map_width;
 		}
 		if(action[0]&(1<<3)){
-			[mask, bitOffset, idx] = this._manageOffset(myUI.planner.coord_bit_len, bitOffset, idx);
+			[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.coord_bit_len, bitOffset, idx);
 			let coord = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
 			var parentX = Math.floor(coord/myUI.planner.map_width);
 			var parentY = coord - parentX * myUI.planner.map_width;
 		}
 		if(action[0]&(1<<4)){
-			[mask, bitOffset, idx] = this._manageOffset(myUI.planner.color_bit_len, bitOffset, idx);
+			[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.color_bit_len, bitOffset, idx);
 			var colorIndex = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
 		}
 		if(action[0]&(1<<5)){
@@ -86,6 +86,94 @@ class GridPathFinder{
 			var parent_x = parent_coord - parent_y * myUI.planner.map_width;
 		}
 		return [command, dest, x,y, parent_y, parent_x, parent_exists, arrow_index, color_index];/**/
+	}
+
+	static _managePacking(numBits, offset, actionCache){
+		offset += numBits;
+		if(offset > 32){
+			actionCache.push(0);
+			offset = 1+numBits;
+		}
+		return [actionCache.length-1, offset, actionCache];
+	}
+
+	static packAction({
+		command,
+		dest,
+		nodeCoord,
+		parentCoord,
+		stepIndex,
+		colorIndex,
+		arrowIndex,
+		gCost,
+		hCost,
+    pseudoCodeRow
+	} = {}){
+		/* NEW */
+		/*
+			this new system will process the arguments using certain keywords
+		*/
+		/* bits are read from right to left */
+		/* 1111111111*/
+		let actionCache = [1];
+		let bitOffset = 10;
+		let idx = 0;
+
+		// command is assumed to exist
+		idx = this._managePacking(this.static_bit_len);
+		this.actionCache[idx] += bit_shift(command, this.bitOffset - this.static_bit_len);
+		//console.log("NEW ACTION")
+		//console.log(this.actionCache);
+		if(dest!==undefined){
+			idx = this._managePacking(this.static_bit_len);
+			this.actionCache[0] += 1<<1; //
+     
+			this.actionCache[idx] += bit_shift(dest, this.bitOffset - this.static_bit_len);
+  		
+		}
+		if(nodeCoord!==undefined){
+			//console.log(nodeCoord);
+			idx = this._managePacking(this.coord_bit_len);
+			this.actionCache[0] += 1<<2;//
+			//console.log(this.bitOffset - this.coord_bit_len);
+			this.actionCache[idx] += bit_shift(nodeCoord[0]*this.map_width+nodeCoord[1], this.bitOffset - this.coord_bit_len);
+			//console.log(this.actionCache);
+		}
+		if(parentCoord!==undefined){
+			idx = this._managePacking(this.coord_bit_len);
+			this.actionCache[0] += 1<<3;//
+			this.actionCache[idx] += bit_shift(parentCoord[0]*this.map_width+parentCoord[1], this.bitOffset - this.coord_bit_len);
+		}
+		if(colorIndex!==undefined){
+			idx = this._managePacking(this.color_bit_len);
+			this.actionCache[0] += 1<<4;
+			this.actionCache[idx] += bit_shift(colorIndex, this.bitOffset - this.color_bit_len);
+		}
+		if(stepIndex!==undefined){
+			this.actionCache[0] += 1<<5;
+			this.actionCache[idx] += bit_shift(stepIndex, this.bitOffset);
+		}
+		if(arrowIndex!==undefined){
+			this.actionCache[0] += 1<<6;
+			this.actionCache[idx] += bit_shift(arrowIndex, this.bitOffset);
+		}
+		if(gCost!==undefined){
+			this.actionCache[0] += 1<<7;
+			this.actionCache[idx+1] = gCost;
+		}
+		if(hCost!==undefined){
+			this.actionCache[0] += 1<<8;
+			this.actionCache[idx+2] = hCost;
+		}
+    if(pseudoCodeRow!==undefined){
+			this.actionCache[0] += 1<<9;
+			this.actionCache[idx+3] = pseudoCodeRow;
+		}
+
+		this.actionCache.forEach(val=>{
+			this.step_cache.push(val);
+		});
+		return
 	}
 
 	constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){

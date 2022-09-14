@@ -26,25 +26,25 @@
       {
         "name":"hoverMap",
         "displayOrder":1,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["#d19b6d", "#AA1945"]
       },
       {
         "name":"fCostMap",
         "displayOrder":2,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["hsv(24,100%,46%)"]
       },
       {
         "name":"gCostMap",
         "displayOrder":3,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["hsv(270,100%,46%)"]
       },
       {
         "name":"hCostMap",
         "displayOrder":4,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["hsv(142,100%,46%)"]
       },
       {
@@ -56,49 +56,49 @@
       {
         "name":"current_XY",
         "displayOrder":6,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["#34d1ea"]
       },
       {
         "name":"start",
         "displayOrder":7,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["#96996"]
       },
       {
         "name":"goal",
         "displayOrder":8,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["#9f17e7"]
       },
       {
         "name":"path",
         "displayOrder":9,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["#34d1ea"]
       },
       {
         "name":"neighbors",
         "displayOrder":10,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["#008269"]
       },
       {
         "name":"visited",
         "displayOrder":11,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"]
       },
       {
         "name":"queue",
         "displayOrder":12,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["#74fa4c"]
       },
       {
         "name":"bg",
         "displayOrder":13,
-        "drawType": "pixel",
+        "drawType": "cell",
         "colors":["#000000"]
       }
     ],

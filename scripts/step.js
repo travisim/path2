@@ -105,7 +105,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
             ++j;
           }
           if(myUI.testing) console.log(i,j);
-          let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow] = GridPathFinder.unpack_action(step.slice(i, j));
+          let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow] = GridPathFinder.unpackAction(step.slice(i, j));
           var gCost = Number(gCost_str);
           var hCost = Number(hCost_str);
            if(dest == "IT") console.log(stepNo," stepNo");  
@@ -229,14 +229,13 @@ myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
 steps_arr = [
   each step: 
   [
-    each action
-    UInt8Array( (5)
-      [action_type,args]
-    );
+    each action:
+    [
+      each param
+    ]
   ]
 ]
 */
-
 
 myUI.run_combined_step = function(step_direction="fwd"){
   this.run_steps(Number.MAX_SAFE_INTEGER, step_direction, step_direction=="fwd");
@@ -248,7 +247,7 @@ myUI.run_combined_step = function(step_direction="fwd"){
   function search_for_simple(){
     if(step_direction!="fwd"){
       myUI.planner.get_step(tmp_step, "bck").then(step=>{
-        let first_command = myUI.planner.constructor.unpack_action(step)
+        let first_command = myUI.planner.constructor.unpackAction(step)
         if(first_command!=STATIC.SIMPLE && tmp_step>0){
           --tmp_step;
           search_for_simple();
@@ -276,3 +275,31 @@ myUI.run_combined_step = function(step_direction="fwd"){
 
 
 
+myUI.generateReverseSteps = function(steps, indexMap){
+  let stepNo=0;
+  let reverseSteps = [];
+  let reverseMap = [];
+  while(stepNo<indexMap.length){
+    let step = steps.slice(indexMap[stepNo], indexMap[stepNo+1]);
+    let i=0;
+    while(i<step.length){
+      let j=i+1;
+      while(j<step.length){
+        // this is implementation specific for compressed actions
+        if(Number.isInteger(step[j]) && step[j]&1) break;
+        ++j;
+      }
+      // [i,j) is the action length
+      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow] = GridPathFinder.unpackAction(step.slice(i, j));
+      var gCost = Number(gCost_str);
+      var hCost = Number(hCost_str);
+
+      if(command==STATIC.DP){
+        
+      }
+      // add more here
+      j=i;
+    }
+    ++stepNo;
+  }
+}
