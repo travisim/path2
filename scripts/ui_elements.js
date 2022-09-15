@@ -31,12 +31,10 @@ class UICanvas{
       y: (containerHeight - targetHeight) / 2
     };
   }
-
   constructor(canvas_id, colors, drawType="cell", fixedResVal=1024){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
-
     this.defaultHeight = this.canvas.clientHeight;
     this.defaultWidth = this.canvas.clientWidth;
 
