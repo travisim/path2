@@ -88,13 +88,13 @@ class GridPathFinder{
 		return [command, dest, x,y, parent_y, parent_x, parent_exists, arrow_index, color_index];/**/
 	}
 
-	static _managePacking(numBits, offset, actionCache){
-		offset += numBits;
-		if(offset > 32){
-			actionCache.push(0);
-			offset = 1+numBits;
+	static _managePacking(numBits, obj){
+		obj.bitOffset += numBits;
+		if(obj.bitOffset > 32){
+			obj.actionCache.push(0);
+			obj.bitOffset = 1+numBits;
 		}
-		return [actionCache.length-1, offset, actionCache];
+		obj.idx = obj.actionCache.length-1;
 	}
 
 	static packAction({
@@ -115,65 +115,63 @@ class GridPathFinder{
 		*/
 		/* bits are read from right to left */
 		/* 1111111111*/
-		let actionCache = [1];
-		let bitOffset = 10;
-		let idx = 0;
+		let obj = {};
+		obj.actionCache = [1];
+		obj.bitOffset = 10;
+		obj.idx = 0;
 
 		// command is assumed to exist
-		idx = this._managePacking(this.static_bit_len);
-		this.actionCache[idx] += bit_shift(command, this.bitOffset - this.static_bit_len);
+		this._managePacking(myUI.planner.static_bit_len, obj);
+		obj.actionCache[obj.idx] += bit_shift(command, obj.bitOffset - myUI.planner.static_bit_len);
 		//console.log("NEW ACTION")
-		//console.log(this.actionCache);
+		//console.log(obj.actionCache);
 		if(dest!==undefined){
-			idx = this._managePacking(this.static_bit_len);
-			this.actionCache[0] += 1<<1; //
+			this._managePacking(myUI.planner.static_bit_len, obj);
+			obj.actionCache[0] += 1<<1; //
      
-			this.actionCache[idx] += bit_shift(dest, this.bitOffset - this.static_bit_len);
+			obj.actionCache[obj.idx] += bit_shift(dest, obj.bitOffset - myUI.planner.static_bit_len);
   		
 		}
 		if(nodeCoord!==undefined){
 			//console.log(nodeCoord);
-			idx = this._managePacking(this.coord_bit_len);
-			this.actionCache[0] += 1<<2;//
-			//console.log(this.bitOffset - this.coord_bit_len);
-			this.actionCache[idx] += bit_shift(nodeCoord[0]*this.map_width+nodeCoord[1], this.bitOffset - this.coord_bit_len);
-			//console.log(this.actionCache);
+			this._managePacking(myUI.planner.coord_bit_len, obj);
+			obj.actionCache[0] += 1<<2;//
+			//console.log(obj.bitOffset - myUI.planner.coord_bit_len);
+			obj.actionCache[obj.idx] += bit_shift(nodeCoord[0]*myUI.planner.map_width+nodeCoord[1], obj.bitOffset - myUI.planner.coord_bit_len);
+			//console.log(obj.actionCache);
 		}
 		if(parentCoord!==undefined){
-			idx = this._managePacking(this.coord_bit_len);
-			this.actionCache[0] += 1<<3;//
-			this.actionCache[idx] += bit_shift(parentCoord[0]*this.map_width+parentCoord[1], this.bitOffset - this.coord_bit_len);
+			this._managePacking(myUI.planner.coord_bit_len, obj);
+			obj.actionCache[0] += 1<<3;//
+			obj.actionCache[obj.idx] += bit_shift(parentCoord[0]*myUI.planner.map_width+parentCoord[1], obj.bitOffset - myUI.planner.coord_bit_len);
 		}
 		if(colorIndex!==undefined){
-			idx = this._managePacking(this.color_bit_len);
-			this.actionCache[0] += 1<<4;
-			this.actionCache[idx] += bit_shift(colorIndex, this.bitOffset - this.color_bit_len);
+			this._managePacking(myUI.planner.color_bit_len, obj);
+			obj.actionCache[0] += 1<<4;
+			obj.actionCache[obj.idx] += bit_shift(colorIndex, obj.bitOffset - myUI.planner.color_bit_len);
 		}
 		if(stepIndex!==undefined){
-			this.actionCache[0] += 1<<5;
-			this.actionCache[idx] += bit_shift(stepIndex, this.bitOffset);
+			obj.actionCache[0] += 1<<5;
+			obj.actionCache[obj.idx] += bit_shift(stepIndex, obj.bitOffset);
 		}
 		if(arrowIndex!==undefined){
-			this.actionCache[0] += 1<<6;
-			this.actionCache[idx] += bit_shift(arrowIndex, this.bitOffset);
+			obj.actionCache[0] += 1<<6;
+			obj.actionCache[obj.idx] += bit_shift(arrowIndex, obj.bitOffset);
 		}
 		if(gCost!==undefined){
-			this.actionCache[0] += 1<<7;
-			this.actionCache[idx+1] = gCost;
+			obj.actionCache[0] += 1<<7;
+			obj.actionCache[obj.idx+1] = gCost;
 		}
 		if(hCost!==undefined){
-			this.actionCache[0] += 1<<8;
-			this.actionCache[idx+2] = hCost;
+			obj.actionCache[0] += 1<<8;
+			obj.actionCache[obj.idx+2] = hCost;
 		}
     if(pseudoCodeRow!==undefined){
-			this.actionCache[0] += 1<<9;
-			this.actionCache[idx+3] = pseudoCodeRow;
+			obj.actionCache[0] += 1<<9;
+			obj.actionCache[obj.idx+3] = pseudoCodeRow;
 		}
 
-		this.actionCache.forEach(val=>{
-			this.step_cache.push(val);
-		});
-		return
+		return obj.actionCache;
 	}
 
 	constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
@@ -274,6 +272,7 @@ class GridPathFinder{
 		this.steps_forward = [];
 		this.steps_inverse = [];
 		this.step_index_map = {fwd:[], bck:[]};
+		this.combined_index_map = {fwd:[], bck:[]};
 	}
 
 	_create_step(){
@@ -442,15 +441,17 @@ console.log(STATIC_COMMANDS)
 	}   //  stepcache = [action_cache,hcost,fcost,stepno]
   //   this._create_action(STATIC.InTopTemp,STATIC.DIT, this.current_node_XY,this.step_index, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_XY);
 //this.step_index: 
-	_save_step(step_direction="fwd"){
+	_save_step(step_direction="fwd", combined=false){
 		if(step_direction=="fwd"){
 			this.step_index_map.fwd.push(this.steps_forward.length);
+			if(combined) this.combined_index_map.fwd.push(this.step_index_map.fwd.length-1); 
 			this.step_cache.forEach(action=>this.steps_forward.push(action));
 		}
-//console.log(myUI.planner.steps_forward)
-  //  console.log(myUI.planner.step_index_map.fwd)
+		//console.log(myUI.planner.steps_forward)
+  	//  console.log(myUI.planner.step_index_map.fwd)
 		else{
 			this.step_index_map.bck.push(this.steps_inverse.length);
+			if(combined) this.combined_index_map.bck.push(this.step_index_map.bck.length);
 			this.step_cache.forEach(action=>this.steps_inverse.push(action));
 		}
 		/* 

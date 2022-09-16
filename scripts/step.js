@@ -87,7 +87,7 @@ const statics_to_obj = {
 }
 
 
-myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
+myUI.run_steps = function(num_steps, step_direction="fwd"){
   run_next_step();
 
   function run_next_step(){
@@ -112,18 +112,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
           if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
           if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
           console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
-            if(command==STATIC.SIMPLE && findSimple>=0){
-              if(findSimple==1) findSimple--;
-              else{
-                if(step_direction=="fwd") --myUI.animation.step;
-                else{
-                  ++myUI.animation.step;
-                  myUI.run_steps(1, "bck");
-                }
-                return;
-              }
-            }
-            else if(command==STATIC.EC){
+            if(command==STATIC.EC){
               myUI.canvases[statics_to_obj[dest]].erase_canvas();
             }
             else if(command==STATIC.DP){
@@ -238,7 +227,7 @@ steps_arr = [
 */
 
 myUI.run_combined_step = function(step_direction="fwd"){
-  this.run_steps(Number.MAX_SAFE_INTEGER, step_direction, step_direction=="fwd");
+  this.run_steps(Number.MAX_SAFE_INTEGER, step_direction);
   return;
   let tmp_step = myUI.animation.step, start_step = myUI.animation.step;
   
@@ -282,6 +271,7 @@ myUI.generateReverseSteps = function(steps, indexMap){
   while(stepNo<indexMap.length){
     let step = steps.slice(indexMap[stepNo], indexMap[stepNo+1]);
     let i=0;
+    reverseMap.push(reverseSteps.size());
     while(i<step.length){
       let j=i+1;
       while(j<step.length){
@@ -294,10 +284,27 @@ myUI.generateReverseSteps = function(steps, indexMap){
       var gCost = Number(gCost_str);
       var hCost = Number(hCost_str);
 
+      let action;
       if(command==STATIC.DP){
-        
+        action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y]});
+      }
+      else if(command==STATIC.EP){
+        action = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [x,y]});
+      }
+      else if(command==STATIC.INC_P){
+        action = GridPathFinder.packAction({command: STATIC.DEC_P, dest: dest, nodeCoord: [x,y]});
+      }
+      else if(command==STATIC.DEC_P){
+        action = GridPathFinder.packAction({command: STATIC.INC_P, dest: dest, nodeCoord: [x,y]});
+      }
+      else if(command==STATIC.DA){
+        action = GridPathFinder.packAction({command: STATIC.EA, arrowIndex: arrowIndex, colorIndex: colorIndex});
+      }
+      else if(command==STATIC.EA){
+        action = GridPathFinder.packAction({command: STATIC.DA, arrowIndex: arrowIndex, colorIndex: colorIndex});
       }
       // add more here
+      Array.prototype.push.apply(reverseSteps, action);
       j=i;
     }
     ++stepNo;

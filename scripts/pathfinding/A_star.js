@@ -105,7 +105,6 @@ class A_star extends GridPathFinder{
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
 
       this._create_step();
-      this._create_action({command: STATIC.SIMPLE});
       this._create_action({command: STATIC.EC, dest: STATIC.DT});
       this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
@@ -117,7 +116,7 @@ class A_star extends GridPathFinder{
       this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.HP, dest: STATIC.PC, pseudoCodeRow: 12});
       this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
-      this._save_step("fwd");
+      this._save_step("fwd", true);
       /*
       this._create_step();
       this._create_action(STATIC.SIMPLE);
@@ -134,7 +133,6 @@ class A_star extends GridPathFinder{
       this._save_step("fwd");*/
 
       this._create_step();
-      this._create_action({command: STATIC.SIMPLE});
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
       this._create_action({command: STATIC.EP, dest: STATIC.VI, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
@@ -155,7 +153,7 @@ class A_star extends GridPathFinder{
           this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.prev_node_XY});
         }
       }
-      this._save_step("bck");/*
+      this._save_step("bck", true);/*
 
       this._create_step();
       this._create_action(STATIC.SIMPLE);
