@@ -273,6 +273,7 @@ class GridPathFinder{
 		this.steps_inverse = [];
 		this.step_index_map = {fwd:[], bck:[]};
 		this.combined_index_map = {fwd:[], bck:[]};
+		this.combined_reverse_map = {fwd:{}, bck:{}};
 	}
 
 	_create_step(){
@@ -443,15 +444,21 @@ console.log(STATIC_COMMANDS)
 //this.step_index: 
 	_save_step(step_direction="fwd", combined=false){
 		if(step_direction=="fwd"){
+			if(combined){
+				this.combined_reverse_map.fwd[this.step_index_map.length] = this.combined_index_map.fwd.length;
+				this.combined_index_map.fwd.push(this.step_index_map.fwd.length);
+			}
 			this.step_index_map.fwd.push(this.steps_forward.length);
-			if(combined) this.combined_index_map.fwd.push(this.step_index_map.fwd.length-1); 
 			this.step_cache.forEach(action=>this.steps_forward.push(action));
 		}
 		//console.log(myUI.planner.steps_forward)
   	//  console.log(myUI.planner.step_index_map.fwd)
 		else{
+			if(combined){
+				this.combined_reverse_map.bck[this.step_index_map.length] = this.combined_index_map.bck.length;
+				this.combined_index_map.bck.push(this.step_index_map.bck.length);
+			}
 			this.step_index_map.bck.push(this.steps_inverse.length);
-			if(combined) this.combined_index_map.bck.push(this.step_index_map.bck.length);
 			this.step_cache.forEach(action=>this.steps_inverse.push(action));
 		}
 		/* 
@@ -483,10 +490,27 @@ console.log(STATIC_COMMANDS)
 			nx_index = this.step_index_map.bck[num+2];
 		}
 		let step = step_direction=="fwd" ? this.steps_forward.slice(index, nx_index) :this.steps_inverse.slice(index, nx_index);
-		let stepPromise = new Promise((resolve, reject)=>{
-			resolve(step);
-		})
-		return stepPromise;
+		return [step, 1];
+	}
+
+	get_combined_step(num, step_direction="fwd"){
+		let index, nx_index, comb, mapIndex, nxMapIndex;
+		if(step_direction=="fwd"){
+			comb = this.combined_reverse_map.fwd[num];
+			mapIndex = this.combined_index_map.fwd[comb];
+			nxMapIndex = this.combined_index_map.fwd[comb+1];
+			index = this.step_index_map.fwd[mapIndex];
+			nx_index = this.step_index_map.fwd[nxMapIndex];
+		}
+		else{
+			comb = this.combined_reverse_map.bck[num];
+			mapIndex = this.combined_index_map.bck[comb];
+			nxMapIndex = this.combined_index_map.bck[comb+1];
+			index = this.step_index_map.bck[mapIndex];
+			nx_index = this.step_index_map.bck[nxMapIndex];
+		}
+		let step = step_direction=="fwd" ? this.steps_forward.slice(index, nx_index) :this.steps_inverse.slice(index, nx_index);
+		return [step, nxMapIndex-mapIndex];
 	}
 
 	_manage_state(){

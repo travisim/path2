@@ -87,129 +87,132 @@ const statics_to_obj = {
 }
 
 
-myUI.run_steps = function(num_steps, step_direction="fwd"){
-  run_next_step();
+myUI.run_steps = function(num_steps, step_direction="fwd", combined=false){
+  if(num_steps--){
+    if(step_direction!="fwd" && myUI.animation.step>-1)--myUI.animation.step;
+    else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
+    else return;
 
-  function run_next_step(){
-    if(num_steps--){
-      if(step_direction!="fwd" && myUI.animation.step>-1)--myUI.animation.step;
-      else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
-      else return;
-      myUI.planner.get_step(myUI.animation.step, step_direction).then(step=>{
-        console.log(step, 'step');
-        let i=0;
-        while(i<step.length){
-          let j=i+1;
-          while(j<step.length){
-            if(Number.isInteger(step[j]) && step[j]&1) break;
-            ++j;
-          }
-          if(myUI.testing) console.log(i,j);
-          let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow] = GridPathFinder.unpackAction(step.slice(i, j));
-          var gCost = Number(gCost_str);
-          var hCost = Number(hCost_str);
-           if(dest == "IT") console.log(stepNo," stepNo");  
-          if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
-          if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
-          console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
-            if(command==STATIC.EC){
-              myUI.canvases[statics_to_obj[dest]].erase_canvas();
-            }
-            else if(command==STATIC.DP){
-              myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y]);
-            }
-            else if(command==STATIC.EP){
-               myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y]);
-            }
-            else if(command==STATIC.INC_P){
-               myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc");
-              
-            }
-            else if(command==STATIC.DEC_P){
-               myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec");
-            }
-            else if(command==STATIC.DA){
-              // draw arrow
-              myUI.arrow.elems[arrowIndex].classList.remove("hidden");
-              myUI.arrow.elems[arrowIndex].style.fill = myUI.arrow.colors[colorIndex];
-            }
-            else if(command==STATIC.EA){
-              // erase arrow
-              myUI.arrow.elems[arrowIndex].classList.add("hidden");
-            }
-           
-             if(dest==STATIC.CR && command == STATIC.EP ){//record  "visiters" in 2d array
-  	            myUI.InfoMap.recordErasedVisited(x,y);            	            
-  	          }
-  	          if(dest== STATIC.QU && command == STATIC.EP ){//record  "visiters" in 2d array
-  	            myUI.InfoMap.recordErasedQueue(x,y);
-  	          }
-              if(command == STATIC.DICR   && dest==STATIC.ICR){//draw "current_XY",
-                myUI.InfoMap.reset();
-                myUI.InfoMap.drawObstacle(x,y);
-  	            myUI.InfoMap.drawOutOfBound(x,y);
-                myUI.InfoMap.drawVisited(x,y);
-  	            myUI.InfoMap.drawQueue(x,y);
-  	            myUI.InfoCurrent.DrawCurrent(x,y);
-  	          }
-       
-              
-  	          //to draw neighbors
-  	          else if(command == STATIC.DIM){
-          
-  	            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost,gCost,hCost);
-             
-                
-  	          }
-            
-              else if(command == STATIC.InTop && dest==STATIC.IT){
-                myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
-  	          }
-              else if(command == STATIC.InBottom && dest==STATIC.IT){
-                myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
-  	          }
-              else if(command == STATIC.OutTop && dest==STATIC.IT){
-                myUI.InfoTable.outTop();             
-  	          }
-              else if(command == STATIC.OutBottom && dest==STATIC.IT){
-                myUI.InfoTable.outBottom();             
-  	          }
-              else if(command == STATIC.Sort){
-                if (myUI.InfoTable.rows.length >= 2){
-                  myUI.InfoTable.sort(); // emulats insert at based on F cost
-                }
-  	          }
-  	        	//to erase neighbors
-  	          else if(command == STATIC.EIM ){
-  	            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-           
-  	          }
-            
-	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
-	            myUI.InfoMap.recordDrawnVisited(x,y);            	            
-	          }
-	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
-	            myUI.InfoMap.recordDrawnQueue(x,y);
-	          }
-            if(dest== STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
-	            myUI.InfoTable.removeRowById(stepNo);
-	          }  
-            if(dest== STATIC.PC && command == STATIC.HP ){//record  "visiters" in 2d array
-      	      myUI.PseudoCode.highlightPri(pseudoCodeRow);
-	          }  
-          try{
-          }catch(e){
-            console.log(e);
-            console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
-            console.log(step.slice(i, j));
-            debugger;
-          }
-          
-          /*++i;*/
-          i=j;
+    let step, num;
+    if(combined) [step, num] = myUI.planner.get_combined_step(myUI.animation.step, step_direction);
+    else [step, num] = myUI.planner.get_step(myUI.animation.step, step_direction);
+
+    console.log("NUM IS: ", num);
+    if(num>1){
+      if(step_direction=="fwd") myUI.animation.step+=num-1;
+      else myUI.animation.step-=num-1;
+    }
+    console.log(step, 'step');
+    let i=0;
+    while(i<step.length){
+      let j=i+1;
+      while(j<step.length){
+        if(Number.isInteger(step[j]) && step[j]&1) break;
+        ++j;
+      }
+      if(myUI.testing) console.log(i,j);
+      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow] = GridPathFinder.unpackAction(step.slice(i, j));
+      var gCost = Number(gCost_str);
+      var hCost = Number(hCost_str);
+        if(dest == "IT") console.log(stepNo," stepNo");  
+      if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
+      if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
+      console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
+        if(command==STATIC.EC){
+          myUI.canvases[statics_to_obj[dest]].erase_canvas();
         }
-        run_next_step();
-      });
+        else if(command==STATIC.DP){
+          myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y]);
+        }
+        else if(command==STATIC.EP){
+            myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y]);
+        }
+        else if(command==STATIC.INC_P){
+            myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc");
+          
+        }
+        else if(command==STATIC.DEC_P){
+            myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec");
+        }
+        else if(command==STATIC.DA){
+          // draw arrow
+          myUI.arrow.elems[arrowIndex].classList.remove("hidden");
+          myUI.arrow.elems[arrowIndex].style.fill = myUI.arrow.colors[colorIndex];
+        }
+        else if(command==STATIC.EA){
+          // erase arrow
+          myUI.arrow.elems[arrowIndex].classList.add("hidden");
+        }
+        
+          if(dest==STATIC.CR && command == STATIC.EP ){//record  "visiters" in 2d array
+            myUI.InfoMap.recordErasedVisited(x,y);            	            
+          }
+          if(dest== STATIC.QU && command == STATIC.EP ){//record  "visiters" in 2d array
+            myUI.InfoMap.recordErasedQueue(x,y);
+          }
+          if(command == STATIC.DICR   && dest==STATIC.ICR){//draw "current_XY",
+            myUI.InfoMap.reset();
+            myUI.InfoMap.drawObstacle(x,y);
+            myUI.InfoMap.drawOutOfBound(x,y);
+            myUI.InfoMap.drawVisited(x,y);
+            myUI.InfoMap.drawQueue(x,y);
+            myUI.InfoCurrent.DrawCurrent(x,y);
+          }
+    
+          
+          //to draw neighbors
+          else if(command == STATIC.DIM){
+      
+            myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost,gCost,hCost);
+          
+            
+          }
+        
+          else if(command == STATIC.InTop && dest==STATIC.IT){
+            myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
+          }
+          else if(command == STATIC.InBottom && dest==STATIC.IT){
+            myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
+          }
+          else if(command == STATIC.OutTop && dest==STATIC.IT){
+            myUI.InfoTable.outTop();             
+          }
+          else if(command == STATIC.OutBottom && dest==STATIC.IT){
+            myUI.InfoTable.outBottom();             
+          }
+          else if(command == STATIC.Sort){
+            if (myUI.InfoTable.rows.length >= 2){
+              myUI.InfoTable.sort(); // emulats insert at based on F cost
+            }
+          }
+          //to erase neighbors
+          else if(command == STATIC.EIM ){
+            myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
+        
+          }
+        
+        if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
+          myUI.InfoMap.recordDrawnVisited(x,y);            	            
+        }
+        if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
+          myUI.InfoMap.recordDrawnQueue(x,y);
+        }
+        if(dest== STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
+          myUI.InfoTable.removeRowById(stepNo);
+        }  
+        if(dest== STATIC.PC && command == STATIC.HP ){//record  "visiters" in 2d array
+          myUI.PseudoCode.highlightPri(pseudoCodeRow);
+        }  
+      try{
+      }catch(e){
+        console.log(e);
+        console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
+        console.log(step.slice(i, j));
+        debugger;
+      }
+      
+      /*++i;*/
+      i=j;
     }
   }
 }
@@ -227,7 +230,7 @@ steps_arr = [
 */
 
 myUI.run_combined_step = function(step_direction="fwd"){
-  this.run_steps(Number.MAX_SAFE_INTEGER, step_direction);
+  this.run_steps(1, step_direction, true);
   return;
   let tmp_step = myUI.animation.step, start_step = myUI.animation.step;
   
