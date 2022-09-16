@@ -5,12 +5,9 @@ var pseudoCodeRaw = 'def astar(map, start_vertex, goal_vertex): \n&emsp;list = O
 
 class UIInfoPseudoCode{
   constructor(){ //input titles of table in string
-  
     this.pseudoCodeTable =  document.querySelector(`#dynamic-pseudo-code-table`)
-     
-
-   this.pseudoCodeRows = this.pseudoCodeTable.getElementsByClassName('psuedoRow');
-     this.highlightedRowsSec = document.getElementById("pseudo-code-container").getElementsByClassName('highlightingSec');
+    this.pseudoCodeRows = this.pseudoCodeTable.getElementsByClassName('psuedoRow');
+    this.highlightedRowsSec = document.getElementById("pseudo-code-container").getElementsByClassName('highlightingSec');
     this.highlightedRowsPri = document.getElementById("pseudo-code-container").getElementsByClassName('highlightingPri');
   }
   
@@ -20,13 +17,15 @@ rowGenerator(pseudoCodeTxtFileContent){
     for (let i = 0; i < (pseudoCodeArrayByline.length ); i++) { 
       var r = document.createElement("TR"); 
       if ((pseudoCodeArrayByline[i] == null)) break;
-      r.insertCell(0).innerHTML = pseudoCodeArrayByline[i];
+      r.insertCell(0).innerHTML = i;
+      r.insertCell(1).innerHTML = pseudoCodeArrayByline[i];
       r.classList.add('psuedoRow');
       
       
       document.getElementById("dynamic-pseudo-code-table").append(r);
    
     }  
+
   }
   
   

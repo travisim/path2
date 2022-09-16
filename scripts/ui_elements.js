@@ -454,17 +454,37 @@ if (CP && CP.lineTo) {
 
 
 var coll = document.getElementsByClassName("collapsible");
-var i;
 
-for (i = 0; i < coll.length; i++) {
+
+
+for (var i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {
     this.classList.toggle("active_Section");
     var content = this.nextElementSibling;
+    
     if (content.style.maxHeight){
       content.style.maxHeight = null;
     } 
     else {
       content.style.maxHeight = content.scrollHeight + "px";
     } 
+    
   });
 }
+/*
+for (var i = 0; i < coll.length; i++) {
+  coll[i].nextElementSibling.style.height = "0px";
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active_Section");
+    var content = this.nextElementSibling;
+    
+    if (content.style.height != "0px"){
+      content.style.height = "0px";
+    } 
+    else {
+      content.style.height = "auto";
+    } 
+    
+  });
+}
+*/

@@ -19,8 +19,10 @@ const STATIC_COMMANDS = [
   "OutBottom",
   "Sort",
   "RemoveRowByID",
-  "HP", //highlight Pseudo
-  "UHP" // unhighlight Pseudo
+  "HighlightPseudoCodeRowPri", //highlight Pseudo
+  "UnhighlightPseudoCodeRowPri", // unhighlight Pseudo
+  "HighlightPseudoCodeRowSec", //highlight Pseudo
+  "UnhighlightPseudoCodeRowSec" // unhighlight Pseudo
   
  
 ];
@@ -82,7 +84,7 @@ const statics_to_obj = {
   10:"SE",
   11:"E",
   12:"NE",
-  15: "dotted",
+  15:"dotted",
   16:"pseudocode"
 }
 
@@ -199,14 +201,17 @@ myUI.run_steps = function(num_steps, step_direction="fwd", findSimple=-1){
 	          if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnVisited(x,y);            	            
 	          }
-	          if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
+	          if(dest == STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
 	            myUI.InfoMap.recordDrawnQueue(x,y);
 	          }
-            if(dest== STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
+            if(dest == STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
 	            myUI.InfoTable.removeRowById(stepNo);
 	          }  
-            if(dest== STATIC.PC && command == STATIC.HP ){//record  "visiters" in 2d array
+            if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){//record  "visiters" in 2d array
       	      myUI.PseudoCode.highlightPri(pseudoCodeRow);
+	          }  
+           if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){//record  "visiters" in 2d array
+      	      myUI.PseudoCode.highlightSec(pseudoCodeRow);
 	          }  
           try{
           }catch(e){
