@@ -181,20 +181,19 @@
 							</div>
 						</div>
 						<div id="layer-controls">
-							<input type="checkbox" id="show_visited" name="show_visited" checked>
-							<label for="show_visited">Visited</label>
-							<br>
-							<input type="checkbox" id="show_queue" name="show_queue" checked>
-							<label for="show_queue">Queue</label>
-							<br>
-							<input type="checkbox" id="show_neighbors" name="show_neighbors" checked>
-							<label for="show_neighbors">neighbors</label>
-							<br>
-							<input type="checkbox" id="show_f_cost" name="show_f_cost">
-							<label for="show_f_cost">F-Cost</label>
-							<br>
-							<input type="checkbox" id="show_g_cost" name="show_g_cost">
-							<label for="show_g_cost">G-Cost</label>
+  						<div id="canvas_layers">
+               <!-- <h1>Canvas Layers</h1>
+              -->
+              <!--
+                <input type="checkbox" id="show_visited" name="show_visited" class="layers" >
+                <label for="show_visited">
+                   <h2>Visited<span>hi</span></h2>
+                </label>
+              
+              --> 
+              </div>
+              <div id = "checkbox_style"></div>
+
 						</div>
 					</div>
 					<div class="flex-row">
@@ -447,6 +446,7 @@
       </style>
     </div>
 		<script src="scripts/helper.js"></script>
+    <script src="scripts/layers_checklist.js"></script>
 		<script src="scripts/pathfinding/pathfinder.js"></script>
     <script src="scripts/pathfinding/A_star.js"></script>
 		<script src="scripts/pathfinding_vertex/bfs_v.js"></script>

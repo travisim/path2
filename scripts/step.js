@@ -19,8 +19,10 @@ const STATIC_COMMANDS = [
   "OutBottom",
   "Sort",
   "RemoveRowByID",
-  "HP", //highlight Pseudo
-  "UHP" // unhighlight Pseudo
+  "HighlightPseudoCodeRowPri", //highlight Pseudo
+  "UnhighlightPseudoCodeRowPri", // unhighlight Pseudo
+  "HighlightPseudoCodeRowSec", //highlight Pseudo
+  "UnhighlightPseudoCodeRowSec" // unhighlight Pseudo
   
  
 ];
@@ -82,7 +84,7 @@ const statics_to_obj = {
   10:"SE",
   11:"E",
   12:"NE",
-  15: "dotted",
+  15:"dotted",
   16:"pseudocode"
 }
 
@@ -118,7 +120,18 @@ myUI.run_steps = function(num_steps, step_direction="fwd", combined=false){
       if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
       if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
       console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
-        if(command==STATIC.EC){
+        if(command==STATIC.SIMPLE && findSimple>=0){
+          if(findSimple==1) findSimple--;
+          else{
+            if(step_direction=="fwd") --myUI.animation.step;
+            else{
+              ++myUI.animation.step;
+              myUI.run_steps(1, "bck");
+            }
+            return;
+          }
+        }
+        else if(command==STATIC.EC){
           myUI.canvases[statics_to_obj[dest]].erase_canvas();
         }
         else if(command==STATIC.DP){
@@ -194,14 +207,17 @@ myUI.run_steps = function(num_steps, step_direction="fwd", combined=false){
         if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
           myUI.InfoMap.recordDrawnVisited(x,y);            	            
         }
-        if(dest== STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
+        if(dest == STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
           myUI.InfoMap.recordDrawnQueue(x,y);
         }
-        if(dest== STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
+        if(dest == STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
           myUI.InfoTable.removeRowById(stepNo);
         }  
-        if(dest== STATIC.PC && command == STATIC.HP ){//record  "visiters" in 2d array
+        if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){//record  "visiters" in 2d array
           myUI.PseudoCode.highlightPri(pseudoCodeRow);
+        }  
+        if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){//record  "visiters" in 2d array
+          myUI.PseudoCode.highlightSec(pseudoCodeRow);
         }  
       try{
       }catch(e){

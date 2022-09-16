@@ -35,9 +35,7 @@ function toggle_num_neighbors(e){
     myUI.planner.init_neighbors(4);
     document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = -100});
     document.getElementById("num_neighbors_label").innerHTML = "Cardinal (4-directions)";
-     myUI.InfoMap.NumneighborsMode(4);
-
-    
+    myUI.InfoMap.NumneighborsMode(4);  
   }
 }
 document.getElementById("num_neighbors_btn").addEventListener("click", toggle_num_neighbors);
