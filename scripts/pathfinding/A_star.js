@@ -90,11 +90,10 @@ class A_star extends GridPathFinder{
         this.prev_node_XY = this.current_node_XY;
       }
         
-        
+      /*
       this._create_step();
-      this._create_action({command: STATIC.SIMPLE});
       this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC,pseudoCodeRow: 11});
-      this._save_step("fwd");
+      this._save_step("fwd");*/
       
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY

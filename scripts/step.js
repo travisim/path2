@@ -89,21 +89,14 @@ const statics_to_obj = {
 }
 
 
-myUI.run_steps = function(num_steps, step_direction="fwd", combined=false){
-  if(num_steps--){
+myUI.run_steps = function(num_steps, step_direction="fwd"){
+  while(num_steps--){
     if(step_direction!="fwd" && myUI.animation.step>-1)--myUI.animation.step;
     else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
     else return;
 
-    let step, num;
-    if(combined) [step, num] = myUI.planner.get_combined_step(myUI.animation.step, step_direction);
-    else [step, num] = myUI.planner.get_step(myUI.animation.step, step_direction);
+    let step = myUI.planner.get_step(myUI.animation.step, step_direction);
 
-    console.log("NUM IS: ", num);
-    if(num>1){
-      if(step_direction=="fwd") myUI.animation.step+=num-1;
-      else myUI.animation.step-=num-1;
-    }
     console.log(step, 'step');
     let i=0;
     while(i<step.length){
@@ -120,6 +113,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd", combined=false){
       if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
       if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
       console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
+      try{
       if(command==STATIC.EC){
         myUI.canvases[statics_to_obj[dest]].erase_canvas();
       }
@@ -208,7 +202,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd", combined=false){
       if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){//record  "visiters" in 2d array
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
       }  
-      try{
       }catch(e){
         console.log(e);
         console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
@@ -235,7 +228,8 @@ steps_arr = [
 */
 
 myUI.run_combined_step = function(step_direction="fwd"){
-  this.run_steps(1, step_direction, true);
+  let numSteps = myUI.planner.get_numsteps_2_combined(myUI.animation.step+1, step_direction);
+  while(numSteps--) myUI.run_steps(1, step_direction);
   return;
   let tmp_step = myUI.animation.step, start_step = myUI.animation.step;
   
