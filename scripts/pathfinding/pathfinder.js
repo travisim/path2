@@ -183,12 +183,12 @@ class GridPathFinder{
 		this.num_neighbors = num_neighbors;
 		
 		if(this.num_neighbors==8){
-			this.delta = [[0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1], [1, 0], [1, 1]];;
-			this.deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];
+			this.delta = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]; //x,y
+			this.deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];// North is positive x 
       this.deltaNWSE_STATICS = [5,6,7,8,9,10,11,12];
 		}
 		else{ // if(this.num_neighbors==4)
-			this.delta = [[0, 1], [-1, 0], [0, -1], [1, 0]];
+			this.delta = [[1, 0], [0, 1], [-1, 0], [0, -1]];
 			this.deltaNWSE = ["N", "W", "S", "E"];
       this.deltaNWSE_STATICS = [5,7,9,11];
 		}

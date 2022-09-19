@@ -1,0 +1,1 @@
+//document.getElementById("myCanvas").getContext("2d").getImageData(10, 10, 1, 1).data; //y x 
