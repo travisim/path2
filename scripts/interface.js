@@ -22,7 +22,7 @@ myUI.initialize = function(){
     ["queue", "cell", "#74fa4c"],
     ["visited", "cell", "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
     ["current_XY", "cell", "#34d1ea"],
-    ["neighbors", "cell", "#008269"],
+    ["neighbors", "cell", "rgb(0,130,105)"],
     ["path", "cell", "#34d1ea"], //  changed from #E2C2B9
     ["start", "cell", "#96996"],
     ["goal", "cell", "#9f17e7"]
