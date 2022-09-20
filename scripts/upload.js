@@ -48,7 +48,7 @@ myUI.fileHandler = {}
 
 myUI.fileHandler.handleFiles = function (){
 	// takes first map, scen & path file
-	let found = {map: false, scen: false, pathf: false, json: false}
+	let found = {map: false, scen: false, pathf: false, json: false, pseudo: false}
 	Object.keys(found).forEach(key=>{
 		for(let i=0;i<this.files.length;++i){
 			if(this.files[i].name.endsWith(`.${key}`)){
@@ -80,6 +80,11 @@ myUI.fileHandler.handleFiles = function (){
 			}
 			else if(fileType=="json"){
 				myUI.parseCustom(contents);
+			}
+      else if(fileType=="pseudo"){
+        console.log(contents);  
+      myUI.PseudoCode.rowGenerator(contents);
+				console.log(contents);  
 			}
 		});
 		reader.readAsText(file);

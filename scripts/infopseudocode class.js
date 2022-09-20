@@ -23,7 +23,8 @@ rowGenerator(pseudoCodeTxtFileContent){
       
       
       document.getElementById("dynamic-pseudo-code-table").append(r);
-   
+   coll[2].click();
+      coll[2].click();
     }  
 
   }

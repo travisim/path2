@@ -1,0 +1,34 @@
+def astar(map, start_vertex, goal_vertex):
+  list = OpenList()
+  path = [ ]
+  # Initialise h-cost for all
+  for vertex in map.vertices():
+    vertex.set_h_cost(goal_vertex)
+    vertex.g_cost = ∞
+    vertex.visited = False
+  # Assign 0 g-cost to start_vertex
+  start_vertex.g_cost = 0
+  list.add(start_vertex)
+  while list.not_empty():
+    current_vertex = list.remove()
+    # Skip if visited: a cheaper path
+    # was already found
+    if current_vertex.visited:
+      continue
+    # Trace back and return the path if at the goal
+    if current_vertex is goal_vertex :
+      while current_vertex is not None:
+        path.push(current_vertex)
+        current_vertex = current_vertex.parent
+      return path # exit the function
+    # Add all free, neighboring vertices which
+    # are cheaper, into the list
+    for vertex in get_free_neighbors(map, current_vertex):
+      # f or h-costs are not checked bcos obstacles
+      # affects the optimal path cost from the g-cost
+      tentative_g = calc_g_cost(vertex, current_vertex)
+      if tentative_g < vertex.g_cost:
+        vertex.g_cost = tentative_g
+        vertex.parent = current_vertex
+        list.add(vertex)
+return path

@@ -1,10 +1,10 @@
 //document.getElementById("myCanvas").getContext("2d").getImageData(10, 10, 1, 1).data; //y x 
 
- myUI.canvases["queue"].ctx.getImageData(10, 10, 1, 1).data;
+/*myUI.canvases["queue"].ctx.getImageData(10, 10, 1, 1).data;
 console.log( myUI.canvases["queue"].ctx.getImageData(0, 0, 16, 16).data);
 console.log( myUI.canvases["visited"].ctx.getImageData(0, 0, 16, 16).data);
 console.log( myUI.canvases["neighbors"].ctx.getImageData(0, 0, 16, 16).data);
-console.log( myUI.canvases["start"].ctx.getImageData(1, 1, 1, 1).data);
+console.log( myUI.canvases["current_XY"].ctx.getImageData(0, 0, 16, 16).data);
 //myUI.canvases["neighbors"].ctx.fillRect(1, 1, 1, 1);
 
 myUI.canvases["start"].ctx.fillRect(1, 5, 1, 1);
