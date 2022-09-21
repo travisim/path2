@@ -140,6 +140,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
         myUI.arrow.elems[arrowIndex].classList.add("hidden");
       }
       
+      if(dest==STATIC.CR && command==STATIC.DP){
+        myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
+      }
       if(dest==STATIC.CR && command == STATIC.EP ){//record  "visiters" in 2d array
         myUI.InfoMap.recordErasedVisited(x,y);            	            
       }
@@ -154,16 +157,10 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
         myUI.InfoMap.drawQueue(x,y);
         myUI.InfoCurrent.DrawCurrent(x,y);
       }
-
-      
       //to draw neighbors
       else if(command == STATIC.DIM){
-  
         myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost,gCost,hCost);
-      
-        
       }
-    
       else if(command == STATIC.InTop && dest==STATIC.IT){
         myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
       }
@@ -212,6 +209,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       /*++i;*/
       i=j;
     }
+    //myUI.updateInfoMap();
   }
 }
 

@@ -240,3 +240,18 @@ var UIInfoCurrent = {
 
 
 document.getElementById("currentXY").innerHTML = "(_, _)"; 
+
+myUI.updateInfoMap = function(){
+  /*
+  1) clear info map
+  */
+  myUI.InfoMap.reset();
+  /*
+  2) update current position
+  */
+  myUI.UIInfoCurrent.DrawCurrent(...myUI.currentCoord);
+  /*
+  3) extract data from canvases and populate
+  */
+  // tbc
+}
