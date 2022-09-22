@@ -1,4 +1,43 @@
- 
+//document.getElementById("myCanvas").getContext("2d").getImageData(10, 10, 1, 1).data; //y x 
+
+//myUI.canvases["queue"].ctx.getImageData(10, 10, 1, 1).data;
+console.log( myUI.canvases["queue"].ctx.getImageData(0, 0, 16, 16).data);
+console.log( myUI.canvases["visited"].ctx.getImageData(0, 0, 16, 16).data);
+console.log( myUI.canvases["neighbors"].ctx.getImageData(0, 0, 16, 16).data);
+console.log( myUI.canvases["current_XY"].ctx.getImageData(0, 0, 16, 16).data);
+//myUI.canvases["neighbors"].ctx.fillRect(1, 1, 1, 1);
+
+//myUI.canvases["bg"].ctx.fillRect(1, 5, 1, 1);
+//myUI.canvases["start"].ctx.fillStyle = "rgb(12,34,56)";
+console.log( myUI.canvases["bg"].ctx.getImageData(1, 5, 1, 1).data);
+
+//myUI.canvases["visited"].ctx.fillRect(1, 1, 1, 1);
+
+/* [
+    ["edit_map", "cell", "#000000" ,"#d19b6d", "#AA1945"],
+		["hover_map", "cell", "#d19b6d", "#AA1945"],
+    ["dotted", "dotted", "hsl(5,74%,55%)"],
+    ["bg", "cell", "#000000"],
+    ["queue", "cell", "#74fa4c"],
+    ["visited", "cell", "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
+    ["current_XY", "cell", "#34d1ea"],
+    ["neighbors", "cell", "#008269"],
+    ["path", "cell", "#34d1ea"], //  changed from #E2C2B9
+    ["start", "cell", "#96996"],
+    ["goal", "cell", "#9f17e7"]
+  ]
+  */
+
+console.log( document.getElementById("bg").width,document.getElementById("bg").height)
+console.log(document.getElementById("bg").getContext("2d").getImageData(5,70,1,1).data)
+console.log(document.getElementById("bg").getContext("2d").getImageData(58,58,2,2).data)
+
+//each cell when using get image data is 59 pixel but only 1 pixel when using fill rect
+
+//Uint8ClampedArray {0: 245, 1: 193, 2: 188, 3: 255}
+
+
+
 class UIInfoNWSE{
   constructor(infoNWSE_Id){
     this.element = document.getElementById(infoNWSE_Id);
@@ -9,7 +48,7 @@ class UIInfoNWSE{
   this.element.style.background = "rgb(188,186,201)";
   this.element.style.outlineColor = "black";
   this.element.style.color = "black";
-  if (this.element.querySelector(".type")) this.element.querySelector(".type").innerHTML = "";
+  this.element.querySelector(".type").innerHTML = "";
   if ( this.element.querySelector(".F"))  this.element.querySelector(".F").innerHTML = "";
   if (this.element.querySelector(".G"))  this.element.querySelector(".G").innerHTML = "";
   if (this.element.querySelector(".H"))  this.element.querySelector(".H").innerHTML = "";
@@ -19,7 +58,7 @@ class UIInfoNWSE{
 
   drawOneObstacle(){
     this.element.style.borderColor = "rgb(0,0,0)";
-    if (this.element.querySelector(".type")) this.element.querySelector(".type").innerHTML = "Obstacle"; 
+    this.element.querySelector(".type").innerHTML = "Obstacle"; 
     
   }
 
@@ -32,12 +71,12 @@ class UIInfoNWSE{
      
   drawOneVisited(){
     this.element.style.borderColor = "rgb(221,48,33)";
-    if (this.element.querySelector(".type")) this.element.querySelector(".type").innerHTML = "Visited"
+    this.element.querySelector(".type").innerHTML = "Visited"
   } 
   
   drawOneQueue(){
     this.element.style.borderColor = "rgb(116,250,76)";
-    if (this.element.querySelector(".type"))this.element.querySelector(".type").innerHTML = "Queue"
+    this.element.querySelector(".type").innerHTML = "Queue"
     
   }
     
@@ -47,7 +86,7 @@ class UIInfoNWSE{
     if(f!=null ) this.element.querySelector(".F").innerHTML = f;
     if(g!=null )  this.element.querySelector(".G").innerHTML = g;
     if(h!=null )  this.element.querySelector(".H").innerHTML = h;
-    if (this.element.querySelector(".type")) this.element.querySelector(".type").innerHTML = "neighbour";
+    this.element.querySelector(".type").innerHTML = "neighbour";
   }
 
 
@@ -67,50 +106,85 @@ class UIInfoMap{
 
   drawObstacle(x,y){
 
- 
+
   for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
-    var next_XY_temp = [ x + myUI.planner.delta[i][0], y + myUI.planner.delta[i][1]];
+    var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
     if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
-      if ( myUI.canvases["bg"].ctx.getImageData(next_XY_temp[1]*59, next_XY_temp[0]*59, 1, 1).data[3] == 255) //just check r value
+      if ( myUI.canvases["bg"].ctx.getImageData(next_XY_temp[1], next_XY_temp[0], 1, 1).data[3] == 255) //just check r value
          myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneObstacle();  
+        
       }
     
+  
+
+  
   }
   drawOutOfBound(x,y){
 
-   
+    var surrounding_map_deltaNWSE = []
     for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
-      var next_XY_temp = [ x + myUI.planner.delta[i][0], y + myUI.planner.delta[i][1]];
+      var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
       if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) {
-         myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneOutOfBounds();
+        surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
       }
     }
     
-   
+    //console.log(surrounding_map_deltaNWSE,"obstacle");
+    surrounding_map_deltaNWSE.forEach(deltaNWSE => {
+      myUI.InfoNWSE[deltaNWSE].drawOneOutOfBounds();
+    });//obstacle
   }
   drawVisited(x,y){ //using pre obtained map of surrounding point
     var surrounding_map_deltaNWSE = []
     for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
-      var next_XY_temp = [ x + myUI.planner.delta[i][0], y + myUI.planner.delta[i][1]];
+      var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
       if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
-      if ( myUI.canvases["visited"].ctx.getImageData(next_XY_temp[1]*59, next_XY_temp[0]*59, 1, 1).data[0] != 0) {// if the current node has been visited
-        myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneVisited();
+      if (myUI.InfoVisited.get_data(next_XY_temp)) {// if the current node has been visited
+        surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
       }
     }
-    
+      surrounding_map_deltaNWSE.forEach(deltaNWSE => {
+        myUI.InfoNWSE[deltaNWSE].drawOneVisited();
+      });//visited
   }
   
   drawQueue(x,y){ //using pre obtained map of surrounding point
-    
+    var surrounding_map_deltaNWSE = []
     for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
-      var next_XY_temp = [ x + myUI.planner.delta[i][0], y + myUI.planner.delta[i][1]];
+      var next_XY_temp = [ y + myUI.planner.delta[i][0], x + myUI.planner.delta[i][1]];
       if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
-      if ( myUI.canvases["queue"].ctx.getImageData(next_XY_temp[1]*59, next_XY_temp[0]*59, 1, 1).data[0] == 116){ //just check r value
-        myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneQueue();  
+      if (myUI.InfoQueue.get_data(next_XY_temp)) {// if the current node has been visited
+        surrounding_map_deltaNWSE.push(myUI.planner.deltaNWSE[i]);
       }
     }
+      surrounding_map_deltaNWSE.forEach(deltaNWSE => {
+        myUI.InfoNWSE[deltaNWSE].drawOneQueue();
+      });//obstacle
   }
-  
+
+
+
+  recordDrawnVisited(x,y){
+   //  console.log(myUI.InfoVisited.get_data([x,y]),"visited record before");
+     myUI.InfoVisited.set_data([x,y], 1); // marks current node XY as visited
+  //   console.log(myUI.InfoVisited.get_data([x,y]),"visited record after");
+  }
+   recordErasedVisited(x,y){
+   //  console.log(myUI.InfoVisited.get_data([x,y]),"visited record before");
+     myUI.InfoVisited.set_data([x,y], 0); // marks current node XY as visited
+  //   console.log(myUI.InfoVisited.get_data([x,y]),"visited record after");
+  }
+    
+    
+    
+  recordDrawnQueue(x,y){
+    myUI.InfoQueue.set_data([x,y], 1); // marks current node XY as visited // marks current node XY as visited
+   // console.log(visited.get_data([x,y]));
+  }
+   recordErasedQueue(x,y){
+    myUI.InfoQueue.set_data([x,y], 1); // marks current node XY as visited // marks current node XY as visited
+   // console.log(visited.get_data([x,y]));
+  }
 
   PlannerMode(planner='A_star'){
     var infoMapInnerHTML;
@@ -123,8 +197,7 @@ class UIInfoMap{
       //initialise html for info squares as well
     }
     else if (planner == 'A_star'){
-      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div></section>';
-//      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
+      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
       //initialise html for info squares as well
     }
      else if (planner == 'none'){
@@ -166,7 +239,7 @@ class UIInfoMap{
       element.style.background = "rgb(188,186,201)";
       element.style.outlineColor = "black";
       element.style.color = "black";
-      if (element.querySelector(".type")) element.querySelector(".type").innerHTML = "";
+      element.querySelector(".type").innerHTML = "";
       if (element.querySelector(".F"))  element.querySelector(".F").innerHTML = "";
       if (element.querySelector(".G"))  element.querySelector(".G").innerHTML = "";
       if (element.querySelector(".H"))  element.querySelector(".H").innerHTML = "";
@@ -189,6 +262,7 @@ class UIInfoMap{
       element.style.color = "transparent";
       });
     }
+    
   }
 
 }
@@ -196,7 +270,7 @@ class UIInfoMap{
 
 var UIInfoCurrent = {
   DrawCurrent(x,y){
-    document.getElementById("currentXY").innerHTML =  "( "+x+", "+y+")"; // flipped x and y because of matrix transformation
+    document.getElementById("currentXY").innerHTML =  "( "+y+", "+x+")"; // flipped x and y because of matrix transformation
   }
 }
 
@@ -205,17 +279,6 @@ var UIInfoCurrent = {
 
 document.getElementById("currentXY").innerHTML = "(_, _)"; 
 
-myUI.updateInfoMap = function(){
-  /*
-  1) clear info map
-  */
-  myUI.InfoMap.reset();
-  /*
-  2) update current position
-  */
-  myUI.UIInfoCurrent.DrawCurrent(...myUI.currentCoord);
-  /*
-  3) extract data from canvases and populate
-  */
-  // tbc
-}
+
+
+
