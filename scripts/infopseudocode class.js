@@ -18,8 +18,13 @@ rowGenerator(pseudoCodeTxtFileContent){
       var r = document.createElement("TR"); 
       if ((pseudoCodeArrayByline[i] == null)) break;
       r.insertCell(0).innerHTML = i;
-      r.insertCell(1).innerHTML = pseudoCodeArrayByline[i];
+      var cell1 = r.insertCell(1);
+      cell1.innerHTML = pseudoCodeArrayByline[i].replaceAll("&emsp;", "");
+      var temp = 10*pseudoCodeArrayByline[i].split("&emsp;").length - 1 + "px"
+      cell1.style.paddingLeft  = temp;
+      //r.insertCell(2).innerHTML = pseudoCodeArrayByline[i].split("&emsp;").length - 1
       r.classList.add('psuedoRow');
+      
       
       
       document.getElementById("dynamic-pseudo-code-table").append(r);
