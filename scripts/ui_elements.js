@@ -31,7 +31,7 @@ class UICanvas{
       y: (containerHeight - targetHeight) / 2
     };
   }
-  constructor(canvas_id, colors, drawType="cell", fixedResVal=1024){
+  constructor(canvas_id, colors, drawType="cell", fixedResVal=1024, valType="Integer"){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
@@ -41,7 +41,8 @@ class UICanvas{
     var height = this.canvas.height;
     var width = this.canvas.width;
     //if(this.id=="edit_map") console.log(`Height: ${height}, Width: ${width}`);
-    this.canvas_cache = zero2D(height, width);  // initialise a matrix of 0s (zeroes), height x width
+    if(valType!="integer") this.maxVal = Number.MAX_SAFE_INTEGER; else this.maxVal = 255;
+    this.canvas_cache = zero2D(height, width, this.maxVal);  // initialise a matrix of 0s (zeroes), height x width
 
     this.data_height = this.canvas.height;
     this.data_width = this.canvas.width;
@@ -102,33 +103,12 @@ class UICanvas{
     else this.pixelSize = 1;
 
     if(retain_data){
-      //console.log(data_width);
       let new_canvas_cache = deep_copy_matrix(this.canvas_cache);//zero2D(data_height, data_width);
-      //console.log(`first`);
-      //console.log(new_canvas_cache);
-
-
-      /*for(let i=0;i<this.data_height;++i){
-        if(i<this.canvas_cache.length)
-          for(let j=0;j<this.data_width;++j){
-            if(j<this.canvas_cache[0].length)
-              new_canvas_cache[i][j] = this.canvas_cache[i][j];
-          }
-      }
-      //console.log(`second`);
-      //console.log(new_canvas_cache);
-      //console.log(`Height: ${new_canvas_cache.length}`);
-      //console.log(`Width: ${new_canvas_cache[0].length}`);
-      //console.log(`reset`);
-      //console.log(`Height: ${this.canvas_cache.length}`);
-      //console.log(`Width: ${this.canvas_cache[0].length}`);
-      //console.log(this.canvas_cache);/* */
-      this.canvas_cache = zero2D(data_height, data_width);;
+      this.canvas_cache = zero2D(data_height, data_width, this.maxVal);
       this.draw_canvas(new_canvas_cache, `2d`, false);
-      //console.log(this.canvas_cache);
     }
     else{
-      this.canvas_cache = zero2D(data_height, data_width);
+      this.canvas_cache = zero2D(data_height, data_width, this.maxVal);
     }
   }
 

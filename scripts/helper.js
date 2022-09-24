@@ -21,7 +21,7 @@ function deep_copy_matrix(matrix, flip_bit=false){
   let res = [];
   //console.log(matrix);
   for(let i=0;i<matrix.length;++i){
-    let row = new Uint8Array(matrix[0].length);
+    let row = new Array(matrix[0].length);
     for(let j=0;j<matrix[0].length;++j) row[j] = flip_bit ? matrix[i][j] ^ 1 : matrix[i][j];
     res.push(row);
   }
@@ -49,7 +49,7 @@ function zero2D(rows, cols, max_val=255) {
       var row = new Uint32Array(cols);
     }
     else{
-      var row = new Array(cols);
+      var row = new Array(cols).fill(0);
     }
     array[rows] = row;
   }

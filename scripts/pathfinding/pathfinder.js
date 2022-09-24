@@ -21,7 +21,7 @@ class GridPathFinder{
 
 	static unpackAction(action){
 		/* NEW */
-		let bitOffset = 10;
+		let bitOffset = 11;
 		let idx = 0;
 		let mask;
 		[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.static_bit_len, bitOffset, idx);
@@ -64,7 +64,11 @@ class GridPathFinder{
 			++idx;
 			var pseudoCodeRow = action[idx];
 		}
-		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str, pseudoCodeRow];/**/
+		if(action[0]&(1<<10)){
+			++idx;
+			var cellVal = action[idx];
+		}
+		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str, pseudoCodeRow, cellVal];/**/
 		/* OLD */
 		/*var command = (action >> 3) & ones(myUI.planner.static_bit_len);
 		// SPECIAL CASE: draw arrows
@@ -107,7 +111,8 @@ class GridPathFinder{
 		arrowIndex,
 		gCost,
 		hCost,
-    pseudoCodeRow
+    pseudoCodeRow,
+		cellVal
 	} = {}){
 		/* NEW */
 		/*
@@ -117,7 +122,7 @@ class GridPathFinder{
 		/* 1111111111*/
 		let obj = {};
 		obj.actionCache = [1];
-		obj.bitOffset = 10;
+		obj.bitOffset = 11;
 		obj.idx = 0;
 
 		// command is assumed to exist
@@ -169,6 +174,10 @@ class GridPathFinder{
     if(pseudoCodeRow!==undefined){
 			obj.actionCache[0] += 1<<9;
 			obj.actionCache[obj.idx+3] = pseudoCodeRow;
+		}
+		if(cellVal!==undefined){
+			obj.actionCache[0] += 1<<10;
+			obj.actionCache[obj.idx+4] = cellVal;
 		}
 
 		return obj.actionCache;
@@ -256,6 +265,7 @@ class GridPathFinder{
     this.step_index = -1;
     this.prev_count = -1;
     this.state_counter = 0;
+		this.step_cache = [];
 		myUI.reset_arrow(true);
     // step_index is used to count the number of times a step is created
     // at every ~100 steps, a state is saved
@@ -274,10 +284,6 @@ class GridPathFinder{
 		this.step_index_map = {fwd:[], bck:[]};
 		this.combined_index_map = {fwd:[], bck:[]};
 		this.combined_reverse_map = {fwd:{}, bck:{}};
-	}
-
-	_create_step(){
-		this.step_cache = [];
 	}
 
 	_manageAction(numBits){
@@ -300,7 +306,8 @@ class GridPathFinder{
 		arrowIndex,
 		gCost,
 		hCost,
-    pseudoCodeRow
+    pseudoCodeRow,
+		cellVal
 	} = {}){
 		/* NEW */
 		/*
@@ -309,7 +316,7 @@ class GridPathFinder{
 		/* bits are read from right to left */
 		/* 1111111111*/
 		this.actionCache = [1];
-		this.bitOffset = 10;
+		this.bitOffset = 11;
 		let idx = 0;
 
 		// command is assumed to exist
@@ -351,16 +358,24 @@ class GridPathFinder{
 			this.actionCache[idx] += bit_shift(arrowIndex, this.bitOffset);
 		}
 		if(gCost!==undefined){
+			++idx;
 			this.actionCache[0] += 1<<7;
-			this.actionCache[idx+1] = gCost;
+			this.actionCache[idx] = gCost;
 		}
 		if(hCost!==undefined){
+			++idx;
 			this.actionCache[0] += 1<<8;
-			this.actionCache[idx+2] = hCost;
+			this.actionCache[idx] = hCost;
 		}
     if(pseudoCodeRow!==undefined){
+			++idx;
 			this.actionCache[0] += 1<<9;
-			this.actionCache[idx+3] = pseudoCodeRow;
+			this.actionCache[idx] = pseudoCodeRow;
+		}
+		if(cellVal!==undefined){
+			++idx;
+			this.actionCache[0] += 1<<10;
+			this.actionCache[idx] = cellVal;
 		}
 
 		this.actionCache.forEach(val=>{
@@ -473,6 +488,7 @@ console.log(STATIC_COMMANDS)
 		step n is k0+k1+k2+...k(n-1) = k(0 to n-1)th index
 		*/
 		if(step_direction=="bck") ++this.step_index;
+		this.step_cache = []; // clear steps to save another step
 	}
 
 	_create_cell_index(){
@@ -540,7 +556,7 @@ console.log(STATIC_COMMANDS)
 	_found_goal(node){
 		// found the goal & exits the loop
 		if (node.self_XY[0] != this.goal[0] || node.self_XY[1] != this.goal[1]) return false;
-		this._create_step();
+		
 		this.path = [];
 		// retraces the entire parent tree until start is found
 		const originalNode = node;
@@ -561,17 +577,15 @@ console.log(STATIC_COMMANDS)
 		this._create_action(STATIC.SIMPLE);
 		this._create_action(STATIC.EC, STATIC.CR);
 		/* NEW */
-		this._create_action({command: STATIC.SIMPLE});
 		this._create_action({command: STATIC.EC, dest: STATIC.CR});
-		this._save_step("fwd");
+		this._save_step("fwd", true);
 
-		this._create_step();
+		
 		/* OLD *//*
 		this._create_action(STATIC.SIMPLE);
 		this._create_action(STATIC.EC, STATIC.PA);
 		this._create_action(STATIC.DP, STATIC.CR, this.current_node_XY);
 		/* NEW */
-		this._create_action({command: STATIC.SIMPLE});
 		this._create_action({command: STATIC.EC, dest: STATIC.PA});
 		this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_XY});
 		node = originalNode;
@@ -584,15 +598,12 @@ console.log(STATIC_COMMANDS)
 		}
 		this._save_step("bck");
 
-		this._create_step();
-		//this._create_action(STATIC.SIMPLE);
 		this._create_action({command: STATIC.SIMPLE});
-		this._save_step("fwd");
+		this._save_step("fwd", true);
 
-		this._create_step();
-		//this._create_action(STATIC.SIMPLE);
 		this._create_action({command: STATIC.SIMPLE});
 		this._save_step("bck");
+
 		return true;
 	}
 

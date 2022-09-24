@@ -15,25 +15,50 @@ myUI.initialize = function(){
 
   // Initialize canvases
   [
-    ["edit_map", "cell", "#000000" ,"#d19b6d", "#AA1945"],
-		["hover_map", "cell", "#d19b6d", "#AA1945"],
-    ["dotted", "dotted", "hsl(5,74%,55%)"],
-    ["bg", "cell", "#000000"],
-    ["queue", "cell", "rgb(116, 250, 76)"],
-    ["visited", "cell", "hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], // rgb(221,48,363)
-    ["current_XY", "cell", "#34d1ea"],
-    ["neighbors", "cell", "rgb(0,130,105)"],
-    ["path", "cell", "#34d1ea"], //  changed from #E2C2B9
-    ["start", "cell", "#96996"],
-    ["goal", "cell", "#9f17e7"],
-    ["fCost", "cell", "hsl(5,74%,55%)"],
-    ["gCost", "cell", "hsl(5,74%,55%)"],
-    ["hCost", "cell", "hsl(5,74%,55%)"]
+    {
+      id:"edit_map", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#000000" ,"#d19b6d", "#AA1945"]
+    },
+    {
+      id:"hover_map", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#d19b6d", "#AA1945"]
+    },
+    {
+      id:"dotted", drawType:"dotted", fixedResVal: 1024, valType: "integer", colors:["hsl(5,74%,55%)"]
+    },
+    {
+      id:"bg", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#000000"]
+    },
+    {
+      id:"queue", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["rgb(116, 250, 76)"]
+    },
+    {
+      id:"visited", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"]
+    },
+    {
+      id:"current_XY", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#34d1ea"]
+    },
+    {
+      id:"neighbors", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["rgb(0,130,105)"]
+    },
+    {
+      id:"path", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#34d1ea"]
+    },
+    {
+      id:"start", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#96996"]
+    },
+    {
+      id:"goal", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#9f17e7"]
+    },
+    {
+      id:"fCost", drawType:"cell", fixedResVal: 1024, valType: "float", colors:["hsl(5,74%,55%)"]
+    },
+    {
+      id:"gCost", drawType:"cell", fixedResVal: 1024, valType: "float", colors:["hsl(5,74%,55%)"]
+    },
+    {
+      id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", colors:["hsl(5,74%,55%)"]
+    },
   ].forEach(item=>{
-    let canvasId = item[0];
-    let colors = item.slice(2);
-    let drawType = item[1];
-    myUI.canvases[canvasId] = new UICanvas(canvasId, colors, drawType);
+    myUI.canvases[item.id] = new UICanvas(item.id, item.colors, item.drawType, item.fixedResVal, item.valType);
   });
   myUI.canvases.edit_map.toggle_edit();
  //initialise info

@@ -41,13 +41,15 @@ class UIInfoNWSE{
     
   }
     
-  drawOneNeighbour(f,g,h){
+  drawOneNeighbour(){
     this.element.style.borderColor = "rgb(0,130,105)";
-     //console.log(f,"f",g,"g",h,"h")
-    if(f!=null ) this.element.querySelector(".F").innerHTML = f;
-    if(g!=null )  this.element.querySelector(".G").innerHTML = g;
-    if(h!=null )  this.element.querySelector(".H").innerHTML = h;
     if (this.element.querySelector(".type")) this.element.querySelector(".type").innerHTML = "neighbour";
+  }
+
+  drawOneFGH(f,g,h){
+    if(f!=null ) this.element.querySelector(".F").innerHTML = +f.toFixed(2);
+    if(g!=null )  this.element.querySelector(".G").innerHTML = +g.toFixed(2);
+    if(h!=null )  this.element.querySelector(".H").innerHTML = +h.toFixed(2);
   }
 
 
@@ -65,50 +67,54 @@ class UIInfoMap{
 
   }
 
-  drawObstacle(x,y){
-
- 
-  for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
-    var next_XY_temp = [ x + myUI.planner.delta[i][0], y + myUI.planner.delta[i][1]];
-    if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
-      if ( myUI.canvases["bg"].ctx.getImageData(next_XY_temp[1]*59, next_XY_temp[0]*59, 1, 1).data[3] == 255) //just check r value
-         myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneObstacle();  
-      }
-    
-  }
-  drawOutOfBound(x,y){
-
-   
+  drawGeneral(x,y,drawName){
     for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
       var next_XY_temp = [ x + myUI.planner.delta[i][0], y + myUI.planner.delta[i][1]];
-      if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) {
-         myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneOutOfBounds();
+      if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width){
+        if(drawName=="outOfBound") myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneOutOfBounds();
+        continue;
       }
-    }
-    
-   
-  }
-  drawVisited(x,y){ //using pre obtained map of surrounding point
-    var surrounding_map_deltaNWSE = []
-    for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
-      var next_XY_temp = [ x + myUI.planner.delta[i][0], y + myUI.planner.delta[i][1]];
-      if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
-      if ( myUI.canvases["visited"].ctx.getImageData(next_XY_temp[1]*59, next_XY_temp[0]*59, 1, 1).data[0] != 0) {// if the current node has been visited
-        myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneVisited();
+      if(drawName=="bg" && myUI.canvases[drawName].canvas_cache[next_XY_temp[0]][next_XY_temp[1]]>0){
+        myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneObstacle();  
       }
-    }
-    
-  }
-  
-  drawQueue(x,y){ //using pre obtained map of surrounding point
-    
-    for (let i = 0; i < myUI.planner.num_neighbors; ++i) { 
-      var next_XY_temp = [ x + myUI.planner.delta[i][0], y + myUI.planner.delta[i][1]];
-      if (next_XY_temp[0] < 0 || next_XY_temp[0] >= myUI.planner.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= myUI.planner.map_width) continue;
-      if ( myUI.canvases["queue"].ctx.getImageData(next_XY_temp[1]*59, next_XY_temp[0]*59, 1, 1).data[0] == 116){ //just check r value
+      else if(drawName=="visited" && myUI.canvases[drawName].canvas_cache[next_XY_temp[0]][next_XY_temp[1]]>0){
+        myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneVisited();  
+      }
+      else if(drawName=="neighbors" && myUI.canvases[drawName].canvas_cache[next_XY_temp[0]][next_XY_temp[1]]>0){
+        myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneNeighbour();  
+      }
+      else if(drawName=="queue" && myUI.canvases[drawName].canvas_cache[next_XY_temp[0]][next_XY_temp[1]]>0){
         myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneQueue();  
       }
+      else if(drawName=="fghCost"){
+        let f = myUI.canvases["fCost"].canvas_cache[next_XY_temp[0]][next_XY_temp[1]];
+        let g = myUI.canvases["gCost"].canvas_cache[next_XY_temp[0]][next_XY_temp[1]];
+        let h = myUI.canvases["hCost"].canvas_cache[next_XY_temp[0]][next_XY_temp[1]];
+        myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneFGH(f,g,h);  
+      }
     }
+  }
+
+  drawObstacle(x,y){
+    this.drawGeneral(x,y,"bg");
+  }
+  drawOutOfBound(x,y){
+    this.drawGeneral(x,y,"outOfBound");   
+  }
+  drawVisited(x,y){
+    this.drawGeneral(x,y,"visited");
+  }
+  
+  drawQueue(x,y){ 
+    this.drawGeneral(x,y,"queue");
+  }
+
+  drawNeighbors(x,y){
+    this.drawGeneral(x,y,"neighbors");
+  }
+
+  drawFGH(x,y){
+    this.drawGeneral(x,y,"fghCost");
   }
   
 
@@ -153,7 +159,6 @@ class UIInfoMap{
 
 
   NumneighborsMode(num_neighbors=8){
-    console.log("hihu")
    if (num_neighbors == 8){
     [
   		["NE"],
@@ -204,18 +209,3 @@ var UIInfoCurrent = {
 
 
 document.getElementById("currentXY").innerHTML = "(_, _)"; 
-
-myUI.updateInfoMap = function(){
-  /*
-  1) clear info map
-  */
-  myUI.InfoMap.reset();
-  /*
-  2) update current position
-  */
-  myUI.UIInfoCurrent.DrawCurrent(...myUI.currentCoord);
-  /*
-  3) extract data from canvases and populate
-  */
-  // tbc
-}

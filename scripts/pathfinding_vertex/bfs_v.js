@@ -48,7 +48,7 @@ class BFS_Vertex extends GridPathFinder {
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
 
       /* OLD *//*
-      this._create_step();
+      
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EC, STATIC.NB);
@@ -60,7 +60,7 @@ class BFS_Vertex extends GridPathFinder {
       this.visited_incs.forEach(coord=>this._create_action(STATIC.INC_P, STATIC.VI, coord));
       this._save_step("fwd");
 
-      this._create_step();
+      
       this._create_action(STATIC.SIMPLE);
       this._create_action(STATIC.EC, STATIC.CR);
       this._create_action(STATIC.EP, STATIC.VI, this.current_node_XY);
@@ -77,7 +77,7 @@ class BFS_Vertex extends GridPathFinder {
       this._save_step("bck");
 
       /* NEW */
-      this._create_step();
+      
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
       this._create_action({command: STATIC.EC, dest: STATIC.NB});
       this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_XY});
@@ -87,8 +87,7 @@ class BFS_Vertex extends GridPathFinder {
       this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
       this._save_step("fwd");
 
-      this._create_step();
-      this._create_action({command: STATIC.SIMPLE});
+      
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
       this._create_action({command: STATIC.EP, dest: STATIC.VI, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
@@ -161,7 +160,7 @@ class BFS_Vertex extends GridPathFinder {
 
         this.neighbors_XY.push(next_XY);  // add to neighbors, only need XY as don't need to search parents
 
-        this._create_step();
+        
         /* OLD *//*
         this._create_action(STATIC.DP, STATIC.NB, next_XY);
         this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_XY, null,null,this.current_node_XY);
@@ -187,7 +186,7 @@ class BFS_Vertex extends GridPathFinder {
         }
         this._save_step("fwd");
 
-        this._create_step();
+        
         /* OLD *//*
         this._create_action(STATIC.EP, STATIC.NB, next_XY);
         this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_XY, null,null,this.current_node_XY);
