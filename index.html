@@ -54,7 +54,7 @@
 					<div id="info-pane" class="interface overlay">
           <!--start of html for info map-->
           <button class="collapsible  ">Info Map</button>
-           <div class="content ">
+          <div class="content ">
             <div id = "infomap" class="grid">
               
               <div class ="spacer"></div>
@@ -212,43 +212,49 @@
 					</div>
 				</div>
 			</div>
+
+
 			<div id="controls-container" class="container">
 				<div class="sub-container">
 					<div id="controls" class="interface overlay">
-						<div id="display_controls" class="flex-row">
-							<button id="clear_btn" class="btn">
-								<img src="assets/clear.svg" class="icon" alt="clear">
-							</button>
-							<button id="back_btn" class="btn">
-								<img src="assets/back.svg" class="icon" alt="back">
-							</button>
-							<button id="start_pause_btn" class="btn">
-								<div class="grid-overlay">
-									<img src="assets/start.svg" id="start_icon" class="icon overlay hidden" alt="start">  <!-- element with multiple svgs have them hidden by default -->
-									<img src="assets/pause.svg" id="pause_icon" class="icon overlay hidden" alt="pause">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
-								</div>
-							</button>
-							<button id="forward_btn" class="btn">
-								<img src="assets/next.svg" class="icon" alt="next">
-							</button>
-							<button id="end_btn" class="btn">
-								<img src="assets/end.svg" class="icon" alt="end">
-							</button>
+						<button class="collapsible ">Display Controls</button>
+						<div class="content">
+							<div id="display_controls" class="flex-row">
+								<button id="clear_btn" class="btn">
+									<img src="assets/clear.svg" class="icon" alt="clear">
+								</button>
+								<button id="back_btn" class="btn">
+									<img src="assets/back.svg" class="icon" alt="back">
+								</button>
+								<button id="start_pause_btn" class="btn">
+									<div class="grid-overlay">
+										<img src="assets/start.svg" id="start_icon" class="icon overlay hidden" alt="start">  <!-- element with multiple svgs have them hidden by default -->
+										<img src="assets/pause.svg" id="pause_icon" class="icon overlay hidden" alt="pause">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
+									</div>
+								</button>
+								<button id="forward_btn" class="btn">
+									<img src="assets/next.svg" class="icon" alt="next">
+								</button>
+								<button id="end_btn" class="btn">
+									<img src="assets/end.svg" class="icon" alt="end">
+								</button>
+							</div>
+							<div id="edit_controls" class="flex-row">
+								<button id="detail_btn" class="btn grid-overlay">
+									<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
+									<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
+								</button>
+							</div>
 						</div>
-						<div id="edit_controls" class="flex-row">
-							<button id="detail_btn" class="btn grid-overlay">
-								<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
-								<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
-							</button>
-						</div>
-						<div id="slider_controls">
+						<button class="collapsible ">Slider Controls</button>
+						<div id="slider_controls" class="content">
 							<label class="label_centered">Animation speed: <span id="animation_speed_label">1.00x</span></label>
 							<div class="flex-row">
 								<span>0.25×</span>
 								<!-- animation speed is now dependent on the number of steps -->
 								<!-- default max is 4×, default state is 1× -->
 								<!-- max speed will complete the animation in 10 seconds -->
-        				<input type="range" min="-2000" max="2000" value="0" id="animation_speed_slider" class="slider">
+								<input type="range" min="-2000" max="2000" value="0" id="animation_speed_slider" class="slider">
 								<!-- slider adopts a log-scale: each interval of sliding of equal length will result in a doubling of speed -->
 								<!-- 
 									-2000: 0.25×
@@ -277,10 +283,9 @@
 							<label class="label_centered">Search progress: <span id="search_progress_label"></span>%</label>
 							<div class="flex-row">
 								<span>0%</span>
-        				<input type="range" min="-1" id="search_progress_slider" disabled="true" class="slider"> <!-- steps are 0-indexed -->
+								<input type="range" min="-1" id="search_progress_slider" disabled="true" class="slider"> <!-- steps are 0-indexed -->
 								<span>100%</span>
 							</div>
-
 						</div>
 						<div class="flex-row">
 							<button id="configLink" class="btn controlTabLink" onclick="openControlTab(event, 'configTab')">Config</button>

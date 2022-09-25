@@ -200,6 +200,9 @@ myUI.initialize = function(){
   myUI.PseudoCode.rowGenerator(myUI.pseudoCodeRaw);
 
 coll[0].click();
+coll[3].click();
+coll[4].click();
+
   
 }
 
