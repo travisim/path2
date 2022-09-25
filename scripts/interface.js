@@ -16,49 +16,49 @@ myUI.initialize = function(){
   // Initialize canvases
   [
     {
-      id:"edit_map", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#000000" ,"#d19b6d", "#AA1945"]
+      id:"edit_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"]
     },
     {
-      id:"hover_map", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#d19b6d", "#AA1945"]
+      id:"hover_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945"]
     },
     {
-      id:"dotted", drawType:"dotted", fixedResVal: 1024, valType: "integer", colors:["hsl(5,74%,55%)"]
+      id:"dotted", drawType:"dotted", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"]
     },
     {
-      id:"bg", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#000000"]
+      id:"bg", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"]
     },
     {
-      id:"queue", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["rgb(116, 250, 76)"]
+      id:"queue", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"]
     },
     {
-      id:"visited", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"]
+      id:"visited", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"]
     },
     {
-      id:"current_XY", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#34d1ea"]
+      id:"current_XY", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"]
     },
     {
-      id:"neighbors", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["rgb(0,130,105)"]
+      id:"neighbors", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"]
     },
     {
-      id:"path", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#34d1ea"]
+      id:"path", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"]
     },
     {
-      id:"start", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#96996"]
+      id:"start", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#96996"]
     },
     {
-      id:"goal", drawType:"cell", fixedResVal: 1024, valType: "integer", colors:["#9f17e7"]
+      id:"goal", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#9f17e7"]
     },
     {
-      id:"fCost", drawType:"cell", fixedResVal: 1024, valType: "float", colors:["hsl(5,74%,55%)"]
+      id:"fCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.MAX_SAFE_INTEGER, colors:["#d1cfe2"]
     },
     {
-      id:"gCost", drawType:"cell", fixedResVal: 1024, valType: "float", colors:["hsl(5,74%,55%)"]
+      id:"gCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.MAX_SAFE_INTEGER, colors:["#d1cfe2"]
     },
     {
-      id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", colors:["hsl(5,74%,55%)"]
+      id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.MAX_SAFE_INTEGER, colors:["#d1cfe2"]
     },
   ].forEach(item=>{
-    myUI.canvases[item.id] = new UICanvas(item.id, item.colors, item.drawType, item.fixedResVal, item.valType);
+    myUI.canvases[item.id] = new UICanvas(item.id, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal);
   });
   myUI.canvases.edit_map.toggle_edit();
  //initialise info

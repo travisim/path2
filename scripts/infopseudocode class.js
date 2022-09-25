@@ -43,6 +43,15 @@ rowGenerator(pseudoCodeTxtFileContent){
    }
     this.pseudoCodeRows[rowNo].className += " highlightingPri";
  }
+
+ removeAllHighlightPri(){
+  for (let i = 0; i < this.highlightedRowsPri.length; i++) { 
+    if(this.highlightedRowsPri[0]){
+      this.highlightedRowsPri[0].classList.remove('highlightingPri');
+    }
+  }
+}
+
  highlightSec(rowNo){
  /*
    for (let i = 0; i < this.highlightedPseudoRows.length; i++) { 

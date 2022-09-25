@@ -47,13 +47,19 @@ class UIInfoNWSE{
   }
 
   drawOneFGH(f,g,h){
-    if(f!=null ) this.element.querySelector(".F").innerHTML = +f.toFixed(2);
-    if(g!=null )  this.element.querySelector(".G").innerHTML = +g.toFixed(2);
-    if(h!=null )  this.element.querySelector(".H").innerHTML = +h.toFixed(2);
+    if(f!=null ){
+      if(f==Number.MAX_SAFE_INTEGER) this.element.querySelector(".F").innerHTML = "inf";
+      else this.element.querySelector(".F").innerHTML = +f.toFixed(2);
+    }
+    if(g!=null ){
+      if(g==Number.MAX_SAFE_INTEGER) this.element.querySelector(".G").innerHTML = "inf";
+      else this.element.querySelector(".G").innerHTML = +g.toFixed(2);
+    }
+    if(h!=null ){
+      if(h==Number.MAX_SAFE_INTEGER) this.element.querySelector(".H").innerHTML = "inf";
+      else this.element.querySelector(".H").innerHTML = +h.toFixed(2);
+    }
   }
-
-
-  
 }
 
 

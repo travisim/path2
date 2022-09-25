@@ -234,38 +234,6 @@ steps_arr = [
 myUI.run_combined_step = function(step_direction="fwd"){
   let numSteps = myUI.planner.get_numsteps_2_combined(myUI.animation.step+1, step_direction);
   while(numSteps--) myUI.run_steps(1, step_direction);
-  return;
-  let tmp_step = myUI.animation.step, start_step = myUI.animation.step;
-  
-  if(step_direction=="fwd") ++tmp_step;
-  search_for_simple();
-  function search_for_simple(){
-    if(step_direction!="fwd"){
-      myUI.planner.get_step(tmp_step, "bck").then(step=>{
-        let first_command = myUI.planner.constructor.unpackAction(step)
-        if(first_command!=STATIC.SIMPLE && tmp_step>0){
-          --tmp_step;
-          search_for_simple();
-        }
-        else{
-          --tmp_step;
-          myUI.run_steps(start_step - tmp_step, step_direction);
-        }
-      });
-    }
-    else{
-      myUI.planner.get_step(tmp_step+1).then(step=>{
-        let first_command = (step[0] >> 2) & ((1 << myUI.planner.static_bit_len) - 1);
-        if(first_command!=STATIC.SIMPLE && tmp_step<myUI.animation.max_step-1){
-          ++tmp_step;
-          search_for_simple();
-        }
-        else{
-          myUI.run_steps(tmp_step - start_step, step_direction);
-        }
-      });
-    }
-  }
 }
 
 
@@ -274,6 +242,9 @@ myUI.generateReverseSteps = function(steps, indexMap){
   let stepNo=0;
   let reverseSteps = [];
   let reverseMap = [];
+
+  let mem = {};
+
   while(stepNo<indexMap.length){
     let step = steps.slice(indexMap[stepNo], indexMap[stepNo+1]);
     let i=0;
@@ -286,7 +257,7 @@ myUI.generateReverseSteps = function(steps, indexMap){
         ++j;
       }
       // [i,j) is the action length
-      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow] = GridPathFinder.unpackAction(step.slice(i, j));
+      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
       var gCost = Number(gCost_str);
       var hCost = Number(hCost_str);
 
@@ -309,6 +280,16 @@ myUI.generateReverseSteps = function(steps, indexMap){
       else if(command==STATIC.EA){
         action = GridPathFinder.packAction({command: STATIC.DA, arrowIndex: arrowIndex, colorIndex: colorIndex});
       }
+      else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
+        if(mem.pseudoCodeRowPri!==undefined) action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: mem.pseudoCodeRowPri});
+        // else reset all pseudocodePri
+        mem.pseudoCodeRowPri = pseudoCodeRow;
+      }  
+      else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
+        if(mem.pseudoCodeRowSec!==undefined) action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: mem.pseudoCodeRowSec});
+        // else reset all pseudocodeSec
+        mem.pseudoCodeRowSec = pseudoCodeRow;
+      } 
       // add more here
       Array.prototype.push.apply(reverseSteps, action);
       j=i;

@@ -31,7 +31,7 @@ class UICanvas{
       y: (containerHeight - targetHeight) / 2
     };
   }
-  constructor(canvas_id, colors, drawType="cell", fixedResVal=1024, valType="Integer"){
+  constructor(canvas_id, colors, drawType="cell", fixedResVal=1024, valType="integer", defaultVal=0){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
@@ -42,7 +42,8 @@ class UICanvas{
     var width = this.canvas.width;
     //if(this.id=="edit_map") console.log(`Height: ${height}, Width: ${width}`);
     if(valType!="integer") this.maxVal = Number.MAX_SAFE_INTEGER; else this.maxVal = 255;
-    this.canvas_cache = zero2D(height, width, this.maxVal);  // initialise a matrix of 0s (zeroes), height x width
+    this.defaultVal = defaultVal;
+    this.canvas_cache = zero2D(height, width, this.maxVal, defaultVal);  // initialise a matrix of 0s (zeroes), height x width
 
     this.data_height = this.canvas.height;
     this.data_width = this.canvas.width;
@@ -108,7 +109,7 @@ class UICanvas{
       this.draw_canvas(new_canvas_cache, `2d`, false);
     }
     else{
-      this.canvas_cache = zero2D(data_height, data_width, this.maxVal);
+      this.canvas_cache = zero2D(data_height, data_width, this.maxVal, this.defaultVal);
     }
   }
 

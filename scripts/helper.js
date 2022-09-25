@@ -36,20 +36,20 @@ function deepCopyNodeArray(nodeArray){
 	return res;
 }
 
-function zero2D(rows, cols, max_val=255) {
+function zero2D(rows, cols, max_val=255, defaultVal=0) {
   var array = new Array(rows);
   while(rows--){
     if(max_val<(1<<8)){
-      var row = new Uint8Array(cols);
+      var row = new Uint8Array(cols).fill(defaultVal);
     }
     else if(max_val<(1<<16)){
-      var row = new Uint16Array(cols);
+      var row = new Uint16Array(cols).fill(defaultVal);
     }
     else if(max_val<(1<<32)){
-      var row = new Uint32Array(cols);
+      var row = new Uint32Array(cols).fill(defaultVal);
     }
     else{
-      var row = new Array(cols).fill(0);
+      var row = new Array(cols).fill(defaultVal);
     }
     array[rows] = row;
   }
