@@ -1,6 +1,5 @@
 const STATIC_COMMANDS = [
   /* rest of the items are dynamics commands/identifiers */
-  "SIMPLE", // shows that the step is a simple step
   "EC", // erase canvas
   "DP", // draw pixel
   "EP", // erase pixel
@@ -8,19 +7,9 @@ const STATIC_COMMANDS = [
   "DEC_P", // increment pixel
   "DA", // draw arrow (arrow index) [colour index]
   "EA" , // erase arrow (arrow index)
-  "DICR", // draw infocurrent 
-  "DIM",
-  "DIT",
-  "EIM",
-  "EIT",
-  "InTop",
-  "OutTop",
-  "InBottom",
-  "OutBottom",
-  "Sort",
-  "RemoveRowByID",
+  "InsertRowAtIndex", // dest, rowIndex
+  "EraseRowAtIndex", // dest, rowIndex
   "HighlightPseudoCodeRowPri", //highlight Pseudo
-  "UnhighlightPseudoCodeRowPri", // unhighlight Pseudo
   "HighlightPseudoCodeRowSec", //highlight Pseudo
   "UnhighlightPseudoCodeRowSec" // unhighlight Pseudo
 ];
@@ -32,16 +21,7 @@ const STATIC_DESTS = [
   "CR", // current
   "NB", // neighbors
   "PA", // path
-  "IN", // info NWSE 5
-  "INW",
-  "IW",
-  "ISW",
-  "IS",
-  "ISE", //10
-  "IE",
-  "INE",
-  "ICR", //info current path
-  "IT", //info table
+  "ITQueue", //info table
   "DT",
   "PC", // Pseudo Code
   "FCanvas",
@@ -77,19 +57,11 @@ const statics_to_obj = {
   2: "current_XY",
   3: "neighbors",
   4: "path",
-  5: "N",
-  6: "NW",
-  7: "W",
-  8: "SW",
-  9: "S",
-  10:"SE",
-  11:"E",
-  12:"NE",
-  15:"dotted",
-  16:"pseudocode",
-  17:"fCost",
-  18:"gCost",
-  19:"hCost"
+  6: "dotted",
+  7: "pseudocode",
+  8: "fCost",
+  9: "gCost",
+  10: "hCost"
 }
 
 
@@ -145,60 +117,40 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
         myUI.arrow.elems[arrowIndex].classList.add("hidden");
       }
       
+      // INFOMAP
       if(dest==STATIC.CR && command==STATIC.DP){
         myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
       }
       myUI.updateInfoMap(...myUI.currentCoord);
-      /*if(dest==STATIC.CR && command == STATIC.EP ){//record  "visiters" in 2d array
-        myUI.InfoMap.recordErasedVisited(x,y);            	            
+
+      // INFOTABLE 
+      if(command==STATIC.InsertRowAtIndex){
+        // myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]); 
       }
-      if(dest== STATIC.QU && command == STATIC.EP ){//record  "visiters" in 2d array
-        myUI.InfoMap.recordErasedQueue(x,y);
+      else if(command==STATIC.EraseRowAtIndex){
+        // myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]); 
       }
-      if(command == STATIC.DICR   && dest==STATIC.ICR){//draw "current_XY",
-        myUI.InfoMap.reset();
-        myUI.InfoMap.drawObstacle(x,y);
-        myUI.InfoMap.drawOutOfBound(x,y);
-        myUI.InfoMap.drawVisited(x,y);
-        myUI.InfoMap.drawQueue(x,y);
-        myUI.InfoCurrent.DrawCurrent(x,y);
-      }
-      //to draw neighbors
-      else if(command == STATIC.DIM){
-        myUI.InfoNWSE[statics_to_obj[dest]].drawOneNeighbour(fCost,gCost,hCost);
-      }*/
-      if(command == STATIC.InTop && dest==STATIC.IT){
+      
+      if(command == STATIC.InTop && dest==STATIC.ITQueue){
         myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
       }
-      else if(command == STATIC.InBottom && dest==STATIC.IT){
+      else if(command == STATIC.InBottom && dest==STATIC.ITQueue){
         myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
       }
-      else if(command == STATIC.OutTop && dest==STATIC.IT){
+      else if(command == STATIC.OutTop && dest==STATIC.ITQueue){
         myUI.InfoTable.outTop();             
       }
-      else if(command == STATIC.OutBottom && dest==STATIC.IT){
+      else if(command == STATIC.OutBottom && dest==STATIC.ITQueue){
         myUI.InfoTable.outBottom();             
       }
       else if(command == STATIC.Sort){
         if (myUI.InfoTable.rows.length >= 2){
           myUI.InfoTable.sort(); // emulats insert at based on F cost
         }
-      }
-      /*//to erase neighbors
-      else if(command == STATIC.EIM ){
-        myUI.InfoNWSE[statics_to_obj[dest]].resetOne();
-    
-      }
-      
-      if(dest==STATIC.CR && command == STATIC.DP ){//record  "visiters" in 2d array
-        myUI.InfoMap.recordDrawnVisited(x,y);            	            
-      }
-      if(dest == STATIC.QU && command == STATIC.DP ){//record  "visiters" in 2d array
-        myUI.InfoMap.recordDrawnQueue(x,y);
-      }
-      if(dest == STATIC.IT && command == STATIC.RemoveRowByID ){//record  "visiters" in 2d array
+      }/* */
+      if(dest == STATIC.ITQueue && command == STATIC.RemoveRowByID ){
         myUI.InfoTable.removeRowById(stepNo);
-      }*/
+      }
       if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){//record  "visiters" in 2d array
         myUI.PseudoCode.highlightPri(pseudoCodeRow);
       }  
