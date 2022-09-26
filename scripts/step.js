@@ -85,10 +85,11 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
       var gCost = Number(gCost_str);
       var hCost = Number(hCost_str);
-        if(dest == "IT") console.log(stepNo," stepNo");  
+      if(dest == "IT") console.log(stepNo," stepNo");  
       if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
       if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
       console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
+      console.log(step.slice(i,j));
       try{
       if(command==STATIC.EC){
         myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -121,7 +122,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       if(dest==STATIC.CR && command==STATIC.DP){
         myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
       }
-      myUI.updateInfoMap(...myUI.currentCoord);
 
       // INFOTABLE 
       if(command==STATIC.InsertRowAtIndex){
@@ -167,6 +167,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       /*++i;*/
       i=j;
     }
+    myUI.updateInfoMap(...myUI.currentCoord);
     //myUI.updateInfoMap();
   }
 }

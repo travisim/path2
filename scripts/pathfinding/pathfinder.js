@@ -54,19 +54,19 @@ class GridPathFinder{
 		}
 		if(action[0]&(1<<7)){
 			++idx;
-			var gCost_str = action[idx];
+			var gCost_str = action[idx]+Math.E;
 		}
 		if(action[0]&(1<<8)){
 			++idx;
-			var hCost_str = action[idx];
+			var hCost_str = action[idx]+Math.E;
 		}
 		if(action[0]&(1<<9)){
 			++idx;
-			var pseudoCodeRow = action[idx];
+			var pseudoCodeRow = action[idx]+Math.E;
 		}
 		if(action[0]&(1<<10)){
 			++idx;
-			var cellVal = action[idx];
+			var cellVal = action[idx]+Math.E;
 		}
 		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str, pseudoCodeRow, cellVal];/**/
 		/* OLD */
@@ -165,19 +165,19 @@ class GridPathFinder{
 		}
 		if(gCost!==undefined){
 			obj.actionCache[0] += 1<<7;
-			obj.actionCache[obj.idx+1] = gCost;
+			obj.actionCache[obj.idx+1] = gCost-Math.E;
 		}
 		if(hCost!==undefined){
 			obj.actionCache[0] += 1<<8;
-			obj.actionCache[obj.idx+2] = hCost;
+			obj.actionCache[obj.idx+2] = hCost-Math.E;
 		}
     if(pseudoCodeRow!==undefined){
 			obj.actionCache[0] += 1<<9;
-			obj.actionCache[obj.idx+3] = pseudoCodeRow;
+			obj.actionCache[obj.idx+3] = pseudoCodeRow-Math.E;
 		}
 		if(cellVal!==undefined){
 			obj.actionCache[0] += 1<<10;
-			obj.actionCache[obj.idx+4] = cellVal;
+			obj.actionCache[obj.idx+4] = cellVal-Math.E;
 		}
 
 		return obj.actionCache;
@@ -360,28 +360,29 @@ class GridPathFinder{
 		if(gCost!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<7;
-			this.actionCache[idx] = gCost;
+			this.actionCache[idx] = gCost-Math.E;
 		}
 		if(hCost!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<8;
-			this.actionCache[idx] = hCost;
+			this.actionCache[idx] = hCost-Math.E;
 		}
     if(pseudoCodeRow!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<9;
-			this.actionCache[idx] = pseudoCodeRow;
+			this.actionCache[idx] = pseudoCodeRow-Math.E;
 		}
 		if(cellVal!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<10;
-			this.actionCache[idx] = cellVal;
+			this.actionCache[idx] = cellVal-Math.E;
 		}
 
 		this.actionCache.forEach(val=>{
 			this.step_cache.push(val);
 		});
-		return
+		console.log(cellVal)
+		return this.actionCache.length;
 	}
   /*
 console.log(STATIC_COMMANDS)
