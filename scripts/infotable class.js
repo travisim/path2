@@ -209,6 +209,38 @@ class UIInfoTable{
     var parentEl = row.parentElement;
     parentEl.removeChild(row)
   }
+ insertRowAtIndex(infoTableRowIndex,rowId,values){
+    for (let i = 0; i <  this.highlightedRows.length; i++) { 
+      if( this.highlightedRows[i]){
+         this.highlightedRows[i].style.outlineColor = "transparent";
+         this.highlightedRows[i].classList.remove('highlighting');
+      }
+    }
+    //add row at index 0 if there is no og=ther rows
+    if(this.rows.length == 0 || infoTableRowIndex == 0 ){
+       var r = this.rowGenerator(rowId,values);
+       r.style.outline = "2px solid red";//highlight latest table added
+       this.dynamicTable.prepend(r);
+    }
+     //add row at end of table
+    else if (infoTableRowIndex  == this.rows.length ){
+      var r = this.rowGenerator(rowId,values);
+      r.style.outline = "2px solid red";//highlight latest table added
+      this.dynamicTable.append(r);
+    } 
+   //add row at index by adding after prev index
+    else if (infoTableRowIndex >this.rows.length ){
+      console.log("row index does not yet exist")
+      return 0;
+    } 
+    else{
+      var r = this.rowGenerator(rowId,values)
+      r.style.outline = "2px solid red";//highlight latest table added
+      this.rows[infoTableRowIndex-1].after(r); //highlight latest table added  
+    }
+  }
+  
+  
 }
 
 

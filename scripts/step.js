@@ -82,7 +82,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
         ++j;
       }
       if(myUI.testing) console.log(i,j);
-      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
+      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow,infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
       var gCost = Number(gCost_str);
       var hCost = Number(hCost_str);
       if(dest == "IT") console.log(stepNo," stepNo");  

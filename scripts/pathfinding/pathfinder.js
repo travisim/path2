@@ -66,9 +66,14 @@ class GridPathFinder{
 		}
 		if(action[0]&(1<<10)){
 			++idx;
+			var infoTableRowIndex = action[idx]+Math.E;
+		}
+    if(action[0]&(1<<11)){
+			++idx;
 			var cellVal = action[idx]+Math.E;
 		}
-		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str, pseudoCodeRow, cellVal];/**/
+    
+		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str, pseudoCodeRow,infoTableRowIndex, cellVal];/**/
 		/* OLD */
 		/*var command = (action >> 3) & ones(myUI.planner.static_bit_len);
 		// SPECIAL CASE: draw arrows
@@ -112,6 +117,7 @@ class GridPathFinder{
 		gCost,
 		hCost,
     pseudoCodeRow,
+    infoTableRowIndex,
 		cellVal
 	} = {}){
 		/* NEW */
@@ -122,7 +128,7 @@ class GridPathFinder{
 		/* 1111111111*/
 		let obj = {};
 		obj.actionCache = [1];
-		obj.bitOffset = 11;
+		obj.bitOffset = 12;
 		obj.idx = 0;
 
 		// command is assumed to exist
@@ -175,9 +181,13 @@ class GridPathFinder{
 			obj.actionCache[0] += 1<<9;
 			obj.actionCache[obj.idx+3] = pseudoCodeRow-Math.E;
 		}
-		if(cellVal!==undefined){
+    if(infoTableRowIndex!==undefined){
 			obj.actionCache[0] += 1<<10;
-			obj.actionCache[obj.idx+4] = cellVal-Math.E;
+			obj.actionCache[obj.idx+4] = infoTableRowIndex-Math.E;
+		}
+		if(cellVal!==undefined){
+			obj.actionCache[0] += 1<<11;
+			obj.actionCache[obj.idx+5] = cellVal-Math.E;
 		}
 
 		return obj.actionCache;
