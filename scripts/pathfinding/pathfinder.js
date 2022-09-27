@@ -21,7 +21,7 @@ class GridPathFinder{
 
 	static unpackAction(action){
 		/* NEW */
-		let bitOffset = 11;
+		let bitOffset = 12;
 		let idx = 0;
 		let mask;
 		[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.static_bit_len, bitOffset, idx);
@@ -317,6 +317,7 @@ class GridPathFinder{
 		gCost,
 		hCost,
     pseudoCodeRow,
+		infoTableRowIndex,
 		cellVal
 	} = {}){
 		/* NEW */
@@ -326,7 +327,7 @@ class GridPathFinder{
 		/* bits are read from right to left */
 		/* 1111111111*/
 		this.actionCache = [1];
-		this.bitOffset = 11;
+		this.bitOffset = 12;
 		let idx = 0;
 
 		// command is assumed to exist
@@ -382,9 +383,14 @@ class GridPathFinder{
 			this.actionCache[0] += 1<<9;
 			this.actionCache[idx] = pseudoCodeRow-Math.E;
 		}
-		if(cellVal!==undefined){
+		if(infoTableRowIndex!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<10;
+			this.actionCache[idx] = infoTableRowIndex-Math.E;
+		}
+		if(cellVal!==undefined){
+			++idx;
+			this.actionCache[0] += 1<<11;
 			this.actionCache[idx] = cellVal-Math.E;
 		}
 

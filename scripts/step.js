@@ -15,18 +15,17 @@ const STATIC_COMMANDS = [
 ];
 
 const STATIC_DESTS = [
-  /* index 0 to index 4 are canvas ids, must be the same as statics_to_obj */
+  "PC", // Pseudo Code
   "QU", // queue
   "VI", // visited
   "CR", // current
   "NB", // neighbors
   "PA", // path
-  "ITQueue", //info table
   "DT",
-  "PC", // Pseudo Code
   "FCanvas",
   "GCanvas",
-  "HCanvas"
+  "HCanvas",
+  "ITQueue", //info table
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -52,16 +51,17 @@ Actions
 
 */
 const statics_to_obj = {
-  0: "queue",
-  1: "visited",
-  2: "current_XY",
-  3: "neighbors",
-  4: "path",
+  0: "pseudocode",
+  1: "queue",
+  2: "visited",
+  3: "current_XY",
+  4: "neighbors",
+  5: "path",
   6: "dotted",
-  7: "pseudocode",
-  8: "fCost",
-  9: "gCost",
-  10: "hCost"
+  7: "fCost",
+  8: "gCost",
+  9: "hCost",
+  10: "ITQueue"
 }
 
 
@@ -88,7 +88,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       if(dest == "IT") console.log(stepNo," stepNo");  
       if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
       if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
-      console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow);
+      console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow, 'infoRowIndex', infoTableRowIndex);
       console.log(step.slice(i,j));
       try{
       if(command==STATIC.EC){
@@ -125,6 +125,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
 
       // INFOTABLE 
       if(command==STATIC.InsertRowAtIndex){
+        console.log(dest);
+        debugger;
         // myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]); 
       }
       else if(command==STATIC.EraseRowAtIndex){

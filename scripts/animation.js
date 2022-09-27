@@ -97,7 +97,8 @@ myUI.jump_to_step = function(target_step){
 
     try{
       myUI.InfoMap.reset();
-      myUI.InfoTable.removeAllTableSlides();
+      for(const [key, IT] of Object.entries(myUI.InfoTables))
+        IT.removeAllTableSlides();
     
       myUI.InfoMap.drawObstacle(state.node_XY[1],state.node_XY[0]);
       myUI.InfoMap.drawOutOfBound(state.node_XY[1],state.node_XY[0]);

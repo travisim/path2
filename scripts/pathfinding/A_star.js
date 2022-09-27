@@ -246,6 +246,11 @@ class A_star extends GridPathFinder{
 					}
           //this._create_action(STATIC.DP, STATIC.QU, next_XY);
           this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_XY});
+          let numLess = 0;
+          for(const node of this.queue){
+            if(node.f_cost < new_node.f_cost) numLess++;
+          }
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess});
 					this.queue.push(new_node);  // add to queue
 					this.open_list.set(next_XY, new_node);  // add to open list
           this._save_step("fwd");
@@ -269,6 +274,7 @@ class A_star extends GridPathFinder{
               this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_XY});
             }
           }
+          this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess});
           this._save_step("bck");
 
           if(this._found_goal(new_node)) return this._terminate_search();
