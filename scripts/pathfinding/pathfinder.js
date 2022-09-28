@@ -397,7 +397,7 @@ class GridPathFinder{
 		this.actionCache.forEach(val=>{
 			this.step_cache.push(val);
 		});
-		console.log(cellVal)
+		//console.log(cellVal)
 		return this.actionCache.length;
 	}
   /*

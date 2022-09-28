@@ -90,7 +90,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
       console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow, 'infoRowIndex', infoTableRowIndex);
       console.log(step.slice(i,j));
-      try{
+    
       if(command==STATIC.EC){
         myUI.canvases[statics_to_obj[dest]].erase_canvas();
       }
@@ -126,8 +126,9 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       // INFOTABLE 
       if(command==STATIC.InsertRowAtIndex){
         console.log(dest);
-        debugger;
-        // myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]); 
+        //debugger;
+        myUI.InfoTables["ITQueue"].insertRowAtIndex(infoTableRowIndex, stepNo, [stepNo,x+", "+y,parentX+", "+parentY, fCost, gCost, hCost]); 
+         // myUI.InfoTables["ITQueue"].insertRowAtIndex(0,"1",["1","ko","hi"]);
       }
       else if(command==STATIC.EraseRowAtIndex){
         // myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]); 
@@ -158,7 +159,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       }  
       if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){//record  "visiters" in 2d array
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
-      }  /* */
+      }  /* */  
+      try{
       }catch(e){
         console.log(e);
         console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");

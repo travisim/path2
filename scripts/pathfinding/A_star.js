@@ -202,7 +202,6 @@ class A_star extends GridPathFinder{
           
           
           let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, undefined, this.step_index);
-
 					let open_node = this.open_list.get(next_XY);
 					if(open_node !== undefined) if(open_node.f_cost<=f_cost) continue;
 					let closed_node = this.closed_list.get(next_XY);
@@ -250,7 +249,8 @@ class A_star extends GridPathFinder{
           for(const node of this.queue){
             if(node.f_cost < new_node.f_cost) numLess++;
           }
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess});
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, nodeCoord: this.current_node_XY, stepIndex: this.current_node.id, infoTableRowIndex: 42, hCost: this.current_node.h_cost.toPrecision(5), gCost: this.current_node.g_cost.toPrecision(5), parentCoord: this.prev_node_XY});
+         
 					this.queue.push(new_node);  // add to queue
 					this.open_list.set(next_XY, new_node);  // add to open list
           this._save_step("fwd");
@@ -292,6 +292,3 @@ class A_star extends GridPathFinder{
     });
   }
 }
-
-
-

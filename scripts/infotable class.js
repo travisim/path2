@@ -48,9 +48,9 @@ div.innerHTML = "   <div class='table_title'>Queue</div>
 document.getElementById("info-container").append(div);
 */
 
-
 class UIInfoTable{
   constructor(tableIdentifier){ //input titles of table in string
+
     this.tableGenerator(tableIdentifier)
     this.tableContainer = document.querySelector('#'+`t${tableIdentifier}`);
     this.button = document.querySelector('#'+`b${tableIdentifier}`);
@@ -77,26 +77,32 @@ class UIInfoTable{
     document.querySelector(".tab").append(button);
     
   }
+  
   setTableHeader(headers){
     var header = this.tableHeader[0].createTHead();
     var row = header.insertRow(0);
     for (let i = 0; i < headers.length; i++){
       var temp = row.insertCell(i)
-      temp.className = 'table_header_cell'; 
+      temp.className = 'tableHeaderRow'; 
       temp.innerHTML = headers[i];
     }
   }
-
   setTableActive(){
     this.tableContainer.style.display = "table";
-    this.button.className += " active";
+    this.button.classList.add('active');
   }
+  rowGenerator(rowId,values){
+    //var t = document.createElement('table');
+    var r = document.createElement("TR"); 
+    for (let i = 0; i < values.length; i++) { 
+      r.insertCell(i).innerHTML = values[i];
+    }
+    r.classList.add('infoTableRow','highlighting',(rowId).toString());
+    return r;
+  }
+  /*
   inTop(rowId,values){
-   /*
-    var values = [];
-    for (let i = 1; i < arguments.length; i++) { 
-        values.push(arguments[i]);
-    }   */
+  
    //unhighlight second latest table added  
    for (let i = 0; i < this.highlightedRows.length; i++) { 
      if(this.highlightedRows[0]){
@@ -121,19 +127,11 @@ class UIInfoTable{
    }
     var r = this.rowGenerator(rowId,values);
     r.style.outline = "2px solid red";//highlight latest table added
-   
+    console.log(r);
     this.dynamicTable.append(r);
 
   }
-  rowGenerator(rowId,values){
-    //var t = document.createElement('table');
-    var r = document.createElement("TR"); 
-    for (let i = 0; i < values.length; i++) { 
-      r.insertCell(i).innerHTML = values[i];
-    }
-    r.classList.add('infoTableRow','highlighting',(rowId).toString());
-    return r;
-  }
+
   outBottom(){
     //animates out last row
     if (this.rows.length > 0){ 
@@ -158,7 +156,7 @@ class UIInfoTable{
     this.dynamicTable.append(r); // to allow next line to work
     this.rows[rowIndex].after(r); //highlight latest table added
   }
-  sort(indexOfColumnToBeSorted=3){
+ sort(indexOfColumnToBeSorted=3){
    if(this.rows.length > 1){
       var table, i, x, y;
       var switching = true;
@@ -187,6 +185,7 @@ class UIInfoTable{
       }
     }
   } 
+  */
   removeAllTableRows(){
     var temp = this.rows.length;// rows.length alawys changes, cannot use
     if(temp != 0){
@@ -204,12 +203,21 @@ class UIInfoTable{
       parentEl.removeChild(Row);
     }
   }
+
   removeRowByIndex(index){
     var row = this.rows[index];
     var parentEl = row.parentElement;
     parentEl.removeChild(row)
   }
- insertRowAtIndex(infoTableRowIndex,rowId,values){
+  
+  
+  removeRowAtIndex(index){
+    var row = this.rows[index];
+    var parentEl = row.parentElement;
+    parentEl.removeChild(row)
+  }
+  
+  insertRowAtIndex(rowIndex,rowId,values){
     for (let i = 0; i <  this.highlightedRows.length; i++) { 
       if( this.highlightedRows[i]){
          this.highlightedRows[i].style.outlineColor = "transparent";
@@ -217,29 +225,28 @@ class UIInfoTable{
       }
     }
     //add row at index 0 if there is no og=ther rows
-    if(this.rows.length == 0 || infoTableRowIndex == 0 ){
+    if(this.rows.length == 0 || rowIndex == 0 ){
        var r = this.rowGenerator(rowId,values);
        r.style.outline = "2px solid red";//highlight latest table added
        this.dynamicTable.prepend(r);
     }
      //add row at end of table
-    else if (infoTableRowIndex  == this.rows.length ){
+    else if (rowIndex  == this.rows.length ){
       var r = this.rowGenerator(rowId,values);
       r.style.outline = "2px solid red";//highlight latest table added
       this.dynamicTable.append(r);
     } 
    //add row at index by adding after prev index
-    else if (infoTableRowIndex >this.rows.length ){
+    else if (rowIndex >this.rows.length ){
       console.log("row index does not yet exist")
       return 0;
     } 
     else{
       var r = this.rowGenerator(rowId,values)
       r.style.outline = "2px solid red";//highlight latest table added
-      this.rows[infoTableRowIndex-1].after(r); //highlight latest table added  
+      this.rows[rowIndex-1].after(r); //highlight latest table added  
     }
   }
-  
   
 }
 

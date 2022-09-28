@@ -26,9 +26,11 @@ function compute_path(){
 		document.getElementById("compute_btn").innerHTML = "done!";
 		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
 		myUI.reset_animation();
-		for(const [key, IT] of Object.entries(myUI.InfoTables))
+		 myUI.InfoTables["ITQueue"].removeAllTableRows();
+   /*
+    for(const [key, IT] of Object.entries(myUI.InfoTables))
         IT.removeAllTableRows();
-    
+    */
 	}); 
 	
 	
