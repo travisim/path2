@@ -132,6 +132,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       }
       else if(command==STATIC.EraseRowAtIndex){
         // myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]); 
+        myUI.InfoTables["ITQueue"].eraseRowAtIndex(infoTableRowIndex); 
       }
       
       if(command == STATIC.InTop && dest==STATIC.ITQueue){

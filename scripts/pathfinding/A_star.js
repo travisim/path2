@@ -107,7 +107,7 @@ class A_star extends GridPathFinder{
       }/* */
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
 
-      
+      this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 0});
       this._create_action({command: STATIC.EC, dest: STATIC.DT});
       this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
@@ -125,7 +125,6 @@ class A_star extends GridPathFinder{
       this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
       if(this.prev_node_XY){
         this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.prev_node_XY});
-        /*this._create_action({command: STATIC.InTop, dest: STATIC.IT, nodeCoord: this.current_node_XY, stepIndex: this.current_node.id, hCost: this.current_node.h_cost.toPrecision(5), gCost: this.current_node.g_cost.toPrecision(5), parentCoord: this.prev_node_XY});*/
         for(let i=0;i<this.neighbors.length;++i){
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: this.neighbors[i].self_XY});
         }
@@ -249,8 +248,7 @@ class A_star extends GridPathFinder{
           for(const node of this.queue){
             if(node.f_cost < new_node.f_cost) numLess++;
           }
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, nodeCoord: this.current_node_XY, stepIndex: this.current_node.id, infoTableRowIndex: 42, hCost: this.current_node.h_cost.toPrecision(5), gCost: this.current_node.g_cost.toPrecision(5), parentCoord: this.prev_node_XY});
-         
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, nodeCoord: new_node.self_XY, stepIndex: this.current_node.id, infoTableRowIndex: numLess, hCost: parseFloat(new_node.h_cost.toPrecision(5)), gCost: parseFloat(new_node.g_cost.toPrecision(5)), parentCoord: this.current_node_XY});
 					this.queue.push(new_node);  // add to queue
 					this.open_list.set(next_XY, new_node);  // add to open list
           this._save_step("fwd");

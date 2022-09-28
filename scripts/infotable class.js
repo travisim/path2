@@ -247,6 +247,16 @@ class UIInfoTable{
       this.rows[rowIndex-1].after(r); //highlight latest table added  
     }
   }
+
+  eraseRowAtIndex(rowIndex){
+    if (rowIndex >this.rows.length ){
+      console.log("row index does not yet exist")
+      return 0;
+    } 
+    else{
+      this.dynamicTable.removeChild(this.dynamicTable.children[rowIndex]);
+    }
+  }
   
 }
 
