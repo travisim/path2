@@ -113,6 +113,17 @@
       "4":"VISITED"
     }
 	},
+  "infotable":[
+    {
+      "title" :"queue",
+      "headers": ["Queue No","Vertex","Parent","F cost","G cost","H cost"];
+    },
+    {
+      "title" :"statistics",
+      "headers": ["Distance to goal No","area scanned","optimal path distance"];
+    }
+   
+  ], // give a array f header names to generate a new table tab, for things like IT queue will be auto generated
   "expansion":{
     "steps":[],
     "map":[]
