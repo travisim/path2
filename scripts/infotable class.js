@@ -204,18 +204,8 @@ class UIInfoTable{
     }
   }
 
-  removeRowByIndex(index){
-    var row = this.rows[index];
-    var parentEl = row.parentElement;
-    parentEl.removeChild(row)
-  }
-  
-  
-  removeRowAtIndex(index){
-    var row = this.rows[index];
-    var parentEl = row.parentElement;
-    parentEl.removeChild(row)
-  }
+
+ 
   
   insertRowAtIndex(rowIndex,rowId,values){
     for (let i = 0; i <  this.highlightedRows.length; i++) { 
@@ -253,9 +243,12 @@ class UIInfoTable{
       console.log("row index does not yet exist")
       return 0;
     } 
-    else{
-      this.dynamicTable.removeChild(this.dynamicTable.children[rowIndex]);
+    if (this.rows.length > 1){
+      var row = this.rows[rowIndex];
+      var parentEl = row.parentElement;
+      parentEl.removeChild(rowIndex)
     }
+  
   }
   
 }
