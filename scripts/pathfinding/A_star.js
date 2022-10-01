@@ -65,9 +65,10 @@ class A_star extends GridPathFinder{
     console.log("starting");
     let start_node = new Node(0, 0, 0, null, this.start, undefined, 0);
     this.queue.push(start_node);  // begin with the start; add starting node to rear of []
+
     this.open_list.set(start_node.self_XY, start_node);
     //---------------------checks if visited 2d array has been visited
-
+    this.insertedRow = false;
     let planner = this;
 
     return new Promise((resolve, reject) => {
@@ -107,7 +108,8 @@ class A_star extends GridPathFinder{
       }/* */
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
 
-      this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 0});
+      if(this.insertedRow)
+        this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 0});
       this._create_action({command: STATIC.EC, dest: STATIC.DT});
       this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
@@ -249,6 +251,7 @@ class A_star extends GridPathFinder{
             if(node.f_cost < new_node.f_cost) numLess++;
           }
           this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, nodeCoord: new_node.self_XY, stepIndex: this.current_node.id, infoTableRowIndex: numLess, hCost: parseFloat(new_node.h_cost.toPrecision(5)), gCost: parseFloat(new_node.g_cost.toPrecision(5)), parentCoord: this.current_node_XY});
+          this.insertedRow = true;
 					this.queue.push(new_node);  // add to queue
 					this.open_list.set(next_XY, new_node);  // add to open list
           this._save_step("fwd");

@@ -189,7 +189,7 @@ myUI.initialize = function(){
     curr_state: null
   };
 
-  myUI.storage = {};
+  myUI.step_data = {fwd:{data:[], map:[], combined:[]}, bck:{data:[], map:[], combined:[]}};
 
   myUI.tmp = {};
   myUI.InfoTables = {};

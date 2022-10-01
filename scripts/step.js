@@ -64,6 +64,14 @@ const statics_to_obj = {
   10: "ITQueue"
 }
 
+myUI.get_step = function(anim_step, step_direction){
+  if(!myUI.testing || step_direction=="fwd") return myUI.planner.get_step(anim_step, step_direction);
+  // step_direction = "bck"
+  let idx = myUI.step_data.bck.map[anim_step+1];
+  let nxIdx = myUI.step_data.bck.map[anim_step+2];
+  return myUI.step_data.bck.data.slice(idx, nxIdx);
+}
+
 
 myUI.run_steps = function(num_steps, step_direction="fwd"){
   while(num_steps--){
@@ -71,7 +79,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
     else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
     else return;
 
-    let step = myUI.planner.get_step(myUI.animation.step, step_direction);
+    let step = myUI.get_step(myUI.animation.step, step_direction);
 
     console.log(step, 'step');
     let i=0;
@@ -82,9 +90,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
         ++j;
       }
       if(myUI.testing) console.log(i,j);
-      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow,infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
-      var gCost = Number(gCost_str);
-      var hCost = Number(hCost_str);
+      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost, hCost, pseudoCodeRow,infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
       if(dest == "IT") console.log(stepNo," stepNo");  
       if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
       if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
@@ -125,40 +131,15 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
 
       // INFOTABLE 
       if(command==STATIC.InsertRowAtIndex){
-        console.log(dest);
-        //debugger;
-        myUI.InfoTables["ITQueue"].insertRowAtIndex(infoTableRowIndex, stepNo, [stepNo,x+", "+y,parentX+", "+parentY, fCost, gCost, hCost]); 
-         // myUI.InfoTables["ITQueue"].insertRowAtIndex(0,"1",["1","ko","hi"]);
+        myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, stepNo, [stepNo,x+", "+y,parentX+", "+parentY, fCost, gCost, hCost]); 
       }
       else if(command==STATIC.EraseRowAtIndex){
-        // myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]); 
-        myUI.InfoTables["ITQueue"].eraseRowAtIndex(infoTableRowIndex); 
+        myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
       }
-      
-      if(command == STATIC.InTop && dest==STATIC.ITQueue){
-        myUI.InfoTable.inTop(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
-      }
-      else if(command == STATIC.InBottom && dest==STATIC.ITQueue){
-        myUI.InfoTable.inBottom(stepNo,[stepNo,x+", "+y,parentX+", "+parentY,fCost,gCost,hCost]);                
-      }
-      else if(command == STATIC.OutTop && dest==STATIC.ITQueue){
-        myUI.InfoTable.outTop();             
-      }
-      else if(command == STATIC.OutBottom && dest==STATIC.ITQueue){
-        myUI.InfoTable.outBottom();             
-      }
-      else if(command == STATIC.Sort){
-        if (myUI.InfoTable.rows.length >= 2){
-          myUI.InfoTable.sort(); // emulats insert at based on F cost
-        }
-      }/* */
-      if(dest == STATIC.ITQueue && command == STATIC.RemoveRowByID ){
-        myUI.InfoTable.removeRowById(stepNo);
-      }
-      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){//record  "visiters" in 2d array
+      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
         myUI.PseudoCode.highlightPri(pseudoCodeRow);
       }  
-      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){//record  "visiters" in 2d array
+      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
       }  /* */  
       try{
@@ -197,16 +178,16 @@ myUI.run_combined_step = function(step_direction="fwd"){
 
 
 myUI.generateReverseSteps = function(steps, indexMap){
-  let stepNo=0;
-  let reverseSteps = [];
-  let reverseMap = [];
+  let stepCnt=0;
+  myUI.step_data.bck.data = [];
+  myUI.step_data.bck.map = [];
 
-  let mem = {};
-
-  while(stepNo<indexMap.length){
-    let step = steps.slice(indexMap[stepNo], indexMap[stepNo+1]);
+  let mem = {infoTable:{}};
+  
+  while(stepCnt<indexMap.length){
+    let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
     let i=0;
-    reverseMap.push(reverseSteps.size());
+    myUI.step_data.bck.map.push(myUI.step_data.bck.data.length);
     while(i<step.length){
       let j=i+1;
       while(j<step.length){
@@ -215,13 +196,12 @@ myUI.generateReverseSteps = function(steps, indexMap){
         ++j;
       }
       // [i,j) is the action length
-      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost_str, hCost_str, pseudoCodeRow, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
-      var gCost = Number(gCost_str);
-      var hCost = Number(hCost_str);
+      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost, hCost, pseudoCodeRow, infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
 
       let action;
       if(command==STATIC.DP){
-        action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y]});
+        if(cellVal===undefined) cellVal = 1;
+        action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y], cellVal: cellVal});
       }
       else if(command==STATIC.EP){
         action = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [x,y]});
@@ -238,6 +218,13 @@ myUI.generateReverseSteps = function(steps, indexMap){
       else if(command==STATIC.EA){
         action = GridPathFinder.packAction({command: STATIC.DA, arrowIndex: arrowIndex, colorIndex: colorIndex});
       }
+      else if(command==STATIC.InsertRowAtIndex){
+        mem.infoTable[dest] = {nodeCoord: [x,y], stepIndex: stepNo, hCost: hCost, gCost: gCost, parentCoord: [parentX, parentY]};
+        action = GridPathFinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
+      }
+      else if(command==STATIC.EraseRowAtIndex){
+        action = GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, nodeCoord: mem.infoTable[dest].nodeCoord, stepIndex: mem.infoTable[dest].stepIndex, infoTableRowIndex: infoTableRowIndex, hCost: mem.infoTable[dest].hCost, gCost: mem.infoTable[dest].gCost, parentCoord: mem.infoTable[dest].parentCoord});
+      }
       else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
         if(mem.pseudoCodeRowPri!==undefined) action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: mem.pseudoCodeRowPri});
         // else reset all pseudocodePri
@@ -249,10 +236,11 @@ myUI.generateReverseSteps = function(steps, indexMap){
         mem.pseudoCodeRowSec = pseudoCodeRow;
       } 
       // add more here
-      Array.prototype.push.apply(reverseSteps, action);
-      j=i;
+      Array.prototype.push.apply(myUI.step_data.bck.data, action);
+      i=j;
     }
-    ++stepNo;
+
+    ++stepCnt;
   }
 }
 

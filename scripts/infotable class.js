@@ -246,7 +246,7 @@ class UIInfoTable{
     if (this.rows.length > 1){
       var row = this.rows[rowIndex];
       var parentEl = row.parentElement;
-      parentEl.removeChild(rowIndex)
+      parentEl.removeChild(row)
     }
   
   }
