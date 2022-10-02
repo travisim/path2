@@ -10,7 +10,7 @@ class UIInfoNWSE{
   this.element.style.outlineColor = "black";
   this.element.style.color = "black";
   if (this.element.querySelector(".type")) this.element.querySelector(".type").innerHTML = "";
-  if ( this.element.querySelector(".F"))  this.element.querySelector(".F").innerHTML = "";
+  if (this.element.querySelector(".F"))  this.element.querySelector(".F").innerHTML = "";
   if (this.element.querySelector(".G"))  this.element.querySelector(".G").innerHTML = "";
   if (this.element.querySelector(".H"))  this.element.querySelector(".H").innerHTML = "";
      //reset a square in info map 

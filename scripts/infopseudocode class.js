@@ -11,27 +11,32 @@ class UIInfoPseudoCode{
     this.highlightedRowsPri = document.getElementById("pseudo-code-container").getElementsByClassName('highlightingPri');
   }
   
-rowGenerator(pseudoCodeTxtFileContent){
+  rowGenerator(pseudoCodeTxtFileContent){
    var pseudoCodeArrayByline = pseudoCodeTxtFileContent.split("\n");
     //var t = document.createElement('table');
+  
     for (let i = 0; i < (pseudoCodeArrayByline.length ); i++) { 
       var r = document.createElement("TR"); 
       if ((pseudoCodeArrayByline[i] == null)) break;
       r.insertCell(0).innerHTML = i;
+      
       var cell1 = r.insertCell(1);
-      cell1.innerHTML = pseudoCodeArrayByline[i].replaceAll("&emsp;", "");
-      var temp = 10*pseudoCodeArrayByline[i].split("&emsp;").length - 1 + "px"
+      var whiteSpaceCounter = 0;
+      for (let j = 0; j < (pseudoCodeArrayByline[i].length); j++){
+        if (pseudoCodeArrayByline[i][j] == " ") whiteSpaceCounter++;
+        else if (pseudoCodeArrayByline[i][j] != " ") break;
+      }
+    
+      cell1.innerHTML = pseudoCodeArrayByline[i].slice(whiteSpaceCounter);
+      var temp = 2*whiteSpaceCounter + "px"
       cell1.style.paddingLeft  = temp;
       //r.insertCell(2).innerHTML = pseudoCodeArrayByline[i].split("&emsp;").length - 1
       r.classList.add('psuedoRow');
       
       
-      
       document.getElementById("dynamic-pseudo-code-table").append(r);
-   coll[2].click();
-      coll[2].click();
+   
     }  
-
   }
   
   
