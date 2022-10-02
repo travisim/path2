@@ -1,5 +1,7 @@
 const STATIC_COMMANDS = [
   /* rest of the items are dynamics commands/identifiers */
+  "DSP",
+  "SP",
   "EC", // erase canvas
   "DP", // draw pixel
   "EP", // erase pixel
@@ -65,7 +67,7 @@ const statics_to_obj = {
 }
 
 myUI.get_step = function(anim_step, step_direction){
-  if(!myUI.testing || step_direction=="fwd") return myUI.planner.get_step(anim_step, step_direction);
+  if(step_direction=="fwd") return myUI.planner.get_step(anim_step, step_direction);
   // step_direction = "bck"
   let idx = myUI.step_data.bck.map[anim_step+1];
   let nxIdx = myUI.step_data.bck.map[anim_step+2];
@@ -91,16 +93,20 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       }
       if(myUI.testing) console.log(i,j);
       let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost, hCost, pseudoCodeRow,infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
-      if(dest == "IT") console.log(stepNo," stepNo");  
-      if(myUI.testing) console.log([STATIC_COMMANDS[command], STATIC_DESTS[dest], x, y, parentX, parentY, stepNo, arrowIndex, gCost, hCost]);
       if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
-      console.log("cmd",STATIC_COMMANDS[command],"dest", statics_to_obj[dest],"x", x, "y", y, "f",fCost,"g",gCost,"h",hCost,parentX,parentY,'stepno', stepNo,'pseudoCodeRow', pseudoCodeRow, 'infoRowIndex', infoTableRowIndex);
-      console.log(step.slice(i,j));
-    
-      if(command==STATIC.EC){
+      console.log("command", STATIC_COMMANDS[command], "dest", STATIC_DESTS[dest], "x", x, "y", y, "parentX", parentX, "parentY", parentY, "colorIndex", colorIndex, "stepNo", stepNo, "arrowIndex", arrowIndex, "fCost", fCost, "gCost", gCost, "hCost", hCost, "pseudoCodeRow", pseudoCodeRow, "infoTableRowIndex", infoTableRowIndex, "cellVal", cellVal);
+      //console.log(step.slice(i,j));
+      try{
+      if(command==STATIC.DSP){
+        myUI.canvases[statics_to_obj[dest]].erase_canvas();
+        if(cellVal===undefined) cellVal = 1;
+        myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
+      }
+      
+      else if(command==STATIC.EC){
         myUI.canvases[statics_to_obj[dest]].erase_canvas();
       }
-      else if(command==STATIC.DP){
+      else if(command==STATIC.DP || command==STATIC.SP){
         if(cellVal===undefined) cellVal = 1;
         myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
       }
@@ -142,7 +148,6 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
       }  /* */  
-      try{
       }catch(e){
         console.log(e);
         console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
@@ -182,13 +187,14 @@ myUI.generateReverseSteps = function(steps, indexMap){
   myUI.step_data.bck.data = [];
   myUI.step_data.bck.map = [];
 
-  let mem = {infoTable:{}};
+  let mem = {infoTable:{}, canvasCoords:{}, drawSinglePixel:undefined, fullCanvas:{}};
   
   while(stepCnt<indexMap.length){
     let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
     let i=0;
     myUI.step_data.bck.map.push(myUI.step_data.bck.data.length);
     while(i<step.length){
+      
       let j=i+1;
       while(j<step.length){
         // this is implementation specific for compressed actions
@@ -198,13 +204,50 @@ myUI.generateReverseSteps = function(steps, indexMap){
       // [i,j) is the action length
       let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost, hCost, pseudoCodeRow, infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
 
-      let action;
-      if(command==STATIC.DP){
+      let action = [];
+      var includeAction = true;
+      if(command==STATIC.DSP){
+        if(mem.drawSinglePixel!==undefined) action = GridPathFinder.packAction({command: STATIC.DSP, dest: dest, nodeCoord: mem.drawSinglePixel, cellVal: 1});
+        mem.drawSinglePixel = [x,y];
+      }
+      else if(command==STATIC.SP){
+        if(mem.fullCanvas[dest]===undefined) mem.fullCanvas[dest] = deep_copy_matrix(myUI.canvases[statics_to_obj[dest]].canvas_cache);
+        action = GridPathFinder.packAction({command: STATIC.SP, dest: dest, nodeCoord: [x,y], cellVal: mem.fullCanvas[dest][x][y]});
+        mem.fullCanvas[dest][x][y] = cellVal;
+      }/* */
+      else if(command==STATIC.DP){
         if(cellVal===undefined) cellVal = 1;
-        action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y], cellVal: cellVal});
+        if(!(dest in mem.canvasCoords)) mem.canvasCoords[dest] = [];
+        for(const coord of mem.canvasCoords[dest]){
+          if(coord===undefined) continue;
+          if(coord[0]==x && coord[1]==y){
+            includeAction = false;
+          }
+        }
+        if(includeAction){
+          action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y], cellVal: cellVal});
+          mem.canvasCoords[dest].push([x,y]);
+        }
       }
       else if(command==STATIC.EP){
-        action = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [x,y]});
+        action = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [x,y], cellVal: 1});
+        if(!(dest in mem.canvasCoords)) mem.canvasCoords[dest] = [];
+        let i;
+        for(i=0;i<mem.canvasCoords[dest].length;++i){
+          let coord = mem.canvasCoords[dest][i];
+          if(coord===undefined) continue;
+          if(coord[0]==x && coord[1]==y) break;
+        }
+        delete mem.canvasCoords[dest][i];
+      }
+      else if(command==STATIC.EC){
+        action = [];
+        if(!(dest in mem.canvasCoords)) mem.canvasCoords[dest] = [];
+        mem.canvasCoords[dest].forEach(nodeCoord=>{
+          let subAction = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: nodeCoord});
+          Array.prototype.push.apply(action, subAction);
+        });
+        mem.canvasCoords[dest] = [];
       }
       else if(command==STATIC.INC_P){
         action = GridPathFinder.packAction({command: STATIC.DEC_P, dest: dest, nodeCoord: [x,y]});
@@ -236,12 +279,14 @@ myUI.generateReverseSteps = function(steps, indexMap){
         mem.pseudoCodeRowSec = pseudoCodeRow;
       } 
       // add more here
-      Array.prototype.push.apply(myUI.step_data.bck.data, action);
+      if(includeAction)
+        Array.prototype.push.apply(myUI.step_data.bck.data, action);
       i=j;
     }
 
     ++stepCnt;
   }
+  myUI.mem = mem;
 }
 
 myUI.updateInfoMap = function(x,y){

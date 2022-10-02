@@ -110,8 +110,8 @@ class A_star extends GridPathFinder{
 
       if(this.insertedRow)
         this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 0});
-      this._create_action({command: STATIC.EC, dest: STATIC.DT});
-      this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
+      //this._create_action({command: STATIC.EC, dest: STATIC.DT});
+      this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
       this._create_action({command: STATIC.EC, dest: STATIC.NB});
       this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_XY});
@@ -123,7 +123,7 @@ class A_star extends GridPathFinder{
 
       
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
-      this._create_action({command: STATIC.EP, dest: STATIC.VI, nodeCoord: this.current_node_XY});
+      this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
       if(this.prev_node_XY){
         this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.prev_node_XY});
@@ -131,12 +131,12 @@ class A_star extends GridPathFinder{
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: this.neighbors[i].self_XY});
         }
         this.visited_incs.forEach(coord=>this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: coord}));
-        this._create_action({command: STATIC.EC, dest: STATIC.DT});
+        //this._create_action({command: STATIC.EC, dest: STATIC.DT});
         if(this.neighbors.length>0){
-          this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.neighbors[0].self_XY});
+          this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.neighbors[0].self_XY});
         }
         else{
-          this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.prev_node_XY});
+          this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.prev_node_XY});
         }
       }
       this._save_step("bck", true);/*
@@ -210,16 +210,16 @@ class A_star extends GridPathFinder{
           this.neighbors.unshift(new_node);
           this.neighbors_deltaNWSE_STATICS.unshift(this.deltaNWSE_STATICS[i]);
 
-          this._create_action({command: STATIC.DP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
-          this._create_action({command: STATIC.DP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
-          this._create_action({command: STATIC.DP, dest: STATIC.HCanvas, nodeCoord: next_XY, cellVal: h_cost});
+          this._create_action({command: STATIC.SP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
+          this._create_action({command: STATIC.SP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
+          this._create_action({command: STATIC.SP, dest: STATIC.HCanvas, nodeCoord: next_XY, cellVal: h_cost});
 
           if(next_XY[0]==3 && next_XY[1]==0) console.log("GCOST:", g_cost);
 
           /* NEW */
           
-          this._create_action({command: STATIC.EC, dest: STATIC.DT});
-          this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: next_XY});
+          //this._create_action({command: STATIC.EC, dest: STATIC.DT});
+          this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: next_XY});
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_XY});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 32});
           this.deltaNWSE_STATICS_Temp.push(i);
@@ -259,9 +259,9 @@ class A_star extends GridPathFinder{
           /* NEW */
 
           
-          this._create_action({command: STATIC.EC, dest: STATIC.DT});
-          if(this.neighbors.length==1) this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
-          else this._create_action({command: STATIC.DP, dest: STATIC.DT, nodeCoord: this.neighbors[1].self_XY});
+          //this._create_action({command: STATIC.EC, dest: STATIC.DT});
+          if(this.neighbors.length==1) this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
+          else this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.neighbors[1].self_XY});
           this._create_action({command: STATIC.EP, dest: STATIC.NB, nodeCoord: next_XY});
 					this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: next_XY});
 					if (this.draw_arrows){

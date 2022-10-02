@@ -27,7 +27,7 @@ function compute_path(){
 		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
 		myUI.reset_animation();
 		myUI.InfoTables["ITQueue"].removeAllTableRows();
-		if(myUI.testing) myUI.generateReverseSteps(myUI.planner.steps_forward, myUI.planner.step_index_map.fwd);
+		myUI.generateReverseSteps(myUI.planner.steps_forward, myUI.planner.step_index_map.fwd);
    /*
     for(const [key, IT] of Object.entries(myUI.InfoTables))
         IT.removeAllTableRows();

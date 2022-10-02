@@ -170,24 +170,29 @@ class GridPathFinder{
 			obj.actionCache[obj.idx] += bit_shift(arrowIndex, obj.bitOffset);
 		}
 		if(gCost!==undefined){
+			obj.idx++;
 			obj.actionCache[0] += 1<<7;
-			obj.actionCache[obj.idx+1] = gCost-Math.E;
+			obj.actionCache[obj.idx] = gCost-Math.E;
 		}
 		if(hCost!==undefined){
+			obj.idx++;
 			obj.actionCache[0] += 1<<8;
-			obj.actionCache[obj.idx+2] = hCost-Math.E;
+			obj.actionCache[obj.idx] = hCost-Math.E;
 		}
     if(pseudoCodeRow!==undefined){
+			obj.idx++;
 			obj.actionCache[0] += 1<<9;
-			obj.actionCache[obj.idx+3] = pseudoCodeRow-Math.E;
+			obj.actionCache[obj.idx] = pseudoCodeRow-Math.E;
 		}
     if(infoTableRowIndex!==undefined){
+			obj.idx++;
 			obj.actionCache[0] += 1<<10;
-			obj.actionCache[obj.idx+4] = infoTableRowIndex-Math.E;
+			obj.actionCache[obj.idx] = infoTableRowIndex-Math.E;
 		}
 		if(cellVal!==undefined){
+			obj.idx++;
 			obj.actionCache[0] += 1<<11;
-			obj.actionCache[obj.idx+5] = cellVal-Math.E;
+			obj.actionCache[obj.idx] = cellVal-Math.E;
 		}
 
 		return obj.actionCache;

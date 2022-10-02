@@ -156,6 +156,10 @@ class UICanvas{
     let val = this.canvas_cache[x][y];
     if(direction=="inc") ++val; else --val;
     val = Math.min(this.colors.length, Math.max(val, 0));
+    if(val==0){
+      this.erase_pixel(xy);
+      return;
+    }
     this.draw_pixel(xy, virtual, val, val-1);
   }
 
