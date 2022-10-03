@@ -187,7 +187,7 @@ myUI.generateReverseSteps = function(steps, indexMap){
   myUI.step_data.bck.data = [];
   myUI.step_data.bck.map = [];
 
-  let mem = {infoTable:{}, canvasCoords:{}, drawSinglePixel:undefined, fullCanvas:{}};
+  let mem = {infoTable:{}, canvasCoords:{}, drawSinglePixel:undefined, fullCanvas:{}, arrowColor:{}};
   
   while(stepCnt<indexMap.length){
     let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
@@ -208,6 +208,7 @@ myUI.generateReverseSteps = function(steps, indexMap){
       var includeAction = true;
       if(command==STATIC.DSP){
         if(mem.drawSinglePixel!==undefined) action = GridPathFinder.packAction({command: STATIC.DSP, dest: dest, nodeCoord: mem.drawSinglePixel, cellVal: 1});
+				else action = GridPathFinder.packAction({command: STATIC.EC, dest: dest});
         mem.drawSinglePixel = [x,y];
       }
       else if(command==STATIC.SP){
@@ -256,10 +257,17 @@ myUI.generateReverseSteps = function(steps, indexMap){
         action = GridPathFinder.packAction({command: STATIC.INC_P, dest: dest, nodeCoord: [x,y]});
       }
       else if(command==STATIC.DA){
-        action = GridPathFinder.packAction({command: STATIC.EA, arrowIndex: arrowIndex, colorIndex: colorIndex});
+				if(arrowIndex in mem.arrowColor){
+					action = GridPathFinder.packAction({command: STATIC.DA, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
+				}
+        else
+					action = GridPathFinder.packAction({command: STATIC.EA, arrowIndex: arrowIndex});
+				if(colorIndex===undefined) colorIndex = 0;
+				mem.arrowColor[arrowIndex] = colorIndex;
       }
       else if(command==STATIC.EA){
         action = GridPathFinder.packAction({command: STATIC.DA, arrowIndex: arrowIndex, colorIndex: colorIndex});
+				delete mem.arrowColor[arrowIndex];
       }
       else if(command==STATIC.InsertRowAtIndex){
         mem.infoTable[dest] = {nodeCoord: [x,y], stepIndex: stepNo, hCost: hCost, gCost: gCost, parentCoord: [parentX, parentY]};
@@ -269,8 +277,9 @@ myUI.generateReverseSteps = function(steps, indexMap){
         action = GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, nodeCoord: mem.infoTable[dest].nodeCoord, stepIndex: mem.infoTable[dest].stepIndex, infoTableRowIndex: infoTableRowIndex, hCost: mem.infoTable[dest].hCost, gCost: mem.infoTable[dest].gCost, parentCoord: mem.infoTable[dest].parentCoord});
       }
       else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
-        if(mem.pseudoCodeRowPri!==undefined) action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: mem.pseudoCodeRowPri});
-        // else reset all pseudocodePri
+        if(mem.pseudoCodeRowPri===undefined) mem.pseudoCodeRowPri = -1;
+				// -1 resets all pseudocoderows
+				action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: mem.pseudoCodeRowPri});
         mem.pseudoCodeRowPri = pseudoCodeRow;
       }  
       else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){

@@ -48,15 +48,15 @@ class UIInfoNWSE{
 
   drawOneFGH(f,g,h){
     if(f!=null ){
-      if(f==Number.MAX_SAFE_INTEGER) this.element.querySelector(".F").innerHTML = "inf";
+      if(f==Number.POSITIVE_INFINITY) this.element.querySelector(".F").innerHTML = "inf";
       else this.element.querySelector(".F").innerHTML = +f.toFixed(2);
     }
     if(g!=null ){
-      if(g==Number.MAX_SAFE_INTEGER) this.element.querySelector(".G").innerHTML = "inf";
+      if(g==Number.POSITIVE_INFINITY) this.element.querySelector(".G").innerHTML = "inf";
       else this.element.querySelector(".G").innerHTML = +g.toFixed(2);
     }
     if(h!=null ){
-      if(h==Number.MAX_SAFE_INTEGER) this.element.querySelector(".H").innerHTML = "inf";
+      if(h==Number.POSITIVE_INFINITY) this.element.querySelector(".H").innerHTML = "inf";
       else this.element.querySelector(".H").innerHTML = +h.toFixed(2);
     }
   }

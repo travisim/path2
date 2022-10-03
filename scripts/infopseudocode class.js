@@ -40,14 +40,15 @@ class UIInfoPseudoCode{
   }
   
   
- highlightPri(rowNo){
-  for (let i = 0; i < this.highlightedRowsPri.length; i++) { 
-     if(this.highlightedRowsPri[0]){
-       this.highlightedRowsPri[0].classList.remove('highlightingPri');
-     }
-   }
+ 	highlightPri(rowNo){
+  	for (let i = 0; i < this.highlightedRowsPri.length; i++) { 
+     	if(this.highlightedRowsPri[0]){
+				this.highlightedRowsPri[0].classList.remove('highlightingPri');
+     	}
+   	}
+		if(rowNo==-1) return;
     this.pseudoCodeRows[rowNo].className += " highlightingPri";
- }
+ 	}
 
  removeAllHighlightPri(){
   for (let i = 0; i < this.highlightedRowsPri.length; i++) { 

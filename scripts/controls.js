@@ -18,6 +18,7 @@ function compute_path(){
 	document.getElementById("compute_btn").innerHTML = "searching...";
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
 		console.log(path ? path.length : -1);
+		myUI.generateReverseSteps(myUI.planner.steps_forward, myUI.planner.step_index_map.fwd);
 		myUI.sliders.search_progress_slider.elem.disabled = false;
 		myUI.animation.max_step = myUI.planner.max_step();
 		myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;
@@ -27,7 +28,6 @@ function compute_path(){
 		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
 		myUI.reset_animation();
 		myUI.InfoTables["ITQueue"].removeAllTableRows();
-		myUI.generateReverseSteps(myUI.planner.steps_forward, myUI.planner.step_index_map.fwd);
    /*
     for(const [key, IT] of Object.entries(myUI.InfoTables))
         IT.removeAllTableRows();

@@ -49,13 +49,13 @@ myUI.initialize = function(){
       id:"goal", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#9f17e7"]
     },
     {
-      id:"fCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.MAX_SAFE_INTEGER, colors:["#d1cfe2"]
+      id:"fCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#d1cfe2"]
     },
     {
-      id:"gCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.MAX_SAFE_INTEGER, colors:["#d1cfe2"]
+      id:"gCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#d1cfe2"]
     },
     {
-      id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.MAX_SAFE_INTEGER, colors:["#d1cfe2"]
+      id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#d1cfe2"]
     },
   ].forEach(item=>{
     myUI.canvases[item.id] = new UICanvas(item.id, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal);

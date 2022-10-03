@@ -184,11 +184,24 @@ class UICanvas{
     }
   }
 
-  erase_pixel(xy){
-    let [x,y] = xy;
-    this.canvas_cache[x][y] = 0;
-    if(this.fixedRes) this.erase_vertex_circle(xy);
-    else this.ctx.clearRect(y, x, this.pixelSize, this.pixelSize);
+  erase_pixel(xy, virtual=false, save_in_cache=true){
+		let [x,y] = xy;
+    if(x>=this.data_height || y>=this.data_width) return;
+    if(virtual)
+      this.virtualCanvas[x][y] = this.defaultVal;
+    else {
+      if(save_in_cache) this.canvas_cache[x][y] = this.defaultVal;
+      switch(this.drawType){
+        case "dotted":
+          this.draw_dotted_square(xy);
+          break;
+        case "vertex":
+          this.erase_vertex_circle(xy, color_index);
+          break;
+        default:
+          this.ctx.clearRect(y, x, this.pixelSize, this.pixelSize);
+      }
+    }
   }
 
   draw_start_goal(point, strokeColor=this.ctx.strokeStyle){
@@ -303,6 +316,14 @@ class UICanvas{
     this.ctx.lineTo(x, y);
     this.ctx.stroke();
   }
+
+	erase_dotted_square(xy){
+		let y = xy[0]*this.data_height/myUI.map_height;
+    let x = xy[1]*this.data_width/myUI.map_width;
+    let side = this.data_height/myUI.map_height;
+
+		this.ctx.clearRect(y, x, side, side);
+	}
 
   toggle_edit(){
     this.edit_state = !this.edit_state;

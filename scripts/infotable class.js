@@ -187,6 +187,12 @@ class UIInfoTable{
   } 
   */
   removeAllTableRows(){
+		if(this.rows[0]===undefined) return;
+		var parentEl = this.rows[0].parentElement;
+		while(this.rows.length){
+			parentEl.removeChild(this.rows[0])
+		}
+		/*
     var temp = this.rows.length;// rows.length alawys changes, cannot use
     if(temp != 0){
       var i = temp-1;
@@ -194,7 +200,7 @@ class UIInfoTable{
         this.removeRowByIndex(i);
         i--;
       }
-    } 
+    } */
   }
   removeRowById(Id){
     if (this.tableContainer.getElementsByClassName(Id)[0]){
