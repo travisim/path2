@@ -66,12 +66,11 @@ const statics_to_obj = {
   10: "ITQueue"
 }
 
-myUI.get_step = function(anim_step, step_direction){
-  if(step_direction=="fwd") return myUI.planner.get_step(anim_step, step_direction);
-  // step_direction = "bck"
-  let idx = myUI.step_data.bck.map[anim_step+1];
-  let nxIdx = myUI.step_data.bck.map[anim_step+2];
-  return myUI.step_data.bck.data.slice(idx, nxIdx);
+myUI.get_step = function(anim_step, step_direction="fwd"){
+	if(step_direction!="fwd") anim_step++;
+	let idx = myUI.step_data[step_direction].map[anim_step];
+	let nxIdx = myUI.step_data[step_direction].map[anim_step+1];
+  return myUI.step_data[step_direction].data.slice(idx, nxIdx);
 }
 
 
@@ -86,12 +85,12 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
     console.log(step, 'step');
     let i=0;
     while(i<step.length){
+      // this is implementation specific for compressed actions
       let j=i+1;
-      while(j<step.length){
-        if(Number.isInteger(step[j]) && step[j]&1) break;
+      while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))
         ++j;
-      }
-      if(myUI.testing) console.log(i,j);
+      // [i,j) is the action length
+			
       let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost, hCost, pseudoCodeRow,infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
       if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
       console.log("command", STATIC_COMMANDS[command], "dest", STATIC_DESTS[dest], "x", x, "y", y, "parentX", parentX, "parentY", parentY, "colorIndex", colorIndex, "stepNo", stepNo, "arrowIndex", arrowIndex, "fCost", fCost, "gCost", gCost, "hCost", hCost, "pseudoCodeRow", pseudoCodeRow, "infoTableRowIndex", infoTableRowIndex, "cellVal", cellVal);
@@ -176,17 +175,28 @@ steps_arr = [
 */
 
 myUI.run_combined_step = function(step_direction="fwd"){
-  let numSteps = myUI.planner.get_numsteps_2_combined(myUI.animation.step+1, step_direction);
+	if(step_direction=="fwd"){
+		var numSteps = myUI.step_data.fwd.combined[myUI.animation.step+1]; 
+	}
+	else{
+		var numSteps = myUI.step_data.bck.combined[myUI.animation.step]; 
+	}
   while(numSteps--) myUI.run_steps(1, step_direction);
 }
 
 
 
-myUI.generateReverseSteps = function(steps, indexMap){
-  let stepCnt=0;
+myUI.generateReverseSteps = function(){
+	let steps = myUI.step_data.fwd.data,
+		indexMap = myUI.step_data.fwd.map, 
+		combinedMap = myUI.step_data.fwd.combined;
+	
   myUI.step_data.bck.data = [];
   myUI.step_data.bck.map = [];
+	myUI.step_data.bck.combined = [];
 
+	let stepCnt=0;
+	let revCombinedCnt = 0;
   let mem = {infoTable:{}, canvasCoords:{}, drawSinglePixel:undefined, fullCanvas:{}, arrowColor:{}};
   
   while(stepCnt<indexMap.length){
@@ -194,14 +204,13 @@ myUI.generateReverseSteps = function(steps, indexMap){
     let i=0;
     myUI.step_data.bck.map.push(myUI.step_data.bck.data.length);
     while(i<step.length){
-      
+
+			// this is implementation specific for compressed actions
       let j=i+1;
-      while(j<step.length){
-        // this is implementation specific for compressed actions
-        if(Number.isInteger(step[j]) && step[j]&1) break;
+      while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))
         ++j;
-      }
       // [i,j) is the action length
+			
       let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost, hCost, pseudoCodeRow, infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
 
       let action = [];
@@ -292,8 +301,10 @@ myUI.generateReverseSteps = function(steps, indexMap){
         Array.prototype.push.apply(myUI.step_data.bck.data, action);
       i=j;
     }
-
-    ++stepCnt;
+		revCombinedCnt++;
+		myUI.step_data.bck.combined.push(revCombinedCnt);
+		if(combinedMap[stepCnt]==1) revCombinedCnt = 0;
+		++stepCnt;
   }
   myUI.mem = mem;
 }

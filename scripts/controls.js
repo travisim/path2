@@ -18,7 +18,10 @@ function compute_path(){
 	document.getElementById("compute_btn").innerHTML = "searching...";
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
 		console.log(path ? path.length : -1);
-		myUI.generateReverseSteps(myUI.planner.steps_forward, myUI.planner.step_index_map.fwd);
+		myUI.step_data.fwd.data = myUI.planner.steps_forward;
+	  myUI.step_data.fwd.map = myUI.planner.step_index_map.fwd;
+		myUI.step_data.fwd.combined = myUI.planner.combined_index_map.fwd;
+		myUI.generateReverseSteps();
 		myUI.sliders.search_progress_slider.elem.disabled = false;
 		myUI.animation.max_step = myUI.planner.max_step();
 		myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;
