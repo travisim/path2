@@ -28,7 +28,7 @@ class UIInfoPseudoCode{
       }
     
       cell1.innerHTML = pseudoCodeArrayByline[i].slice(whiteSpaceCounter);
-      var temp = 2*whiteSpaceCounter + "px"
+      var temp = 8*whiteSpaceCounter + "px"
       cell1.style.paddingLeft  = temp;
       //r.insertCell(2).innerHTML = pseudoCodeArrayByline[i].split("&emsp;").length - 1
       r.classList.add('psuedoRow');
