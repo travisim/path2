@@ -245,16 +245,13 @@ class UIInfoTable{
   }
 
   eraseRowAtIndex(rowIndex){
-    if (rowIndex >this.rows.length ){
+    if (rowIndex>=this.rows.length || this.rows.length<1){
       console.log("row index does not yet exist")
       return 0;
     } 
-    if (this.rows.length > 1){
-      var row = this.rows[rowIndex];
-      var parentEl = row.parentElement;
-      parentEl.removeChild(row)
-    }
-  
+    var row = this.rows[rowIndex];
+    var parentEl = row.parentElement;
+    parentEl.removeChild(row);
   }
   
 }

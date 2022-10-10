@@ -14,8 +14,10 @@ function animation_backend(){
         if(myUI.animation.jump_steps>1){
           let num_steps = parseInt(myUI.animation.jump_steps);
           if(myUI.animation.detailed){
+            myUI.run_steps(num_steps);
+            /*
             if(num_steps>50) myUI.jump_to_step(myUI.animation.step + num_steps);
-            else myUI.run_steps(num_steps);
+            else myUI.run_steps(num_steps);*/
           }
           else
             while(num_steps--) myUI.run_combined_step();

@@ -23,6 +23,7 @@ class GridPathFinder{
 		/* NEW */
 		let bitOffset = 12;
 		let idx = 0;
+		
 		let mask;
 		[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.static_bit_len, bitOffset, idx);
 		let command = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
@@ -30,6 +31,10 @@ class GridPathFinder{
 			[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.static_bit_len, bitOffset, idx);
 			var dest = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
 		}
+		if(action[0]&(1<<2)){
+			[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.color_bit_len, bitOffset, idx);
+			var colorIndex = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
+		}/*
 		if(action[0]&(1<<2)){
 			[mask, bitOffset, idx] = this._manageUnpacking(myUI.planner.coord_bit_len, bitOffset, idx);
 			let coord = bit_shift(action[idx], -(bitOffset-mask)) & ones(mask);
@@ -52,25 +57,46 @@ class GridPathFinder{
 		if(action[0]&(1<<6)){
 			var arrowIndex = bit_shift(action[idx], -bitOffset);
 		}
+		*/
+		if(action[0]&(1<<3)){
+			++idx;
+			let coord = action[idx]>>1;
+			var x = Math.floor(coord/myUI.planner.map_width);
+			var y = coord - x * myUI.planner.map_width;
+		}
+		if(action[0]&(1<<4)){
+			++idx;
+			let coord = action[idx]>>1;
+			var parentX = Math.floor(coord/myUI.planner.map_width);
+			var parentY = coord - x * myUI.planner.map_width;
+		}
+		if(action[0]&(1<<5)){
+			++idx;
+			var stepIndex = action[idx]>>1;
+		}
+		if(action[0]&(1<<6)){
+			++idx;
+			var arrowIndex = action[idx]>>1;
+		}
 		if(action[0]&(1<<7)){
 			++idx;
-			var gCost_str = action[idx]+Math.E;
+			var gCost_str = action[idx]/2;
 		}
 		if(action[0]&(1<<8)){
 			++idx;
-			var hCost_str = action[idx]+Math.E;
+			var hCost_str = action[idx]/2;
 		}
 		if(action[0]&(1<<9)){
 			++idx;
-			var pseudoCodeRow = action[idx]+Math.E;
+			var pseudoCodeRow = action[idx]>>1;
 		}
 		if(action[0]&(1<<10)){
 			++idx;
-			var infoTableRowIndex = action[idx]+Math.E;
+			var infoTableRowIndex = action[idx]>>1;
 		}
     if(action[0]&(1<<11)){
 			++idx;
-			var cellVal = action[idx]+Math.E;
+			var cellVal = action[idx]/2;
 		}
     
 		return [command, dest, x, y, parentX, parentY, colorIndex, stepIndex, arrowIndex, gCost_str, hCost_str, pseudoCodeRow,infoTableRowIndex, cellVal];/**/
@@ -138,11 +164,16 @@ class GridPathFinder{
 		//console.log(obj.actionCache);
 		if(dest!==undefined){
 			this._managePacking(myUI.planner.static_bit_len, obj);
-			obj.actionCache[0] += 1<<1; //
-     
+			obj.actionCache[0] += 1<<1; 
 			obj.actionCache[obj.idx] += bit_shift(dest, obj.bitOffset - myUI.planner.static_bit_len);
   		
 		}
+		if(colorIndex!==undefined){
+			this._managePacking(myUI.planner.color_bit_len, obj);
+			obj.actionCache[0] += 1<<2;
+			obj.actionCache[obj.idx] += bit_shift(colorIndex, obj.bitOffset - myUI.planner.color_bit_len);
+		}
+		/*
 		if(nodeCoord!==undefined){
 			//console.log(nodeCoord);
 			this._managePacking(myUI.planner.coord_bit_len, obj);
@@ -169,30 +200,51 @@ class GridPathFinder{
 			obj.actionCache[0] += 1<<6;
 			obj.actionCache[obj.idx] += bit_shift(arrowIndex, obj.bitOffset);
 		}
+		*/
+		if(nodeCoord!==undefined){
+			obj.idx++;
+			obj.actionCache[0] += 1<<3;
+			obj.actionCache[obj.idx] = (nodeCoord[0]*myUI.planner.map_width+nodeCoord[1])*2;
+		}
+		if(parentCoord!==undefined){
+			obj.idx++;
+			obj.actionCache[0] += 1<<4;
+			obj.actionCache[obj.idx] = (parentCoord[0]*myUI.planner.map_width+parentCoord[1])*2;
+		}
+		if(stepIndex!==undefined){
+			obj.idx++;
+			obj.actionCache[0] += 1<<5;
+			obj.actionCache[obj.idx] = stepIndex*2;
+		}
+		if(arrowIndex!==undefined){
+			obj.idx++;
+			obj.actionCache[0] += 1<<6;
+			obj.actionCache[obj.idx] = arrowIndex*2;
+		}
 		if(gCost!==undefined){
 			obj.idx++;
 			obj.actionCache[0] += 1<<7;
-			obj.actionCache[obj.idx] = gCost-Math.E;
+			obj.actionCache[obj.idx] = gCost*2;
 		}
 		if(hCost!==undefined){
 			obj.idx++;
 			obj.actionCache[0] += 1<<8;
-			obj.actionCache[obj.idx] = hCost-Math.E;
+			obj.actionCache[obj.idx] = hCost*2;
 		}
     if(pseudoCodeRow!==undefined){
 			obj.idx++;
 			obj.actionCache[0] += 1<<9;
-			obj.actionCache[obj.idx] = pseudoCodeRow-Math.E;
+			obj.actionCache[obj.idx] = pseudoCodeRow*2;
 		}
     if(infoTableRowIndex!==undefined){
 			obj.idx++;
 			obj.actionCache[0] += 1<<10;
-			obj.actionCache[obj.idx] = infoTableRowIndex-Math.E;
+			obj.actionCache[obj.idx] = infoTableRowIndex*2;
 		}
 		if(cellVal!==undefined){
 			obj.idx++;
 			obj.actionCache[0] += 1<<11;
-			obj.actionCache[obj.idx] = cellVal-Math.E;
+			obj.actionCache[obj.idx] = cellVal*2;
 		}
 
 		return obj.actionCache;
@@ -310,7 +362,7 @@ class GridPathFinder{
 		return this.actionCache.length - 1;
 	}
 
-  // this._create_action(STATIC.EP, STATIC.QU, this.current_node_XY);
+  
 	_create_action({
 		command,
 		dest,
@@ -342,11 +394,10 @@ class GridPathFinder{
 		//console.log(this.actionCache);
 		if(dest!==undefined){
 			idx = this._manageAction(this.static_bit_len);
-			this.actionCache[0] += 1<<1; //
-     
+			this.actionCache[0] += 1<<1;
 			this.actionCache[idx] += bit_shift(dest, this.bitOffset - this.static_bit_len);
-  		
 		}
+		/*
 		if(nodeCoord!==undefined){
 			//console.log(nodeCoord);
 			idx = this._manageAction(this.coord_bit_len);
@@ -359,12 +410,13 @@ class GridPathFinder{
 			idx = this._manageAction(this.coord_bit_len);
 			this.actionCache[0] += 1<<3;//
 			this.actionCache[idx] += bit_shift(parentCoord[0]*this.map_width+parentCoord[1], this.bitOffset - this.coord_bit_len);
-		}
+		}/* switched coordinate to new system */
 		if(colorIndex!==undefined){
 			idx = this._manageAction(this.color_bit_len);
-			this.actionCache[0] += 1<<4;
+			this.actionCache[0] += 1<<2;
 			this.actionCache[idx] += bit_shift(colorIndex, this.bitOffset - this.color_bit_len);
 		}
+		/*
 		if(stepIndex!==undefined){
 			this.actionCache[0] += 1<<5;
 			this.actionCache[idx] += bit_shift(stepIndex, this.bitOffset);
@@ -372,31 +424,51 @@ class GridPathFinder{
 		if(arrowIndex!==undefined){
 			this.actionCache[0] += 1<<6;
 			this.actionCache[idx] += bit_shift(arrowIndex, this.bitOffset);
+		}*/
+		if(nodeCoord!==undefined){
+			++idx;
+			this.actionCache[0] += 1<<3;
+			this.actionCache[idx] = (nodeCoord[0]*this.map_width+nodeCoord[1])*2;
+		}
+		if(parentCoord!==undefined){
+			++idx;
+			this.actionCache[0] += 1<<4;
+			this.actionCache[idx] = (parentCoord[0]*this.map_width+parentCoord[1])*2;
+		}
+		if(stepIndex!==undefined){
+			++idx;
+			this.actionCache[0] += 1<<5;
+			this.actionCache[idx] = stepIndex*2;
+		}
+		if(arrowIndex!==undefined){
+			++idx;
+			this.actionCache[0] += 1<<6;
+			this.actionCache[idx] = arrowIndex*2;
 		}
 		if(gCost!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<7;
-			this.actionCache[idx] = gCost-Math.E;
+			this.actionCache[idx] = gCost*2;
 		}
 		if(hCost!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<8;
-			this.actionCache[idx] = hCost-Math.E;
+			this.actionCache[idx] = hCost*2;
 		}
     if(pseudoCodeRow!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<9;
-			this.actionCache[idx] = pseudoCodeRow-Math.E;
+			this.actionCache[idx] = pseudoCodeRow*2;
 		}
 		if(infoTableRowIndex!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<10;
-			this.actionCache[idx] = infoTableRowIndex-Math.E;
+			this.actionCache[idx] = infoTableRowIndex*2;
 		}
 		if(cellVal!==undefined){
 			++idx;
 			this.actionCache[0] += 1<<11;
-			this.actionCache[idx] = cellVal-Math.E;
+			this.actionCache[idx] = cellVal*2;
 		}
 
 		this.actionCache.forEach(val=>{
