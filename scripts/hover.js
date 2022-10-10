@@ -38,6 +38,9 @@ myUI.handle_map_hover = function(e){
 			myUI.canvases.hover_map.canvas.style.cursor = "pointer";
 			document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_x][scaled_y];
 			document.getElementById("hover_cell_visited").innerHTML = myUI.planner.visited.get_data([scaled_x, scaled_y]);
+			document.getElementById("hoverFCost").innerHTML = myUI.canvases["fCost"].canvas_cache[scaled_x][scaled_y].toPrecision(5);
+			document.getElementById("hoverGCost").innerHTML = myUI.canvases["gCost"].canvas_cache[scaled_x][scaled_y].toPrecision(5);
+			document.getElementById("hoverHCost").innerHTML = myUI.canvases["hCost"].canvas_cache[scaled_x][scaled_y].toPrecision(5);
 			/*tooltip_data.style.backgroundColor = `#3bd44b`;
 			for(const obj of hoverData){
 				
@@ -132,6 +135,7 @@ function dragElement(elmnt) {
 		else if(elmnt.id=="map_goal_icon"){
 			myUI.map_goal = [scaled_x, scaled_y];
 		}
+		console.log("GOING TO DISPLAY")
 		myUI.displayScen(true, true);
   }
 }

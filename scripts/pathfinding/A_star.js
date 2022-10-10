@@ -14,7 +14,7 @@ class A_star extends GridPathFinder{
   
 
   static get distance_metrics(){
-    return ["Euclidean", "Manhattan", "Chebyshev"];
+    return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
   }
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
@@ -38,6 +38,12 @@ class A_star extends GridPathFinder{
       return Math.max(Math.abs(c1[0]-c2[0]), Math.abs(c1[1]-c2[1]));
     }
 
+    function octile(c1, c2){
+      var dx = Math.abs(c1[0]-c2[0]);
+      var dy =  Math.abs(c1[1]-c2[1]);
+      return Math.min(dx, dy)*Math.SQRT2 + Math.abs(dy-dx);
+    }
+
     if(this.distance_metric == "Manhattan"){
       var g_cost = this.current_node.g_cost + manhattan(this.current_node.self_XY, successor);
       var h_cost = manhattan(successor, this.goal);
@@ -49,6 +55,10 @@ class A_star extends GridPathFinder{
     else if(this.distance_metric == "Chebyshev"){
       var g_cost = this.current_node.g_cost + chebyshev(this.current_node.self_XY, successor);
       var h_cost = chebyshev(successor, this.goal);
+    }
+    else if(this.distance_metric == "Octile"){
+      var g_cost = this.current_node.g_cost + octile(this.current_node.self_XY, successor);
+      var h_cost = octile(successor, this.goal);
     }
 
     var f_cost = g_cost + h_cost;//++ from bfs.js
@@ -81,7 +91,10 @@ class A_star extends GridPathFinder{
       // while there are still nodes left to visit
       if (this.queue.length == 0) return this._terminate_search();
            //++ from bfs.js
-      this.queue.sort(function (a, b){return a.f_cost - b.f_cost});   
+      this.queue.sort(function (a, b){
+        if(Math.abs(a.f_cost-b.f_cost)<0.000001) return a.h_cost-b.h_cost;
+        return a.f_cost-b.f_cost;
+      });   
       //++ from bfs.js
       
       if (this.current_node){// if second node and on 

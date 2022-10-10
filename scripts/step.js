@@ -221,9 +221,14 @@ myUI.generateReverseSteps = function(){
         mem.drawSinglePixel = [x,y];
       }
       else if(command==STATIC.SP){
-        if(mem.fullCanvas[dest]===undefined) mem.fullCanvas[dest] = deep_copy_matrix(myUI.canvases[statics_to_obj[dest]].canvas_cache);
-        action = GridPathFinder.packAction({command: STATIC.SP, dest: dest, nodeCoord: [x,y], cellVal: mem.fullCanvas[dest][x][y]});
-        mem.fullCanvas[dest][x][y] = cellVal;
+        try{
+          if(mem.fullCanvas[dest]===undefined) mem.fullCanvas[dest] = deep_copy_matrix(myUI.canvases[statics_to_obj[dest]].canvas_cache);
+          action = GridPathFinder.packAction({command: STATIC.SP, dest: dest, nodeCoord: [x,y], cellVal: mem.fullCanvas[dest][x][y]});
+          mem.fullCanvas[dest][x][y] = cellVal;
+        }
+        catch(e){
+          console.log(statics_to_obj[dest]);
+        }
       }/* */
       else if(command==STATIC.DP){
         if(cellVal===undefined) cellVal = 1;

@@ -171,41 +171,44 @@ if(myUI.vertex) document.getElementById("vertexToggle").checked=true;
 else document.getElementById("vertexToggle").checked=false;
 
 myUI.displayScen = function(update=false, reset_zero=false){
+  console.log("INSIDE DISPLAY SCEN")
 	myUI.canvases.start.erase_canvas();
 	myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
 	myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
 	myUI.scenFail = false;
-	if(myUI.map_name!=myUI.scen_name && document.querySelector('#scen_num').value>0){
-		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
-	}
-	else{
-		console.log(myUI.map_start, myUI.map_goal);
-    let change = myUI.vertex ? 1 : 0;
-    myUI.map_start[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_start[0]));
-    myUI.map_goal[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_goal[0]));
-    myUI.map_start[1] = Math.max(0, Math.min(myUI.map_width-1+change, myUI.map_start[1]));
-    myUI.map_goal[1] = Math.max(0, Math.min(myUI.map_width-1+change, myUI.map_goal[1]));
-		myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
-		myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
-		if(update){
-      // update the inputs
-      document.querySelector("#scen_start_x").value = myUI.map_start[0];
-      document.querySelector("#scen_start_y").value = myUI.map_start[1];
-      document.querySelector("#scen_goal_x").value = myUI.map_goal[0];
-      document.querySelector("#scen_goal_y").value =myUI.map_goal[1];
-    }
-    if(reset_zero) document.querySelector('#scen_num').value = 0;
-    console.log("moving");
-    myUI.map_start_icon.move(myUI.map_start);
-    myUI.map_goal_icon.move(myUI.map_goal);
-		
-	}
-	/*clear all canvases*/
-	["visited",	"neighbors", "queue",	"current_XY",	"path"].forEach(canvas_id=>{
+  /*clear all canvases*/
+  ["visited",	"neighbors", "queue",	"current_XY",	"path"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	})
+
+	/*if(myUI.map_name!=myUI.scen_name && document.querySelector('#scen_num').value>0){
+		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
+	}
+	/* */
+  console.log(myUI.map_start, myUI.map_goal);
+  let change = myUI.vertex ? 1 : 0;
+  myUI.map_start[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_start[0]));
+  myUI.map_goal[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_goal[0]));
+  myUI.map_start[1] = Math.max(0, Math.min(myUI.map_width-1+change, myUI.map_start[1]));
+  myUI.map_goal[1] = Math.max(0, Math.min(myUI.map_width-1+change, myUI.map_goal[1]));
+  myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
+  myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
+  if(update){
+    // update the inputs
+    document.querySelector("#scen_start_x").value = myUI.map_start[0];
+    document.querySelector("#scen_start_y").value = myUI.map_start[1];
+    document.querySelector("#scen_goal_x").value = myUI.map_goal[0];
+    document.querySelector("#scen_goal_y").value =myUI.map_goal[1];
+  }
+  if(reset_zero) document.querySelector('#scen_num').value = 0;
+  console.log("moving");
+  myUI.map_start_icon.move(myUI.map_start);
+  myUI.map_goal_icon.move(myUI.map_goal);
+  
+	
+	/*clear all canvases*/
 }
 
 function moveDraggable(xy){
