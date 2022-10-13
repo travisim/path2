@@ -260,8 +260,6 @@ myUI.loadPlanner = function() {
 	myUI.selects["planner_select"].elem.value = myUI.planner_choice;
 	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
-  for(const [key, IT] of Object.entries(myUI.InfoTables))
-    IT.setTableHeader(myUI.planner.display_table_header_name())
   myUI.InfoMap.PlannerMode(myUI.planner.infoMapPlannerMode());
   //determine_info_map_header();
   myUI.init_planner_config();

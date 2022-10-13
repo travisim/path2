@@ -14,7 +14,7 @@ myUI.initialize = function(){
 	myUI.modals = {};
 
   // Initialize canvases
-  [
+  myUI.canvasArray = [
     {
       id:"edit_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"]
     },
@@ -57,7 +57,8 @@ myUI.initialize = function(){
     {
       id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#d1cfe2"]
     },
-  ].forEach(item=>{
+  ];
+  myUI.canvasArray.forEach(item=>{
     myUI.canvases[item.id] = new UICanvas(item.id, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal);
   });
   myUI.canvases.edit_map.toggle_edit();
@@ -146,11 +147,12 @@ myUI.initialize = function(){
   });
 
 	myUI.hover_labels = {};
-	[
+	myUI.hoverArray = [
 		"hover_x",
 		"hover_y",
     "hover_cell_index"
-	].forEach(label=>{
+	];
+  myUI.hoverArray.forEach(label=>{
 		myUI.hover_labels[label] = {elem: document.getElementById(label)}
 	})
 
@@ -191,25 +193,30 @@ myUI.initialize = function(){
 
   myUI.step_data = {fwd:{data:[], map:[], combined:[]}, bck:{data:[], map:[], combined:[]}};
 
-  myUI.tmp = {};
+  myUI.infotableArray = [
+    {id:"ITQueue", displayName: "Queue", headers:["Queue No","Vertex","Parent","F cost","G cost","H cost"]}
+  ];
   myUI.InfoTables = {};
   myUI.InfoTables["ITQueue"] = new UIInfoTable("Queue"); // do not shift to top as prerequisite required
   myUI.InfoTables["ITQueue"].setTableActive();
+  myUI.Infotables["ITQueue"].setTableHeader(["Queue No","Vertex","Parent","F cost","G cost","H cost"]);
   myUI.InfoMap  = new UIInfoMap();
   myUI.PseudoCode = new UIInfoPseudoCode();
   //myUI.pseudoCodeRaw = 'def astar(map, start_vertex, goal_vertex): \nlist = OpenList() \npath = [ ] \n#Initialise h-cost for all \nfor vertex in map.vertices(): \n    vertex.set_h_cost(goal_vertex)  \n    vertex.g_cost = ∞  \n    vertex.visited = False \n  # Assign 0 g-cost to start_vertex  \n start_vertex.g_cost = 0 \n list.add(start_vertex) \n while list.not_empty(): \n  current_vertex = list.remove() \n  # Skip if visited: a cheaper path  \n  # was already found \n    if current_vertex.visited: \n      continue \n   # Trace back and return the path if at the goal \n   if current_vertex is goal_vertex : \n     while current_vertex is not None: \n      path.push(current_vertex) \n      current_vertex = current_vertex.parent \n     return path # exit the function \n  # Add all free, neighboring vertices which \n   # are cheaper, into the list  \n  for vertex in get_free_neighbors(map, current_vertex):  \n      # f or h-costs are not checked bcos obstacles \n     # affects the optimal path cost from the g-cost \n     tentative_g = calc_g_cost(vertex, current_vertex)  \n     if tentative_g < vertex.g_cost: \n       vertex.g_cost = tentative_g  \n      vertex.parent = current_vertex  \n      list.add(vertex) \nreturn path';
   if(myUI.pseudoCodeRaw == true) myUI.PseudoCode.rowGenerator(myUI.pseudoCodeRaw);
 
-coll[1].click();
-coll[3].click();
-coll[4].click();
-
-  
+  coll[1].click();
+  coll[3].click();
+  coll[4].click();
 }
-
 
 myUI.initialize();
  
-
-
-
+myUI.export = function(){
+  // run in inspect element console
+  console.log(JSON.stringify(myUI.canvasArray));
+  console.log(JSON.stringify(myUI.hoverArray));
+  console.log("DEST ENUMS WRITING: ",JSON.stringify(STATIC_DESTS));
+  console.log("DEST ENUMS READING: ",JSON.stringify(statics_to_obj));
+  console.log("INFOTABLE: ",JSON.stringify(myUI.infotableArray));
+}

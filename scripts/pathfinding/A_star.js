@@ -5,9 +5,6 @@ class A_star extends GridPathFinder{
 	static get display_name(){
 		return "A star";
   }
-  display_table_header_name(){
-		return ["Queue No","Vertex","Parent","F cost","G cost","H cost"];
-  }
   infoMapPlannerMode(){
     return "A_star";
   }
