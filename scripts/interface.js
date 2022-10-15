@@ -208,6 +208,8 @@ myUI.initialize = function(){
   coll[1].click();
   coll[3].click();
   coll[4].click();
+
+  myUI.tmp = {}; // DO NOT DELETE
 }
 
 myUI.initialize();

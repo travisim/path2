@@ -116,18 +116,18 @@
   "infoTable":[
     {
       "title" :"queue",
-      "headers": ["Queue No","Vertex","Parent","F cost","G cost","H cost"];
+      "headers": ["Queue No","Vertex","Parent","F cost","G cost","H cost"]
     },
     {
       "title" :"statistics",
-      "headers": ["Distance to goal","Area scanned","Optimal path distance"];
+      "headers": ["Distance to goal","Area scanned","Optimal path distance"]
     }
    
   ], 
   "infoMap":{
     "mode":"A_star"
     
-  }
+  },
   "expansion":{
     "steps":[],
     "map":[]
