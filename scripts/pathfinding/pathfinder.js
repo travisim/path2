@@ -68,7 +68,7 @@ class GridPathFinder{
 			++idx;
 			let coord = action[idx]>>1;
 			var parentX = Math.floor(coord/myUI.planner.map_width);
-			var parentY = coord - x * myUI.planner.map_width;
+			var parentY = coord - parentX * myUI.planner.map_width;
 		}
 		if(action[0]&(1<<5)){
 			++idx;
@@ -255,6 +255,10 @@ class GridPathFinder{
 		this.diagonal_allow = diagonal_allow;
 	}
 
+	infoMapPlannerMode(){
+		return "default";
+	}
+
 	init_neighbors(num_neighbors, first_neighbour=this.first_neighbour, search_direction=this.search_direction){
 		this.num_neighbors = num_neighbors;
 		
@@ -346,11 +350,9 @@ class GridPathFinder{
 	}
 
 	_clear_steps(){
-		this.steps_forward = [];
-		this.steps_inverse = [];
-		this.step_index_map = {fwd:[], bck:[]};
-		this.combined_index_map = {fwd:[], bck:[]};
-		this.combined_reverse_map = {fwd:{}, bck:{}};
+		this.steps_data = [];
+		this.step_index_map = [];
+		this.combined_index_map = [];
 	}
 
 	_manageAction(numBits){
@@ -551,37 +553,24 @@ console.log(STATIC_COMMANDS)
 	}   //  stepcache = [action_cache,hcost,fcost,stepno]
   //   this._create_action(STATIC.InTopTemp,STATIC.DIT, this.current_node_XY,this.step_index, this.current_node.h_cost, this.current_node.g_cost,this.prev_node_XY);
 //this.step_index: 
-	_save_step(step_direction="fwd", combined=false){
-		if(step_direction=="fwd"){
-			if(combined){
-				let n = this.step_index_map.fwd.length - this.combined_index_map.fwd.length;
-				while(n>0){
-					this.combined_index_map.fwd.push(n);
-					--n;
-				}
+	_save_step(combined=false){
+		
+		if(combined){
+			let n = this.step_index_map.length - this.combined_index_map.length;
+			while(n>0){
+				this.combined_index_map.push(n);
+				--n;
 			}
-			this.step_index_map.fwd.push(this.steps_forward.length);
-			this.step_cache.forEach(action=>this.steps_forward.push(action));
 		}
-		//console.log(myUI.planner.steps_forward)
-  	//  console.log(myUI.planner.step_index_map.fwd)
-		else{
-			if(combined){
-				let n = this.step_index_map.bck.length - this.combined_index_map.bck.length;
-				while(n>0){
-					this.combined_index_map.bck.push(n);
-					n--;
-				}
-			}
-			this.step_index_map.bck.push(this.steps_inverse.length);
-			this.step_cache.forEach(action=>this.steps_inverse.push(action));
-		}
+		this.step_index_map.push(this.steps_data.length);
+		this.step_cache.forEach(action=>this.steps_data.push(action));
+		
 		/* 
 		step 0 is index 0 to index k-1
 		step 1 is kth index where step 0 is k-items long
 		step n is k0+k1+k2+...k(n-1) = k(0 to n-1)th index
 		*/
-		if(step_direction=="bck") ++this.step_index;
+		++this.step_index;
 		this.step_cache = []; // clear steps to save another step
 	}
 
@@ -593,29 +582,6 @@ console.log(STATIC_COMMANDS)
 		// index is the step index for the first expansion of that cell
 		let [x,y] = xy;
 		this.cell_map[x][y] = this.step_index;
-	}
-  
-	get_step(num, step_direction="fwd"){
-		let index, nx_index;
-		if(step_direction=="fwd"){
-			index = this.step_index_map.fwd[num];
-			nx_index = this.step_index_map.fwd[num+1];
-		}
-		else{
-			index = this.step_index_map.bck[num+1];
-			nx_index = this.step_index_map.bck[num+2];
-		}
-		let step = step_direction=="fwd" ? this.steps_forward.slice(index, nx_index) :this.steps_inverse.slice(index, nx_index);
-		return step;
-	}
-
-	get_numsteps_2_combined(num, step_direction="fwd"){
-		if(step_direction=="fwd"){
-			return this.combined_index_map.fwd[num];
-		}
-		else{
-			return this.combined_index_map.bck[num];
-		}
 	}
 
 	_manage_state(){
@@ -667,36 +633,12 @@ console.log(STATIC_COMMANDS)
 			node = node.parent;
 		}
 		console.log("found");
-		/* OLD *//*
-		this._create_action(STATIC.SIMPLE);
-		this._create_action(STATIC.EC, STATIC.CR);
 		/* NEW */
 		this._create_action({command: STATIC.EC, dest: STATIC.CR});
-		this._save_step("fwd", true);
-
-		
-		/* OLD *//*
-		this._create_action(STATIC.SIMPLE);
-		this._create_action(STATIC.EC, STATIC.PA);
-		this._create_action(STATIC.DP, STATIC.CR, this.current_node_XY);
-		/* NEW */
-		this._create_action({command: STATIC.EC, dest: STATIC.PA});
-		this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_XY});
-		node = originalNode;
-		while (node != null) {
-			/* OLD *//*
-			this._create_action(STATIC.DA, node.arrow_index, 0);
-			/* NEW */
-			this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 0});
-			node = node.parent;
-		}
-		this._save_step("bck");
+		this._save_step(true);
 
 		this._create_action({command: STATIC.SIMPLE});
-		this._save_step("fwd", true);
-
-		this._create_action({command: STATIC.SIMPLE});
-		this._save_step("bck");
+		this._save_step(true);
 
 		return true;
 	}

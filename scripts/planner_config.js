@@ -27,13 +27,13 @@ document.getElementById("diagonal_block_btn").addEventListener("click", e=>{
 function toggle_num_neighbors(e){
   if(myUI.planner.num_neighbors!=8){
     myUI.planner.init_neighbors(8);
-    document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = myUI.top_Z});
+    //document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = myUI.top_Z});
     document.getElementById("num_neighbors_label").innerHTML = "Octal (8-directions)";
     myUI.InfoMap.NumneighborsMode(8);
   }
   else{
     myUI.planner.init_neighbors(4);
-    document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = -100});
+    //document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = -100});
     document.getElementById("num_neighbors_label").innerHTML = "Cardinal (4-directions)";
     myUI.InfoMap.NumneighborsMode(4);  
   }

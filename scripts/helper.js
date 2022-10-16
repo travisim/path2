@@ -1,3 +1,14 @@
+function removeChildren(elem, childTag="", omitIds=[]){
+  childTag = childTag.toUpperCase();
+  let idx = 0;
+  while(elem.children.length>idx){
+    const child = elem.children[idx];
+    if(omitIds.includes(child.id)) idx++;
+    else if(childTag!="" && child.tagName.toUpperCase()==childTag) idx++;
+    else elem.removeChild(child);
+  }
+}
+
 //takes in a array of objects and returns a array of 1 property of the object
 function nodes_to_array(obj_array,property_in_obj){
   var array = new Array(obj_array.length); 

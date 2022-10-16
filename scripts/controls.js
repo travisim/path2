@@ -15,12 +15,16 @@ function compute_path(){
 	if(!myUI.map_arr) return alert("no map loaded!");
   if(!myUI.map_start) return alert("no scene loaded!");
 	myUI.planner.add_map(myUI.map_arr);
+	myUI.updateInfoMap(...myUI.map_start);
+	myUI.reset_animation();
+	myUI.InfoTables["ITQueue"].removeAllTableRows();
 	document.getElementById("compute_btn").innerHTML = "searching...";
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
 		console.log(path ? path.length : -1);
-		myUI.step_data.fwd.data = myUI.planner.steps_forward;
-	  myUI.step_data.fwd.map = myUI.planner.step_index_map.fwd;
-		myUI.step_data.fwd.combined = myUI.planner.combined_index_map.fwd;
+		console.log(myUI.planner.steps_data)
+		myUI.step_data.fwd.data = myUI.planner.steps_data;
+	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
+		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
 		myUI.generateReverseSteps();
 		myUI.sliders.search_progress_slider.elem.disabled = false;
 		myUI.animation.max_step = myUI.planner.max_step();
@@ -29,8 +33,6 @@ function compute_path(){
 		myUI.sliders.animation_speed_slider.elem.max = Math.log2(200/each_frame_duration_min)*1000;
 		document.getElementById("compute_btn").innerHTML = "done!";
 		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
-		myUI.reset_animation();
-		myUI.InfoTables["ITQueue"].removeAllTableRows();
    /*
     for(const [key, IT] of Object.entries(myUI.InfoTables))
         IT.removeAllTableRows();

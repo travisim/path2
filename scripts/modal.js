@@ -23,6 +23,7 @@ myUI.buttons.edit_map_btn.btn.addEventListener("click", myUI.modals.edit_map.sho
 myUI.modals.edit_map.close = function(){
 	myUI.map_arr = deep_copy_matrix(myUI.canvases.edit_map.canvas_cache, flip_bit=true);
   myUI.displayMap();
+  myUI.displayScen(true, true);
   document.removeEventListener("keydown", modal_await_keypress);
   hide_modal(myUI.modals.edit_map.elem);
 }

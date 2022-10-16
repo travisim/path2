@@ -80,7 +80,7 @@ class UIInfoMap{
         if(drawName=="outOfBound") myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneOutOfBounds();
         continue;
       }
-      if(drawName=="bg" && myUI.canvases[drawName].canvas_cache[next_XY_temp[0]][next_XY_temp[1]]>0){
+      if(drawName=="bg" && myUI.canvases[drawName].canvas_cache[next_XY_temp[0]] && myUI.canvases[drawName].canvas_cache[next_XY_temp[0]][next_XY_temp[1]]>0){
         myUI.InfoNWSE[myUI.planner.deltaNWSE[i]].drawOneObstacle();  
       }
       else if(drawName=="visited" && myUI.canvases[drawName].canvas_cache[next_XY_temp[0]][next_XY_temp[1]]>0){
@@ -135,6 +135,11 @@ class UIInfoMap{
       //initialise html for info squares as well
     }
     else if (planner == 'A_star'){
+      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div></section>';
+//      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
+      //initialise html for info squares as well
+    }
+    else if (planner == 'BFS_vertex'){
       infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div></section>';
 //      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
       //initialise html for info squares as well

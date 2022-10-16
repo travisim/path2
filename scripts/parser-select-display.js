@@ -1,15 +1,3 @@
-function removeChildren(elem, childTag, omitIds=[]){
-  childTag = childTag.toUpperCase();
-  for (const child of elem.children){
-    let flag = false;
-    for(const id of omitIds){
-      if(child.id == id) flag = true;
-    }
-    if(flag) continue;
-    if(child.tagName.toUpperCase()==childTag) elem.removeChild(child);
-  }
-}
-
 myUI.resetSelectOptions = function(select_elem){
   removeChildren(select_elem, "OPTION");
 }
@@ -146,7 +134,7 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
   if(document.getElementById("vertexToggle").checked){
     // enable vertex
     myUI.vertex = true;
-    ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal"].forEach(canvas=>{
+    ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal", "fCost", "gCost", "hCost"].forEach(canvas=>{
       myUI.canvases[canvas].scale_canvas(1024, 1024, false);
       myUI.canvases[canvas].setDrawType("vertex");
     });
@@ -155,7 +143,7 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
   }
   else{
     myUI.vertex = false;
-    ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal"].forEach(canvas=>{
+    ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal", "fCost", "gCost", "hCost"].forEach(canvas=>{
       myUI.canvases[canvas].setDrawType("pixel");
     });
     myUI.planners = myUI.planners_cell;
@@ -179,10 +167,7 @@ myUI.displayScen = function(update=false, reset_zero=false){
 	myUI.sliders.search_progress_slider.elem.disabled = true;
 	myUI.scenFail = false;
   /*clear all canvases*/
-  ["visited",	"neighbors", "queue",	"current_XY",	"path"].forEach(canvas_id=>{
-		myUI.canvases[canvas_id].erase_canvas();
-	})
-
+  myUI.reset_animation();
 	/*if(myUI.map_name!=myUI.scen_name && document.querySelector('#scen_num').value>0){
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
 	}
@@ -206,9 +191,7 @@ myUI.displayScen = function(update=false, reset_zero=false){
   console.log("moving");
   myUI.map_start_icon.move(myUI.map_start);
   myUI.map_goal_icon.move(myUI.map_goal);
-  
-	
-	/*clear all canvases*/
+	try{myUI.updateInfoMap(myUI.map_start);}catch(e){}
 }
 
 function moveDraggable(xy){
@@ -219,7 +202,6 @@ function moveDraggable(xy){
 
   this.elem.style.top = ((xy[0]+offset)*bounds.height / myUI.map_height - this.elem.height/2) + "px";
   this.elem.style.left =  ((xy[1]+offset)*bounds.width / myUI.map_width - this.elem.width/2) + "px";
-  
 }
 
 myUI.map_start_icon.move = moveDraggable;

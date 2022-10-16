@@ -124,6 +124,7 @@ myUI.jump_to_step = function(target_step){
     */
     }
     catch(e){
+      console.log(e);
       debugger;
     }
   }

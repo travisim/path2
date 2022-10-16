@@ -11,6 +11,10 @@ class BFS_Vertex extends GridPathFinder {
     this.vertexEnabled = true;
   }
 
+  infoMapPlannerMode(){
+    return "BFS_vertex"
+  }
+
   search(start, goal) {
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
@@ -47,35 +51,6 @@ class BFS_Vertex extends GridPathFinder {
       }/* */
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
 
-      /* OLD *//*
-      
-      this._create_action(STATIC.SIMPLE);
-      this._create_action(STATIC.EC, STATIC.CR);
-      this._create_action(STATIC.EC, STATIC.NB);
-      this._create_action(STATIC.DP, STATIC.CR, this.current_node_XY);
-      this._create_action(STATIC.DI, STATIC.ICR, this.current_node_XY);
-      //this._create_action(STATIC.DP, STATIC.VI, this.current_node_XY);
-      this._create_action(STATIC.INC_P, STATIC.VI, this.current_node_XY);
-      this._create_action(STATIC.EP, STATIC.QU, this.current_node_XY);
-      this.visited_incs.forEach(coord=>this._create_action(STATIC.INC_P, STATIC.VI, coord));
-      this._save_step("fwd");
-
-      
-      this._create_action(STATIC.SIMPLE);
-      this._create_action(STATIC.EC, STATIC.CR);
-      this._create_action(STATIC.EP, STATIC.VI, this.current_node_XY);
-      //this._create_action(STATIC.DEC_P, STATIC.VI, this.current_node_XY);
-      this._create_action(STATIC.DP, STATIC.QU, this.current_node_XY);
-      if (this.prev_node_XY) {
-        this._create_action(STATIC.DP, STATIC.CR, this.prev_node_XY);
-        this._create_action(STATIC.DI,STATIC.ICR, this.prev_node_XY);
-        this.neighbors_XY.forEach(coord => {
-          this._create_action(STATIC.DP, STATIC.NB, coord);
-        });
-      }
-      this.visited_incs.forEach(coord=>this._create_action(STATIC.DEC_P, STATIC.VI, coord));
-      this._save_step("bck");
-
       /* NEW */
       
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
@@ -86,18 +61,6 @@ class BFS_Vertex extends GridPathFinder {
       this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
       this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
       this._save_step("fwd");
-
-      
-      this._create_action({command: STATIC.EC, dest: STATIC.CR});
-      this._create_action({command: STATIC.EP, dest: STATIC.VI, nodeCoord: this.current_node_XY});
-      this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
-      if(this.prev_node_XY){
-        this._create_action({command: STATIC.DP, dest: STATIC.ICR, nodeCoord: this.prev_node_XY});
-        this._create_action({command: STATIC.DI, dest: STATIC.ICR, nodeCoord: this.prev_node_XY});
-        this.neighbors_XY.forEach(coord=>this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: coord}));
-      }
-      this.visited_incs.forEach(coord=>this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: coord}));
-      this._save_step("bck");
 
       this.visited_incs = []; // reset visited_incs after adding them
       
@@ -160,50 +123,31 @@ class BFS_Vertex extends GridPathFinder {
 
         this.neighbors_XY.push(next_XY);  // add to neighbors, only need XY as don't need to search parents
 
-        
-        /* OLD *//*
-        this._create_action(STATIC.DP, STATIC.NB, next_XY);
-        this._create_action(STATIC.DI, this.deltaNWSE_STATICS[i], next_XY, null,null,this.current_node_XY);
-        /* NEW */
         this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_XY});
         this._create_action({command: STATIC.DI, dest: this.deltaNWSE_STATICS[i], nodeCoord: next_XY, parentCoord: this.current_node_XY});
 
+        let nextNode = new Node(null, null, null, this.current_node, next_XY);
+
         if (!this.queue_matrix[next_XY[0]][next_XY[1]]) { // prevent from adding to queue again
-          let node = new Node(null, null, null, this.current_node, next_XY);
-          this.queue.push(node);  // add to queue
+          this.queue.push(nextNode);  // add to queue
           //this._create_action(STATIC.DP, STATIC.QU, next_XY);
           this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_XY});
           if (this.draw_arrows) {
             // ARROW
             var arrow_index = myUI.create_arrow(next_XY, this.current_node_XY, true);
             this.arrow_state[arrow_index] = 1;
-            node.arrow_index = arrow_index;
+            nextNode.arrow_index = arrow_index;
             //myUI.draw_arrow(next_XY,  this.current_node_XY, true, 0, false);  // draw arrows backwards; point to parent
             //this._create_action(STATIC.DA, arrow_index);
             this._create_action({command: STATIC.DA, arrowIndex: arrow_index});
             // END OF ARROW
           }
+          this.queue_matrix[next_XY[0]][next_XY[1]] = 1;
         }
-        this._save_step("fwd");
+        this._save_step(false);
 
-        
-        /* OLD *//*
-        this._create_action(STATIC.EP, STATIC.NB, next_XY);
-        this._create_action(STATIC.EI, this.deltaNWSE_STATICS[i], next_XY, null,null,this.current_node_XY);
-        /* NEW */
-        this._create_action({command: STATIC.EP, dest: STATIC.NB, nodeCoord: next_XY});
-        this._create_action({command: STATIC.EI, dest: this.deltaNWSE_STATICS[i], nodeCoord: next_XY, parentCoord: this.current_node_XY});
-        if (!this.queue_matrix[next_XY[0]][next_XY[1]]) {
-          this.queue_matrix[next_XY[0]][next_XY[1]] = 1;  // add to matrix marker
-          //this._create_action(STATIC.EP, STATIC.QU, next_XY);
-          this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: next_XY});
-          if (this.draw_arrows){
-            //this._create_action(STATIC.EA, arrow_index);
-            this._create_action({command: STATIC.EA, arrowIndex: arrow_index});
-          }
-        }
-        this._save_step("bck");
-        
+        /* FOUND GOAL */
+        if(this._found_goal(nextNode)) return this._terminate_search(); // found the goal & exits the loop
       }
 
       this._assign_cell_index(this.current_node_XY);

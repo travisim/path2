@@ -394,7 +394,7 @@
 				<label for="planner_select2" class="label_centered">Choose planner:    </label>
 				<select name="planner_select2" size="1" id="planner_select2" class="select-dropdown"></select>
 				<div class="flex-row">
-					<div class="flex-col">
+					<div class="flex-col" id="planner_config_body">
 						<div class="flex-row">
 							<label class="label_centered">Diagonal Blocking:</label>
 							<button id="diagonal_block_btn" class="btn modal_btn">
@@ -422,6 +422,12 @@
 							<label for="distance_select" class="label_centered">Distance Metric:</label>
 							<select name="distance_select" size="1" id="distance_select" class="select-dropdown"></select>
 						</div>
+						<div class="flex-row">
+							<label class="label_centered">H-optimized:</label>
+							<button id="h_optimized_btn" class="btn modal_btn">
+								<span id="h_optimized_label">Disabled</span>
+							</button>
+						</div><!---->
 					</div>
 				</div>
 			</div>

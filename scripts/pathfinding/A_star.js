@@ -9,13 +9,57 @@ class A_star extends GridPathFinder{
     return "A_star";
   }
   
-
   static get distance_metrics(){
     return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
   }
 
+  static get config(){
+    return [
+      {uid: "diagonal_block", displayName: "Diagonal Blocking:", options: ["Blocked", "Unblocked"]},
+      {uid: "num_neighbors", displayName: "Neighbors:", options: ["Octal (8-directions)", "Cardinal (4-directions)"]},
+      {uid: "first_neighbor", displayName: "Starting Node:", options: ["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
+      {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"]},
+      {uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Euclidean", "Manhattan", "Chebyshev"]},
+      {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1},
+      {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1},
+      {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"]},  
+      {uid: "time_ordering", displayName: "Time Ordering:", options: ["LIFO", "FIFO"]}
+    ];
+  }
+
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
+  }
+
+  setConfig(uid, value){
+    switch(uid){
+      case "diagonal_block":
+        this.diagonal_allow = !value;
+        break;
+      case "num_neighbors":
+        let num = value==1 ? 8 : 4;
+        this.init_neighbors(num);
+        myUI.InfoMap.NumneighborsMode(num);
+        break;
+      case "first_neighbor":
+        break;
+      case "search_direction":
+        let sd = value==1 ? "clockwise" : "anticlockwise";
+        this.init_search_direction(sd);
+        break;
+      case "distance_metric":
+        break;
+      case "g_weight":
+        break;
+      case "h_weight":
+        break;
+      case "h_optimized":
+        break;
+      case "time_ordering":
+        break;
+      default:
+        break;
+    }
   }
 
   set_distance_metric(metric){
@@ -89,7 +133,10 @@ class A_star extends GridPathFinder{
       if (this.queue.length == 0) return this._terminate_search();
            //++ from bfs.js
       this.queue.sort(function (a, b){
-        if(Math.abs(a.f_cost-b.f_cost)<0.000001) return a.h_cost-b.h_cost;
+        if(Math.abs(a.f_cost-b.f_cost)<0.000001){
+          // h-optimization
+          return a.h_cost-b.h_cost;
+        }
         return a.f_cost-b.f_cost;
       });   
       //++ from bfs.js
@@ -100,11 +147,6 @@ class A_star extends GridPathFinder{
         this.prev_h_cost = this.current_node.h_cost;
         this.prev_node_XY = this.current_node_XY;
       }
-        
-      /*
-      
-      this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC,pseudoCodeRow: 11});
-      this._save_step("fwd");*/
       
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
@@ -112,8 +154,8 @@ class A_star extends GridPathFinder{
       
       /* first check if visited */
       if (this.visited.get_data(this.current_node_XY)>0){
-        this.visited.increment(this.current_node_XY);
-        this.visited_incs.push(this.current_node_XY);
+        //this.visited.increment(this.current_node_XY);
+        //this.visited_incs.push(this.current_node_XY);
         continue;  // if the current node has been visited, skip to next one in queue
       }/* */
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
@@ -129,28 +171,7 @@ class A_star extends GridPathFinder{
       this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 12});
       this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
-      this._save_step("fwd", true);
-
-      
-      this._create_action({command: STATIC.EC, dest: STATIC.CR});
-      this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: this.current_node_XY});
-      this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
-      if(this.prev_node_XY){
-        this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.prev_node_XY});
-        for(let i=0;i<this.neighbors.length;++i){
-          this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: this.neighbors[i].self_XY});
-        }
-        this.visited_incs.forEach(coord=>this._create_action({command: STATIC.DEC_P, dest: STATIC.VI, nodeCoord: coord}));
-        //this._create_action({command: STATIC.EC, dest: STATIC.DT});
-        if(this.neighbors.length>0){
-          this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.neighbors[0].self_XY});
-        }
-        else{
-          this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.prev_node_XY});
-        }
-      }
-      this._save_step("bck", true);/*
-
+      this._save_step(true);
 
       /* FOUND GOAL */
       if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
@@ -162,11 +183,6 @@ class A_star extends GridPathFinder{
       this.neighbors_deltaNWSE_STATICS = [];
       var surrounding_map_deltaNWSE = [];
       for (let i = 0; i < this.num_neighbors; ++i) {
-    /*
-      
-      this._create_action({command: STATIC.RemoveRowByID, dest: STATIC.PC, pseudoCodeRow: 25});
-      this._save_step("fwd");
-        */
         var next_XY_temp = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];
         if (next_XY_temp[0] < 0 || next_XY_temp[0] >= this.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= this.map_width) continue;
         if(this.map.get_data(next_XY_temp) == 1) surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
@@ -262,31 +278,11 @@ class A_star extends GridPathFinder{
           }
           this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, nodeCoord: new_node.self_XY, stepIndex: this.current_node.id, infoTableRowIndex: numLess, hCost: parseFloat(new_node.h_cost.toPrecision(5)), gCost: parseFloat(new_node.g_cost.toPrecision(5)), parentCoord: this.current_node_XY});
           this.insertedRow = true;
-					this.queue.push(new_node);  // add to queue
+          // add to queue 
+					this.queue.push(new_node); // FIFO
+          //this.queue.unshift(new_node); // FILO
 					this.open_list.set(next_XY, new_node);  // add to open list
-          this._save_step("fwd");
-
-          /* NEW */
-
-          
-          //this._create_action({command: STATIC.EC, dest: STATIC.DT});
-          if(this.neighbors.length==1) this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
-          else this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.neighbors[1].self_XY});
-          this._create_action({command: STATIC.EP, dest: STATIC.NB, nodeCoord: next_XY});
-					this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: next_XY});
-					if (this.draw_arrows){
-            this._create_action({command: STATIC.EA, arrowIndex: new_node.arrow_index});
-            if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-              this._create_action({command: STATIC.DA, arrowIndex: open_node.arrow_index});
-              this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_XY});
-            }
-            if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-              this._create_action({command: STATIC.DA, arrowIndex: cosed_node.arrow_index});
-              this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_XY});
-            }
-          }
-          this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess});
-          this._save_step("bck");
+          this._save_step(false);
 
           if(this._found_goal(new_node)) return this._terminate_search();
         }

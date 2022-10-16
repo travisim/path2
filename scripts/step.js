@@ -136,7 +136,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
 
       // INFOTABLE 
       if(command==STATIC.InsertRowAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, stepNo, [stepNo,x+", "+y,parentX+", "+parentY, fCost, gCost, hCost]); 
+        myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, stepNo, [x+", "+y,parentX+", "+parentY, fCost, gCost, hCost]); 
       }
       else if(command==STATIC.EraseRowAtIndex){
         myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 

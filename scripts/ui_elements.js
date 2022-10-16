@@ -60,10 +60,12 @@ class UICanvas{
 
     switch(drawType){
       case "vertex":
+        this.canvas_cache = zero2D(this.data_height+1, this.data_width+1, this.maxVal, this.defaultVal);
       case "dotted":
         this.fixedRes = true;
         break;
       default:
+        this.canvas_cache = zero2D(this.data_height, this.data_width, this.maxVal, this.defaultVal);
         this.fixedRes = false;
     }
   }
@@ -196,7 +198,7 @@ class UICanvas{
           this.draw_dotted_square(xy);
           break;
         case "vertex":
-          this.erase_vertex_circle(xy, color_index);
+          this.erase_vertex_circle(xy);
           break;
         default:
           this.ctx.clearRect(y, x, this.pixelSize, this.pixelSize);
