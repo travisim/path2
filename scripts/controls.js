@@ -184,9 +184,30 @@ document.getElementById("show_neighbors").addEventListener("click", function(e){
 });
 
 document.getElementById("show_f_cost").addEventListener("click", function(e){
+	if(this.checked){
+		resetAllCheckboxes("canvas");
+		this.checked = true;
+		myUI.canvases.fCost.canvas.classList.remove("hidden");
+	}
+	else myUI.canvases.fCost.canvas.classList.add("hidden");
 });
 
 document.getElementById("show_g_cost").addEventListener("click", function(e){
+	if(this.checked){
+		resetAllCheckboxes("canvas");
+		this.checked = true;
+		myUI.canvases.gCost.canvas.classList.remove("hidden");
+	}
+	else myUI.canvases.gCost.canvas.classList.add("hidden");
+});
+
+document.getElementById("show_h_cost").addEventListener("click", function(e){
+	if(this.checked){
+		resetAllCheckboxes("canvas");
+		this.checked = true;
+		myUI.canvases.hCost.canvas.classList.remove("hidden");
+	}
+	else myUI.canvases.hCost.canvas.classList.add("hidden");
 });
 
 function openControlTab(evt, tabId, linkId) {

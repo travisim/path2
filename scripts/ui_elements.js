@@ -31,7 +31,7 @@ class UICanvas{
       y: (containerHeight - targetHeight) / 2
     };
   }
-  constructor(canvas_id, colors, drawType="cell", fixedResVal=1024, valType="integer", defaultVal=0){
+  constructor(canvas_id, colors, drawType="cell", fixedResVal=1024, valType="int", defaultVal=0, minVal=null, maxVal=null){
     this.id = canvas_id;
     this.canvas = document.getElementById(canvas_id);
     this.ctx = this.canvas.getContext("2d");
@@ -41,9 +41,11 @@ class UICanvas{
     var height = this.canvas.height;
     var width = this.canvas.width;
     //if(this.id=="edit_map") console.log(`Height: ${height}, Width: ${width}`);
-    if(valType!="integer") this.maxVal = Number.MAX_SAFE_INTEGER; else this.maxVal = 255;
     this.defaultVal = defaultVal;
-    this.canvas_cache = zero2D(height, width, this.maxVal, defaultVal);  // initialise a matrix of 0s (zeroes), height x width
+    this.valType = valType;
+    this.minVal = minVal;
+    this.maxVal = maxVal;
+    this.canvas_cache = zero2D(height, width, this.defaultVal, this.defaultVal, this.valType);  // initialise a matrix of 0s (zeroes), height x width
 
     this.data_height = this.canvas.height;
     this.data_width = this.canvas.width;
@@ -55,17 +57,22 @@ class UICanvas{
     this.setDrawType(drawType);
   }
 
+  setValueBounds(minOrMax, val){
+    if(minOrMax=="min") this.minVal = val;
+    else if(minOrMax=="max") this.maxVal = val;
+  }
+
   setDrawType(drawType="pixel"){
     this.drawType = drawType;
 
     switch(drawType){
       case "vertex":
-        this.canvas_cache = zero2D(this.data_height+1, this.data_width+1, this.maxVal, this.defaultVal);
+        this.canvas_cache = zero2D(this.data_height+1, this.data_width+1, this.defaultVal, this.defaultVal, this.valType);
       case "dotted":
         this.fixedRes = true;
         break;
       default:
-        this.canvas_cache = zero2D(this.data_height, this.data_width, this.maxVal, this.defaultVal);
+        this.canvas_cache = zero2D(this.data_height, this.data_width, this.defaultVal, this.defaultVal, this.valType);
         this.fixedRes = false;
     }
   }
@@ -107,11 +114,11 @@ class UICanvas{
 
     if(retain_data){
       let new_canvas_cache = deep_copy_matrix(this.canvas_cache);//zero2D(data_height, data_width);
-      this.canvas_cache = zero2D(data_height, data_width, this.maxVal);
+      this.canvas_cache = zero2D(data_height, data_width, this.defaultVal, this.defaultVal, this.valType);
       this.draw_canvas(new_canvas_cache, `2d`, false);
     }
     else{
-      this.canvas_cache = zero2D(data_height, data_width, this.maxVal, this.defaultVal);
+      this.canvas_cache = zero2D(data_height, data_width, this.defaultVal, this.defaultVal, this.valType);
     }
   }
 
@@ -126,27 +133,14 @@ class UICanvas{
       this.ctx.strokeStyle = color;
 			this.strokeStyle = color;
 		}
-    else{
+    else{ // stroke
       this.ctx.strokeStyle = color;
 			this.strokeColor = color;
     }
   }
 
 	set_color_index(index=0, color_type="fill"){
-		if(color_type=="fill"){
-      this.ctx.fillStyle = this.colors[index];
-			this.fillColor = this.colors[index];
-    }
-		else if(color_type=="all" || color_type=="both"){
-      this.ctx.fillStyle = this.colors[index];
-      this.fillColor = this.colors[index];
-      this.ctx.strokeStyle = this.colors[index];
-			this.strokeStyle = this.colors[index];
-		}
-    else{
-      this.ctx.strokeStyle = this.colors[index];
-			this.strokeStyle = this.colors[index];
-    }
+    this.set_color(this.colors[index], color_type);
 	}
 
   init_virtual_canvas(){
@@ -172,15 +166,27 @@ class UICanvas{
       this.virtualCanvas[x][y] = val;
     else {
       if(save_in_cache) this.canvas_cache[x][y] = val;
+      if(val==this.defaultVal){
+        this.erase_pixel(xy);
+        return;
+      }
+      
+      if(this.valType=="float"){
+        let r = (val-this.minVal)/(this.maxVal-this.minVal);
+        let color = chroma(chroma.mix(this.colors[0], this.colors[1], r, 'hsl')).hex();
+        this.set_color(color);
+      }
+      else
+        this.set_color_index(color_index);
+
       switch(this.drawType){
         case "dotted":
           this.draw_dotted_square(xy);
           break;
         case "vertex":
-          this.draw_vertex_circle(xy, color_index);
+          this.draw_vertex_circle(xy);
           break;
         default:
-          this.set_color_index(color_index);
           this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
       }
     }
@@ -269,7 +275,7 @@ class UICanvas{
     this.canvas_cache = zero2D(height, width);  // reset to a matrix of 0s (zeroes), height x width
   }
 
-  draw_vertex_circle(xy, color_index=0){
+  draw_vertex_circle(xy){
     let y = xy[0]*this.data_height/myUI.map_height;
     let x = xy[1]*this.data_width/myUI.map_width;
     let r = 6;//this.data_height/myUI.map_height * 5/16;

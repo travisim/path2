@@ -31,6 +31,7 @@ class GridPathFinder{
         myUI.InfoMap.NumneighborsMode(num);
         break;
       case "first_neighbor":
+				this.init_first_neighbour(value);
         break;
       case "search_direction":
         value = value.toLowerCase();

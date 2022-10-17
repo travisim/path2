@@ -35,8 +35,15 @@ else{
   
   style.innerHTML = s;
   document.getElementById("checkbox_style").append(style);
-  
-  }
+  myUI.checkbox.canvas.push(document.getElementById(id));
+}
+
+function resetAllCheckboxes(type){
+  myUI.checkbox[type].forEach(el=>{
+    el.checked=true;
+    el.click();
+  });
+}
 
 appendCheckbox("show_visited",true, "Visited","layer");
 appendCheckbox("show_queue",true, "Queue","layer");

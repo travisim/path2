@@ -197,7 +197,7 @@ myUI.generateReverseSteps = function(){
 
 	let stepCnt=0;
 	let revCombinedCnt = 0;
-  let mem = {infoTable:{}, canvasCoords:{}, drawSinglePixel:undefined, fullCanvas:{}, arrowColor:{}};
+  let mem = {infoTable:{}, canvasCoords:{}, drawSinglePixel:undefined, fullCanvas:{}, arrowColor:{}, bounds:{}};
   
   while(stepCnt<indexMap.length){
     let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
@@ -215,6 +215,14 @@ myUI.generateReverseSteps = function(){
 
       let action = [];
       var includeAction = true;
+
+      // saving minmax
+      if(cellVal!==undefined && myUI.canvases[statics_to_obj[dest]].valType=="float"){
+        if(mem.bounds[dest]===undefined) mem.bounds[dest] = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+        if(myUI.canvases[statics_to_obj[dest]].minVal==null) mem.bounds[dest][0] = Math.min(mem.bounds[dest][0], cellVal);
+        if(myUI.canvases[statics_to_obj[dest]].maxVal==null) mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
+      }
+
       if(command==STATIC.DSP){
         if(mem.drawSinglePixel!==undefined) action = GridPathFinder.packAction({command: STATIC.DSP, dest: dest, nodeCoord: mem.drawSinglePixel, cellVal: 1});
 				else action = GridPathFinder.packAction({command: STATIC.EC, dest: dest});
@@ -310,6 +318,10 @@ myUI.generateReverseSteps = function(){
 		myUI.step_data.bck.combined.push(revCombinedCnt);
 		if(combinedMap[stepCnt]==1) revCombinedCnt = 0;
 		++stepCnt;
+  }
+  for(const [dest, bounds] of Object.entries(mem.bounds)){
+    if(myUI.canvases[statics_to_obj[dest]].minVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("min", bounds[0]);
+    if(myUI.canvases[statics_to_obj[dest]].maxVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("max", bounds[1]);
   }
   myUI.mem = mem;
 }
