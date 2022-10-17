@@ -1,5 +1,5 @@
 myUI.resetSelectOptions = function(select_elem){
-  removeChildren(select_elem, "OPTION");
+  removeChildren(select_elem);
 }
 
 /* MAP PARSER & DISPLAY */
@@ -244,7 +244,7 @@ myUI.loadPlanner = function() {
 	myUI.reset_animation();
   myUI.InfoMap.PlannerMode(myUI.planner.infoMapPlannerMode());
   //determine_info_map_header();
-  myUI.init_planner_config();
+  myUI.setPlannerConfig();
 }
 
 

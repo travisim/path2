@@ -1,11 +1,12 @@
 function removeChildren(elem, childTag="", omitIds=[]){
-  childTag = childTag.toUpperCase();
+  childTag = childTag.toLowerCase();
   let idx = 0;
   while(elem.children.length>idx){
     const child = elem.children[idx];
     if(omitIds.includes(child.id)) idx++;
-    else if(childTag!="" && child.tagName.toUpperCase()==childTag) idx++;
+    else if(childTag!="" && child.tagName.toLowerCase()==childTag) idx++;
     else elem.removeChild(child);
+		console.log(idx, child.tagName);
   }
 }
 

@@ -1,5 +1,3 @@
-'use strict';
-
 class A_star extends GridPathFinder{
 
 	static get display_name(){
@@ -13,18 +11,14 @@ class A_star extends GridPathFinder{
     return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
   }
 
-  static get config(){
-    return [
-      {uid: "diagonal_block", displayName: "Diagonal Blocking:", options: ["Blocked", "Unblocked"]},
-      {uid: "num_neighbors", displayName: "Neighbors:", options: ["Octal (8-directions)", "Cardinal (4-directions)"]},
-      {uid: "first_neighbor", displayName: "Starting Node:", options: ["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
-      {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"]},
-      {uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Euclidean", "Manhattan", "Chebyshev"]},
+  get configs(){
+		let configs = super.configs;
+		configs.push({uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Euclidean", "Manhattan", "Chebyshev"]},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"]},  
-      {uid: "time_ordering", displayName: "Time Ordering:", options: ["LIFO", "FIFO"]}
-    ];
+      {uid: "time_ordering", displayName: "Time Ordering:", options: ["LIFO", "FIFO"]});
+		return configs;
   }
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
@@ -32,32 +26,22 @@ class A_star extends GridPathFinder{
   }
 
   setConfig(uid, value){
+		super.setConfig(uid, value);
     switch(uid){
-      case "diagonal_block":
-        this.diagonal_allow = !value;
-        break;
-      case "num_neighbors":
-        let num = value==1 ? 8 : 4;
-        this.init_neighbors(num);
-        myUI.InfoMap.NumneighborsMode(num);
-        break;
-      case "first_neighbor":
-        break;
-      case "search_direction":
-        let sd = value==1 ? "clockwise" : "anticlockwise";
-        this.init_search_direction(sd);
-        break;
       case "distance_metric":
+				this.distance_metric = value;
         break;
       case "g_weight":
+				this.gWeight = value;
         break;
       case "h_weight":
+				this.hWeight = value;
         break;
       case "h_optimized":
+				this.hOptimized = value=="On";
         break;
       case "time_ordering":
-        break;
-      default:
+				this.timeOrder = value;
         break;
     }
   }
@@ -102,7 +86,7 @@ class A_star extends GridPathFinder{
       var h_cost = octile(successor, this.goal);
     }
 
-    var f_cost = g_cost + h_cost;//++ from bfs.js
+    var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
     return [f_cost, g_cost, h_cost];
   }
 
@@ -134,8 +118,8 @@ class A_star extends GridPathFinder{
            //++ from bfs.js
       this.queue.sort(function (a, b){
         if(Math.abs(a.f_cost-b.f_cost)<0.000001){
-          // h-optimization
-          return a.h_cost-b.h_cost;
+					if(myUI.planner.hOptimized)
+          	return a.h_cost-b.h_cost;
         }
         return a.f_cost-b.f_cost;
       });   
@@ -180,21 +164,20 @@ class A_star extends GridPathFinder{
 
       // NOTE, a node is only visited if all its neighbors have been added to the queue
       this.neighbors = [];
-      this.neighbors_deltaNWSE_STATICS = [];
       var surrounding_map_deltaNWSE = [];
       for (let i = 0; i < this.num_neighbors; ++i) {
         var next_XY_temp = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];
         if (next_XY_temp[0] < 0 || next_XY_temp[0] >= this.map_height || next_XY_temp[1] < 0 || next_XY_temp[1] >= this.map_width) continue;
         if(this.map.get_data(next_XY_temp) == 1) surrounding_map_deltaNWSE.push(this.deltaNWSE[i]);
       }
-      this.deltaNWSE_STATICS_Temp = [];//temporarily stores the deltaNWSE_STATICS_Temp to allow display of neighbors if stepping backwards from a current node to previous node
+			// removed //this.deltaNWSE_STATICS_Temp = [];//temporarily stores the deltaNWSE_STATICS_Temp to allow display of neighbors if stepping backwards from a current node to previous node
       /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
       for (let i = 0; i < this.num_neighbors; ++i) {
         var next_XY = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_XY[0] < 0 || next_XY[0] >= this.map_height || next_XY[1] < 0 || next_XY[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         
         if (this.map.get_data(next_XY) == 1) {  // if neighbour is passable
-          if (this.diagonal_allow == true && this.num_neighbors == 8) { // if neighbour is not blocked
+          if (this.diagonal_allow == false && this.num_neighbors == 8) { // if neighbour is not blocked
             if (this.deltaNWSE[i] == "NW") {
               if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
                 continue;
@@ -234,7 +217,8 @@ class A_star extends GridPathFinder{
 					let closed_node = this.closed_list.get(next_XY);
 					if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
           this.neighbors.unshift(new_node);
-          this.neighbors_deltaNWSE_STATICS.unshift(this.deltaNWSE_STATICS[i]);
+
+					console.log(new_node)
 
           this._create_action({command: STATIC.SP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
           this._create_action({command: STATIC.SP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
@@ -248,7 +232,6 @@ class A_star extends GridPathFinder{
           this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: next_XY});
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_XY});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 32});
-          this.deltaNWSE_STATICS_Temp.push(i);
 
 					// since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
 					// see https://www.geeksforgeeks.org/a-search-algorithm/
@@ -279,8 +262,8 @@ class A_star extends GridPathFinder{
           this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, nodeCoord: new_node.self_XY, stepIndex: this.current_node.id, infoTableRowIndex: numLess, hCost: parseFloat(new_node.h_cost.toPrecision(5)), gCost: parseFloat(new_node.g_cost.toPrecision(5)), parentCoord: this.current_node_XY});
           this.insertedRow = true;
           // add to queue 
-					this.queue.push(new_node); // FIFO
-          //this.queue.unshift(new_node); // FILO
+					if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO
+          else this.queue.unshift(new_node); // LIFO
 					this.open_list.set(next_XY, new_node);  // add to open list
           this._save_step(false);
 

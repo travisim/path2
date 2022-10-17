@@ -124,7 +124,6 @@ class BFS_Vertex extends GridPathFinder {
         this.neighbors_XY.push(next_XY);  // add to neighbors, only need XY as don't need to search parents
 
         this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_XY});
-        this._create_action({command: STATIC.DI, dest: this.deltaNWSE_STATICS[i], nodeCoord: next_XY, parentCoord: this.current_node_XY});
 
         let nextNode = new Node(null, null, null, this.current_node, next_XY);
 

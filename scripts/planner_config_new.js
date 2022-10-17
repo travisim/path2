@@ -22,23 +22,20 @@ window.addEventListener("click", event=>{
 myUI.plannerConfigCallback = function(){
   // bind "this" to the dropdown/input
   // this refers to the select/input element
-  let data = {};
-  data.uid = this.getAttribute("id").slice(0, -5);
-  if(this.getAtt=="input"){
-    data.type = "input";
-    data.val = this.getAttribute("value");
+  let uid = this.getAttribute("id").slice(0, -5);
+  if(this.tagName=="INPUT"){
+    var val = this.value;
   }
   else{
-    data.type = "dropdown";
-    data.val = this.getAttribute("selectedIndex");
+		var val = this.options[this.selectedIndex].value;
   }
-  myUI.planner.setConfig(data);
+  myUI.planner.setConfig(uid, val);
 }
 
 myUI.setPlannerConfig = function(){
   let parent = document.getElementById("planner_config_body");
   removeChildren(parent);
-  for(const config of myUI.planner.constructor.config){
+  for(const config of myUI.planner.configs){
     let el = document.createElement("div");
     el.classList.add("flex-row");
     let lbl = document.createElement("label");
@@ -53,6 +50,7 @@ myUI.setPlannerConfig = function(){
       dialog.setAttribute("type", "number");
       dialog.addEventListener("change", myUI.plannerConfigCallback);
       el.appendChild(dialog);
+			myUI.planner.setConfig(config.uid, config.defaultVal);
     }
     else{// dropdown
       let dd = document.createElement("select");
@@ -60,13 +58,14 @@ myUI.setPlannerConfig = function(){
       // dd.classList.add();
       for(let i=0;i<config.options.length;++i){
         let option = document.createElement("option");
-        option.setAttribute("value", i);
+        option.setAttribute("value", config.options[i]);
         option.innerHTML = config.options[i];
         myUI.selects["planner_select"].elem.appendChild(option);
         dd.appendChild(option);
       }
       dd.addEventListener("change", myUI.plannerConfigCallback);
       el.appendChild(dd);
+			myUI.planner.setConfig(config.uid, config.options[0]);
     }
     parent.appendChild(el);
   };
