@@ -16,50 +16,50 @@ myUI.initialize = function(){
   // Initialize canvases
   myUI.canvasArray = [
     {
-      id:"edit_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"]
+      id:"edit_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"], toggle: "off"
     },
     {
-      id:"hover_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945"]
+      id:"hover_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945"], toggle: "off"
     },
     {
-      id:"dotted", drawType:"dotted", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"]
+      id:"dotted", drawType:"dotted", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"], toggle: "off"
     },
     {
-      id:"bg", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"]
+      id:"bg", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"], toggle: "off"
     },
     {
-      id:"queue", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"]
+      id:"queue", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi"
     },
     {
-      id:"visited", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"]
+      id:"visited", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi"
     },
     {
-      id:"current_XY", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"]
+      id:"current_XY", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi"
     },
     {
-      id:"neighbors", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"]
+      id:"neighbors", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi"
     },
     {
-      id:"path", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"]
+      id:"path", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi"
     },
     {
-      id:"start", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#96996"]
+      id:"start", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#96996"], toggle: "multi"
     },
     {
-      id:"goal", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#9f17e7"]
+      id:"goal", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#9f17e7"], toggle: "multi"
     },
     {
-      id:"fCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"]
+      id:"fCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "single"
     },
     {
-      id:"gCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"]
+      id:"gCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "single"
     },
     {
-      id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"]
+      id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "single"
     },
   ];
   myUI.canvasArray.forEach(item=>{
-    myUI.canvases[item.id] = new UICanvas(item.id, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal);
+    myUI.canvases[item.id] = new UICanvas(item.id, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal, item.toggle);
   });
   myUI.canvases.edit_map.toggle_edit();
   myUI.checkbox = {}

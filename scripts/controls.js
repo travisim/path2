@@ -77,7 +77,7 @@ myUI.sliders.search_progress_slider.elem.oninput = function(){
 myUI.reset_animation = function(){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
 	myUI.update_search_slider(-1);
-	["visited",	"neighbors", "queue",	"current_XY",	"path", "dotted"].forEach(canvas_id=>{
+	["visited",	"neighbors", "queue",	"current_XY",	"path", "dotted", "fCost", "gCost", "hCost"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
 	myUI.reset_arrow(false);
