@@ -1,4 +1,4 @@
- 
+
 function Bresenham(x0, y0, x1, y1) {
         let dots = [];
         let dx = Math.abs(x1 - x0);
@@ -28,10 +28,12 @@ function Bresenham(x0, y0, x1, y1) {
         return dots;
     }
 
+
+
 //https://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html
 //http://members.chello.at/~easyfilter/Bresenham.pdf refer to page 14 of this
 
 
-var x1 = 6, y1 = 0, x2 = 0, y2 =12; 
- console.log(Bresenham(x1, y1, x2, y2))
-myUI.canvases["path"].draw_canvas(Bresenham(x1, y1, x2, y2), `1d`, false, false);
+var x1 = 8, y1 = 0, x2 = 0, y2 =12; 
+// console.log(Bresenham(x1, y1, x2, y2))
+///myUI.canvases["path"].draw_canvas(Bresenham(x1, y1, x2, y2), `1d`, false, false);
