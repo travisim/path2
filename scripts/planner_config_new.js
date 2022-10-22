@@ -36,12 +36,9 @@ myUI.setPlannerConfig = function(){
   let parent = document.getElementById("planner_config_body");
   removeChildren(parent);
   for(const config of myUI.planner.configs){
-    let el = document.createElement("div");
-    el.classList.add("flex-row");
-    let lbl = document.createElement("label");
-    lbl.classList.add("label_centered");
-    lbl.innerHTML = config.displayName;
-    el.appendChild(lbl);
+    let el = document.createElement("tr");
+    let conf = document.createElement("td");
+    conf.innerHTML = myUI.planner.displayName
     if(config.options=="number"){
       let dialog = document.createElement("input");
       dialog.setAttribute("value", config.defaultVal);

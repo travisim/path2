@@ -13,11 +13,12 @@ class A_star extends GridPathFinder{
 
   get configs(){
 		let configs = super.configs;
-		configs.push({uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Euclidean", "Manhattan", "Chebyshev"]},
-      {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1},
-      {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1},
-      {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"]},  
-      {uid: "time_ordering", displayName: "Time Ordering:", options: ["LIFO", "FIFO"]});
+		configs.push({uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.\Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.\nManhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.\nEuclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.\nChebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.
+`},
+      {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
+      {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
+      {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.\n If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.\n Select Vanilla to use their original implementations`},  
+      {uid: "time_ordering", displayName: "Time Ordering:", options: ["LIFO", "FIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: \nFIFO to place the new vertex behind the earlier ones, so it comes out after them\n LIFO to place the new vertex in front of the earlier ones, so it comes out before them.\n* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`});
 		return configs;
   }
 

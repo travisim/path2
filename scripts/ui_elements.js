@@ -122,7 +122,7 @@ class UICanvas{
     }
   }
 
-  set_color(color, color_type="fill"){
+  set_color(color, color_type="all"){
     if(color_type=="fill"){
       this.ctx.fillStyle = color;
 			this.fillColor = color;
@@ -131,7 +131,7 @@ class UICanvas{
       this.ctx.fillStyle = color;
 			this.fillColor = color;
       this.ctx.strokeStyle = color;
-			this.strokeStyle = color;
+			this.strokeColor = color;
 		}
     else{ // stroke
       this.ctx.strokeStyle = color;
@@ -139,7 +139,7 @@ class UICanvas{
     }
   }
 
-	set_color_index(index=0, color_type="fill"){
+	set_color_index(index=0, color_type="all"){
     this.set_color(this.colors[index], color_type);
 	}
 
@@ -173,7 +173,8 @@ class UICanvas{
       
       if(this.valType=="float"){
         let r = (val-this.minVal)/(this.maxVal-this.minVal);
-        let color = chroma(chroma.mix(this.colors[0], this.colors[1], r, 'hsl')).hex();
+        let color = chroma.scale("Spectral")(1-r).hex();
+        //let color = chroma(chroma.mix(this.colors[0], this.colors[1], r, 'hsl')).hex();
         this.set_color(color);
       }
       else
@@ -275,7 +276,7 @@ class UICanvas{
     this.canvas_cache = zero2D(height, width);  // reset to a matrix of 0s (zeroes), height x width
   }
 
-  draw_vertex_circle(xy){
+  draw_vertex_circle(xy, color_index){
     let y = xy[0]*this.data_height/myUI.map_height;
     let x = xy[1]*this.data_width/myUI.map_width;
     let r = 6;//this.data_height/myUI.map_height * 5/16;
@@ -284,13 +285,7 @@ class UICanvas{
       debugger;
     }
 
-    /*this.ctx.beginPath();
-    this.set_color("#000000", "all");
-    this.ctx.lineWidth = r*3;
-    this.ctx.arc(x, y, r, 0, 2 * Math.PI);
-    this.ctx.stroke();*/
-
-    this.set_color_index(color_index, "all");
+    this.set_color(this.strokeColor, "stroke");
     this.ctx.beginPath();
     this.ctx.lineWidth = r*1.8;
     this.ctx.arc(x, y, r, 0, 2 * Math.PI);
@@ -313,7 +308,7 @@ class UICanvas{
     let x = xy[1]*this.data_width/myUI.map_width;
     let side = this.data_height/myUI.map_height;
     console.log(x,y);
-    this.set_color_index(0, "all");
+    this.set_color(this.strokeColor, "stroke");
     this.ctx.setLineDash([12, 6]);/*dashes are 2px and spaces are 2px*/
     this.ctx.lineWidth = 6;
     this.ctx.beginPath();
