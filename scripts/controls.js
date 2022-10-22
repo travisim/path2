@@ -183,6 +183,11 @@ document.getElementById("show_neighbors").addEventListener("click", function(e){
 	else myUI.canvases.neighbors.canvas.classList.add("hidden");
 });
 
+document.getElementById("show_arrows").addEventListener("click", function(e){
+	if(this.checked) document.getElementById("arrow").classList.remove("hidden");
+	else document.getElementById("arrow").classList.add("hidden");
+});
+
 document.getElementById("show_f_cost").addEventListener("click", function(e){
 	if(this.checked){
 		resetAllCheckboxes("canvas");

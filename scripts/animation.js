@@ -167,7 +167,6 @@ myUI.create_arrow = function(start_XY, end_XY, head_pc=0.7){
   let back_len = (1-head_pc) * total_len - 1.5 - 3;
   if(elem_window_length<14) elem.innerHTML = `<path d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${elem_window_length} a 1.5 1.5, 0, 0, 0, 0 -3 z"></path>`;
   else elem.innerHTML = `<path d="M 1.5 3 a 1.5 1.5, 0, 0, 0, 0 3 h ${back_len} v 3 l 6 -3 h ${front_len} a 1.5 1.5, 0, 0, 0, 0 -3 h ${0-front_len} l -6 -3 v 3 z"></path>`;
-  document.getElementById("canvas_container").appendChild(elem);
   let displayOffset = 0.5;
   if(myUI.vertex){
     displayOffset = 0;
@@ -177,6 +176,7 @@ myUI.create_arrow = function(start_XY, end_XY, head_pc=0.7){
   elem.style.left = (start_coord.x + displayOffset - elem_path_length * (1-Math.cos(angle))/2) * display_ratio - 1.5 +"px";
   elem.id = `${start_coord.y},${start_coord.x} ${end_coord.y},${end_coord.x}`;
   myUI.arrow.elems.push(elem);
+  document.getElementById("arrow").appendChild(elem);
   return myUI.arrow.elems.length-1;
 }
 

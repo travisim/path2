@@ -44,7 +44,7 @@ myUI.displayMap = function(){
 	const width = myUI.map_arr[0].length;
 
   Object.values(myUI.canvases).forEach(uiCanvas=>{
-    uiCanvas.scale_canvas(height, width);
+    uiCanvas.scale_canvas(height, width, false);
 		console.log(uiCanvas.id, height, width);
   });
 

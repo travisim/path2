@@ -48,6 +48,7 @@ function resetAllCheckboxes(type){
 appendCheckbox("show_visited",true, "Visited","layer");
 appendCheckbox("show_queue",true, "Queue","layer");
 appendCheckbox("show_neighbors",true, "neighbors","layer");
+appendCheckbox("show_arrows",true, "arrow","layer");
 appendCheckbox("show_f_cost",false, "fCost","layer");
 appendCheckbox("show_g_cost",false, "gCost","layer");
 appendCheckbox("show_h_cost",false, "hCost","layer");

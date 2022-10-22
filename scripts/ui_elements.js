@@ -113,7 +113,7 @@ class UICanvas{
     else this.pixelSize = 1;
 
     if(retain_data){
-      let new_canvas_cache = deep_copy_matrix(this.canvas_cache);//zero2D(data_height, data_width);
+      let new_canvas_cache = deep_copy_matrix(this.canvas_cache);
       this.canvas_cache = zero2D(data_height, data_width, this.defaultVal, this.defaultVal, this.valType);
       this.draw_canvas(new_canvas_cache, `2d`, false);
     }
@@ -144,7 +144,7 @@ class UICanvas{
 	}
 
   init_virtual_canvas(){
-    this.virtualCanvas = zero2D(this.data_height, this.data_width);
+    this.virtualCanvas = zero2D(data_height, data_width, this.defaultVal, this.defaultVal, this.valType);
   }
 
   change_pixel(xy, direction, virtual=false){
@@ -273,7 +273,7 @@ class UICanvas{
     let height = this.data_height ? this.data_height : this.canvas.height;
     let width = this.data_width ? this.data_width : this.canvas.width;
     this.ctx.clearRect(0, 0, width, height);
-    this.canvas_cache = zero2D(height, width);  // reset to a matrix of 0s (zeroes), height x width
+    this.canvas_cache = zero2D(height, width, this.defaultVal, this.defaultVal, this.valType);
   }
 
   draw_vertex_circle(xy, color_index){
