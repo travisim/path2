@@ -162,7 +162,7 @@ myUI.initialize = function(){
 	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), move: false}
 	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), move: false}
 
-  myUI.planners_cell = [PRM,A_star];
+  myUI.planners_cell = [ A_star,PRM];
   myUI.planners_v = [BFS_Vertex];
   myUI.planners = myUI.planners_cell;
   myUI.planner_choice = 0;

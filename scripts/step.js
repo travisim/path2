@@ -157,7 +157,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
       /*++i;*/
       i=j;
     }
-    myUI.updateInfoMap(...myUI.currentCoord);
+    myUI.updateInfoMap(myUI.planner.infoMapPlannerMode(),...myUI.currentCoord);
     //myUI.updateInfoMap();
   }
 }
@@ -326,22 +326,28 @@ myUI.generateReverseSteps = function(){
   myUI.mem = mem;
 }
 
-myUI.updateInfoMap = function(x,y){
-  /*
-  1) clear info map
-  */
-  myUI.InfoMap.reset();
-  /*
-  2) update current position
-  */
-  myUI.InfoMap.drawObstacle(x,y);
-  myUI.InfoMap.drawOutOfBound(x,y);
-  myUI.InfoMap.drawVisited(x,y);
-  myUI.InfoMap.drawQueue(x,y);
-  myUI.InfoMap.drawNeighbors(x,y);
-  myUI.InfoMap.drawFGH(x,y);
-  myUI.InfoCurrent.DrawCurrent(x,y);
+myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
+  if(infoMapPlannerMode == "none"){
+    
+  }
+
+  if(infoMapPlannerMode != "none"){
+    
+    /*
+    1) clear info map
+    */
+    myUI.InfoMap.reset();
+    /*
+    2) update current position
+    */
+    myUI.InfoMap.drawObstacle(x,y);
+    myUI.InfoMap.drawOutOfBound(x,y);
+    myUI.InfoMap.drawVisited(x,y);
+    myUI.InfoMap.drawQueue(x,y);
+    myUI.InfoMap.drawNeighbors(x,y);
+    myUI.InfoMap.drawFGH(x,y);
+    myUI.InfoCurrent.DrawCurrent(x,y);
+    
+  }
   
-  
-  // tbc
 }
