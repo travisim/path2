@@ -168,53 +168,6 @@ myUI.toggleMapDetail = function(){
 }
 myUI.buttons.detail_btn.btn.addEventListener("click", myUI.toggleMapDetail);
 
-document.getElementById("show_visited").addEventListener("click", function(e){
-	if(this.checked) myUI.canvases.visited.canvas.classList.remove("hidden");
-	else myUI.canvases.visited.canvas.classList.add("hidden");
-});
-
-document.getElementById("show_queue").addEventListener("click", function(e){
-	if(this.checked) myUI.canvases.queue.canvas.classList.remove("hidden");
-	else myUI.canvases.queue.canvas.classList.add("hidden");
-});
-
-document.getElementById("show_neighbors").addEventListener("click", function(e){
-	if(this.checked) myUI.canvases.neighbors.canvas.classList.remove("hidden");
-	else myUI.canvases.neighbors.canvas.classList.add("hidden");
-});
-
-document.getElementById("show_arrows").addEventListener("click", function(e){
-	if(this.checked) document.getElementById("arrow").classList.remove("hidden");
-	else document.getElementById("arrow").classList.add("hidden");
-});
-
-document.getElementById("show_f_cost").addEventListener("click", function(e){
-	if(this.checked){
-		resetAllCheckboxes("canvas");
-		this.checked = true;
-		myUI.canvases.fCost.canvas.classList.remove("hidden");
-	}
-	else myUI.canvases.fCost.canvas.classList.add("hidden");
-});
-
-document.getElementById("show_g_cost").addEventListener("click", function(e){
-	if(this.checked){
-		resetAllCheckboxes("canvas");
-		this.checked = true;
-		myUI.canvases.gCost.canvas.classList.remove("hidden");
-	}
-	else myUI.canvases.gCost.canvas.classList.add("hidden");
-});
-
-document.getElementById("show_h_cost").addEventListener("click", function(e){
-	if(this.checked){
-		resetAllCheckboxes("canvas");
-		this.checked = true;
-		myUI.canvases.hCost.canvas.classList.remove("hidden");
-	}
-	else myUI.canvases.hCost.canvas.classList.add("hidden");
-});
-
 function openControlTab(evt, tabId, linkId) {
 
   // Get all elements with class="tabcontent" and hide them

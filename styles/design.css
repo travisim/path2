@@ -112,14 +112,14 @@ html, body{
   padding: 2px;
   background: #bcbacb;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 7px;
   border: 1px solid #bcbacb;
 	height: 52px;
-	width: 52px;
+	width: 100%;
 }
 .btn:hover {
   background: #d19b6d;
-	transform: scale(1.15) perspective(1px);
+	transform: scale(1.15);
 }
 
 .icon{
@@ -206,4 +206,13 @@ html, body{
 
 .active{
 	background: #d19b6d;
+}
+
+.unselectable{
+	-webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

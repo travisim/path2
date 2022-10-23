@@ -150,43 +150,56 @@
       <div id="map-container" class="container">
 				<div class="sub-container">
 					<div class="flex-row">
-						<div id="map" class="interface overlay">
-							<div id="canvas_container">
-								<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
-								<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
-								<canvas id="hover_map" class="map_canvas" ></canvas>
-								<canvas id="dotted" class="map_canvas" ></canvas>
-								<canvas id="bg" class="map_canvas" ></canvas><!-- loaded .map file -->
-								<canvas id="queue" class="map_canvas"  ></canvas> <!-- neighbouring nodes that are in the queue -->
-								<canvas id="visited" class="map_canvas"  ></canvas>
-								<canvas id="current_XY" class="map_canvas" ></canvas>
-								<canvas id="neighbors" class="map_canvas"  ></canvas>
-								<canvas id="path" class="map_canvas"  ></canvas>
-								<canvas id="start" class="map_canvas" ></canvas>
-								<canvas id="goal" class="map_canvas"  ></canvas>
-								<canvas id="fCost" class="map_canvas"  ></canvas>
-								<canvas id="gCost" class="map_canvas" ></canvas>
-								<canvas id="hCost" class="map_canvas"  ></canvas>
-								<div id="arrow" class="map_canvas"  >
-									
+						<div class="flex-col">
+							<div id="map" class="interface overlay">
+								<div id="canvas_container">
+									<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
+									<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
+									<canvas id="hover_map" class="map_canvas" ></canvas>
+									<canvas id="dotted" class="map_canvas" ></canvas>
+									<canvas id="bg" class="map_canvas" ></canvas><!-- loaded .map file -->
+									<canvas id="queue" class="map_canvas"  ></canvas> <!-- neighbouring nodes that are in the queue -->
+									<canvas id="visited" class="map_canvas"  ></canvas>
+									<canvas id="current_XY" class="map_canvas" ></canvas>
+									<canvas id="neighbors" class="map_canvas"  ></canvas>
+									<canvas id="path" class="map_canvas"  ></canvas>
+									<canvas id="start" class="map_canvas" ></canvas>
+									<canvas id="goal" class="map_canvas"  ></canvas>
+									<canvas id="fCost" class="map_canvas"  ></canvas>
+									<canvas id="gCost" class="map_canvas" ></canvas>
+									<canvas id="hCost" class="map_canvas"  ></canvas>
+									<div id="arrow" class="map_canvas"  >
+										
+									</div>
+								</div>
+								<div id="left_axes" class="flex-col">
+									<span class="label_centered">0</span>
+									<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 9 1665" xml:space="preserve" class="shrink">
+										<path d="M 0 10 a 5 5, 0, 0, 1, 10 0 v 1600 h 30 l -35 60 l -35 -60 h 30 z "></path>
+									</svg>
+									<span id="map_height_axis" class="label_centered">15</span>
+								</div>
+								<div id="top_axes" class="flex-row">
+									<span class="label_centered">0</span>
+									<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1665 9" xml:space="preserve" class="shrink">
+											<path d="M 5 -10 a 5 5, 0, 0, 0, 0 10 h 1600 v 30 l 60 -35 l -60 -35 v 30 z "></path>
+										</svg>
+									<span id="map_width_axis" class="label_centered">15</span>
 								</div>
 							</div>
-							<div id="left_axes" class="flex-col">
-								<span class="label_centered">0</span>
-								<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 9 1665" xml:space="preserve" class="shrink">
-									<path d="M 0 10 a 5 5, 0, 0, 1, 10 0 v 1600 h 30 l -35 60 l -35 -60 h 30 z "></path>
-								</svg>
-								<span id="map_height_axis" class="label_centered">15</span>
-							</div>
-							<div id="top_axes" class="flex-row">
-								<span class="label_centered">0</span>
-								<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 1665 9" xml:space="preserve" class="shrink">
-										<path d="M 5 -10 a 5 5, 0, 0, 0, 0 10 h 1600 v 30 l 60 -35 l -60 -35 v 30 z "></path>
-									</svg>
-								<span id="map_width_axis" class="label_centered">15</span>
+							<div class="flex-row">
+								<div class="flex-row">
+									<img src="assets/map_start.svg" class="icon" alt="start">
+									Map Start
+								</div>
+								<div class="flex-row">
+									<img src="assets/map_goal.svg" class="icon" alt="goal">
+									Map Goal
+								</div>
 							</div>
 						</div>
 						<div id="layer-controls">
+							<button id="reset_checkboxes" class="btn"><b>Reset All</b></button>
   						<div id="canvas_layers">
                <!-- <h1>Canvas Layers</h1>
               -->
@@ -200,16 +213,6 @@
               </div>
               <div id = "checkbox_style"></div>
 
-						</div>
-					</div>
-					<div class="flex-row">
-						<div class="flex-row">
-							<img src="assets/map_start.svg" class="icon" alt="start">
-							Map Start
-						</div>
-						<div class="flex-row">
-							<img src="assets/map_goal.svg" class="icon" alt="goal">
-							Map Goal
 						</div>
 					</div>
 					<div class="flex-row">
@@ -473,8 +476,8 @@
     <script src="scripts/infomap_class_old.js"></script>
     <script src="scripts/infotable class.js"></script>
     <script src="scripts/infopseudocode class.js"></script>
-		<script src="scripts/interface.js"></script><!-- creates myUI -->
     <script src="scripts/layers_checklist.js"></script>
+		<script src="scripts/interface.js"></script><!-- creates myUI -->
 		<script src="scripts/hover_config.js"></script>
 		<script src="scripts/hover.js"></script>
 		<script src="scripts/animation.js"></script>

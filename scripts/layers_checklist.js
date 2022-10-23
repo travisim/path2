@@ -1,4 +1,4 @@
-function appendCheckbox(id,checked = false, label,subLabel = null,){
+function appendCheckbox(id,checked = false, label,subLabel = null,toggleType){
 if (checked == true){
   var checked_value = "checked"; 
 }
@@ -8,15 +8,14 @@ else{
   const div = document.createElement("div");
   div.innerHTML = `
   <input type="checkbox" id=${id} name=${id} class="layers" ${checked_value}>
-    <label for=${id}>
+    <label for=${id} class="unselectable">
        <h2>${label}<span>${subLabel}</span></h2>
     </label>`;
-     document.getElementById("canvas_layers").append(div);
+  document.getElementById("canvas_layers").append(div);
 
+  var style = document.createElement('style');
 
-    var style = document.createElement('style');
-
-    var s =  `
+  var s =  `
     #${id}:checked ~ label[for=${id}]{
     background: #2C3E50;
     border-bottom: 1px solid #34495E;
@@ -36,6 +35,23 @@ else{
   style.innerHTML = s;
   document.getElementById("checkbox_style").append(style);
   myUI.checkbox.canvas.push(document.getElementById(id));
+
+  if(toggleType=="multi"){
+    document.getElementById(id).addEventListener("click", function(e){
+      if(this.checked) document.getElementById(id.slice(5)).classList.remove("hidden");
+      else document.getElementById(id.slice(5)).classList.add("hidden");
+    });
+  }
+  else if(toggleType=="single"){
+    document.getElementById(id).addEventListener("click", function(e){
+      if(this.checked){
+        resetAllCheckboxes("canvas");
+        this.checked = true;
+        document.getElementById(id.slice(5)).classList.remove("hidden");
+      }
+      else document.getElementById(id.slice(5)).classList.add("hidden");
+    });
+  }
 }
 
 function resetAllCheckboxes(type){
@@ -45,10 +61,6 @@ function resetAllCheckboxes(type){
   });
 }
 
-appendCheckbox("show_visited",true, "Visited","layer");
-appendCheckbox("show_queue",true, "Queue","layer");
-appendCheckbox("show_neighbors",true, "neighbors","layer");
-appendCheckbox("show_arrows",true, "arrow","layer");
-appendCheckbox("show_f_cost",false, "fCost","layer");
-appendCheckbox("show_g_cost",false, "gCost","layer");
-appendCheckbox("show_h_cost",false, "hCost","layer");
+document.getElementById("reset_checkboxes").addEventListener("click", function(){
+  resetAllCheckboxes("canvas");
+});
