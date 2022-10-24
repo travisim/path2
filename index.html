@@ -155,22 +155,7 @@
 								<div id="canvas_container">
 									<img src="assets/map_start.svg" class="icon draggable" id="map_start_icon" alt="start">
 									<img src="assets/map_goal.svg" class="icon draggable" id="map_goal_icon" alt="goal">
-									<canvas id="hover_map" class="map_canvas" ></canvas>
-									<canvas id="dotted" class="map_canvas" ></canvas>
-									<canvas id="bg" class="map_canvas" ></canvas><!-- loaded .map file -->
-									<canvas id="queue" class="map_canvas"  ></canvas> <!-- neighbouring nodes that are in the queue -->
-									<canvas id="visited" class="map_canvas"  ></canvas>
-									<canvas id="current_XY" class="map_canvas" ></canvas>
-									<canvas id="neighbors" class="map_canvas"  ></canvas>
-									<canvas id="path" class="map_canvas"  ></canvas>
-									<canvas id="start" class="map_canvas" ></canvas>
-									<canvas id="goal" class="map_canvas"  ></canvas>
-									<canvas id="fCost" class="map_canvas"  ></canvas>
-									<canvas id="gCost" class="map_canvas" ></canvas>
-									<canvas id="hCost" class="map_canvas"  ></canvas>
-									<div id="arrow" class="map_canvas"  >
-										
-									</div>
+									<div id="arrow-div" class="map_canvas"></div>
 								</div>
 								<div id="left_axes" class="flex-col">
 									<span class="label_centered">0</span>
@@ -199,7 +184,10 @@
 							</div>
 						</div>
 						<div id="layer-controls">
-							<button id="reset_checkboxes" class="btn"><b>Reset All</b></button>
+							<div class="flex-row">
+								<button id="reset_checkboxes" class="btn"><b>Reset All</b></button>
+								<button id="select_checkboxes" class="btn"><b>Select All</b></button>
+							</div>
   						<div id="canvas_layers">
                <!-- <h1>Canvas Layers</h1>
               -->
@@ -399,7 +387,8 @@
 				<p id="planner_label2"></p>
 				<label for="planner_select2" class="label_centered">Choose planner:    </label>
 				<select name="planner_select2" size="1" id="planner_select2" class="select-dropdown"></select>
-				<div class="flex-row">
+				<table id="planner_config_body"></table>
+				<!--div class="flex-row">
 					<div class="flex-col" id="planner_config_body">
 						<div class="flex-row">
 							<label class="label_centered">Diagonal Blocking:</label>
@@ -433,9 +422,9 @@
 							<button id="h_optimized_btn" class="btn modal_btn">
 								<span id="h_optimized_label">Disabled</span>
 							</button>
-						</div><!---->
+						</div>
 					</div>
-				</div>
+				</div><!---->
 			</div>
 		</div>
 		<div id="first_neighbour_modal" class="modal">

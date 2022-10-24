@@ -36,9 +36,10 @@ myUI.setPlannerConfig = function(){
   let parent = document.getElementById("planner_config_body");
   removeChildren(parent);
   for(const config of myUI.planner.configs){
-    let el = document.createElement("tr");
+    let row = document.createElement("tr");
     let conf = document.createElement("td");
-    conf.innerHTML = myUI.planner.displayName
+    conf.innerHTML = config.displayName+"<br>";
+
     if(config.options=="number"){
       let dialog = document.createElement("input");
       dialog.setAttribute("value", config.defaultVal);
@@ -46,7 +47,7 @@ myUI.setPlannerConfig = function(){
       dialog.setAttribute("required", '');
       dialog.setAttribute("type", "number");
       dialog.addEventListener("change", myUI.plannerConfigCallback);
-      el.appendChild(dialog);
+      conf.appendChild(dialog);
 			myUI.planner.setConfig(config.uid, config.defaultVal);
     }
     else{// dropdown
@@ -61,10 +62,14 @@ myUI.setPlannerConfig = function(){
         dd.appendChild(option);
       }
       dd.addEventListener("change", myUI.plannerConfigCallback);
-      el.appendChild(dd);
+      conf.appendChild(dd);
 			myUI.planner.setConfig(config.uid, config.options[0]);
     }
-    parent.appendChild(el);
+    let desc = document.createElement("td");
+    desc.innerHTML = config.description;
+    row.appendChild(conf);
+    row.appendChild(desc);
+    parent.appendChild(row);
   };
 }
 

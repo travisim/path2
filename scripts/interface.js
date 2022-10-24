@@ -15,53 +15,56 @@ myUI.initialize = function(){
 
   // Initialize canvases
   myUI.canvasArray = [
+    // draggables at -4
     {
-      id:"edit_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"], toggle: "off"
+      id:"edit_map", drawType:"cell", drawOrder: -4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"], toggle: "off"
+    },
+    // draggables
+    {
+      id:"hover_map", drawType:"cell", drawOrder: -2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945"], toggle: "off"
+    },
+    // arrows draworder is -1
+    {
+      id:"bg", drawType:"cell", drawOrder: 0, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"], toggle: "off", checked: true
     },
     {
-      id:"hover_map", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945"], toggle: "off"
+      id:"dotted", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"], toggle: "multi", checked: true
     },
     {
-      id:"dotted", drawType:"dotted", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"], toggle: "multi", checked: true
+      id:"current_XY", drawType:"cell", drawOrder: 2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true
     },
     {
-      id:"bg", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"], toggle: "off", checked: true
+      id:"start", drawType:"cell", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#96996"], toggle: "multi", checked: true
     },
     {
-      id:"queue", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true
+      id:"goal", drawType:"cell", drawOrder: 4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#9f17e7"], toggle: "multi", checked: true
     },
     {
-      id:"visited", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true
+      id:"path", drawType:"cell", drawOrder: 5, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true
     },
     {
-      id:"current_XY", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true
+      id:"neighbors", drawType:"cell", drawOrder: 6, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true
     },
     {
-      id:"neighbors", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true
+      id:"queue", drawType:"cell", drawOrder: 7, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true
     },
     {
-      id:"path", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true
+      id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true
     },
     {
-      id:"start", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#96996"], toggle: "multi", checked: true
+      id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false
     },
     {
-      id:"goal", drawType:"cell", fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#9f17e7"], toggle: "multi", checked: true
+      id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false
     },
     {
-      id:"fCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "single", checked: false
-    },
-    {
-      id:"gCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "single", checked: false
-    },
-    {
-      id:"hCost", drawType:"cell", fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "single", checked: false
+      id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false
     },
   ];
   myUI.checkbox = {canvas:[]};
-  appendCheckbox(`show_arrow`, true, "Arrows", "layer", "multi");
+  appendCheckbox(`show_arrow-div`, true, "Arrows", "layer", "multi");
   myUI.canvasArray.forEach(item=>{
-    myUI.canvases[item.id] = new UICanvas(item.id, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal);
+    myUI.canvases[item.id] = new UICanvas(item.id, item.drawOrder, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal);
     if(item.toggle!="off"){
       appendCheckbox(`show_${item.id}`, item.checked, item.id, "layer", item.toggle);
     }

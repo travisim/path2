@@ -176,7 +176,7 @@ myUI.create_arrow = function(start_XY, end_XY, head_pc=0.7){
   elem.style.left = (start_coord.x + displayOffset - elem_path_length * (1-Math.cos(angle))/2) * display_ratio - 1.5 +"px";
   elem.id = `${start_coord.y},${start_coord.x} ${end_coord.y},${end_coord.x}`;
   myUI.arrow.elems.push(elem);
-  document.getElementById("arrow").appendChild(elem);
+  document.getElementById("arrow-div").appendChild(elem);
   return myUI.arrow.elems.length-1;
 }
 

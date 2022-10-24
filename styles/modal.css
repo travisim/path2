@@ -19,7 +19,7 @@
   margin: 5vh auto; /* 15% from the top and centered */
   padding: 10px;
   border: 1px solid #888;
-  width: 700px; 
+  width: 1000px; 
   height: 610px;
 }
 
@@ -131,4 +131,15 @@ input[type=range][orient=vertical]{
   font-weight: bold;
   height: 80px;
   margin: 12px;
+}
+
+#planner_config_body tr td{
+  font-size: small;
+}
+
+#planner_config_body tr td:first-child{
+  width: 18em;
+  min-width: 18em;
+  max-width: 18em;
+  word-break: break-all;
 }

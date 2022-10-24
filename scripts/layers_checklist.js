@@ -61,6 +61,17 @@ function resetAllCheckboxes(type){
   });
 }
 
+function selectAllCheckboxes(type){
+  myUI.checkbox[type].forEach(el=>{
+    el.checked=false;
+    el.click();
+  });
+}
+
 document.getElementById("reset_checkboxes").addEventListener("click", function(){
   resetAllCheckboxes("canvas");
+});
+
+document.getElementById("select_checkboxes").addEventListener("click", function(){
+  selectAllCheckboxes("canvas");
 });
