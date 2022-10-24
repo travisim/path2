@@ -31,14 +31,19 @@ class UICanvas{
       y: (containerHeight - targetHeight) / 2
     };
   }
-  constructor(canvas_id, drawOrder, colors, drawType="cell", fixedResVal=1024, valType="int", defaultVal=0, minVal=null, maxVal=null){
+  constructor(canvas_id, drawOrder, colors, drawType="cell", fixedResVal=1024, valType="int", defaultVal=0, create=true, minVal=null, maxVal=null){
     this.id = canvas_id;
-    this.canvas = document.createElement("canvas");// getElementById(canvas_id);
-    this.canvas.setAttribute("id", canvas_id);
-    this.canvas.classList.add("map_canvas");
-    this.canvas.style.zIndex = getComputedStyle(document.documentElement)
-    .getPropertyValue('--canvas-z-index')-drawOrder;
-    document.getElementById("canvas_container").appendChild(this.canvas);
+    if(create){
+      this.canvas = document.createElement("canvas");// getElementById(canvas_id);
+      this.canvas.setAttribute("id", canvas_id);
+      this.canvas.classList.add("map_canvas");
+      this.canvas.style.zIndex = getComputedStyle(document.documentElement)
+      .getPropertyValue('--canvas-z-index')-drawOrder;
+      document.getElementById("canvas_container").appendChild(this.canvas);
+    }
+    else{
+      this.canvas = document.getElementById(canvas_id);
+    }
     this.ctx = this.canvas.getContext("2d");
     this.defaultHeight = this.canvas.clientHeight;
     this.defaultWidth = this.canvas.clientWidth;

@@ -70,7 +70,7 @@
 
 .draggable{
 	position: absolute;
-	z-index: calc(var(--canvas-z-index)+3);
+	z-index: 23;
 }
 
 .arrow{
@@ -80,7 +80,7 @@
 }
 
 #arrow-div{
-  z-index: 21/*calc(var(--canvas-z-index)+1);*/
+  z-index: 21;/*calc(var(--canvas-z-index)+1);*/
 }
 
 .hover_popup{

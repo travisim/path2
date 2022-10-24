@@ -15,11 +15,7 @@ myUI.initialize = function(){
 
   // Initialize canvases
   myUI.canvasArray = [
-    // draggables at -4
-    {
-      id:"edit_map", drawType:"cell", drawOrder: -4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"], toggle: "off"
-    },
-    // draggables
+    // draggables at -3
     {
       id:"hover_map", drawType:"cell", drawOrder: -2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945"], toggle: "off"
     },
@@ -69,6 +65,10 @@ myUI.initialize = function(){
       appendCheckbox(`show_${item.id}`, item.checked, item.id, "layer", item.toggle);
     }
   });
+  let edit_map = {
+    id:"edit_map", drawType:"cell", drawOrder: -80, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"], toggle: "off"
+  };
+  myUI.canvases.edit_map = new UICanvas(edit_map.id, edit_map.drawOrder, edit_map.colors, edit_map.drawType, edit_map.fixedResVal, edit_map.valType, edit_map.defaultVal, false);
   myUI.canvases.edit_map.toggle_edit();
   
 
