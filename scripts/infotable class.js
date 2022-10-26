@@ -91,13 +91,13 @@ class UIInfoTable{
     this.tableContainer.style.display = "table";
     this.button.classList.add('active');
   }
-  rowGenerator(rowId,values){
+  rowGenerator(values){
     //var t = document.createElement('table');
     var r = document.createElement("TR"); 
     for (let i = 0; i < values.length; i++) { 
       r.insertCell(i).innerHTML = values[i];
     }
-    r.classList.add('infoTableRow','highlighting',(rowId).toString());
+    r.classList.add('infoTableRow','highlighting'); // rmeoved rowId
     return r;
   }
   /*
@@ -192,15 +192,6 @@ class UIInfoTable{
 		while(this.rows.length){
 			parentEl.removeChild(this.rows[0])
 		}
-		/*
-    var temp = this.rows.length;// rows.length alawys changes, cannot use
-    if(temp != 0){
-      var i = temp-1;
-      while(i!=-1) { 
-        this.removeRowByIndex(i);
-        i--;
-      }
-    } */
   }
   removeRowById(Id){
     if (this.tableContainer.getElementsByClassName(Id)[0]){
@@ -213,22 +204,22 @@ class UIInfoTable{
 
  
   
-  insertRowAtIndex(rowIndex,rowId,values){
+  insertRowAtIndex(rowIndex,values){
     for (let i = 0; i <  this.highlightedRows.length; i++) { 
       if( this.highlightedRows[i]){
          this.highlightedRows[i].style.outlineColor = "transparent";
          this.highlightedRows[i].classList.remove('highlighting');
       }
     }
-    //add row at index 0 if there is no og=ther rows
+    //add row at index 0 if there is no other rows
     if(this.rows.length == 0 || rowIndex == 0 ){
-       var r = this.rowGenerator(rowId,values);
+       var r = this.rowGenerator(values);
        r.style.outline = "2px solid red";//highlight latest table added
        this.dynamicTable.prepend(r);
     }
      //add row at end of table
     else if (rowIndex  == this.rows.length ){
-      var r = this.rowGenerator(rowId,values);
+      var r = this.rowGenerator(values);
       r.style.outline = "2px solid red";//highlight latest table added
       this.dynamicTable.append(r);
     } 
@@ -238,7 +229,7 @@ class UIInfoTable{
       return 0;
     } 
     else{
-      var r = this.rowGenerator(rowId,values)
+      var r = this.rowGenerator(values)
       r.style.outline = "2px solid red";//highlight latest table added
       this.rows[rowIndex-1].after(r); //highlight latest table added  
     }
@@ -250,8 +241,12 @@ class UIInfoTable{
       return 0;
     } 
     var row = this.rows[rowIndex];
-    var parentEl = row.parentElement;
-    parentEl.removeChild(row);
+    var data = [];
+    for(const el of row.children){
+      data.push(el.innerHTML);
+    }
+    row.parentElement.removeChild(row);
+    return data;
   }
   
 }

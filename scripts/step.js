@@ -91,9 +91,8 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
         ++j;
       // [i,j) is the action length
 			
-      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost, hCost, pseudoCodeRow,infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
-      if(gCost!==undefined && hCost!==undefined) var fCost=(gCost+hCost).toPrecision(5);
-      console.log("command", STATIC_COMMANDS[command], "dest", STATIC_DESTS[dest], "x", x, "y", y, "parentX", parentX, "parentY", parentY, "colorIndex", colorIndex, "stepNo", stepNo, "arrowIndex", arrowIndex, "fCost", fCost, "gCost", gCost, "hCost", hCost, "pseudoCodeRow", pseudoCodeRow, "infoTableRowIndex", infoTableRowIndex, "cellVal", cellVal);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
+      console.log("command", STATIC_COMMANDS[command], "dest", STATIC_DESTS[dest], "x", x, "y", y, "colorIndex", colorIndex, "arrowIndex", arrowIndex, "pseudoCodeRow", pseudoCodeRow, "infoTableRowIndex", infoTableRowIndex, "infoTableRowData", infoTableRowData, "cellVal", cellVal);
       //console.log(step.slice(i,j));
       try{
       if(command==STATIC.DSP){
@@ -136,7 +135,7 @@ myUI.run_steps = function(num_steps, step_direction="fwd"){
 
       // INFOTABLE 
       if(command==STATIC.InsertRowAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, stepNo, [x+", "+y,parentX+", "+parentY, fCost, gCost, hCost]); 
+        myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
       }
       else if(command==STATIC.EraseRowAtIndex){
         myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
@@ -197,7 +196,7 @@ myUI.generateReverseSteps = function(){
 
 	let stepCnt=0;
 	let revCombinedCnt = 0;
-  let mem = {infoTable:{}, canvasCoords:{}, drawSinglePixel:undefined, fullCanvas:{}, arrowColor:{}, bounds:{}};
+  let mem = {infoTable:{}, canvasCoords:{}, drawSinglePixel:{}, fullCanvas:{}, arrowColor:{}, bounds:{}};
   
   while(stepCnt<indexMap.length){
     let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
@@ -211,26 +210,26 @@ myUI.generateReverseSteps = function(){
         ++j;
       // [i,j) is the action length
 			
-      let [command, dest, x, y, parentX, parentY, colorIndex, stepNo, arrowIndex, gCost, hCost, pseudoCodeRow, infoTableRowIndex, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
 
       let action = [];
       var includeAction = true;
 
       // saving minmax
       if(cellVal!==undefined && myUI.canvases[statics_to_obj[dest]].valType=="float"){
-        if(mem.bounds[dest]===undefined) mem.bounds[dest] = [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
+        mem.bounds[dest] ||= [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
         if(myUI.canvases[statics_to_obj[dest]].minVal==null) mem.bounds[dest][0] = Math.min(mem.bounds[dest][0], cellVal);
         if(myUI.canvases[statics_to_obj[dest]].maxVal==null) mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
       }
 
       if(command==STATIC.DSP){
-        if(mem.drawSinglePixel!==undefined) action = GridPathFinder.packAction({command: STATIC.DSP, dest: dest, nodeCoord: mem.drawSinglePixel, cellVal: 1});
+        if(mem.drawSinglePixel[dest]!==undefined) action = GridPathFinder.packAction({command: STATIC.DSP, dest: dest, nodeCoord: mem.drawSinglePixel[dest], cellVal: 1});
 				else action = GridPathFinder.packAction({command: STATIC.EC, dest: dest});
-        mem.drawSinglePixel = [x,y];
+        mem.drawSinglePixel[dest] = [x,y];
       }
       else if(command==STATIC.SP){
         try{
-          if(mem.fullCanvas[dest]===undefined) mem.fullCanvas[dest] = deep_copy_matrix(myUI.canvases[statics_to_obj[dest]].canvas_cache);
+          mem.fullCanvas[dest] ||= deep_copy_matrix(myUI.canvases[statics_to_obj[dest]].canvas_cache);
           action = GridPathFinder.packAction({command: STATIC.SP, dest: dest, nodeCoord: [x,y], cellVal: mem.fullCanvas[dest][x][y]});
           mem.fullCanvas[dest][x][y] = cellVal;
         }
@@ -284,7 +283,7 @@ myUI.generateReverseSteps = function(){
 				}
         else
 					action = GridPathFinder.packAction({command: STATIC.EA, arrowIndex: arrowIndex});
-				if(colorIndex===undefined) colorIndex = 0;
+				colorIndex ||= 0;
 				mem.arrowColor[arrowIndex] = colorIndex;
       }
       else if(command==STATIC.EA){
@@ -292,11 +291,12 @@ myUI.generateReverseSteps = function(){
 				delete mem.arrowColor[arrowIndex];
       }
       else if(command==STATIC.InsertRowAtIndex){
-        mem.infoTable[dest] = {nodeCoord: [x,y], stepIndex: stepNo, hCost: hCost, gCost: gCost, parentCoord: [parentX, parentY]};
+        myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
         action = GridPathFinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
       }
       else if(command==STATIC.EraseRowAtIndex){
-        action = GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, nodeCoord: mem.infoTable[dest].nodeCoord, stepIndex: mem.infoTable[dest].stepIndex, infoTableRowIndex: infoTableRowIndex, hCost: mem.infoTable[dest].hCost, gCost: mem.infoTable[dest].gCost, parentCoord: mem.infoTable[dest].parentCoord});
+        let data = myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
+        action = GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex, infoTableRowData: data});
       }
       else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
         if(mem.pseudoCodeRowPri===undefined) mem.pseudoCodeRowPri = -1;
@@ -323,6 +323,7 @@ myUI.generateReverseSteps = function(){
     if(myUI.canvases[statics_to_obj[dest]].minVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("min", bounds[0]);
     if(myUI.canvases[statics_to_obj[dest]].maxVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("max", bounds[1]);
   }
+  myUI.reset_animation();
   myUI.mem = mem;
 }
 

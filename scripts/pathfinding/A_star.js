@@ -258,7 +258,7 @@ class A_star extends GridPathFinder{
           for(const node of this.queue){
             if(node.f_cost < new_node.f_cost) numLess++;
           }
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, nodeCoord: new_node.self_XY, stepIndex: this.current_node.id, infoTableRowIndex: numLess, hCost: parseFloat(new_node.h_cost.toPrecision(5)), gCost: parseFloat(new_node.g_cost.toPrecision(5)), parentCoord: this.current_node_XY});
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(new_node.f_cost.toPrecision(5)), parseFloat(new_node.g_cost.toPrecision(5)), parseFloat(new_node.h_cost.toPrecision(5))]});
           this.insertedRow = true;
           // add to queue 
 					if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO

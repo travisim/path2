@@ -17,8 +17,8 @@ function compute_path(){
 	myUI.planner.add_map(myUI.map_arr);
 	myUI.updateInfoMap(...myUI.map_start);
 	myUI.reset_animation();
-	myUI.InfoTables["ITQueue"].removeAllTableRows();
-	document.getElementById("compute_btn").innerHTML = "searching...";
+	Object.values(myUI.canvases).forEach(uiCanvas=>uiCanvas.minVal = uiCanvas.maxVal = 0);
+	document.getElementById("compute_btn").innerHTML = "computing...";
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
 		console.log(path ? path.length : -1);
 		console.log(myUI.planner.steps_data)
@@ -80,6 +80,7 @@ myUI.reset_animation = function(){
 	["visited",	"neighbors", "queue",	"current_XY",	"path", "dotted", "fCost", "gCost", "hCost"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
+	Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(false);
 	myUI.arrow.step = -1;
 }
