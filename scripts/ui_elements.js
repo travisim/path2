@@ -67,6 +67,10 @@ class UICanvas{
     this.setDrawType(drawType);
   }
 
+  matrixConstructor({vertex=false}={}){
+    return zero2D(this.data_height+vertex, this.data_width+vertex, this.defaultVal, this.defaultVal, this.valType);
+  }
+
   setValueBounds(minOrMax, val){
     if(minOrMax=="min") this.minVal = val;
     else if(minOrMax=="max") this.maxVal = val;
@@ -77,12 +81,12 @@ class UICanvas{
 
     switch(drawType){
       case "vertex":
-        this.canvas_cache = zero2D(this.data_height+1, this.data_width+1, this.defaultVal, this.defaultVal, this.valType);
+        this.canvas_cache = this.matrixConstructor({vertex:true});
       case "dotted":
         this.fixedRes = true;
         break;
       default:
-        this.canvas_cache = zero2D(this.data_height, this.data_width, this.defaultVal, this.defaultVal, this.valType);
+        this.canvas_cache = this.matrixConstructor();
         this.fixedRes = false;
     }
   }
@@ -124,11 +128,11 @@ class UICanvas{
 
     if(retain_data){
       let new_canvas_cache = deep_copy_matrix(this.canvas_cache);
-      this.canvas_cache = zero2D(data_height, data_width, this.defaultVal, this.defaultVal, this.valType);
+      this.canvas_cache = this.matrixConstructor();
       this.draw_canvas(new_canvas_cache, `2d`, false);
     }
     else{
-      this.canvas_cache = zero2D(data_height, data_width, this.defaultVal, this.defaultVal, this.valType);
+      this.canvas_cache = this.matrixConstructor();
     }
   }
 
@@ -154,19 +158,18 @@ class UICanvas{
 	}
 
   init_virtual_canvas(){
-    this.virtualCanvas = zero2D(data_height, data_width, this.defaultVal, this.defaultVal, this.valType);
+    this.virtualCanvas = this.matrixConstructor();
   }
 
   change_pixel(xy, direction, virtual=false){
     let [x,y] = xy;
-    let val = this.canvas_cache[x][y];
+    let val = virtual ? this.virtualCanvas[x][y] : this.canvas_cache[x][y];
     if(direction=="inc") ++val; else --val;
-    val = Math.min(this.colors.length, Math.max(val, 0));
-    if(val==0){
+    val = Math.min(this.maxVal, Math.max(val, this.minVal));
+    if(val==this.defaultVal)
       this.erase_pixel(xy);
-      return;
-    }
-    this.draw_pixel(xy, virtual, val, val-1);
+    else
+      this.draw_pixel(xy, virtual, val, val-1);
   }
 
   draw_pixel(xy, virtual=false, val=1, color_index=0, save_in_cache=true){
@@ -272,18 +275,20 @@ class UICanvas{
     else if(array_type == "2d_heatmap"){
       for (let i = 0; i < array_data.length; i++) 
         for (let j = 0; j < array_data[i].length; j++)
-          if(array_data[i][j]){
-            let val = Math.min(this.colors.length, Math.max(array_data[i][j], 0));
+          if(this.valType=="float") this.draw_pixel([i,j], virtual, array_data[i][j]);
+          else if(array_data[i][j]!=this.defaultVal){
+            let val = Math.min(this.maxVal, Math.max(array_data[i][j], this.minVal));
             this.draw_pixel([i,j], virtual, val, val-1);
           }
     }
   }
 
-  erase_canvas(){
+  erase_canvas(virtual=false){
+    if(virtual) return this.init_virtual_canvas();
     let height = this.data_height ? this.data_height : this.canvas.height;
     let width = this.data_width ? this.data_width : this.canvas.width;
     this.ctx.clearRect(0, 0, width, height);
-    this.canvas_cache = zero2D(height, width, this.defaultVal, this.defaultVal, this.valType);
+    this.canvas_cache = this.matrixConstructor();
   }
 
   draw_vertex_circle(xy, color_index){
@@ -317,7 +322,6 @@ class UICanvas{
     let y = xy[0]*this.data_height/myUI.map_height;
     let x = xy[1]*this.data_width/myUI.map_width;
     let side = this.data_height/myUI.map_height;
-    console.log(x,y);
     this.set_color(this.strokeColor, "stroke");
     this.ctx.setLineDash([12, 6]);/*dashes are 2px and spaces are 2px*/
     this.ctx.lineWidth = 6;

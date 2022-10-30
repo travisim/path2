@@ -15,9 +15,8 @@ function animation_backend(){
           let num_steps = parseInt(myUI.animation.jump_steps);
           if(myUI.animation.detailed){
             myUI.run_steps(num_steps);
-            /*
             if(num_steps>50) myUI.jump_to_step(myUI.animation.step + num_steps);
-            else myUI.run_steps(num_steps);*/
+            else myUI.run_steps(num_steps);
           }
           else
             while(num_steps--) myUI.run_combined_step();
@@ -29,9 +28,7 @@ function animation_backend(){
             myUI.run_combined_step();
         }
         myUI.update_search_slider(myUI.animation.step);
-        // 1× speed is defined as 5 fps
-        let each_frame_duration = 200/myUI.animation.speed;
-        timer = setTimeout(updateMap, each_frame_duration);
+        timer = setTimeout(updateMap, myUI.animation.frameDuration);
       }
       else{
         clearTimeout(timer);
@@ -52,7 +49,8 @@ myUI.update_search_slider = function(value){
   myUI.sliders.search_progress_slider.elem.value = myUI.animation.step;
 }
 
-myUI.jump_to_step = function(target_step){
+myUI.jump_to_step_old = function(target_step){
+  // DEPRECATED
   myUI.animation.step = myUI.planner.search_state(target_step);
 
   const canvas_ids = [`queue`, `neighbors`, `current_XY`, `visited`, `path`];
@@ -116,11 +114,7 @@ myUI.jump_to_step = function(target_step){
     forEach(xy=>{ 
       myUI.InfoVisited.set_data(xy, 1);
     });
-    
-  
       myUI.InfoMap.drawVisitedFromState(x,y);
-      
-      
     */
     }
     catch(e){
@@ -131,6 +125,7 @@ myUI.jump_to_step = function(target_step){
 }
 
 myUI.draw_virtual_canvas = function(canvas_id, array_data, array_type){
+  // DEPRECATED
   if (array_type == "1d") {
     array_data.forEach(coord=>{
       // coord is in row-major form
@@ -196,6 +191,7 @@ myUI.reset_arrow = function(clear_data=false){
 }
 
 myUI.draw_arrow = function(start_XY, end_XY, save_data=false, color_index=0,vertex=false, canvas=null){
+  // DEPRECATED
 
   function scale_coord(xy){
     return [xy[0]*canvas.height / myUI.map_height, xy[1]*canvas.width / myUI.map_width];

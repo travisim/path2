@@ -160,8 +160,8 @@ else document.getElementById("vertexToggle").checked=false;
 
 myUI.displayScen = function(update=false, reset_zero=false){
   console.log("INSIDE DISPLAY SCEN")
-	myUI.canvases.start.erase_canvas();
-	myUI.canvases.goal.erase_canvas();
+	//myUI.canvases.start.erase_canvas();
+	//myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
 	myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
@@ -178,8 +178,8 @@ myUI.displayScen = function(update=false, reset_zero=false){
   myUI.map_goal[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_goal[0]));
   myUI.map_start[1] = Math.max(0, Math.min(myUI.map_width-1+change, myUI.map_start[1]));
   myUI.map_goal[1] = Math.max(0, Math.min(myUI.map_width-1+change, myUI.map_goal[1]));
-  myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
-  myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
+  //myUI.canvases["start"].draw_start_goal(myUI.map_start, "rgb(150,150,150)");
+  //myUI.canvases["goal"].draw_start_goal(myUI.map_goal, "rgb(159,23,231)");
   if(update){
     // update the inputs
     document.querySelector("#scen_start_x").value = myUI.map_start[0];

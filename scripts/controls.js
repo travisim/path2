@@ -17,26 +17,47 @@ function compute_path(){
 	myUI.planner.add_map(myUI.map_arr);
 	myUI.updateInfoMap(...myUI.map_start);
 	myUI.reset_animation();
-	Object.values(myUI.canvases).forEach(uiCanvas=>uiCanvas.minVal = uiCanvas.maxVal = 0);
-	document.getElementById("compute_btn").innerHTML = "computing...";
+	Object.values(myUI.canvases).forEach(function(uiCanvas){
+		if(uiCanvas.valType=="float")uiCanvas.minVal = uiCanvas.maxVal = null;
+	});
+	document.getElementById("compute_btn").innerHTML = "computing... 0s";
+	myUI.computingCount=0;
+	clearInterval(myUI.interval);
+	myUI.interval = setInterval(function(){
+		myUI.computingCount++;
+		document.getElementById("compute_btn").innerHTML = `computing... ${myUI.computingCount}s`;
+	}, 1000);
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
+		clearInterval(myUI.interval);
+		document.getElementById("compute_btn").innerHTML = "optimizing... 0s";
+		myUI.computingCount=0;
+		myUI.interval = setInterval(function(){
+			myUI.computingCount++;
+			document.getElementById("compute_btn").innerHTML = `optimizing... ${myUI.computingCount}s`;
+		}, 1000);
 		console.log(path ? path.length : -1);
 		console.log(myUI.planner.steps_data)
 		myUI.step_data.fwd.data = myUI.planner.steps_data;
 	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
 		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
-		myUI.generateReverseSteps();
-		myUI.sliders.search_progress_slider.elem.disabled = false;
-		myUI.animation.max_step = myUI.planner.max_step();
-		myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;
-		let each_frame_duration_min = 3000 / myUI.animation.max_step; //  5 seconds for fastest animation
-		myUI.sliders.animation_speed_slider.elem.max = Math.log2(200/each_frame_duration_min)*1000;
-		document.getElementById("compute_btn").innerHTML = "done!";
-		setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
-   /*
-    for(const [key, IT] of Object.entries(myUI.InfoTables))
-        IT.removeAllTableRows();
-    */
+		myUI.generateReverseSteps({genStates: true, stateFreq: 100}).then(ret=>{
+			if(ret!=0){
+				let error = `DID NOT GENERATE STATES PROPERLY`;
+				alert(error);
+				throw error;
+			}
+			clearInterval(myUI.interval);
+			myUI.currentCoord = myUI.map_start;
+			myUI.sliders.search_progress_slider.elem.disabled = false;
+			myUI.animation.max_step = myUI.planner.max_step();
+			myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;
+			myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
+			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;
+			updateSpeedSlider();
+			document.getElementById("compute_btn").innerHTML = "done!";
+			setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
+		})
+		//myUI.generateReverseStepsIter({genStates: true, stateFreq: 100});
 	}); 
 	
 	
@@ -58,9 +79,13 @@ function display_path(){
 }/* */
 //displays value of slider
 
-myUI.sliders.animation_speed_slider.elem.oninput = function(){
-	let apparent_speed = Math.pow(2, this.value/1000);
-	this.parent.label.innerHTML = `${(Math.round(apparent_speed * 100) / 100).toFixed(2)}×`;
+myUI.sliders.animation_speed_slider.elem.addEventListener("input", updateSpeedSlider);
+
+function updateSpeedSlider(){
+	let slider = myUI.sliders.animation_speed_slider;
+	let apparent_speed = Math.pow(2, slider.elem.value/1000);
+	slider.label.innerHTML = `${(Math.round(apparent_speed * 100) / 100).toFixed(2)}×`;
+	myUI.animation.frameDuration = 1000/apparent_speed;
 	myUI.animation.speed = apparent_speed;
 	// skip steps in animation
 	myUI.animation.jump_steps = 5*myUI.animation.speed/myUI.animation.max_fps;
@@ -77,7 +102,7 @@ myUI.sliders.search_progress_slider.elem.oninput = function(){
 myUI.reset_animation = function(){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
 	myUI.update_search_slider(-1);
-	["visited",	"neighbors", "queue",	"current_XY",	"path", "dotted", "fCost", "gCost", "hCost"].forEach(canvas_id=>{
+	["visited",	"neighbors", "queue",	"expanded",	"path", "focused", "fCost", "gCost", "hCost"].forEach(canvas_id=>{
 		myUI.canvases[canvas_id].erase_canvas();
 	});
 	Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());

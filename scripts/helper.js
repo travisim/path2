@@ -51,7 +51,7 @@ function deepCopyNodeArray(nodeArray){
 function zero2D(rows, cols, max_val=255, defaultVal=0, type="int") {
   var array = new Array(rows);
   while(rows--){
-		if(type=="float" || max_val>=(1<<32)){
+		if(type=="float" || max_val>=(1<<32 || !(Number.isInteger(defaultVal)))){
 			var row = new Array(cols).fill(defaultVal);
 		}
     else if(max_val<(1<<8)){
@@ -123,7 +123,7 @@ class BitMatrix{
 
 	// THIS IS A CUSTOM CLASS THAT USES THE UINT8 ARRAYS TO MORE EFFICIENTLY STORE 2D BIT ARRAYS
 
-	static chunk_len = 32;
+	static get chunk_len(){return 32;}
 
 	static get data_arr(){
 		if(this.chunk_len==8) return Uint8Array;
@@ -131,7 +131,7 @@ class BitMatrix{
 		if(this.chunk_len==32) return Uint32Array;
 	}
 
-	static max_size = 1024;
+	static get max_size(){return 1024;}
 
 	static get max_size_bit(){
 		return Math.ceil(Math.log2(this.max_size));
@@ -169,7 +169,7 @@ class BitMatrix{
 
     let max_y = num_rows-1;
     let max_x = num_cols-1;
-		console.log(this.constructor.data_arr);
+		// console.log(this.constructor.data_arr);
     this.data = new this.constructor.data_arr(Math.ceil((this.constructor.max_size_bit*2 + num_cols*num_rows)/this.constructor.chunk_len)); // total number of bits (div) number of bits for max_safe_int
 		this.data[0] = max_y;
 		this.data[0] += max_x<<this.constructor.max_size_bit;
@@ -235,6 +235,15 @@ class BitMatrix{
 
 	copy_2d(){
 		return this.constructor.expand_2_matrix(this.data);
+	}
+
+	get_truncated_data(){
+		let arr = [];
+		let last_index = this.data.length-1;
+		while(this.data[last_index]==0) --last_index;
+		for(let i=0;i<=last_index;++i)
+			arr.push(this.data[i]);
+		return new this.constructor.data_arr(arr);
 	}
 }
 
@@ -315,7 +324,7 @@ class NBitMatrix{
 	// THIS IS A CUSTOM CLASS THAT USES THE UINT8 ARRAYS TO MORE EFFICIENTLY STORE 2D UINT ARRAYS
 	// EACH CELL/COORDINATE IN THE ORIGINAL 2D ARRAY CAN BE SPECIFIED TO CONTAIN N-BITS
 
-	static chunk_len = 32;
+	static get chunk_len(){return 32;}
 	// each "chunk" is a string of bits in the data array
 	// e.g. Uint32 Arrays have 32 bits in each index
 
@@ -325,11 +334,11 @@ class NBitMatrix{
 		if(this.chunk_len==32) return Uint32Array;
 	}
 
-	static max_length = 1024;
+	static get max_length(){return 1024;}
 	// this is the max allowed length  for the 2D array
 	// 1024x1024
 
-	static max_cell_val = 255;
+	static get max_cell_val(){return 255;}
 	// each [i][j] in the matrix can take values for 0-255
 
 	static get max_length_bits(){
@@ -435,5 +444,14 @@ class NBitMatrix{
 
 	copy_2d(){
 		return this.constructor.expand_2_matrix(this.data);
+	}
+
+	get_truncated_data(){
+		let arr = [];
+		let last_index = this.data.length-1;
+		while(this.data[last_index]==0) --last_index;
+		for(let i=0;i<=last_index;++i)
+			arr.push(this.data[i]);
+		return new this.constructor.data_arr(arr);
 	}
 }

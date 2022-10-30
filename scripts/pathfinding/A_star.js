@@ -99,10 +99,15 @@ class A_star extends GridPathFinder{
     // "Producing Code" (May take some time)
 
     console.log("starting");
-    let start_node = new Node(0, 0, 0, null, this.start, undefined, 0);
-    this.queue.push(start_node);  // begin with the start; add starting node to rear of []
 
-    this.open_list.set(start_node.self_XY, start_node);
+    this.current_node = new Node(0, 0, 0, null, this.start, undefined, 0);
+    [this.current_node.f_cost, this.current_node.g_cost, this.current_node.h_cost] = this.calc_cost(this.current_node.self_XY);
+    this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
+    this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [start[0]+','+start[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
+    this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: start});
+    this._save_step(true);
+
+    this.open_list.set(this.current_node.self_XY, this.current_node);
     //---------------------checks if visited 2d array has been visited
     this.insertedRow = false;
     let planner = this;
@@ -144,9 +149,9 @@ class A_star extends GridPathFinder{
         continue;  // if the current node has been visited, skip to next one in queue
       }/* */
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
-
-      if(this.insertedRow)
-        this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 0});
+      
+      //if(this.insertedRow)
+      this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
       //this._create_action({command: STATIC.EC, dest: STATIC.DT});
       this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
       this._create_action({command: STATIC.EC, dest: STATIC.CR});
@@ -249,7 +254,7 @@ class A_star extends GridPathFinder{
             new_node.arrow_index = myUI.create_arrow(next_XY, this.current_node_XY); // node is reference typed so properties can be modified after adding to queue or open list
             this.arrow_state[new_node.arrow_index] = 1;
 						//this._create_action(STATIC.DA, new_node.arrow_index);
-            this._create_action({command: STATIC.DA, arrowIndex: new_node.arrow_index});
+            this._create_action({command: STATIC.DA, arrowIndex: new_node.arrow_index, colorIndex: 0});
 						// END OF ARROW
 					}
           //this._create_action(STATIC.DP, STATIC.QU, next_XY);
@@ -258,8 +263,8 @@ class A_star extends GridPathFinder{
           for(const node of this.queue){
             if(node.f_cost < new_node.f_cost) numLess++;
           }
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(new_node.f_cost.toPrecision(5)), parseFloat(new_node.g_cost.toPrecision(5)), parseFloat(new_node.h_cost.toPrecision(5))]});
-          this.insertedRow = true;
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(new_node.f_cost.toPrecision(5)), parseFloat(new_node.g_cost.toPrecision(5)), parseFloat(new_node.h_cost.toPrecision(5))]});
+          //this.insertedRow = true;
           // add to queue 
 					if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO
           else this.queue.unshift(new_node); // LIFO

@@ -25,7 +25,7 @@ console.log(myUI.map_start)
 randomCoords.push(myUI.map_start)
 randomCoords.push(myUI.map_goal)
 console.log("random coods",randomCoords);
-myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
+//myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
 var otherRandomCoordsDistance = empty2D(randomCoords.length,randomCoords.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
 
 

@@ -49,7 +49,7 @@ document.getElementById("info-container").append(div);
 */
 
 class UIInfoTable{
-  constructor(tableIdentifier){ //input titles of table in string
+  constructor(tableIdentifier, rowSize){ //input titles of table in string
 
     this.tableGenerator(tableIdentifier)
     this.tableContainer = document.querySelector('#'+`t${tableIdentifier}`);
@@ -58,6 +58,7 @@ class UIInfoTable{
     this.tableHeader = this.tableContainer.getElementsByClassName('table_header');
     this.highlightedRows = this.tableContainer.getElementsByClassName('highlighting');
     this.dynamicTable = this.tableContainer.querySelector('.dynamic_table_container');
+    this.rowSize = rowSize;
     
     //querySelector returns 1 element but getElementsByClassName returns array of elements
   }
@@ -93,11 +94,16 @@ class UIInfoTable{
   }
   rowGenerator(values){
     //var t = document.createElement('table');
+    if(values.length!=this.rowSize){
+      let msg = 'Wrong Infotable row size';
+      alert(msg);
+      throw msg;
+    }
     var r = document.createElement("TR"); 
     for (let i = 0; i < values.length; i++) { 
       r.insertCell(i).innerHTML = values[i];
     }
-    r.classList.add('infoTableRow','highlighting'); // rmeoved rowId
+    r.classList.add('infoTableRow'); // rmeoved rowId
     return r;
   }
   /*
@@ -201,26 +207,38 @@ class UIInfoTable{
     }
   }
 
+  getHiglightIndex(){
+    return this.highlightRow;
+  }
 
- 
-  
-  insertRowAtIndex(rowIndex,values){
+  setHighlightAtIndex(rowIndex){
+    rowIndex--;
     for (let i = 0; i <  this.highlightedRows.length; i++) { 
       if( this.highlightedRows[i]){
-         this.highlightedRows[i].style.outlineColor = "transparent";
-         this.highlightedRows[i].classList.remove('highlighting');
+        this.highlightedRows[i].style.outlineColor = "transparent";
+        this.highlightedRows[i].classList.remove('highlighting');
       }
     }
+    this.rows[rowIndex].style.outline = "2px solid red";
+    this.rows[rowIndex].classList.add("highlighting");
+    let prevHighlight = this.highlightRow;
+    this.highlightRow = rowIndex+1;
+    return prevHighlight;
+  }
+  
+  insertRowAtIndex(rowIndex,values){
+    let toHighlight = (rowIndex>0);
+    rowIndex = Math.abs(rowIndex)-1;
     //add row at index 0 if there is no other rows
     if(this.rows.length == 0 || rowIndex == 0 ){
        var r = this.rowGenerator(values);
-       r.style.outline = "2px solid red";//highlight latest table added
+       //r.style.outline = "2px solid red";//highlight latest table added
        this.dynamicTable.prepend(r);
     }
      //add row at end of table
     else if (rowIndex  == this.rows.length ){
       var r = this.rowGenerator(values);
-      r.style.outline = "2px solid red";//highlight latest table added
+      //r.style.outline = "2px solid red";//highlight latest table added
       this.dynamicTable.append(r);
     } 
    //add row at index by adding after prev index
@@ -230,25 +248,47 @@ class UIInfoTable{
     } 
     else{
       var r = this.rowGenerator(values)
-      r.style.outline = "2px solid red";//highlight latest table added
+      //r.style.outline = "2px solid red";//highlight latest table added
       this.rows[rowIndex-1].after(r); //highlight latest table added  
     }
+    if(toHighlight) return this.setHighlightAtIndex(rowIndex+1);
+    let prevHighlight = this.highlightRow;
+    if(rowIndex+1<=this.highlightRow) ++this.highlightRow; // inserting a row before the highlighted row causes it to shift down by 1
+    return prevHighlight;
   }
 
   eraseRowAtIndex(rowIndex){
+    rowIndex = Math.abs(rowIndex)-1;
     if (rowIndex>=this.rows.length || this.rows.length<1){
       console.log("row index does not yet exist")
       return 0;
     } 
-    var row = this.rows[rowIndex];
-    var data = [];
-    for(const el of row.children){
+    let row = this.rows[rowIndex];
+    let data = [];
+    for(const el of row.children)
       data.push(el.innerHTML);
-    }
+    
+    let prevHighlight = this.highlightRow;
+    if(rowIndex+1<this.highlightRow)this.highlightRow--;
+    else if(rowIndex+1==this.highlightRow) this.highlightRow = null;
+
     row.parentElement.removeChild(row);
-    return data;
+    return [data, prevHighlight==rowIndex+1];
   }
   
+  flatten(){
+    let ret = [this.highlightRow, this.rowSize];
+    for(const row of this.rows){
+      for(const el of row.children){
+        ret.push(el.innerHTML);
+        /*
+        if(isNaN(el.innerHTML) || !isFinite(el.innerHTML)) ret.push(el.innerHTML);
+        else ret.push(Number(el.innerHTML));
+        */
+      }
+    }
+    return ret;
+  }
 }
 
 

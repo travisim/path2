@@ -1,13 +1,13 @@
 function show_modal(modal){
   ++myUI.top_Z;
 	modal.style.zIndex = String(myUI.top_Z); // reveal
-  modal.style.opacity = 100;
+  modal.style.display = "block;"
 }
 
 function hide_modal(modal){
   --myUI.top_Z;
 	modal.style.zIndex = "-100"; // hide
-  modal.style.opacity = 0;
+  modal.style.display = "none;"
 }
 
 myUI.modals.edit_map.show = function(){

@@ -3,6 +3,7 @@ if (checked == true){
   var checked_value = "checked"; 
 }
 else{
+  document.getElementById(id.slice(5)).classList.add("hidden");
   var checked_value = "";
 }
   const div = document.createElement("div");

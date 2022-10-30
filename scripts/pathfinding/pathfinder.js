@@ -353,10 +353,7 @@ class GridPathFinder{
 			this.actionCache[0] += 1<<8;
 			this.actionCache[idx] = cellVal*2;
 		}
-
-		this.actionCache.forEach(val=>{
-			this.step_cache.push(val);
-		});
+		Array.prototype.push.apply(this.step_cache, this.actionCache);
 		//console.log(cellVal)
 		return this.actionCache.length;
 	}
@@ -371,7 +368,7 @@ class GridPathFinder{
 			}
 		}
 		this.step_index_map.push(this.steps_data.length);
-		this.step_cache.forEach(action=>this.steps_data.push(action));
+		Array.prototype.push.apply(this.steps_data, this.step_cache);
 		
 		/* 
 		step 0 is index 0 to index k-1
@@ -383,7 +380,7 @@ class GridPathFinder{
 	}
 
 	_create_cell_index(){
-		this.cell_map = zero2D(this.map_height, this.map_width, Number.MAX_SAFE_INTEGER);
+		this.cell_map = zero2D(this.map_height, this.map_width, Number.MAX_SAFE_INTEGER, NaN, "int");
 	}
 
 	_assign_cell_index(xy){
@@ -393,6 +390,7 @@ class GridPathFinder{
 	}
 
 	_manage_state(){
+		return;
 		// [node XY, FGH cost, arrayof queue, 2d array of current visited points, valid neighbors array, visited array]
 		if (this.step_index - this.prev_count >= 80) {  
 			this.prev_count = this.step_index;
@@ -425,6 +423,7 @@ class GridPathFinder{
 		// found the goal & exits the loop
 		if (node.self_XY[0] != this.goal[0] || node.self_XY[1] != this.goal[1]) return false;
 		
+		this._assign_cell_index(this.current_node_XY);
 		this.path = [];
 		// retraces the entire parent tree until start is found
 		const originalNode = node;
