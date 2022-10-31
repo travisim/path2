@@ -29,24 +29,18 @@ function compute_path(){
 	}, 1000);
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
 		clearInterval(myUI.interval);
-		document.getElementById("compute_btn").innerHTML = "optimizing... 0s";
-		myUI.computingCount=0;
-		myUI.interval = setInterval(function(){
-			myUI.computingCount++;
-			document.getElementById("compute_btn").innerHTML = `optimizing... ${myUI.computingCount}s`;
-		}, 1000);
+		document.getElementById("compute_btn").innerHTML = "optimizing... 0%";
 		console.log(path ? path.length : -1);
 		console.log(myUI.planner.steps_data)
 		myUI.step_data.fwd.data = myUI.planner.steps_data;
 	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
 		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
-		myUI.generateReverseSteps({genStates: true, stateFreq: 100}).then(ret=>{
+		myUI.generateReverseSteps({genStates: true, stateFreq: 20}).then(ret=>{
 			if(ret!=0){
 				let error = `DID NOT GENERATE STATES PROPERLY`;
 				alert(error);
 				throw error;
 			}
-			clearInterval(myUI.interval);
 			myUI.currentCoord = myUI.map_start;
 			myUI.sliders.search_progress_slider.elem.disabled = false;
 			myUI.animation.max_step = myUI.planner.max_step();

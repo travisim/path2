@@ -165,11 +165,10 @@ class UICanvas{
     let [x,y] = xy;
     let val = virtual ? this.virtualCanvas[x][y] : this.canvas_cache[x][y];
     if(direction=="inc") ++val; else --val;
-    val = Math.min(this.maxVal, Math.max(val, this.minVal));
     if(val==this.defaultVal)
-      this.erase_pixel(xy);
-    else
-      this.draw_pixel(xy, virtual, val, val-1);
+      return this.erase_pixel(xy);
+    val = Math.min(this.maxVal, Math.max(val, this.minVal));
+    this.draw_pixel(xy, virtual, val, val-1);
   }
 
   draw_pixel(xy, virtual=false, val=1, color_index=0, save_in_cache=true){
@@ -184,13 +183,13 @@ class UICanvas{
         return;
       }
       
-      if(this.valType=="float"){
+      if(this.valType=="float" || this.minVal<this.maxVal){
         let r = (val-this.minVal)/(this.maxVal-this.minVal);
         let color = chroma.scale("Spectral")(1-r).hex();
         //let color = chroma(chroma.mix(this.colors[0], this.colors[1], r, 'hsl')).hex();
         this.set_color(color);
       }
-      else
+      else if(color_index!=-1)
         this.set_color_index(color_index);
 
       switch(this.drawType){
@@ -227,9 +226,10 @@ class UICanvas{
   }
 
   draw_start_goal(point, strokeColor=this.ctx.strokeStyle){
-    this.set_color(strokeColor, "all");
+    //this.set_color(strokeColor, "all");
+    this.set_color(this.fillColor, "all");
     if (myUI.map_height < 64 || this.fixedRes){
-      this.draw_pixel(point);
+      this.draw_pixel(point, false, 1, -1, false);
     }
     else{
       this.draw_scaled_cross(point, strokeColor);

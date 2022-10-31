@@ -441,7 +441,7 @@ class GridPathFinder{
 		}
 		console.log("found");
 		/* NEW */
-		this._create_action({command: STATIC.EC, dest: STATIC.CR});
+		this._create_action({command: STATIC.SIMPLE});
 		this._save_step(true);
 
 		this._create_action({command: STATIC.SIMPLE});

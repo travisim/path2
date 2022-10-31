@@ -232,7 +232,6 @@ class A_star extends GridPathFinder{
 
           /* NEW */
           
-          //this._create_action({command: STATIC.EC, dest: STATIC.DT});
           this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: next_XY});
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_XY});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 32});
