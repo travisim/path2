@@ -250,7 +250,7 @@ class GridPathFinder{
 
     // generate empty 2d array
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
-    this.visited = new NBitMatrix(this.map_height, this.map_width, 7);
+    this.visited = new NBitMatrix(this.map_height, this.map_width, 8);
 		this.arrow_state = new Uint8Array(this.map_height*this.map_width); // stores the visibility of arrows; 1 is shown, 0 is hidden
     this.searched = false;
     this._create_cell_index();

@@ -75,7 +75,11 @@ myUI.get_step = function(anim_step, step_direction="fwd"){
 }
 
 
-myUI.run_steps = function(num_steps, step_direction="fwd"){
+myUI.run_steps = function(num_steps, step_direction){
+  if(step_direction===undefined){
+    if(myUI.animation.reversed) step_direction="bck";
+    else step_direction="fwd";
+  }
   while(num_steps--){
     if(step_direction!="fwd" && myUI.animation.step>-1)--myUI.animation.step;
     else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
@@ -174,7 +178,11 @@ steps_arr = [
 ]
 */
 
-myUI.run_combined_step = function(step_direction="fwd"){
+myUI.run_combined_step = function(step_direction){
+  if(step_direction===undefined){
+    if(myUI.animation.reversed) step_direction="bck";
+    else step_direction="fwd";
+  }
 	if(step_direction=="fwd"){
 		var numSteps = myUI.step_data.fwd.combined[myUI.animation.step+1]; 
 	}
@@ -297,8 +305,13 @@ myUI.generateReverseSteps = function({genStates=false, stateFreq=100}={}){
             mem.canvasCoords[dest].push([x,y]);
           }
           /* virtualCanvas version */
-          if(myUI.canvases[statics_to_obj[dest]].virtualCanvas[x][y]==myUI.canvases[statics_to_obj[dest]].defaultVal)
-            action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y]});
+          try{
+            if(myUI.canvases[statics_to_obj[dest]].virtualCanvas[x][y]==myUI.canvases[statics_to_obj[dest]].defaultVal)
+              action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y]});
+          } catch(e){
+            console.log(statics_to_obj[dest]);
+            debugger;
+          }
           myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
           /**/
         }
@@ -409,7 +422,7 @@ myUI.generateReverseSteps = function({genStates=false, stateFreq=100}={}){
             continue;
           }
           if(canvas.valType=="float"){
-            nextState.canvas[canvas.id] = deep_copy_matrix(canvas.virtualCanvas);
+            nextState.canvas[canvas.id] = deep_copy_matrix(canvas.virtualCanvas, false, true);
           }
           else{
             /*
@@ -470,27 +483,24 @@ myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
 }
 
 myUI.jump_to_step = function(target_step){
+  if(document.getElementById("compute_btn").innerHTML!=`Compute Path`) return;
   /*
   if state exists:
     load state
     draw state to whatever
   run the remaning steps
   */
+  target_step = target_step===undefined ? myUI.animation.step : target_step;
   let idx = -1;
   for(const table of Object.values(myUI.InfoTables)) table.removeAllTableRows();
   for(const canvas of Object.values(myUI.dynamicCanvas)) canvas.erase_canvas();
   for(const elem of myUI.arrow.elems)
     elem.classList.add("hidden");
+
   // if state exists
   if(target_step>=myUI.stateFreq){
     idx = Math.floor(target_step/myUI.stateFreq)-1;
     let state = myUI.states[idx];
-    // canvases first
-    for(const [id,data] of Object.entries(state.canvas)){
-      if(typeof data[0] == "object") var toDraw = data; // for 2d arrays (floats, etc.)
-      else var toDraw = NBitMatrix.expand_2_matrix(data);
-      myUI.canvases[id].draw_canvas(toDraw, `2d_heatmap`);
-    }
     // arrows
     for(const [arrowId, colorId] of Object.entries(state.arrowColor)){
       myUI.arrow.elems[arrowId].classList.remove("hidden");
@@ -502,13 +512,11 @@ myUI.jump_to_step = function(target_step){
       myUI.InfoTables[tableId].removeAllTableRows();
       myUI.InfoTables[tableId].highlightRow = tableData[0];
       const rowSize = tableData[1];
-      let i=2;
       for(let i=2;i<tableData.length;i+=rowSize){
         let idx = -myUI.InfoTables[tableId].rows.length-1;
         myUI.InfoTables[tableId].insertRowAtIndex(idx, tableData.slice(i, i+rowSize));
       }
     }
-
     // pseudocode
     try{
       myUI.PseudoCode.highlightPri(state.pseudoCodeRowPri);
@@ -517,9 +525,51 @@ myUI.jump_to_step = function(target_step){
     catch(e){
 
     }
-  }
-  myUI.animation.step = (idx+1)*myUI.stateFreq-1;
-  console.log(target_step, idx, myUI.stateFreq, myUI.animation.step);
-  myUI.run_steps(target_step-myUI.animation.step);
+    // canvases
+
+    let canvasesToDraw = Object.entries(state.canvas);
+    function drawNextCanvas(canvasNo){
+      if(canvasNo==canvasesToDraw.length) return finishJumping();
+      let [id,data] = canvasesToDraw[canvasNo];
+      document.getElementById("compute_btn").innerHTML = `drawing ${id}...`;
+      if(data.constructor==Array) var toDraw = data; // for 2d arrays (floats, etc.)
+      else var toDraw = NBitMatrix.expand_2_matrix(data);
+      //myUI.canvases[id].draw_canvas(toDraw, `2d_heatmap`);
+      //return drawNextCanvas(canvasNo+1);
+      return myUI.canvases[id].draw_canvas_recursive(toDraw, canvasNo);
+      myUI.canvases[id].draw_canvas(toDraw, `2d_heatmap`);
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(drawNextCanvas(canvasNo+1)), 0);
+      });
+      /**/
+    }
+    
+    let arr = Array(canvasesToDraw.length+1).fill(null);
+    function reductiveDrawChain(files){
+      return files.reduce((chain,currentFile) => {
+        return chain.then(num => drawNextCanvas(num));
+      },Promise.resolve(0));
+    }
   
+    return reductiveDrawChain(arr);
+
+    return drawNextCanvas(0).then(drawNextCanvas).then(drawNextCanvas).then(drawNextCanvas).then(drawNextCanvas);
+
+    return new Promise((resolve, reject) => {
+      resolve(drawNextCanvas(0));
+    });
+  }
+  else{
+    return new Promise((resolve, reject) => {
+      resolve(finishJumping());
+    });
+  }
+
+  function finishJumping(){
+    myUI.animation.step = (idx+1)*myUI.stateFreq-1;
+    //myUI.run_steps(target_step-myUI.animation.step, "fwd");
+    document.getElementById("compute_btn").innerHTML = `Compute Path`;
+    //setTimeout(()=>document.getElementById("compute_btn").innerHTML = `Compute Path`, 2000);
+    return 0;
+  }
 }

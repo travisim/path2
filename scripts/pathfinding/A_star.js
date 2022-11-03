@@ -109,7 +109,6 @@ class A_star extends GridPathFinder{
 
     this.open_list.set(this.current_node.self_XY, this.current_node);
     //---------------------checks if visited 2d array has been visited
-    this.insertedRow = false;
     let planner = this;
 
     return new Promise((resolve, reject) => {
@@ -150,7 +149,6 @@ class A_star extends GridPathFinder{
       }/* */
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
       
-      //if(this.insertedRow)
       this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
       //this._create_action({command: STATIC.EC, dest: STATIC.DT});
       this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
@@ -263,7 +261,6 @@ class A_star extends GridPathFinder{
             if(node.f_cost < new_node.f_cost) numLess++;
           }
           this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(new_node.f_cost.toPrecision(5)), parseFloat(new_node.g_cost.toPrecision(5)), parseFloat(new_node.h_cost.toPrecision(5))]});
-          //this.insertedRow = true;
           // add to queue 
 					if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO
           else this.queue.unshift(new_node); // LIFO

@@ -67,8 +67,8 @@ class UICanvas{
     this.setDrawType(drawType);
   }
 
-  matrixConstructor({vertex=false}={}){
-    return zero2D(this.data_height+vertex, this.data_width+vertex, this.defaultVal, this.defaultVal, this.valType);
+  matrixConstructor(){
+    return zero2D(this.data_height, this.data_width, this.defaultVal, this.defaultVal, this.valType);
   }
 
   setValueBounds(minOrMax, val){
@@ -78,17 +78,15 @@ class UICanvas{
 
   setDrawType(drawType="pixel"){
     this.drawType = drawType;
-
     switch(drawType){
       case "vertex":
-        this.canvas_cache = this.matrixConstructor({vertex:true});
       case "dotted":
         this.fixedRes = true;
         break;
       default:
-        this.canvas_cache = this.matrixConstructor();
         this.fixedRes = false;
     }
+    this.canvas_cache = this.matrixConstructor();
   }
 
   scale_coord(x,y){
@@ -107,8 +105,9 @@ class UICanvas{
     if(this.fixedRes){
       this.canvas.width = this.fixedResVal * this.canvas.clientWidth/this.defaultWidth;
       this.canvas.height = this.fixedResVal * this.canvas.clientHeight/this.defaultHeight;
-      this.data_height = this.canvas.height;
-      this.data_width = this.canvas.width;
+      this.data_height = data_height;
+      this.data_width = data_width;
+      if(!retain_data) this.canvas_cache = this.matrixConstructor();
       return
     }
     this.data_height = data_height;
@@ -183,9 +182,10 @@ class UICanvas{
         return;
       }
       
-      if(this.valType=="float" || this.minVal<this.maxVal){
+      if(this.valType=="float"){// || this.minVal<this.maxVal){
         let r = (val-this.minVal)/(this.maxVal-this.minVal);
-        let color = chroma.scale("Spectral")(1-r).hex();
+        if(this.valType=="float") var color = chroma.scale("Spectral")(1-r).hex();
+				//else var color = chroma.scale("OrRd").classes(this.maxVal)(r).hex();
         //let color = chroma(chroma.mix(this.colors[0], this.colors[1], r, 'hsl')).hex();
         this.set_color(color);
       }
@@ -214,7 +214,7 @@ class UICanvas{
       if(save_in_cache) this.canvas_cache[x][y] = this.defaultVal;
       switch(this.drawType){
         case "dotted":
-          this.draw_dotted_square(xy);
+          this.erase_dotted_square(xy);
           break;
         case "vertex":
           this.erase_vertex_circle(xy);
@@ -283,22 +283,74 @@ class UICanvas{
     }
   }
 
+  draw_canvas_recursive(array_data, canvasNo){
+    var canvas = this;
+    function draw_line(r){
+      console.log(canvas.id, r);
+      console.log(canvasNo);
+      for(let i=r;i<r+20;++i){
+        if(i==array_data.length) return canvasNo+1;
+        /*for (let j = 0; j < array_data[i].length; j++){
+          if(canvas.valType=="float") canvas.draw_pixel([i,j], false, array_data[i][j]);
+          else if(array_data[i][j]!=canvas.defaultVal){
+            let val = Math.min(canvas.maxVal, Math.max(array_data[i][j], canvas.minVal));
+            canvas.draw_pixel([i,j], false, val, val-1);
+          }
+        }*/
+        let j = 0, k = 0;
+        while(j<array_data[i].length && k<canvas.data_width){
+          if(typeof array_data[i][j] == "string" && array_data[i][j].slice(-1)=="x"){
+            let len = Number(array_data[i][j].slice(0, -1));
+            ++j;
+            if(array_data[i][j]!==canvas.defaultVal){
+              if(canvas.id=="fCost") debugger;
+              if(canvas.valType=="float") for(let q=k;q<k+len;++q) canvas.draw_pixel([i,q], false,  array_data[i][j]);
+              else{
+                let val = Math.min(canvas.maxVal, Math.max(array_data[i][j], canvas.minVal));
+                for(let q=k;q<k+len;++q) canvas.draw_pixel([i,q], false, val, val-1);
+              }
+            }
+            k += len-1;
+          }
+          else{
+            if(canvas.valType=="float") canvas.draw_pixel([i,k], false, array_data[i][j]);
+            else if(array_data[i][j]!=canvas.defaultVal){
+              let val = Math.min(canvas.maxVal, Math.max(array_data[i][j], canvas.minVal));
+              canvas.draw_pixel([i,k], false, val, val-1);
+            }
+          }
+          ++k;
+          ++j;
+        }
+        
+      }
+      return new Promise((resolve, reject) => {
+        //resolve(draw_line(r+20));
+        setTimeout(() => resolve(draw_line(r+20)), 0);
+      });
+    }
+
+    return new Promise((resolve, reject) => {
+      resolve(draw_line(0));
+    });
+  }
+
   erase_canvas(virtual=false){
     if(virtual) return this.init_virtual_canvas();
-    let height = this.data_height ? this.data_height : this.canvas.height;
-    let width = this.data_width ? this.data_width : this.canvas.width;
-    this.ctx.clearRect(0, 0, width, height);
+    //let height = this.data_height ? this.data_height : this.canvas.height;
+    //let width = this.data_width ? this.data_width : this.canvas.width;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.canvas_cache = this.matrixConstructor();
   }
 
   draw_vertex_circle(xy, color_index){
-    let y = xy[0]*this.data_height/myUI.map_height;
-    let x = xy[1]*this.data_width/myUI.map_width;
+    let y = xy[0]*this.canvas.height/myUI.map_height;
+    let x = xy[1]*this.canvas.width/myUI.map_width;
     let r = 6;//this.data_height/myUI.map_height * 5/16;
-    if(myUI.map_height>32 || myUI.map_width>32){
+    /*if(myUI.map_height>32 || myUI.map_width>32){
       r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
       debugger;
-    }
+    }*/
 
     this.set_color(this.strokeColor, "stroke");
     this.ctx.beginPath();
@@ -308,20 +360,20 @@ class UICanvas{
   }
 
   erase_vertex_circle(xy){
-    let y = xy[0]*this.data_height/myUI.map_height;
-    let x = xy[1]*this.data_width/myUI.map_width;
+    let y = xy[0]*this.canvas.height/myUI.map_height;
+    let x = xy[1]*this.canvas.width/myUI.map_width;
     let r = 6//this.data_height/myUI.map_height * 5/16;
     if(myUI.map_height>32 || myUI.map_width>32){
-      r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
+      r = Math.min(this.canvas.height/myUI.map_height * 4/16, this.canvas.width/myUI.map_width * 4/16)
     }
     let d = r*2;
     this.ctx.clearRect(x-d, y-d, 2*d, 2*d);
   }
 
   draw_dotted_square(xy){
-    let y = xy[0]*this.data_height/myUI.map_height;
-    let x = xy[1]*this.data_width/myUI.map_width;
-    let side = this.data_height/myUI.map_height;
+    let y = xy[0]*this.canvas.height/myUI.map_height;
+    let x = xy[1]*this.canvas.width/myUI.map_width;
+    let side = this.canvas.height/myUI.map_height;
     this.set_color(this.strokeColor, "stroke");
     this.ctx.setLineDash([12, 6]);/*dashes are 2px and spaces are 2px*/
     this.ctx.lineWidth = 6;
@@ -335,11 +387,11 @@ class UICanvas{
   }
 
 	erase_dotted_square(xy){
-		let y = xy[0]*this.data_height/myUI.map_height;
-    let x = xy[1]*this.data_width/myUI.map_width;
-    let side = this.data_height/myUI.map_height;
+		let x = xy[0]*this.canvas.height/myUI.map_height;
+    let y = xy[1]*this.canvas.width/myUI.map_width;
+    let side = this.canvas.height/myUI.map_height;
 
-		this.ctx.clearRect(y, x, side, side);
+		this.ctx.clearRect(y, x-3, side*1.2, side*1.2);
 	}
 
   toggle_edit(){

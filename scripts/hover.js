@@ -62,9 +62,15 @@ myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let [scaled_x, scaled_y] = myUI.scale_coord(e.offsetY, e.offsetX);
 	if(myUI.planner.cell_map){
 		if(!isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
-			let idx = myUI.planner.cell_map[scaled_x][scaled_y];
-			myUI.update_search_slider(idx);
-			myUI.jump_to_step(idx);
+			myUI.animation.step = myUI.planner.cell_map[scaled_x][scaled_y];
+			myUI.jump_to_step().then(retVal=>{
+				if(retVal!=0){
+					console.log("ONCE");
+					alert("ERROR WHEN JUMPUING");
+					throw "ERROR WHEN JUMPUING";
+				}
+				myUI.update_search_slider();
+			});
 		}
 	}
 });

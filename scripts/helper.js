@@ -29,22 +29,60 @@ function nodes_to_array(obj_array,property_in_obj){
   else return new Uint32Array(array);
 }
 
-function deep_copy_matrix(matrix, flip_bit=false){
+function deep_copy_matrix(mat, flip_bit=false, compress=false){
   let res = [];
-  //console.log(matrix);
-  for(let i=0;i<matrix.length;++i){
-    let row = new Array(matrix[0].length);
-    for(let j=0;j<matrix[0].length;++j) row[j] = flip_bit ? matrix[i][j] ^ 1 : matrix[i][j];
+  for(let i=0;i<mat.length;++i){
+    let row = new Array();
+		let cur, cnt = 1, j = 0;
+		while(j<mat[i].length){
+			if(compress){
+				if(cur==mat[i][j]) ++cnt;
+				else{
+					if(cur!==undefined){
+						if(cnt==1) row.push(cur);
+						else row.push(`${cnt}x`, cur);
+					}
+					cur = mat[i][j];
+					cnt = 1;
+				}
+			}
+			else row.push(flip_bit ? !mat[i][j] : mat[i][j]);
+			++j;
+		}
+		if(compress){
+			if(cnt==1) row.push(cur);
+			else row.push(`${cnt}x`, cur);
+		}
     res.push(row);
   }
   return res;
 }
 
+function unpackMatrix(mat){
+	let res = [];
+	for(let i=0;i<mat.length;++i){
+		let j=0
+		let row = [];
+		while(j<mat[i].length){
+			if(typeof mat[i][j] == "string" && mat[i][j].slice(-1)=="x"){
+				let arr = [];
+				arr.length = mat[i][j].slice(0, -1);
+				++j;
+				arr.fill(mat[i][j]);
+				row.push.apply(row, arr);
+			}
+			else row.push(mat[i][j]);
+			++j;
+		}
+		res.push(row);
+	}
+	return res;
+}
+
 function deepCopyNodeArray(nodeArray){
 	let res = [];
-	for(const node of nodeArray){
+	for(const node of nodeArray)
 		res.push(node.clone());
-	}
 	return res;
 }
 
@@ -360,6 +398,7 @@ class NBitMatrix{
 			matrix.forEach(row=>row.forEach(item=>cell_val = Math.max(cell_val, item)));
 		}
 		let tmp = new NBitMatrix(matrix.length, matrix[0].length, cell_val);
+		if(matrix.length==1024) console.log(matrix);
 		for(let i=0;i<matrix.length;++i){
 			for(let j=0;j<matrix[0].length;++j){
 				tmp.set_data([i,j], matrix[i][j]);
@@ -391,9 +430,9 @@ class NBitMatrix{
 		let max_y = num_rows-1;
     let max_x = num_cols-1;
 		this.data = new this.constructor.data_arr(Math.ceil((this.constructor.bit_offset + num_cols*num_rows*this.cell_val_bits)/this.constructor.chunk_len)).fill(0); // total number of bits (div) number of bits for max_safe_int
-		BitArray.set_range(this.data, 0, max_y);
-		BitArray.set_range(this.data, this.constructor.max_length_bits, max_x);
-		BitArray.set_range(this.data, this.constructor.max_length_bits*2, cell_val);
+		BitArray.set_range(this.data, 0, max_y, this.constructor.max_length_bits);
+		BitArray.set_range(this.data, this.constructor.max_length_bits, max_x, this.constructor.max_length_bits);
+		BitArray.set_range(this.data, this.constructor.max_length_bits*2, cell_val, this.constructor.max_cell_bits);
 	}
 
 	get arr_length(){

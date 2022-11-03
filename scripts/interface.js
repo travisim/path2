@@ -62,7 +62,7 @@ myUI.initialize = function(){
       id:"queue", drawType:"cell", drawOrder: 7, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1,
     },
     {
-      id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 7,
+      id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 8,
     },
     {
       id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null,
@@ -103,12 +103,8 @@ myUI.initialize = function(){
     document.getElementById(infoNWSE_Id).innerHTML = '  <section>F:<span class="F"></span>G:<span class="G"></span>H:<span class="H"></span>Type:<span class="type"></span></section>';
   //initialise html for info squares as well
   });
- 
-
   
   myUI.InfoCurrent = UIInfoCurrent;
-  
-  
 
   
 	[ 
@@ -145,6 +141,7 @@ myUI.initialize = function(){
     ["start_pause_btn", "start_icon", "pause_icon"],
     ["forward_btn"],
     ["end_btn"],
+    ["direction_btn", "direction_forward_icon", "direction_reverse_icon"],
     ["detail_btn", "map_detailed_icon", "map_simple_icon"],
     ["draw_erase_btn", "draw_icon", "erase_icon"],
     ["edit_map_btn", "edit_map_icon"],

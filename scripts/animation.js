@@ -7,43 +7,44 @@ function animation_backend(){
   updateMap();
 
   function updateMap(){
-    if (myUI.animation.step<myUI.animation.max_step){
-      // display on map
-      if(myUI.animation.running){
-
-        if(myUI.animation.jump_steps>1){
-          let num_steps = parseInt(myUI.animation.jump_steps);
-          if(myUI.animation.detailed){
-            myUI.run_steps(num_steps);
-            if(num_steps>50) myUI.jump_to_step(myUI.animation.step + num_steps);
-            else myUI.run_steps(num_steps);
-          }
-          else
-            while(num_steps--) myUI.run_combined_step();
-        }
-        else{
-          if(myUI.animation.detailed)
-            myUI.run_steps(1);
-          else
-            myUI.run_combined_step();
-        }
-        myUI.update_search_slider(myUI.animation.step);
-        timer = setTimeout(updateMap, myUI.animation.frameDuration);
-      }
-      else{
-        clearTimeout(timer);
-      }
-    }
-    else{
+    if((myUI.animation.step>=myUI.animation.max_step && myUI.animation.reversed==false)
+    || (myUI.animation.step<0 && myUI.animation.reversed)){
       console.log("map_done")
       clearTimeout(timer);
       myUI.stop_animation(change_svg=true);
+      return;
+    }
+    // display on map
+    if(myUI.animation.running){
+
+      if(myUI.animation.jump_steps>1){
+        let num_steps = parseInt(myUI.animation.jump_steps);
+        if(myUI.animation.detailed){
+          myUI.run_steps(num_steps);
+          /*
+          if(num_steps>50) myUI.jump_to_step(myUI.animation.step + num_steps);
+          else myUI.run_steps(num_steps);*/
+        }
+        else
+          while(num_steps--) myUI.run_combined_step();
+      }
+      else{
+        if(myUI.animation.detailed)
+          myUI.run_steps(1);
+        else
+          myUI.run_combined_step();
+      }
+      myUI.update_search_slider(myUI.animation.step);
+      timer = setTimeout(updateMap, myUI.animation.frameDuration);
+    }
+    else{
+      clearTimeout(timer);
     }
   }
 }
 
-myUI.update_search_slider = function(value){
-  myUI.animation.step = Number(value);
+myUI.update_search_slider = function(value=myUI.animation.step){
+  myUI.animation.step = value===undefined ? myUI.animation.step : Number(value);
   let percent = ((myUI.animation.step+1)/(myUI.animation.max_step+1))*100;
 	myUI.sliders.search_progress_slider.label.innerHTML = (Math.round(percent * 100) / 100).toFixed(2); // format to 2dp
   myUI.sliders.search_progress_slider.elem.value = myUI.animation.step;

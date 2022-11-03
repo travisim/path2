@@ -124,6 +124,7 @@ html, body{
 
 .icon{
 	height: 30px;
+	min-width: 60px;
 	display: block;
 	margin: auto;
 }

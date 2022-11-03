@@ -35,7 +35,7 @@ function compute_path(){
 		myUI.step_data.fwd.data = myUI.planner.steps_data;
 	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
 		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
-		myUI.generateReverseSteps({genStates: true, stateFreq: 20}).then(ret=>{
+		myUI.generateReverseSteps({genStates: true, stateFreq: 50}).then(ret=>{
 			if(ret!=0){
 				let error = `DID NOT GENERATE STATES PROPERLY`;
 				alert(error);
@@ -48,8 +48,9 @@ function compute_path(){
 			myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
 			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;
 			updateSpeedSlider();
-			document.getElementById("compute_btn").innerHTML = "done!";
-			setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
+			document.getElementById("compute_btn").innerHTML = `Compute Path`;
+			//document.getElementById("compute_btn").innerHTML = "done!";
+			//setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
 		})
 		//myUI.generateReverseStepsIter({genStates: true, stateFreq: 100});
 	}); 
@@ -89,8 +90,13 @@ function updateSpeedSlider(){
 
 myUI.sliders.search_progress_slider.elem.oninput = function(){
 	myUI.stop_animation(change_svg = myUI.animation.running);
-	myUI.update_search_slider(this.value);
-	myUI.jump_to_step(this.value);
+	myUI.jump_to_step(this.value).then(retVal=>{
+		if(retVal!=0){
+			alert("ERROR WHEN JUMPUING");
+			throw "ERROR WHEN JUMPUING";
+		}
+		myUI.update_search_slider(this.value);
+	});
 }
 
 myUI.reset_animation = function(){
@@ -127,17 +133,16 @@ myUI.start_animation = function(){
 myUI.stop_animation = function(change_svg = false){
 	if(change_svg && myUI.animation.running)
 		myUI.buttons.start_pause_btn.next_svg();
-  	myUI.animation.running = false;
-  
+  myUI.animation.running = false;
 }
 
 myUI.step_forward = function(){
 	myUI.stop_animation(change_svg = true);
 	/* NEW */
 	if(myUI.animation.detailed)
-		myUI.run_steps(1);
+		myUI.run_steps(1, "fwd");
 	else
-		myUI.run_combined_step();
+		myUI.run_combined_step("fwd");
 	myUI.update_search_slider(myUI.animation.step);
 	console.log(myUI.animation.step);
 }
@@ -146,10 +151,13 @@ myUI.buttons.forward_btn.btn.addEventListener("click", myUI.step_forward);
 
 myUI.jump_to_end = function(){
 	myUI.stop_animation(change_svg = true);
-	//myUI.animation.step = -1;  //  change ot end
-	myUI.update_search_slider(myUI.animation.max_step);
-	myUI.jump_to_step(myUI.animation.max_step);
-	return
+	myUI.jump_to_step(myUI.animation.max_step).then(retVal=>{
+		if(retVal!=0){
+			alert("ERROR WHEN JUMPUING");
+			throw "ERROR WHEN JUMPUING";
+		}
+		myUI.update_search_slider(myUI.animation.max_step);
+	});
 }
 myUI.buttons.end_btn.btn.addEventListener("click", myUI.jump_to_end);
 
@@ -179,12 +187,17 @@ document.addEventListener(`keydown`, event=>{
 	}
 });
 
+myUI.toggleStepDirection = function(){
+	myUI.buttons.direction_btn.next_svg();
+	myUI.animation.reversed = !myUI.animation.reversed;
+}
+myUI.buttons.direction_btn.btn.addEventListener("click", myUI.toggleStepDirection);
+
 
 myUI.toggleMapDetail = function(){
 	myUI.buttons.detail_btn.next_svg();
 
 	myUI.animation.detailed = !myUI.animation.detailed;
-	// do other stuff
 }
 myUI.buttons.detail_btn.btn.addEventListener("click", myUI.toggleMapDetail);
 

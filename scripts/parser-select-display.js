@@ -36,6 +36,7 @@ myUI.parseMap = function(map_str_var, file_name){
 myUI.displayMap = function(){
   console.log("Map Arr");
 	console.log(myUI.map_arr);
+  if(myUI.map_width>64 || myUI.map_height>64) alert("Tip: Large maps work better with optimized A*!");
 	myUI.reset_animation();
 	myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
@@ -44,7 +45,8 @@ myUI.displayMap = function(){
 	const width = myUI.map_arr[0].length;
 
   Object.values(myUI.canvases).forEach(uiCanvas=>{
-    uiCanvas.scale_canvas(height, width, false);
+    let plus = uiCanvas.drawType=="vertex";
+    uiCanvas.scale_canvas(height+plus, width+plus, false);
 		console.log(uiCanvas.id, height, width);
   });
 
@@ -134,16 +136,17 @@ document.getElementById("vertexToggle").addEventListener("change", e=>{
   if(document.getElementById("vertexToggle").checked){
     // enable vertex
     myUI.vertex = true;
-    ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal", "fCost", "gCost", "hCost"].forEach(canvas=>{
-      myUI.canvases[canvas].scale_canvas(1024, 1024, false);
+    ["hover_map", "queue", "visited", "expanded", "neighbors", "path", "fCost", "gCost", "hCost"].forEach(canvas=>{
       myUI.canvases[canvas].setDrawType("vertex");
+      myUI.canvases[canvas].scale_canvas(myUI.map_height+1, myUI.map_width+1, false);
     });
     myUI.planners = myUI.planners_v;
     console.log("ENABLED VERTEX");
   }
   else{
     myUI.vertex = false;
-    ["hover_map", "queue", "visited", "current_XY", "neighbors", "path", "start", "goal", "fCost", "gCost", "hCost"].forEach(canvas=>{
+    ["hover_map", "queue", "visited", "expanded", "neighbors", "path", "fCost", "gCost", "hCost"].forEach(canvas=>{
+      myUI.canvases[canvas].scale_canvas(myUI.map_height, myUI.map_width, false);
       myUI.canvases[canvas].setDrawType("pixel");
     });
     myUI.planners = myUI.planners_cell;
