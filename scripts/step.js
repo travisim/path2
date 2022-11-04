@@ -567,7 +567,7 @@ myUI.jump_to_step = function(target_step){
 
   function finishJumping(){
     myUI.animation.step = (idx+1)*myUI.stateFreq-1;
-    //myUI.run_steps(target_step-myUI.animation.step, "fwd");
+    myUI.run_steps(target_step-myUI.animation.step, "fwd");
     document.getElementById("compute_btn").innerHTML = `Compute Path`;
     //setTimeout(()=>document.getElementById("compute_btn").innerHTML = `Compute Path`, 2000);
     return 0;
