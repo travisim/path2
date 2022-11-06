@@ -27,33 +27,29 @@ myUI.handle_map_hover = function(e){
 	if(myUI.map_arr && !myUI.vertex)
 		if(myUI.map_arr[scaled_x][scaled_y]==0)
 			myUI.canvases.hover_map.set_color_index(1, "both");
-	//console.log(myUI.canvases.hover_map.ctx.strokeStyle);
-	myUI.canvases.hover_map.draw_start_goal([scaled_x, scaled_y]);
 
 	myUI.canvases.hover_map.canvas.style.cursor = "auto";
 	document.getElementById("hover_cell_index").innerHTML = "-";
 	tooltip_data.style.backgroundColor = ``;
-	if(myUI.planner.cell_map){
-		if(!isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
-			myUI.canvases.hover_map.canvas.style.cursor = "pointer";
-			document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_x][scaled_y];
-			document.getElementById("hover_cell_visited").innerHTML = myUI.planner.visited.get_data([scaled_x, scaled_y]);
-			document.getElementById("hoverFCost").innerHTML = myUI.canvases["fCost"].canvas_cache[scaled_x][scaled_y].toPrecision(5);
-			document.getElementById("hoverGCost").innerHTML = myUI.canvases["gCost"].canvas_cache[scaled_x][scaled_y].toPrecision(5);
-			document.getElementById("hoverHCost").innerHTML = myUI.canvases["hCost"].canvas_cache[scaled_x][scaled_y].toPrecision(5);
-			/*tooltip_data.style.backgroundColor = `#3bd44b`;
-			for(const obj of hoverData){
-				
-				document.getElementById(`hover_cell_${obj.t}`).innerHTML = +obj.sources[i];
-			}/* */
-		}
+	if(myUI.planner.cell_map && !isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
+		myUI.canvases.hover_map.set_color_index(2, "both");
+		myUI.canvases.hover_map.canvas.style.cursor = "pointer";
+		document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_x][scaled_y];
 	}
+	myUI.canvases.hover_map.draw_start_goal([scaled_x, scaled_y]);
+
+	myUI.hoverData.forEach(obj=>{
+		if(obj.type=="canvasCache"){
+			let val = myUI.canvases[obj.canvasId].canvas_cache[scaled_x][scaled_y];
+			if(myUI.canvases[obj.canvasId].valType=="float") val = val.toPrecision(5);
+			document.getElementById(obj.id).innerHTML = val;
+		}
+	});
 
 	/* shows the popup */
 	tooltip_data.style.display = "block";
 	tooltip_data.style.left = e.pageX + 'px';
 	tooltip_data.style.top = e.pageY + 'px';
-	
 }
 
 myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);

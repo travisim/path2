@@ -1,14 +1,13 @@
+const tooltip_data = document.getElementById("tooltip_data");
+
 myUI.initHover = function(hoverData){
   for(const obj of hoverData){
-    
     let el = document.createElement("div");
-    el.innerHTML = obj.name;
-    for(const t of obj.tags){
-      let ch = document.createElement("span");
-      ch.id = `hover_${obj.t}`;
-      el.appendChild(ch);
-      el.innerHTML += ' - ';
-    }
+    el.innerHTML = obj.displayName+": ";
+    let sp = document.createElement("span");
+    sp.id = obj.id;
+    sp.innerHTML = "-";
+    el.appendChild(sp);
     tooltip_data.appendChild(el);
   }
 }

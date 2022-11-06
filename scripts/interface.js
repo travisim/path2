@@ -29,7 +29,7 @@ myUI.initialize = function(){
   let canvasStatic = [
     // draggables at -3
     {
-      id:"hover_map", drawType:"cell", drawOrder: -2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
+      id:"hover_map", drawType:"cell", drawOrder: -2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945", "#00ff99"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
     },
     // arrows draworder is -1
     {
@@ -167,16 +167,13 @@ myUI.initialize = function(){
     myUI.sliders[slider_id].label.parent = myUI.sliders[slider_id];
   });
 
-	myUI.hover_labels = {};
-	myUI.hoverArray = [
-		"hover_x",
-		"hover_y",
-    "hover_cell_index"
-	];
-  myUI.hoverArray.forEach(label=>{
-		myUI.hover_labels[label] = {elem: document.getElementById(label)}
-	})
-
+  myUI.hoverData = [
+    {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"},
+    {id: "hoverFCost", displayName: "F Cost", type: "canvasCache", canvasId: "fCost"},
+    {id: "hoverGCost", displayName: "G Cost", type: "canvasCache", canvasId: "gCost"},
+    {id: "hoverHCost", displayName: "H Cost", type: "canvasCache", canvasId: "hCost"},
+  ];
+  
 	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), move: false}
 	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), move: false}
 

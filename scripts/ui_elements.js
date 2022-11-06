@@ -303,7 +303,6 @@ class UICanvas{
             let len = Number(array_data[i][j].slice(0, -1));
             ++j;
             if(array_data[i][j]!==canvas.defaultVal){
-              if(canvas.id=="fCost") debugger;
               if(canvas.valType=="float") for(let q=k;q<k+len;++q) canvas.draw_pixel([i,q], false,  array_data[i][j]);
               else{
                 let val = Math.min(canvas.maxVal, Math.max(array_data[i][j], canvas.minVal));
@@ -339,7 +338,8 @@ class UICanvas{
     if(virtual) return this.init_virtual_canvas();
     //let height = this.data_height ? this.data_height : this.canvas.height;
     //let width = this.data_width ? this.data_width : this.canvas.width;
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if(this.fixedRes) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    else this.ctx.clearRect(0, 0, this.data_width, this.data_height);
     this.canvas_cache = this.matrixConstructor();
   }
 

@@ -284,6 +284,8 @@ myUI.runDefault = function(){
 	myUI.parseScenario(default_scen);
   myUI.loadScenario();
 
+  // default hover
+  myUI.initHover(myUI.hoverData);
 }
 myUI.runDefault();
 
