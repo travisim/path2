@@ -398,7 +398,6 @@ class NBitMatrix{
 			matrix.forEach(row=>row.forEach(item=>cell_val = Math.max(cell_val, item)));
 		}
 		let tmp = new NBitMatrix(matrix.length, matrix[0].length, cell_val);
-		if(matrix.length==1024) console.log(matrix);
 		for(let i=0;i<matrix.length;++i){
 			for(let j=0;j<matrix[0].length;++j){
 				tmp.set_data([i,j], matrix[i][j]);

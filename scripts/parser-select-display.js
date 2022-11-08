@@ -286,6 +286,8 @@ myUI.runDefault = function(){
 
   // default hover
   myUI.initHover(myUI.hoverData);
+
+  myUI.stateFreq = Number(myUI.sliders.state_freq_slider.elem.value);
 }
 myUI.runDefault();
 

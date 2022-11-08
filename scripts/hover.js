@@ -29,12 +29,12 @@ myUI.handle_map_hover = function(e){
 			myUI.canvases.hover_map.set_color_index(1, "both");
 
 	myUI.canvases.hover_map.canvas.style.cursor = "auto";
-	document.getElementById("hover_cell_index").innerHTML = "-";
+	//document.getElementById("hover_cell_index").innerHTML = "-";
 	tooltip_data.style.backgroundColor = ``;
 	if(myUI.planner.cell_map && !isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
 		myUI.canvases.hover_map.set_color_index(2, "both");
 		myUI.canvases.hover_map.canvas.style.cursor = "pointer";
-		document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_x][scaled_y];
+		//document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_x][scaled_y];
 	}
 	myUI.canvases.hover_map.draw_start_goal([scaled_x, scaled_y]);
 
@@ -59,14 +59,7 @@ myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	if(myUI.planner.cell_map){
 		if(!isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
 			myUI.animation.step = myUI.planner.cell_map[scaled_x][scaled_y];
-			myUI.jump_to_step().then(retVal=>{
-				if(retVal!=0){
-					console.log("ONCE");
-					alert("ERROR WHEN JUMPUING");
-					throw "ERROR WHEN JUMPUING";
-				}
-				myUI.update_search_slider();
-			});
+			myUI.jump_to_step();
 		}
 	}
 });

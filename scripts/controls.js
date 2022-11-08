@@ -21,21 +21,21 @@ function compute_path(){
 		if(uiCanvas.valType=="float")uiCanvas.minVal = uiCanvas.maxVal = null;
 	});
 	document.getElementById("compute_btn").innerHTML = "computing... 0s";
-	myUI.computingCount=0;
+	myUI.startTime = Date.now();
 	clearInterval(myUI.interval);
 	myUI.interval = setInterval(function(){
-		myUI.computingCount++;
-		document.getElementById("compute_btn").innerHTML = `computing... ${myUI.computingCount}s`;
-	}, 1000);
+		document.getElementById("compute_btn").innerHTML = `computing... ${(Date.now()-myUI.startTime)/1000.0}s`;
+	}, 50);
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
 		clearInterval(myUI.interval);
+		alert((Date.now()-myUI.startTime)/1000.0);
 		document.getElementById("compute_btn").innerHTML = "optimizing... 0%";
 		console.log(path ? path.length : -1);
-		console.log(myUI.planner.steps_data)
 		myUI.step_data.fwd.data = myUI.planner.steps_data;
 	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
 		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
-		myUI.generateReverseSteps({genStates: true, stateFreq: 50}).then(ret=>{
+		console.log("myUI.stateFreq:",myUI.stateFreq);
+		myUI.generateReverseSteps({genStates: true}).then(ret=>{
 			if(ret!=0){
 				let error = `DID NOT GENERATE STATES PROPERLY`;
 				alert(error);
@@ -49,30 +49,13 @@ function compute_path(){
 			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;
 			updateSpeedSlider();
 			document.getElementById("compute_btn").innerHTML = `Compute Path`;
-			//document.getElementById("compute_btn").innerHTML = "done!";
-			//setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
+			document.getElementById("compute_btn").innerHTML = "done!";
+			setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
 		})
-		//myUI.generateReverseStepsIter({genStates: true, stateFreq: 100});
 	}); 
 	
 	
 }
-
-/* displays the solved path */
-/*document.getElementById("display_btn").addEventListener("click", display_path);
-
-function display_path(){
-	if(!myUI.planner_choice) return alert("no planner loaded!");
-	if(!myUI.map_arr) return alert("no map loaded!");
-  if(!myUI.map_start) return alert("no scene loaded!");
-	if(!myUI.planner) return alert("not computed");
-
-  let final_state = myUI.planner.final_state();
-  if(final_state.length<=1) return;
-
-  myUI.canvases.path.draw_canvas(final_state.path, "1d");
-}/* */
-//displays value of slider
 
 myUI.sliders.animation_speed_slider.elem.addEventListener("input", updateSpeedSlider);
 
@@ -88,16 +71,15 @@ function updateSpeedSlider(){
 	//console.log(myUI.animation.jump_steps);
 }
 
-myUI.sliders.search_progress_slider.elem.oninput = function(){
+myUI.sliders.search_progress_slider.elem.addEventListener("input",function(){
 	myUI.stop_animation(change_svg = myUI.animation.running);
-	myUI.jump_to_step(this.value).then(retVal=>{
-		if(retVal!=0){
-			alert("ERROR WHEN JUMPUING");
-			throw "ERROR WHEN JUMPUING";
-		}
-		myUI.update_search_slider(this.value);
-	});
-}
+	myUI.jump_to_step(this.value);
+});
+
+myUI.sliders.state_freq_slider.elem.addEventListener("input",function(){
+	myUI.stateFreq = Number(this.value);
+	myUI.sliders.state_freq_slider.label.innerHTML = this.value;
+});
 
 myUI.reset_animation = function(){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
@@ -151,13 +133,7 @@ myUI.buttons.forward_btn.btn.addEventListener("click", myUI.step_forward);
 
 myUI.jump_to_end = function(){
 	myUI.stop_animation(change_svg = true);
-	myUI.jump_to_step(myUI.animation.max_step).then(retVal=>{
-		if(retVal!=0){
-			alert("ERROR WHEN JUMPUING");
-			throw "ERROR WHEN JUMPUING";
-		}
-		myUI.update_search_slider(myUI.animation.max_step);
-	});
+	myUI.jump_to_step(myUI.animation.max_step);
 }
 myUI.buttons.end_btn.btn.addEventListener("click", myUI.jump_to_end);
 

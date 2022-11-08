@@ -192,7 +192,7 @@ myUI.run_combined_step = function(step_direction){
   while(numSteps--) myUI.run_steps(1, step_direction);
 }
 
-myUI.generateReverseSteps = function({genStates=false, stateFreq=100}={}){
+myUI.generateReverseSteps = function({genStates=false}={}){
 	let steps = myUI.step_data.fwd.data,
 		indexMap = myUI.step_data.fwd.map, 
 		combinedMap = myUI.step_data.fwd.combined;
@@ -201,7 +201,8 @@ myUI.generateReverseSteps = function({genStates=false, stateFreq=100}={}){
   myUI.step_data.bck.map = [];
 	myUI.step_data.bck.combined = [];
   if(genStates)  myUI.states = [];
-  myUI.stateFreq = stateFreq;
+  console.log("myUI.stateFreq:",myUI.stateFreq);
+  const stateFreq = myUI.stateFreq;
 	let stepCnt=0;
 	let revCombinedCnt = 0;
 
@@ -412,7 +413,7 @@ myUI.generateReverseSteps = function({genStates=false, stateFreq=100}={}){
       ++stepCnt;
 
       if(genStates && stepCnt%stateFreq==0){
-        console.log("State", stepCnt/stateFreq);
+        if(stepCnt/stateFreq % 100==0) console.log("State", stepCnt/stateFreq);
         document.getElementById("compute_btn").innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
         let nextState = {canvas:{}, infotables:{}};
         // canvas
@@ -483,7 +484,7 @@ myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
 }
 
 myUI.jump_to_step = function(target_step){
-  if(document.getElementById("compute_btn").innerHTML!=`Compute Path`) return;
+  //if(document.getElementById("compute_btn").innerHTML!=`Compute Path`) return;
   /*
   if state exists:
     load state
@@ -491,6 +492,7 @@ myUI.jump_to_step = function(target_step){
   run the remaning steps
   */
   target_step = target_step===undefined ? myUI.animation.step : target_step;
+  myUI.target_step = target_step;
   let idx = -1;
   for(const table of Object.values(myUI.InfoTables)) table.removeAllTableRows();
   for(const canvas of Object.values(myUI.dynamicCanvas)) canvas.erase_canvas();
@@ -529,19 +531,13 @@ myUI.jump_to_step = function(target_step){
 
     let canvasesToDraw = Object.entries(state.canvas);
     function drawNextCanvas(canvasNo){
+      if(canvasNo==-1) return -1;
       if(canvasNo==canvasesToDraw.length) return finishJumping();
       let [id,data] = canvasesToDraw[canvasNo];
       document.getElementById("compute_btn").innerHTML = `drawing ${id}...`;
       if(data.constructor==Array) var toDraw = data; // for 2d arrays (floats, etc.)
       else var toDraw = NBitMatrix.expand_2_matrix(data);
-      //myUI.canvases[id].draw_canvas(toDraw, `2d_heatmap`);
-      //return drawNextCanvas(canvasNo+1);
-      return myUI.canvases[id].draw_canvas_recursive(toDraw, canvasNo);
-      myUI.canvases[id].draw_canvas(toDraw, `2d_heatmap`);
-      return new Promise((resolve, reject) => {
-        setTimeout(() => resolve(drawNextCanvas(canvasNo+1)), 0);
-      });
-      /**/
+      return myUI.canvases[id].draw_canvas_recursive(toDraw, canvasNo, target_step);
     }
     
     let arr = Array(canvasesToDraw.length+1).fill(null);
@@ -552,15 +548,9 @@ myUI.jump_to_step = function(target_step){
     }
   
     return reductiveDrawChain(arr);
-
-    return drawNextCanvas(0).then(drawNextCanvas).then(drawNextCanvas).then(drawNextCanvas).then(drawNextCanvas);
-
-    return new Promise((resolve, reject) => {
-      resolve(drawNextCanvas(0));
-    });
   }
   else{
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
       resolve(finishJumping());
     });
   }
@@ -569,7 +559,6 @@ myUI.jump_to_step = function(target_step){
     myUI.animation.step = (idx+1)*myUI.stateFreq-1;
     myUI.run_steps(target_step-myUI.animation.step, "fwd");
     document.getElementById("compute_btn").innerHTML = `Compute Path`;
-    //setTimeout(()=>document.getElementById("compute_btn").innerHTML = `Compute Path`, 2000);
-    return 0;
+    myUI.update_search_slider(target_step);
   }
 }

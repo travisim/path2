@@ -130,16 +130,11 @@ class A_star extends GridPathFinder{
       });   
       //++ from bfs.js
       
-      if (this.current_node){// if second node and on 
-       
-        this.prev_g_cost = this.current_node.g_cost;
-        this.prev_h_cost = this.current_node.h_cost;
-        this.prev_node_XY = this.current_node_XY;
-      }
-      
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
       this.open_list[this.current_node_XY] = undefined;
+
+      if(this.step_index % 100==0) console.log(`F: ${this.current_node.f_cost.toPrecision(5)}, H: ${this.current_node.h_cost.toPrecision(5)}`);
       
       /* first check if visited */
       if (this.visited.get_data(this.current_node_XY)>0){
@@ -222,8 +217,6 @@ class A_star extends GridPathFinder{
 					if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
           this.neighbors.unshift(new_node);
 
-					console.log(new_node)
-
           this._create_action({command: STATIC.SP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
           this._create_action({command: STATIC.SP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
           this._create_action({command: STATIC.SP, dest: STATIC.HCanvas, nodeCoord: next_XY, cellVal: h_cost});
@@ -274,8 +267,6 @@ class A_star extends GridPathFinder{
 			this.closed_list.set(this.current_node_XY, this.current_node);
 
       this._assign_cell_index(this.current_node_XY);
-
-      this._manage_state();
     }
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);

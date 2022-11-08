@@ -283,53 +283,46 @@ class UICanvas{
     }
   }
 
-  draw_canvas_recursive(array_data, canvasNo){
+  draw_canvas_recursive(array_data, canvasNo, target_step){
     var canvas = this;
     function draw_line(r){
-      console.log(canvas.id, r);
-      console.log(canvasNo);
-      for(let i=r;i<r+20;++i){
+      const lineRate = 30;
+      console.log(canvas.id, canvasNo, r);
+      for(let i=r;i<r+lineRate;++i){
+        if(target_step!=myUI.target_step) return -1;
         if(i==array_data.length) return canvasNo+1;
-        /*for (let j = 0; j < array_data[i].length; j++){
-          if(canvas.valType=="float") canvas.draw_pixel([i,j], false, array_data[i][j]);
-          else if(array_data[i][j]!=canvas.defaultVal){
-            let val = Math.min(canvas.maxVal, Math.max(array_data[i][j], canvas.minVal));
-            canvas.draw_pixel([i,j], false, val, val-1);
-          }
-        }*/
-        let j = 0, k = 0;
-        while(j<array_data[i].length && k<canvas.data_width){
-          if(typeof array_data[i][j] == "string" && array_data[i][j].slice(-1)=="x"){
-            let len = Number(array_data[i][j].slice(0, -1));
-            ++j;
-            if(array_data[i][j]!==canvas.defaultVal){
-              if(canvas.valType=="float") for(let q=k;q<k+len;++q) canvas.draw_pixel([i,q], false,  array_data[i][j]);
+        let p1 = 0, p2 = 0;
+        while(p1<array_data[i].length && p2<canvas.data_width){
+          if(typeof array_data[i][p1] == "string" && array_data[i][p1].slice(-1)=="x"){
+            let len = Number(array_data[i][p1].slice(0, -1));
+            ++p1;
+            if(array_data[i][p1]!==canvas.defaultVal){
+              if(canvas.valType=="float") for(let q=p2;q<p2+len;++q) canvas.draw_pixel([i,q], false,  array_data[i][p1]);
               else{
-                let val = Math.min(canvas.maxVal, Math.max(array_data[i][j], canvas.minVal));
-                for(let q=k;q<k+len;++q) canvas.draw_pixel([i,q], false, val, val-1);
+                let val = Math.min(canvas.maxVal, Math.max(array_data[i][p1], canvas.minVal));
+                for(let q=p2;q<p2+len;++q) canvas.draw_pixel([i,q], false, val, val-1);
               }
             }
-            k += len-1;
+            p2 += len-1;
           }
           else{
-            if(canvas.valType=="float") canvas.draw_pixel([i,k], false, array_data[i][j]);
-            else if(array_data[i][j]!=canvas.defaultVal){
-              let val = Math.min(canvas.maxVal, Math.max(array_data[i][j], canvas.minVal));
-              canvas.draw_pixel([i,k], false, val, val-1);
+            if(canvas.valType=="float") canvas.draw_pixel([i,p2], false, array_data[i][p1]);
+            else if(array_data[i][p1]!=canvas.defaultVal){
+              let val = Math.min(canvas.maxVal, Math.max(array_data[i][p1], canvas.minVal));
+              canvas.draw_pixel([i,p2], false, val, val-1);
             }
           }
-          ++k;
-          ++j;
+          ++p2;
+          ++p1;
         }
-        
       }
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve, _) => {
         //resolve(draw_line(r+20));
-        setTimeout(() => resolve(draw_line(r+20)), 0);
+        setTimeout(() => resolve(draw_line(r+lineRate)), 0);
       });
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, _) => {
       resolve(draw_line(0));
     });
   }

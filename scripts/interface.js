@@ -158,7 +158,8 @@ myUI.initialize = function(){
     ["animation_speed_slider", "animation_speed_label"],
     ["search_progress_slider", "search_progress_label"],
     ["map_width_slider", "map_width_label"],
-    ["map_height_slider", "map_height_label"]
+    ["map_height_slider", "map_height_label"],
+    ["state_freq_slider", "state_freq_label"],
   ].forEach(item=>{
     let slider_id = item[0];
     let slider_label = item[1];
