@@ -132,7 +132,7 @@ document.querySelectorAll(".scen_controls").forEach(elem=>{
   elem.addEventListener("change", myUI.loadScenario);
 })
 
-document.getElementById("vertexToggle").addEventListener("change", e=>{
+document.getElementById("toggle-group").addEventListener("change", e=>{
   if(document.getElementById("vertexToggle").checked){
     // enable vertex
     myUI.vertex = true;

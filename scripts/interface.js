@@ -181,7 +181,7 @@ myUI.initialize = function(){
   myUI.planners_cell = [ A_star,A_star_big_maps,PRM];
   myUI.planners_v = [BFS_Vertex];
   myUI.planners = myUI.planners_cell;
-  myUI.planner_choice = 0;
+  myUI.planner_choice = 2;
   myUI.planner =  new myUI.planners[myUI.planner_choice]();
 
   myUI.map_arr;

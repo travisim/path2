@@ -333,10 +333,22 @@
 									<label class="scen_label">Y2:</label>
 									<input id="scen_goal_y" class="shrink scen_controls" type="number" min="0">
 								</div>
-								<div class="label_centered">
-									<input type="checkbox" id="vertexToggle" name="vertexToggle" value="vertex">
-									<label for="vertexToggle">Vertex-based expansions: </label><br>
-								</div>
+              
+                <div id="toggle-group" class="toggle-group">
+                     <div class="toggle-button gridPixelToggle">
+                        <input type="radio" name="vertexToggle" id="gridPixelToggle" value="gridPixelToggle" />
+                        <label for="gridPixelToggle"><div>Grid Pixel</div></label>
+                    </div>
+                    <div class="toggle-button vertexToggle">
+                        <input type="radio" name="vertexToggle" id="vertexToggle" value="vertex" />
+                        <label for="vertexToggle"><div>Grid Vertex </div></label>
+                    </div>
+                    <div class="toggle-button freeVertexToggle">
+                        <input type="radio" name="vertexToggle" id="freeVertexToggle" value="freeVertex" />
+                        <label for="freeVertexToggle"><div>Free Vertex </div></label>
+                    </div>
+                </div>
+                
 								
 								<p id="planner_label"></p>
 								<label for="planner_select" class="label_centered">Choose planner:</label>
@@ -474,6 +486,7 @@
       </style>
     </div>
 		<script src="scripts/dependencies/chroma.min.js"></script>
+    <script src="scripts/PRM dependencies.js"></script>
 		<script src="scripts/helper.js"></script>
 		<script src="scripts/pathfinding/pathfinder.js"></script>
     <script src="scripts/pathfinding/A_star_big_maps.js"></script>

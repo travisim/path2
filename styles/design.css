@@ -85,6 +85,55 @@ html, body{
 	height: 512px;
 }
 
+
+
+
+/*start of triple toggle css*/
+
+.toggle-group {
+    background-color: rgb(180,177,196);
+    padding: 4px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 14px;
+    vertical-align: middle;
+  
+  
+}
+.toggle-button input[type="radio"] {
+  display: none;
+}
+.toggle-button {
+  text-align: center;
+  color: black;
+  width: 100%;
+  height: 20px;
+  border-radius: 8px;
+  padding:2px;
+}
+
+.toggle-button div{
+   border-radius: 8px;
+}
+.toggle-button.gridPixelToggle input:checked + label div {
+  background-color: rgb(203,144,98);
+}
+.toggle-button.vertexToggle input:checked + label div {
+  background-color: rgb(203,144,98);
+}
+.toggle-button.freeVertexToggle input:checked + label div {
+  background-color: rgb(203,144,98);
+}
+
+.toggle-button div:hover {
+  background-color: grey
+}
+/*end of triple toggle css*/
+
+
 /* drag and drop css */
 
 .upload{
