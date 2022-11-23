@@ -49,8 +49,9 @@ edit_map_ctn.addEventListener("mouseleave", e=>{
 
 edit_map_ctn.addEventListener("mousemove", e=>{
   edit_mouse_tip.style.cursor = "none"
-	edit_mouse_tip.style.left = e.offsetX + 2 + 'px';
-  edit_mouse_tip.style.top = e.offsetY - 32 + 'px';
+  let bounds = edit_map_ctn.getBoundingClientRect();
+	edit_mouse_tip.style.left = e.clientX - bounds.left - 2 + 'px';
+  edit_mouse_tip.style.top = e.clientY - bounds.top - 32 + 'px';
 });
 
 myUI.toggleDrawErase = function(){
@@ -95,12 +96,12 @@ function modal_await_keypress(e){
 
 	if (e.ctrlKey && e.key === 'z') {
     //alert('Undo!');
-    myUI.map_edit.curr_state = myUI.map_edit.curr_state.get_parent();
+    myUI.map_edit.curr_state = myUI.map_edit.curr_state.parent;
     myUI.canvases.edit_map.draw_canvas(myUI.map_edit.curr_state.matrix_data, `2d`, false);
   }
 	else if (e.ctrlKey && e.key === 'y') {
     //alert('Redo!');
-    myUI.map_edit.curr_state = myUI.map_edit.curr_state.get_child();
+    myUI.map_edit.curr_state = myUI.map_edit.curr_state.child;
     myUI.canvases.edit_map.draw_canvas(myUI.map_edit.curr_state.matrix_data, `2d`, false);
   }
 }
@@ -108,19 +109,20 @@ function modal_await_keypress(e){
 class EditState{
   
   constructor(parent, matrix_data, child=null){
-    this.parent = parent;
+    this._parent = parent;
     this.matrix_data = matrix_data;
     this.child = child;
   }
 
-  get_parent(){
-    if(this.parent==null) return this;
-    else return this.parent;
+  get parent(){
+    return this._parent==null ? this : this._parent;
   }
 
-  get_child(){
-    if(this.child==null) return this;
-    else return this.child;
+  get child(){
+    return this._child==null ? this : this._child;
   }
 
+  set child(child){
+    this._child = child;
+  }
 }

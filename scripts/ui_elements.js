@@ -31,7 +31,7 @@ class UICanvas{
       y: (containerHeight - targetHeight) / 2
     };
   }
-  constructor(canvas_id, drawOrder, colors, drawType="cell", fixedResVal=1024, valType="int", defaultVal=0, create=true, minVal=null, maxVal=null){
+  constructor(canvas_id, drawOrder, colors, drawType="cell", fixedResVal=1024, valType="int", defaultVal=0, create=true, minVal=null, maxVal=null, infoMapBorder=true, infoMapValue=false){
     this.id = canvas_id;
     if(create){
       this.canvas = document.createElement("canvas");// getElementById(canvas_id);
@@ -45,6 +45,7 @@ class UICanvas{
       this.canvas = document.getElementById(canvas_id);
     }
     this.ctx = this.canvas.getContext("2d");
+    this.drawOrder = drawOrder;
     this.defaultHeight = this.canvas.clientHeight;
     this.defaultWidth = this.canvas.clientWidth;
 
@@ -55,6 +56,8 @@ class UICanvas{
     this.valType = valType;
     this.minVal = minVal;
     this.maxVal = maxVal;
+    this.infoMapBorder = infoMapBorder;
+    this.infoMapValue = infoMapValue;
     this.canvas_cache = zero2D(height, width, this.defaultVal, this.defaultVal, this.valType);  // initialise a matrix of 0s (zeroes), height x width
 
     this.data_height = this.canvas.height;
@@ -80,6 +83,9 @@ class UICanvas{
     this.drawType = drawType;
     switch(drawType){
       case "vertex":
+        this.fixedRes = true;
+        this.scale_canvas(this.data_height+1, this.data_width+1, false);
+        break;
       case "dotted":
         this.fixedRes = true;
         break;
@@ -87,6 +93,14 @@ class UICanvas{
         this.fixedRes = false;
     }
     this.canvas_cache = this.matrixConstructor();
+  }
+
+  hide(){
+    this.canvas.classList.add("hidden");
+  }
+
+  show(){
+    this.canvas.classList.remove("hidden");
   }
 
   scale_coord(x,y){
@@ -170,6 +184,18 @@ class UICanvas{
     this.draw_pixel(xy, virtual, val, val-1);
   }
 
+  calc_color(val, color_index){
+    if(this.valType=="float"){
+      let r = (val-this.minVal)/(this.maxVal-this.minVal);
+      var color = chroma.scale("Spectral")(1-r).hex();
+      //this.set_color(color);
+    }
+    else if(color_index!=-1)
+      var color = this.colors[color_index];
+      //this.set_color_index(color_index);
+    return color;
+  }
+
   draw_pixel(xy, virtual=false, val=1, color_index=0, save_in_cache=true){
     let [x,y] = xy;
     if(x>=this.data_height || y>=this.data_width) return;
@@ -182,15 +208,7 @@ class UICanvas{
         return;
       }
       
-      if(this.valType=="float"){// || this.minVal<this.maxVal){
-        let r = (val-this.minVal)/(this.maxVal-this.minVal);
-        if(this.valType=="float") var color = chroma.scale("Spectral")(1-r).hex();
-				//else var color = chroma.scale("OrRd").classes(this.maxVal)(r).hex();
-        //let color = chroma(chroma.mix(this.colors[0], this.colors[1], r, 'hsl')).hex();
-        this.set_color(color);
-      }
-      else if(color_index!=-1)
-        this.set_color_index(color_index);
+      this.set_color(this.calc_color(val, color_index));
 
       switch(this.drawType){
         case "dotted":
@@ -287,7 +305,6 @@ class UICanvas{
     var canvas = this;
     function draw_line(r){
       const lineRate = 30;
-      console.log(canvas.id, canvasNo, r);
       for(let i=r;i<r+lineRate;++i){
         if(target_step!=myUI.target_step) return -1;
         if(i==array_data.length) return canvasNo+1;

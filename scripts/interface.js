@@ -2,6 +2,10 @@ var myUI = {}
 
 myUI.initialize = function(){
 
+  // planners
+  myUI.planners = [ A_star,A_star_big_maps,PRM,BFS_Vertex];
+  // default planner is decided in parser-select-display.js -> myUI.runDefault
+
   myUI.top_Z = 99;
 
   myUI.vertex = false;
@@ -13,11 +17,23 @@ myUI.initialize = function(){
   myUI.InfoNWSE = {};
 	myUI.modals = {};
 
+  myUI.canvasReset = function(){
+    myUI.checkbox.canvas = [];
+    removeChildren(document.getElementById("canvas_layers"))
+    const keep = ["bg", "hover_map", "edit_map"];
+    for(const id of Object.keys(myUI.canvases)){
+      if(!keep.includes(id)){
+        document.getElementById("canvas_container").removeChild(document.getElementById(id));
+        delete myUI.canvases[id];
+      }
+    }
+  }
+
   // Initialize canvases
   myUI.canvasGenerator = function(arr){
     let ref = [];
     arr.forEach(item=>{
-      myUI.canvases[item.id] = new UICanvas(item.id, item.drawOrder, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal, true, item.minVal, item.maxVal);
+      myUI.canvases[item.id] = new UICanvas(item.id, item.drawOrder, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal, true, item.minVal, item.maxVal, item.infoMapBorder, item.infoMapValue);
       ref.push(myUI.canvases[item.id]);
       if(item.toggle!="off"){
         appendCheckbox(`show_${item.id}`, item.checked, item.id, "layer", item.toggle);
@@ -36,55 +52,18 @@ myUI.initialize = function(){
       id:"bg", drawType:"cell", drawOrder: 0, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
     },
   ];
-
-  let canvasDynamic = [
-    {
-      id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1,
-    },
-    {
-      id:"expanded", drawType:"cell", drawOrder: 2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, minVal: 1, maxVal: 1,
-    },
-    /*
-    {
-      id:"start", drawType:"cell", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#96996"], toggle: "multi", checked: true, minVal: 0, maxVal: 1,
-    },
-    {
-      id:"goal", drawType:"cell", drawOrder: 4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#9f17e7"], toggle: "multi", checked: true, minVal: 0, maxVal: 1,
-    },
-    */
-    {
-      id:"path", drawType:"cell", drawOrder: 5, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, minVal: 1, maxVal: 1,
-    },
-    {
-      id:"neighbors", drawType:"cell", drawOrder: 6, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1,
-    },
-    {
-      id:"queue", drawType:"cell", drawOrder: 7, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1,
-    },
-    {
-      id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 8,
-    },
-    {
-      id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null,
-    },
-    {
-      id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null,
-    },
-    {
-      id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null,
-    },
-  ];
   
   myUI.checkbox = {canvas:[]};
-  appendCheckbox(`show_arrow-div`, true, "Arrows", "layer", "multi");
   myUI.canvasGenerator(canvasStatic);
-  myUI.dynamicCanvas = myUI.canvasGenerator(canvasDynamic);
   let edit_map = {
     id:"edit_map", drawType:"cell", drawOrder: -80, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"], toggle: "off"
   };
-  myUI.canvases.edit_map = new UICanvas(edit_map.id, edit_map.drawOrder, edit_map.colors, edit_map.drawType, edit_map.fixedResVal, edit_map.valType, edit_map.defaultVal, false);
+  myUI.canvases["edit_map"] = new UICanvas(edit_map.id, edit_map.drawOrder, edit_map.colors, edit_map.drawType, edit_map.fixedResVal, edit_map.valType, edit_map.defaultVal, false);
   myUI.canvases.edit_map.toggle_edit();
-  
+
+  myUI.map_arr;
+  myUI.map_height = myUI.canvases.bg.canvas.height;
+  myUI.map_width = myUI.canvases.bg.canvas.width;
 
  //initialise info
   
@@ -125,7 +104,7 @@ myUI.initialize = function(){
   [
     ["scen_select", "scen_label"],
     ["planner_select", "planner_label"],
-    ["planner_select2", "planner_label2"]
+    // ["planner_select2", "planner_label2"]
   ].forEach(arr=>{
     let id = arr[0];
     let select_label = arr[1];
@@ -146,7 +125,7 @@ myUI.initialize = function(){
     ["draw_erase_btn", "draw_icon", "erase_icon"],
     ["edit_map_btn", "edit_map_icon"],
     ["stop_edit_btn", "stop_edit_icon"],
-		["planner_config_btn", "planner_config_icon"],
+		["planner_config_btn"],
     ["first_neighbour_btn"]
   ].forEach(item=>{
     let btn_id = item[0];
@@ -177,16 +156,6 @@ myUI.initialize = function(){
   
 	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), move: false}
 	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), move: false}
-
-  myUI.planners_cell = [ A_star,A_star_big_maps,PRM];
-  myUI.planners_v = [BFS_Vertex];
-  myUI.planners = myUI.planners_cell;
-  myUI.planner_choice = 2;
-  myUI.planner =  new myUI.planners[myUI.planner_choice]();
-
-  myUI.map_arr;
-  myUI.map_height = myUI.canvases.bg.canvas.height;
-  myUI.map_width = myUI.canvases.bg.canvas.width;
   
   myUI.animation = {
     running: false,

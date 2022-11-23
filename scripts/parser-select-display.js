@@ -29,8 +29,6 @@ myUI.parseMap = function(map_str_var, file_name){
       }
     }
 	}
- 
-	myUI.planner.add_map(myUI.map_arr);
 }
 
 myUI.displayMap = function(){
@@ -63,6 +61,7 @@ myUI.displayMap = function(){
   document.getElementById("top_axes").style.width = myUI.canvases.bg.canvas.clientWidth+"px";
 
   myUI.canvases["bg"].draw_canvas(myUI.map_arr, "2d", true);
+  console.log(myUI.canvases);
 	myUI.canvases["edit_map"].draw_canvas(myUI.map_arr, "2d", true);
 	if(myUI.scenFail)
 		myUI.displayScen();
@@ -131,46 +130,42 @@ myUI.loadScenario = function(){
 document.querySelectorAll(".scen_controls").forEach(elem=>{
   elem.addEventListener("change", myUI.loadScenario);
 })
-
-document.getElementById("toggle-group").addEventListener("change", e=>{
-  if(document.getElementById("vertexToggle").checked){
-    // enable vertex
-    myUI.vertex = true;
-    ["hover_map", "queue", "visited", "expanded", "neighbors", "path", "fCost", "gCost", "hCost"].forEach(canvas=>{
-      myUI.canvases[canvas].setDrawType("vertex");
-      myUI.canvases[canvas].scale_canvas(myUI.map_height+1, myUI.map_width+1, false);
-    });
-    myUI.planners = myUI.planners_v;
-    console.log("ENABLED VERTEX");
-  }
-  else{
-    myUI.vertex = false;
-    ["hover_map", "queue", "visited", "expanded", "neighbors", "path", "fCost", "gCost", "hCost"].forEach(canvas=>{
-      myUI.canvases[canvas].scale_canvas(myUI.map_height, myUI.map_width, false);
-      myUI.canvases[canvas].setDrawType("pixel");
-    });
-    myUI.planners = myUI.planners_cell;
-    // disable vertex
-  }
-  myUI.displayMap();
-  myUI.displayScen();
-  /* first call */
-  myUI.showPlanners();
-  myUI.loadPlanner();
-});
-if(myUI.vertex) document.getElementById("vertexToggle").checked=true;
-else document.getElementById("vertexToggle").checked=false;
+/* vertex has been moved to planner config */
+// document.getElementById("toggle-group").addEventListener("change", e=>{
+//   if(document.getElementById("vertexToggle").checked){
+//     // enable vertex
+//     myUI.vertex = true;
+//     ["hover_map", "queue", "visited", "expanded", "neighbors", "path", "fCost", "gCost", "hCost"].forEach(canvas=>{
+//       myUI.canvases[canvas].setDrawType("vertex");
+//       myUI.canvases[canvas].scale_canvas(myUI.map_height+1, myUI.map_width+1, false);
+//     });
+//     myUI.planners = myUI.planners_v;
+//     console.log("ENABLED VERTEX");
+//   }
+//   else{
+//     myUI.vertex = false;
+//     ["hover_map", "queue", "visited", "expanded", "neighbors", "path", "fCost", "gCost", "hCost"].forEach(canvas=>{
+//       myUI.canvases[canvas].scale_canvas(myUI.map_height, myUI.map_width, false);
+//       myUI.canvases[canvas].setDrawType("pixel");
+//     });
+//     myUI.planners = myUI.planners_cell;
+//     // disable vertex
+//   }
+//   myUI.showPlanners();
+//   myUI.loadPlanner();
+//   myUI.displayScen();
+// });
+// if(myUI.vertex) document.getElementById("vertexToggle").checked=true;
+// else document.getElementById("vertexToggle").checked=false;
 
 myUI.displayScen = function(update=false, reset_zero=false){
   console.log("INSIDE DISPLAY SCEN")
 	//myUI.canvases.start.erase_canvas();
 	//myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
-	myUI.planner.cell_map = undefined;
+	if(myUI.planner) myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
 	myUI.scenFail = false;
-  /*clear all canvases*/
-  myUI.reset_animation();
 	/*if(myUI.map_name!=myUI.scen_name && document.querySelector('#scen_num').value>0){
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
 	}
@@ -222,77 +217,43 @@ myUI.showPlanners = function() {
   // get data from planner_upload_elem
   // add_planner()
   myUI.resetSelectOptions(myUI.selects["planner_select"].elem);
-  myUI.resetSelectOptions(myUI.selects["planner_select2"].elem);
+  // myUI.resetSelectOptions(myUI.selects["planner_select2"].elem);
   for (i = 0; i < myUI.planners.length; ++i) {
     let option = document.createElement("option");
     option.setAttribute("value", i);
     option.innerHTML = myUI.planners[i].display_name;
     myUI.selects["planner_select"].elem.appendChild(option);
 
-		let option2 = option.cloneNode(true);
-    myUI.selects["planner_select2"].elem.appendChild(option2);
+		// let option2 = option.cloneNode(true);
+    // myUI.selects["planner_select2"].elem.appendChild(option2);
   }
 }
 
 myUI.loadPlanner = function() {
-	if(this==myUI) var planner_select_elem = myUI.selects["planner_select"].elem;
-	else var planner_select_elem = this; // binds to the planner select element
-	
+	var planner_select_elem = myUI.selects["planner_select"].elem;
   myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
   myUI.planner = new myUI.planners[myUI.planner_choice]();
+  myUI.canvasReset();
+  for(const cb of myUI.planner.constructor.checkboxes){
+    appendCheckbox(...cb);
+  }
+  myUI.dynamicCanvas = myUI.canvasGenerator(myUI.planner.constructor.canvases);
 
 	// updates both selects
 	myUI.selects["planner_select"].elem.value = myUI.planner_choice;
-	myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
+	// myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
-  myUI.InfoMap.PlannerMode(myUI.planner.infoMapPlannerMode());
-  //determine_info_map_header();
+  /* switch to CanvasMode */
+  //myUI.InfoMap.PlannerMode(myUI.planner.infoMapPlannerMode());
+  myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
+  myUI.buttons.planner_config_btn.btn.innerHTML = myUI.planner.constructor.display_name;
   myUI.setPlannerConfig();
+  myUI.displayMap();
+  myUI.initHover(myUI.planner.constructor.hoverData);
 }
-
-
-/* first call */
-myUI.showPlanners();
-myUI.loadPlanner();
-
-// default map
-myUI.runDefault = function(){
-	let default_map = `type octile
-	height 16
-	width 16
-	map
-	................
-	................
-	..@@@@@@@@@@@@..
-	..@.............
-	..@.............
-	..@..@@@@@@@@@..
-	..@..@..........
-	..@..@..........
-	..@..@..@@@@@@..
-	..@..@..@.......
-	..@..@..@.......
-	..@..@..@.......
-	..@..@..@.......
-	..@..@..@.......
-	................
-	................`;
-	myUI.parseMap(default_map, `16x16_default.map`);
-	myUI.displayMap();
-
-	let default_scen = `version 1\n0\t16x16_default.map\t16\t16\t0\t0\t13\t13\t-1`;
-	myUI.parseScenario(default_scen);
-  myUI.loadScenario();
-
-  // default hover
-  myUI.initHover(myUI.hoverData);
-
-  myUI.stateFreq = Number(myUI.sliders.state_freq_slider.elem.value);
-}
-myUI.runDefault();
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
-myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
+// myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
 
 myUI.parseCustom = function(contents){
   const STRUCT = JSON.parse(contents);
@@ -312,3 +273,24 @@ myUI.parseCustom = function(contents){
   }
 }
 
+myUI.toggleVertex = function(enable=true){
+  if(enable){
+    myUI.vertex = true;
+    for(const uiCanvas of myUI.dynamicCanvas){
+      if(uiCanvas.drawType=="dotted")
+        uiCanvas.hide();
+      else
+      uiCanvas.setDrawType("vertex");
+    }
+    myUI.canvases.hover_map.setDrawType("vertex");
+  }
+  else{
+    myUI.vertex = false;
+    for(const uiCanvas of myUI.dynamicCanvas){
+      uiCanvas.show();
+      if(uiCanvas.drawType=="vertex")
+        uiCanvas.setDrawType("pixel");
+    }
+    myUI.canvases.hover_map.setDrawType("pixel");
+  }
+}

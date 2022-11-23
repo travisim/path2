@@ -8,9 +8,8 @@
 document.getElementById("compute_btn").addEventListener("click", compute_path);
 
 function compute_path(){
+	clearTimeout(myUI.finalTimeout);
 	myUI.reset_animation();  // reset first time for arrows to be removed
-	//myUI.arrow.data.forEach(el=>el.remove());
-	//myUI.arrow.data = [];
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
   if(!myUI.map_start) return alert("no scene loaded!");
@@ -27,20 +26,22 @@ function compute_path(){
 		document.getElementById("compute_btn").innerHTML = `computing... ${(Date.now()-myUI.startTime)/1000.0}s`;
 	}, 50);
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
+		myUI.genStart = Date.now();
+		myUI.searchDuration = myUI.genStart-myUI.startTime;
 		clearInterval(myUI.interval);
-		alert((Date.now()-myUI.startTime)/1000.0);
 		document.getElementById("compute_btn").innerHTML = "optimizing... 0%";
 		console.log(path ? path.length : -1);
 		myUI.step_data.fwd.data = myUI.planner.steps_data;
 	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
 		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
-		console.log("myUI.stateFreq:",myUI.stateFreq);
 		myUI.generateReverseSteps({genStates: true}).then(ret=>{
+			myUI.genDuration = Date.now() - myUI.genStart;
 			if(ret!=0){
 				let error = `DID NOT GENERATE STATES PROPERLY`;
 				alert(error);
 				throw error;
 			}
+			console.log("Number of steps: ", myUI.step_data.fwd.map.length);
 			myUI.currentCoord = myUI.map_start;
 			myUI.sliders.search_progress_slider.elem.disabled = false;
 			myUI.animation.max_step = myUI.planner.max_step();
@@ -48,9 +49,8 @@ function compute_path(){
 			myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
 			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;
 			updateSpeedSlider();
-			document.getElementById("compute_btn").innerHTML = `Compute Path`;
-			document.getElementById("compute_btn").innerHTML = "done!";
-			setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 2000);
+			document.getElementById("compute_btn").innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
+			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 10000);
 		})
 	}); 
 	
@@ -84,9 +84,10 @@ myUI.sliders.state_freq_slider.elem.addEventListener("input",function(){
 myUI.reset_animation = function(){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
 	myUI.update_search_slider(-1);
-	["visited",	"neighbors", "queue",	"expanded",	"path", "focused", "fCost", "gCost", "hCost"].forEach(canvas_id=>{
-		myUI.canvases[canvas_id].erase_canvas();
-	});
+	if(myUI.dynamicCanvas)
+		myUI.dynamicCanvas.forEach(uiCanvas=>{
+			uiCanvas.erase_canvas();
+		});
 	Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(false);
 	myUI.arrow.step = -1;

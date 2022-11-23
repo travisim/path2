@@ -34,9 +34,8 @@
 
   <body>
 		<div class="hover_popup" id="tooltip_data">
-			<div class="flex-row"><span id=hover_x>-</span>, <span id=hover_y>-</span></div>
+			<div class="flex-row" id="hoverCoord"><span id=hover_x>-</span>, <span id=hover_y>-</span></div>
 			<br>
-			<!--div>Step Number: <span id="hover_cell_index">-</span></div-->
 		</div>
 		<div id="main-title">
 			Path Planner
@@ -314,8 +313,8 @@
 								<button id="edit_map_btn" class="btn grid-overlay">
 									<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
 								</button>
-								<button id="planner_config_btn" class="btn grid-overlay">
-									<img src="assets/planner-config-svgrepo-com.svg" id="planner_config_icon" class="icon overlay" alt="config planner">
+								<button id="planner_config_btn" class="btn">
+									<!-- <img src="assets/planner-config-svgrepo-com.svg" id="planner_config_icon" class="icon overlay" alt="config planner"> -->
 								</button>
 							</div>
 							<div class="select_pane">
@@ -334,7 +333,7 @@
 									<input id="scen_goal_y" class="shrink scen_controls" type="number" min="0">
 								</div>
               
-                <div id="toggle-group" class="toggle-group">
+                <!-- <div id="toggle-group" class="toggle-group">
                      <div class="toggle-button gridPixelToggle">
                         <input type="radio" name="vertexToggle" id="gridPixelToggle" value="gridPixelToggle" />
                         <label for="gridPixelToggle"><div>Grid Pixel</div></label>
@@ -347,12 +346,12 @@
                         <input type="radio" name="vertexToggle" id="freeVertexToggle" value="freeVertex" />
                         <label for="freeVertexToggle"><div>Free Vertex </div></label>
                     </div>
-                </div>
+                </div> -->
                 
 								
-								<p id="planner_label"></p>
+								<!-- <p id="planner_label"></p>
 								<label for="planner_select" class="label_centered">Choose planner:</label>
-								<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
+								<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select> -->
 							</div>
 							<div id="file_droparea" class="upload overlay">
 								<form class="my-form">
@@ -415,9 +414,9 @@
 			<div class="modal-content">
 				<span id="planner_config_close" class="close">&times;</span>
 				<h2 class="label_centered">Planner Configuration</h2>
-				<p id="planner_label2"></p>
-				<label for="planner_select2" class="label_centered">Choose planner:    </label>
-				<select name="planner_select2" size="1" id="planner_select2" class="select-dropdown"></select>
+				<p id="planner_label"></p>
+				<label for="planner_select" class="label_centered">Choose planner:</label>
+				<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
 				<table id="planner_config_body"></table>
 				<!--div class="flex-row">
 					<div class="flex-col" id="planner_config_body">
@@ -494,7 +493,7 @@
     <script src="scripts/pathfinding/PRM.js"></script>
 		<script src="scripts/pathfinding_vertex/bfs_v.js"></script>
 		<script src="scripts/ui_elements.js"></script>
-    <script src="scripts/infomap_class.js"></script>
+    <script src="scripts/infomap.js"></script>
     <script src="scripts/infotable class.js"></script>
     <script src="scripts/infopseudocode class.js"></script>
     <script src="scripts/layers_checklist.js"></script>
@@ -505,15 +504,15 @@
 		<script src="scripts/controls.js"></script>
 		<script src="scripts/step.js"></script>
 		<script src="scripts/upload.js"></script>
-	  <script src="scripts/planner_config_new.js"></script>
     <script src="scripts/darkmode.js"></script>
 		<script src="scripts/hover.js"></script>
 		<script src="scripts/modal.js"></script>
 		<script src="scripts/parser-select-display.js"></script>
+	  <script src="scripts/planner_config.js"></script>
 		<script src="scripts/download.js"></script>
    <script src="scripts/pathfinding/Bresenhams_line_generation_algorithm test.js"></script>
     <script src="scripts/pathfinding/PRM test.js"></script>
-    
+    <script src="scripts/default.js"></script>
   </body>
   
 </html>

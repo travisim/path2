@@ -11,6 +11,15 @@ class A_star extends GridPathFinder{
     return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
   }
 
+  static get hoverData(){
+    return [
+      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"},
+      {id: "hoverFCost", displayName: "F Cost", type: "canvasCache", canvasId: "fCost"},
+      {id: "hoverGCost", displayName: "G Cost", type: "canvasCache", canvasId: "gCost"},
+      {id: "hoverHCost", displayName: "H Cost", type: "canvasCache", canvasId: "hCost"},
+    ];
+  }
+
   get configs(){
 		let configs = super.configs;
 		configs.push({uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.
@@ -175,29 +184,8 @@ class A_star extends GridPathFinder{
         var next_XY = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_XY[0] < 0 || next_XY[0] >= this.map_height || next_XY[1] < 0 || next_XY[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         
-        if (this.map.get_data(next_XY) == 1) {  // if neighbour is passable
-          if (this.diagonal_allow == false && this.num_neighbors == 8) { // if neighbour is not blocked
-            if (this.deltaNWSE[i] == "NW") {
-              if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
-                continue;
-              }
-            }
-            else if (this.deltaNWSE[i] == "SW") {
-              if (!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("W"))) {
-                continue;
-              }
-            }
-            else if (this.deltaNWSE[i] == "SE") {
-              if (!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("E"))) {
-                continue;
-              }
-            }
-            else if (this.deltaNWSE[i] == "NE") {
-              if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("E"))) {
-                continue;
-              }
-            }
-          }
+        
+        if(!this._nodeIsNeighbor(next_XY, surrounding_map_deltaNWSE)) continue;
 
           /* second check if visited */
           if (this.visited.get_data(next_XY)>0) {
@@ -261,7 +249,7 @@ class A_star extends GridPathFinder{
           this._save_step(false);
 
           if(this._found_goal(new_node)) return this._terminate_search();
-        }
+        
       }
 
 			this.closed_list.set(this.current_node_XY, this.current_node);

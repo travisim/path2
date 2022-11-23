@@ -3,10 +3,8 @@ function removeChildren(elem, childTag="", omitIds=[]){
   let idx = 0;
   while(elem.children.length>idx){
     const child = elem.children[idx];
-    if(omitIds.includes(child.id)) idx++;
-    else if(childTag!="" && child.tagName.toLowerCase()==childTag) idx++;
+    if(omitIds.includes(child.id) || (childTag!="" && child.tagName.toLowerCase()!=childTag)) idx++;
     else elem.removeChild(child);
-		console.log(idx, child.tagName);
   }
 }
 

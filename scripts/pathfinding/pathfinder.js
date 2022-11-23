@@ -10,36 +10,6 @@ class GridPathFinder{
     return [];
   }
 
-	get configs(){
-    return [
-      {uid: "diagonal_block", displayName: "Diagonal Blocking:", options: ["Blocked", "Unblocked"], description: `Block connection to an ordinal neighbor (e.g. NW) if there are obstacles in its applicable cardinal directions (e.g. N, W). <br>Unblock to ignore this constraint`},
-      {uid: "num_neighbors", displayName: "Neighbors:", options: ["Octal (8-directions)", "Cardinal (4-directions)"], description: `Octal when all 8 neighbors surrounding the each cell are searched.<br>Cardinal when 4 neighbors in N,W,S,E (cardinal) directions are searched.`},
-      {uid: "first_neighbor", displayName: "Starting Node:", options: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"], description: `The first direction to begin neighbour searching. Can be used for breaking ties. N is downwards (+i/+x/-row). W is rightwards (+j/+y/-column).`},//["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
-      {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"], description: `The rotating direction to search neighbors. Can be used for breaking ties. Anticlockwise means the rotation from N to W. Clockwise for the opposite rotation `}
-    ];
-	}
-
-	setConfig(uid, value){
-		console.log(uid, value);
-    switch(uid){
-      case "diagonal_block":
-				this.diagonal_allow = value=="Unblocked";
-        break;
-      case "num_neighbors":
-        let num = value=="Octal (8-directions)" ? 8 : 4;
-        this.init_neighbors(num);
-        myUI.InfoMap.NumneighborsMode(num);
-        break;
-      case "first_neighbor":
-				this.init_first_neighbour(value);
-        break;
-      case "search_direction":
-        value = value.toLowerCase();
-        this.init_search_direction(value);
-        break;
-    }
-  }
-
 	static _manageUnpacking(numBits, offset, idx){
 		offset += numBits;
 		if(offset>=32){
@@ -176,10 +146,96 @@ class GridPathFinder{
 		return obj.actionCache;
 	}
 
+	static get canvases(){
+		return [
+			{
+				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+			},
+			{
+				id:"expanded", drawType:"cell", drawOrder: 2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+			},
+			{
+				id:"path", drawType:"cell", drawOrder: 5, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+			},
+			{
+				id:"neighbors", drawType:"cell", drawOrder: 6, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+			},
+			{
+				id:"queue", drawType:"cell", drawOrder: 7, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+			},
+			{
+				id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 8, infoMapBorder: true, infoMapValue: null,
+			},
+			{
+				id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "F",
+			},
+			{
+				id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "G",
+			},
+			{
+				id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
+			},
+		];
+	}
+
+	static get hoverData(){
+    return [
+      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"}
+    ];
+  }
+
+	static get checkboxes(){
+		return [
+			[`show_arrow-div`, true, "Arrows", "layer", "multi"]
+		];
+	}
+
 	constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
 		this.init_neighbors(num_neighbors, first_neighbour, search_direction);
 		this.diagonal_allow = diagonal_allow;
 	}
+
+	get configs(){
+    return [
+      {uid: "diagonal_block", displayName: "Diagonal Blocking:", options: ["Blocked", "Unblocked"], description: `Block connection to an ordinal neighbor (e.g. NW) if there are obstacles in its applicable cardinal directions (e.g. N, W). <br>Unblock to ignore this constraint`},
+      {uid: "num_neighbors", displayName: "Neighbors:", options: ["Octal (8-directions)", "Cardinal (4-directions)"], description: `Octal when all 8 neighbors surrounding the each cell are searched.<br>Cardinal when 4 neighbors in N,W,S,E (cardinal) directions are searched.`},
+      {uid: "first_neighbor", displayName: "Starting Node:", options: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"], description: `The first direction to begin neighbour searching. Can be used for breaking ties. N is downwards (+i/+x/-row). W is rightwards (+j/+y/-column).`},//["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
+      {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"], description: `The rotating direction to search neighbors. Can be used for breaking ties. Anticlockwise means the rotation from N to W. Clockwise for the opposite rotation.`},
+			{uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
+    ];
+	}
+
+	setConfig(uid, value){
+		console.log(uid, value);
+    switch(uid){
+      case "diagonal_block":
+				this.diagonal_allow = value=="Unblocked";
+        break;
+      case "num_neighbors":
+        let num = value=="Octal (8-directions)" ? 8 : 4;
+        this.init_neighbors(num);
+        myUI.InfoMap.NumneighborsMode(num);
+        break;
+      case "first_neighbor":
+				this.init_first_neighbour(value);
+        break;
+      case "search_direction":
+        value = value.toLowerCase();
+        this.init_search_direction(value);
+        break;
+			case "mapType":
+				if(value=="Grid Vertex"){
+					this.vertexEnabled = true;
+					myUI.toggleVertex(true);
+				}
+				else{
+					this.vertexEnabled = false;
+					myUI.toggleVertex(false);
+				}
+				myUI.displayScen();
+			default:
+    }
+  }
 
 	infoMapPlannerMode(){
 		return "default";
@@ -269,6 +325,60 @@ class GridPathFinder{
 		else if(this.map_height<=64) this.batch_size = 40;
 		else this.batch_size = 1000;
     this.batch_interval = 0;
+	}
+
+	_nodeIsNeighbor(next_XY, surrounding_map_deltaNWSE){
+		if(this.vertexEnabled){
+			// no diagonal blocking considered
+			if(next_XY[0]!=this.current_node_XY[0] && next_XY[1]!=this.current_node_XY[1]){
+				// diagonal crossing
+				// consider [Math.min(next_XY[0], this.current_node_XY[0]), Math.min(next_XY[1], this.current_node_XY[1])];
+				let coord = [Math.min(next_XY[0], this.current_node_XY[0]), Math.min(next_XY[1], this.current_node_XY[1])];
+				if(this.map.get_data(coord)==0) return false; // not passable
+			}
+			else{
+				// cardinal crossing
+				if(next_XY[0]!=this.current_node_XY[0]){
+					// consider [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]]
+					// consider [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]-1]
+					var c1 =  [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]];
+					var c2 = [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]-1];
+				}
+				else{
+					// consider [next_XY[0], Math.min(next_XY[1], this.current_node_XY[1])]
+					// consider [next_XY[0]-1, Math.min(next_XY[1], this.current_node_XY[1])] 
+					var c1 = [next_XY[0], Math.min(next_XY[1], this.current_node_XY[1])];
+					var c2 = [next_XY[0]-1, Math.min(next_XY[1], this.current_node_XY[1])];
+				}
+				if(this.map.get_data(c1)==0 && this.map.get_data(c2)==0) return false; // not passable
+			}
+		}
+		else{
+			if (this.map.get_data(next_XY) == 0) return false;  // if neighbour is not passable
+			if (this.diagonal_allow == false && this.num_neighbors == 8) { // if neighbour is not blocked
+				if (this.deltaNWSE[i] == "NW") {
+					if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
+						return false;
+					}
+				}
+				else if (this.deltaNWSE[i] == "SW") {
+					if (!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("W"))) {
+						return false;
+					}
+				}
+				else if (this.deltaNWSE[i] == "SE") {
+					if (!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("E"))) {
+						return false;
+					}
+				}
+				else if (this.deltaNWSE[i] == "NE") {
+					if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("E"))) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
 	}
 
 	_clear_steps(){

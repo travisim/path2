@@ -200,9 +200,9 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   myUI.step_data.bck.data = [];
   myUI.step_data.bck.map = [];
 	myUI.step_data.bck.combined = [];
-  if(genStates)  myUI.states = [];
   console.log("myUI.stateFreq:",myUI.stateFreq);
   const stateFreq = myUI.stateFreq;
+  if(genStates)  myUI.states = [stateFreq];
 	let stepCnt=0;
 	let revCombinedCnt = 0;
 
@@ -211,10 +211,14 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   Object.values(myUI.canvases).forEach(canvas=>canvas.init_virtual_canvas());
   Object.values(myUI.InfoTables).forEach(tb=>tb.tableContainer.style.display = "none");
 
-  let size=100, interval = 0;
+  const statusUpdate = setInterval(function(){
+    document.getElementById("compute_btn").innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
+  }, 200);
+
+  const batchSize=100, batchInterval = 0;
 
   return new Promise((resolve, reject) => {
-    setTimeout(() => resolve(nextGenSteps(size)), interval);
+    setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
   });
 
   function finishGenerating(){
@@ -225,6 +229,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
     Object.values(myUI.InfoTables).forEach(tb=>tb.tableContainer.style.display = "table");
     myUI.reset_animation();
     myUI.mem = mem;
+    clearInterval(statusUpdate);
     return 0;
   }
 
@@ -414,7 +419,6 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 
       if(genStates && stepCnt%stateFreq==0){
         if(stepCnt/stateFreq % 100==0) console.log("State", stepCnt/stateFreq);
-        document.getElementById("compute_btn").innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
         let nextState = {canvas:{}, infotables:{}};
         // canvas
         for(const canvas of Object.values(mem.activeCanvas)){
@@ -454,7 +458,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
     }
     
     return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(nextGenSteps(size)), interval);
+      setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
     });
   }
 }
@@ -463,8 +467,7 @@ myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
   if(infoMapPlannerMode == "none"){
     
   }
-
-  if(infoMapPlannerMode != "none"){
+  else{
     
     /*
     1) clear info map
@@ -475,10 +478,16 @@ myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
     */
     myUI.InfoMap.drawObstacle(x,y);
     myUI.InfoMap.drawOutOfBound(x,y);
+    for(uiCanvas of myUI.dynamicCanvas){
+      if(uiCanvas.infoMapBorder) myUI.InfoMap.drawCanvasBorder(x,y,uiCanvas.id);
+      if(uiCanvas.infoMapValue) myUI.InfoMap.drawCanvasValue(x,y,uiCanvas.id);
+    }
+    /*
     myUI.InfoMap.drawVisited(x,y);
     myUI.InfoMap.drawQueue(x,y);
     myUI.InfoMap.drawNeighbors(x,y);
     myUI.InfoMap.drawFGH(x,y);
+    /* */
     myUI.InfoCurrent.DrawCurrent(x,y);
   }
 }
@@ -499,9 +508,11 @@ myUI.jump_to_step = function(target_step){
   for(const elem of myUI.arrow.elems)
     elem.classList.add("hidden");
 
+  const stateFreq = myUI.states[0];
+
   // if state exists
-  if(target_step>=myUI.stateFreq){
-    idx = Math.floor(target_step/myUI.stateFreq)-1;
+  if(target_step>=stateFreq){
+    idx = Math.floor(target_step/stateFreq);
     let state = myUI.states[idx];
     // arrows
     for(const [arrowId, colorId] of Object.entries(state.arrowColor)){
@@ -556,7 +567,7 @@ myUI.jump_to_step = function(target_step){
   }
 
   function finishJumping(){
-    myUI.animation.step = (idx+1)*myUI.stateFreq-1;
+    myUI.animation.step = (idx)*stateFreq-1;
     myUI.run_steps(target_step-myUI.animation.step, "fwd");
     document.getElementById("compute_btn").innerHTML = `Compute Path`;
     myUI.update_search_slider(target_step);

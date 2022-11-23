@@ -1,13 +1,15 @@
+myUI.init_planner_config = function(){}
+
 myUI.modals.planner_config.show = function(){
   show_modal(myUI.modals.planner_config.elem);
   myUI.stop_animation(change_svg = true);
-  //document.getElementById("planner_name").innerHTML = myUI.planner.constructor.display_name;
 }
 
 // When the user clicks on the button, open the modal
 myUI.buttons.planner_config_btn.btn.addEventListener("click", myUI.modals.planner_config.show);
 
 myUI.modals.planner_config.close = function(){
+  
   hide_modal(myUI.modals.planner_config.elem);
 }
 myUI.modals.planner_config.close_btn.addEventListener("click", myUI.modals.planner_config.close);
@@ -17,96 +19,56 @@ window.addEventListener("click", event=>{
 		myUI.modals.planner_config.close();
 });
 
-document.getElementById("diagonal_block_btn").addEventListener("click", e=>{
-  myUI.planner.diagonal_allow = !myUI.planner.diagonal_allow;
-  if(myUI.planner.diagonal_allow) document.getElementById("diagonal_block_label").innerHTML = "Blocked";
-  else document.getElementById("diagonal_block_label").innerHTML = "Unblocked";
-});
-
-
-function toggle_num_neighbors(e){
-  if(myUI.planner.num_neighbors!=8){
-    myUI.planner.init_neighbors(8);
-    //document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = myUI.top_Z});
-    document.getElementById("num_neighbors_label").innerHTML = "Octal (8-directions)";
-    myUI.InfoMap.NumneighborsMode(8);
+myUI.plannerConfigCallback = function(){
+  // bind "this" to the dropdown/input
+  // this refers to the select/input element
+  let uid = this.getAttribute("id").slice(0, -5);
+  if(this.tagName=="INPUT"){
+    var val = this.value;
   }
   else{
-    myUI.planner.init_neighbors(4);
-    //document.querySelectorAll(".first_neighbour_choice").forEach(el=>{if(el.innerHTML.length==2) el.style.zIndex = -100});
-    document.getElementById("num_neighbors_label").innerHTML = "Cardinal (4-directions)";
-    myUI.InfoMap.NumneighborsMode(4);  
+		var val = this.options[this.selectedIndex].value;
   }
-}
-document.getElementById("num_neighbors_btn").addEventListener("click", toggle_num_neighbors);
-
-
-
-myUI.buttons.first_neighbour_btn.btn.addEventListener("click", e=>show_modal(myUI.modals.first_neighbour.elem));
-
-myUI.modals.first_neighbour.close = function(){
-  hide_modal(myUI.modals.first_neighbour.elem);
-}
-myUI.modals.first_neighbour.close_btn.addEventListener("click", myUI.modals.first_neighbour.close);
-
-window.addEventListener("click", event=>{
-	if (event.target == myUI.modals.first_neighbour.elem)
-		myUI.modals.first_neighbour.close();
-});
-
-document.querySelectorAll(".first_neighbour_choice").forEach(el=>{
-  if(el.classList.contains("empty")) return;
-  el.addEventListener("click", e=>{
-    myUI.planner.init_first_neighbour(el.innerHTML);
-    myUI.buttons.first_neighbour_btn.btn.innerHTML = el.innerHTML;
-    myUI.modals.first_neighbour.close();
-  })
-});
-
-function toggle_search_direction(e){
-  if(myUI.planner.search_direction=="clockwise"){
-    myUI.planner.init_search_direction("anticlockwise");
-    document.getElementById("search_direction_label").innerHTML = "Anti-clockwise";
-  }
-  else{
-    myUI.planner.init_search_direction("clockwise");
-    document.getElementById("search_direction_label").innerHTML = "Clockwise";
-  }
-}
-document.getElementById("search_direction_btn").addEventListener("click", toggle_search_direction);
-
-myUI.loadDistanceMetric = function(){
-  let selectElem = document.querySelector("#distance_select");
-  myUI.planner.set_distance_metric(selectElem.value);
+  myUI.planner.setConfig(uid, val);
 }
 
-document.querySelector("#distance_select").addEventListener("change", myUI.loadDistanceMetric);
+myUI.setPlannerConfig = function(){
+  let parent = document.getElementById("planner_config_body");
+  removeChildren(parent);
+  for(const config of myUI.planner.configs){
+    let row = document.createElement("tr");
+    let conf = document.createElement("td");
+    conf.innerHTML = config.displayName+"<br>";
 
-myUI.init_planner_config = function(){
-  if(myUI.planner.diagonal_allow) document.getElementById("diagonal_block_label").innerHTML = "Blocked";
-  else document.getElementById("diagonal_block_label").innerHTML = "Unblocked";
-
-  toggle_num_neighbors(null);
-  toggle_num_neighbors(null);
-  
-  toggle_search_direction();
-  toggle_search_direction();
-  
-  myUI.buttons.first_neighbour_btn.btn.innerHTML = myUI.planner.first_neighbour;
-
-  myUI.resetSelectOptions(document.querySelector("#distance_select"));
-  if(myUI.planner.constructor.distance_metrics.length>0){
-    document.querySelector("#distance_select_ctn").style.display = "block";
-    let arr = myUI.planner.constructor.distance_metrics;
-    for(const metric of arr){
-      let option = document.createElement("option");
-      option.setAttribute("value", metric);
-      option.innerHTML = metric;
-      document.querySelector("#distance_select").appendChild(option);
+    if(config.options=="number"){
+      let dialog = document.createElement("input");
+      dialog.setAttribute("value", config.defaultVal);
+      dialog.setAttribute("id", config.uid+"_pcfg");
+      dialog.setAttribute("required", '');
+      dialog.setAttribute("type", "number");
+      dialog.addEventListener("change", myUI.plannerConfigCallback);
+      conf.appendChild(dialog);
+			myUI.planner.setConfig(config.uid, config.defaultVal);
     }
-    myUI.loadDistanceMetric();
-  }
-  else{
-    document.querySelector("#distance_select_ctn").style.display = "none";
-  }
+    else{// dropdown
+      let dd = document.createElement("select");
+      dd.setAttribute("id", config.uid+"_pcfg");
+      // dd.classList.add();
+      for(let i=0;i<config.options.length;++i){
+        let option = document.createElement("option");
+        option.setAttribute("value", config.options[i]);
+        option.innerHTML = config.options[i];
+        myUI.selects["planner_select"].elem.appendChild(option);
+        dd.appendChild(option);
+      }
+      dd.addEventListener("change", myUI.plannerConfigCallback);
+      conf.appendChild(dd);
+			myUI.planner.setConfig(config.uid, config.options[0]);
+    }
+    let desc = document.createElement("td");
+    desc.innerHTML = config.description;
+    row.appendChild(conf);
+    row.appendChild(desc);
+    parent.appendChild(row);
+  };
 }
