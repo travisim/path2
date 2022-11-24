@@ -56,6 +56,16 @@ function deep_copy_matrix(mat, flip_bit=false, compress=false){
   return res;
 }
 
+
+
+function deepCopyNodeArray(nodeArray){
+	let res = [];
+	for(const node of nodeArray){
+		res.push(node.clone());
+	}
+	return res;
+}
+
 function unpackMatrix(mat){
 	let res = [];
 	for(let i=0;i<mat.length;++i){
