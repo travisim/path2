@@ -23,6 +23,7 @@ class PRM extends GridPathFinder{
   get configs(){
 		let configs = super.configs;
 		configs.push(
+       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
@@ -52,6 +53,9 @@ class PRM extends GridPathFinder{
         break;
       case "time_ordering":
 				this.timeOrder = value;
+        break;
+      case "generate_new_map":
+				 this.generateNewMap();
         break;
     }
   }

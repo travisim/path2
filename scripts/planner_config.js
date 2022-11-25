@@ -26,6 +26,9 @@ myUI.plannerConfigCallback = function(){
   if(this.tagName=="INPUT"){
     var val = this.value;
   }
+  else if(this.tagName=="BUTTON"){
+    var val = this.value;
+  }
   else{
 		var val = this.options[this.selectedIndex].value;
   }
@@ -49,6 +52,13 @@ myUI.setPlannerConfig = function(){
       dialog.addEventListener("change", myUI.plannerConfigCallback);
       conf.appendChild(dialog);
 			myUI.planner.setConfig(config.uid, config.defaultVal);
+    }
+    else if(config.options=="button"){
+      let button = document.createElement("button");
+      button.setAttribute("id", config.uid+"_pcfg");
+      button.innerHTML = config.displayName
+      button.addEventListener('click', myUI.plannerConfigCallback);
+      conf.appendChild(button);
     }
     else{// dropdown
       let dd = document.createElement("select");
