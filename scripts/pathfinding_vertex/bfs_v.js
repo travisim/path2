@@ -11,6 +11,47 @@ class BFS_Vertex extends GridPathFinder {
     this.vertexEnabled = true;
   }
 
+  get configs(){
+    return [
+      {uid: "diagonal_block", displayName: "Diagonal Blocking:", options: ["Blocked", "Unblocked"], description: `Block connection to an ordinal neighbor (e.g. NW) if there are obstacles in its applicable cardinal directions (e.g. N, W). <br>Unblock to ignore this constraint`},
+      {uid: "num_neighbors", displayName: "Neighbors:", options: ["Octal (8-directions)", "Cardinal (4-directions)"], description: `Octal when all 8 neighbors surrounding the each cell are searched.<br>Cardinal when 4 neighbors in N,W,S,E (cardinal) directions are searched.`},
+      {uid: "first_neighbor", displayName: "Starting Node:", options: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"], description: `The first direction to begin neighbour searching. Can be used for breaking ties. N is downwards (+i/+x/-row). W is rightwards (+j/+y/-column).`},//["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
+      {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"], description: `The rotating direction to search neighbors. Can be used for breaking ties. Anticlockwise means the rotation from N to W. Clockwise for the opposite rotation.`},
+			{uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
+    ];
+	}
+
+	setConfig(uid, value){
+    switch(uid){
+      case "diagonal_block":
+				this.diagonal_allow = value=="Unblocked";
+        break;
+      case "num_neighbors":
+        let num = value=="Octal (8-directions)" ? 8 : 4;
+        this.init_neighbors(num);
+        myUI.InfoMap.NumneighborsMode(num);
+        break;
+      case "first_neighbor":
+				this.init_first_neighbour(value);
+        break;
+      case "search_direction":
+        value = value.toLowerCase();
+        this.init_search_direction(value);
+        break;
+			case "mapType":
+				if(value=="Grid Vertex"){
+					this.vertexEnabled = true;
+					myUI.toggleVertex(true);
+				}
+				else{
+					this.vertexEnabled = false;
+					myUI.toggleVertex(false);
+				}
+				myUI.displayScen();
+    }
+  }
+
+  
   infoMapPlannerMode(){
     return "BFS_vertex"
   }
