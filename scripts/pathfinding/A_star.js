@@ -62,6 +62,31 @@ class A_star extends GridPathFinder{
   setConfig(uid, value){
 		super.setConfig(uid, value);
     switch(uid){
+      case "diagonal_block":
+				this.diagonal_allow = value=="Unblocked";
+        break;
+      case "num_neighbors":
+        let num = value=="Octal (8-directions)" ? 8 : 4;
+        this.init_neighbors(num);
+        myUI.InfoMap.NumneighborsMode(num);
+        break;
+      case "first_neighbor":
+				this.init_first_neighbour(value);
+        break;
+      case "search_direction":
+        value = value.toLowerCase();
+        this.init_search_direction(value);
+        break;
+			case "mapType":
+				if(value=="Grid Vertex"){
+					this.vertexEnabled = true;
+					myUI.toggleVertex(true);
+				}
+				else{
+					this.vertexEnabled = false;
+					myUI.toggleVertex(false);
+				}
+				myUI.displayScen();
       case "distance_metric":
 				this.distance_metric = value; break;
       case "g_weight":

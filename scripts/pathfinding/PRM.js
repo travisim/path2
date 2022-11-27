@@ -11,10 +11,20 @@ class PRM extends GridPathFinder{
     return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
   }
 
+  static get hoverData(){
+    return [
+      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"},
+      {id: "hoverFCost", displayName: "F Cost", type: "canvasCache", canvasId: "fCost"},
+      {id: "hoverGCost", displayName: "G Cost", type: "canvasCache", canvasId: "gCost"},
+      {id: "hoverHCost", displayName: "H Cost", type: "canvasCache", canvasId: "hCost"},
+    ];
+  }
+
   get configs(){
 		let configs = super.configs;
-		configs.push({uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.
-`},
+		configs.push(
+       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
+      {uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
@@ -43,6 +53,9 @@ class PRM extends GridPathFinder{
         break;
       case "time_ordering":
 				this.timeOrder = value;
+        break;
+      case "generate_new_map":
+				 this.generateNewMap();
         break;
     }
   }
@@ -91,122 +104,123 @@ class PRM extends GridPathFinder{
     return [f_cost, g_cost, h_cost];
   }
 
-
-
-  //PRMGenerator(9,"getClosestNeighboursCoordByRadius",5,5)
-  PRMGenerator(sampleSize = 9,neighbourSelectionMethod = "getClosestNeighboursCoordByRadius",/*or "getClosestNeighboursCoordByRadius"*/numberOfTopClosestNeighbours=5, connectionDistance = 5){
-  SVGCanvas = new SVGCanvas("node_edge");
-   //connectionDistance  
-  var randomCoordsNodes = [];
-  for (let i = 0; i < sampleSize; ++i) {
-    var randomCoord_XY = [Math.round(Math.random()*(myUI.planner.map_height-1)), Math.round(Math.random()*(myUI.planner.map_width-1))] //need seed
-    
-    if (myUI.planner.map.get_data(randomCoord_XY) == 0) {  // if neighbour is not passable
-      --i;
-      continue;
-    }
-    
-    if(randomCoordsNodes.length != 0){
-      for (let j = 0; j < randomCoordsNodes.length; ++j) {
-        if(randomCoordsNodes[j].value[0] == randomCoord_XY[0] && randomCoordsNodes[j].value[1] == randomCoord_XY[1]){//dont add random coord that is already added into list of random coord
+  generateNewMap(){
+    PRMGenerator([0,0],[15,15],"pi",15,"getClosestNeighboursCoordByRadius",5,5)
+    function PRMGenerator(start = [0,0], goal=[15,15],seed = "hi", sampleSize = 9,neighbourSelectionMethod = "getClosestNeighboursCoordByRadius",/*or "getTopClosestNeighboursCoord" nnearestneighbours*/numberOfTopClosestNeighbours=5, connectionDistance = 5){
+      SVGCanvas = new SVGCanvas("node_edge");
+      var seed = cyrb128(seed);
+      var rand = mulberry32(seed[0]);
+       //connectionDistance  
+      var randomCoordsNodes = [];
+      for (let i = 0; i < sampleSize; ++i) {
+        var randomCoord_XY = [Math.round(rand()*(myUI.map_arr.length/*this.map_height*/)), Math.round(rand()*(myUI.map_arr[0].length/*this.map_width*/))] //need seed
+        /*
+        if (myUI.planner.map.get_data(randomCoord_XY) == 0) {  // if neighbour is not passable
           --i;
           continue;
         }
-      }
-    }
-    
-    randomCoordsNodes.push(new PRMNode(randomCoord_XY));
-  }
-  console.log(myUI.map_start)
-  randomCoordsNodes.push(new PRMNode(myUI.map_start))
-  randomCoordsNodes.push(new PRMNode(myUI.map_goal))
-  console.log("random coods node",randomCoordsNodes);
-  //myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
-  
-  randomCoordsNodes.forEach(node=>{
-      SVGCanvas.drawCircle(node.value)
-    });
-  
-  
-  
-  //var otherRandomCoordsDistance = empty2D(randomCoordsNodes.length,randomCoordsNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
-  var XYOfSelectedRandomCoordNeighbours = [];
-  
-  var edgeAccumalator = [];
-   for (let i = 0; i < randomCoordsNodes.length; ++i) {
-     var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCorrdNodes, 
-     // var otherRandomCoordsNodes = structuredClone(randomCoordsNodes);
-     // otherRandomCoordsNodes.splice(i, 1); // from here is otherRandomCoordsNodes really correctly labeleld
-      //if(i=0)console.log(otherRandomCoordsNodes[0],"otherRandomCoordsNodes");
-      let otherRandomCoords = deep_copy_matrix(nodes_to_array(randomCoordsNodes,"value"), flip_bit=false); // randomCoord passed by reference here
-      //document.getElementById("1").innerHTML =randomCoords;
-      otherRandomCoords.splice(i, 1); // from here is otherRandomCoords really correctly labeleld
-     // document.getElementById("2").innerHTML ="modified array:" + otherRandomCoords+" original array:"+randomCoords+" index removed:"+i;
-    
-      //otherRandomCoordsDistance.push([]); 
-      
-      for (let j = 0; j < otherRandomCoords.length; ++j) {
-       
-        distancesBetweenACoordAndAllOthers.push( Math.sqrt((randomCoordsNodes[i].value[0] - otherRandomCoords[j][0])**2 + (randomCoordsNodes[i].value[1]  - otherRandomCoords[j][1])**2)); // could store as befopre sqrt form
-       // document.getElementById("3").innerHTML ="distance of first index coor to other coord ^2: "+otherRandomCoordsDistance[0];
-      }
-      if( neighbourSelectionMethod = "getTopClosestNeighboursCoord" ){
-        var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
-                        .sort(([,a],[,b]) => a - b)
-                        .map(([index]) => +index)
-                        .slice(0, numberOfTopClosestNeighbours)
-                        
-      }
-      else if (neighbourSelectionMethod = "getClosestNeighboursCoordByRadius" ){
-       
-        var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
-                        .sort(([,a],[,b]) => a - b)
-                        .map(([index]) => +index);
-                        
-        for (let j = 0; j < otherRandomCoords.length; ++j) {
-          if(distancesBetweenACoordAndAllOthers[indexOfSelectedOtherRandomCoords[j]]>connectionDistance){
-          indexOfSelectedOtherRandomCoords = indexOfSelectedOtherRandomCoords.slice(0, j);
-          break;
-        }
-      }
-     
-    }
-     
-  
-  
-  
-  
-  
-    
-    for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
-  
-      var LOS = BresenhamLOSChecker(randomCoordsNodes[i].value, otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]);
-      if(LOS){//if there is lOS then add neighbours(out of 5) to neoghtbours of node
-        randomCoordsNodes[i].neighbours.push(otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]);
-        var temp = [randomCoordsNodes[i].value,otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]];
-        //next few lines prevents the addition of edges that were already added but with a origin from another node
-        var tempSwapped = [otherRandomCoords[indexOfSelectedOtherRandomCoords[j]],randomCoordsNodes[i].value];
-        for (let k = 0; k < edgeAccumalator.length; ++k){
-          if (edgeAccumalator[k] == tempSwapped ){
-            var continueLoop = true;
-          } 
-        }
-        if(continueLoop)continue;
+        */
         
-        edgeAccumalator.push(temp)//from,to
-      } 
-  
+        if(randomCoordsNodes.length != 0){
+          for (let j = 0; j < randomCoordsNodes.length; ++j) {
+            if(randomCoordsNodes[j].value[0] == randomCoord_XY[0] && randomCoordsNodes[j].value[1] == randomCoord_XY[1]){//dont add random coord that is already added into list of random coord
+              --i;
+              continue;
+            }
+          }
+        }
+        
+        randomCoordsNodes.push(new PRMNode(randomCoord_XY));
+      }
+      randomCoordsNodes.push(new PRMNode(start))
+      randomCoordsNodes.push(new PRMNode(goal))
+      console.log("random coods node",randomCoordsNodes);
+      //myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
+      
+      randomCoordsNodes.forEach(node=>{
+          SVGCanvas.drawCircle(node.value)
+        });
+      
+      
+      
+      //var otherRandomCoordsDistance = empty2D(randomCoordsNodes.length,randomCoordsNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
+      var XYOfSelectedRandomCoordNeighbours = [];
+      
+      var edgeAccumalator = [];
+       for (let i = 0; i < randomCoordsNodes.length; ++i) {
+         var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCorrdNodes, 
+         // var otherRandomCoordsNodes = structuredClone(randomCoordsNodes);
+         // otherRandomCoordsNodes.splice(i, 1); // from here is otherRandomCoordsNodes really correctly labeleld
+          //if(i=0)console.log(otherRandomCoordsNodes[0],"otherRandomCoordsNodes");
+          let otherRandomCoords = deep_copy_matrix(nodes_to_array(randomCoordsNodes,"value")); // randomCoord passed by reference here
+          //document.getElementById("1").innerHTML =randomCoords;
+          otherRandomCoords.splice(i, 1); // from here is otherRandomCoords really correctly labeleld
+         // document.getElementById("2").innerHTML ="modified array:" + otherRandomCoords+" original array:"+randomCoords+" index removed:"+i;
+        
+          //otherRandomCoordsDistance.push([]); 
+          
+          for (let j = 0; j < otherRandomCoords.length; ++j) {
+           
+            distancesBetweenACoordAndAllOthers.push( Math.sqrt((randomCoordsNodes[i].value[0] - otherRandomCoords[j][0])**2 + (randomCoordsNodes[i].value[1]  - otherRandomCoords[j][1])**2)); // could store as befopre sqrt form
+           // document.getElementById("3").innerHTML ="distance of first index coor to other coord ^2: "+otherRandomCoordsDistance[0];
+          }
+          if( neighbourSelectionMethod = "getTopClosestNeighboursCoord" ){
+            var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
+                            .sort(([,a],[,b]) => a - b)
+                            .map(([index]) => +index)
+                            .slice(0, numberOfTopClosestNeighbours)
+                            
+          }
+          else if (neighbourSelectionMethod = "getClosestNeighboursCoordByRadius" ){
+           
+            var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
+                            .sort(([,a],[,b]) => a - b)
+                            .map(([index]) => +index);
+                            
+            for (let j = 0; j < otherRandomCoords.length; ++j) {
+              if(distancesBetweenACoordAndAllOthers[indexOfSelectedOtherRandomCoords[j]]>connectionDistance){
+              indexOfSelectedOtherRandomCoords = indexOfSelectedOtherRandomCoords.slice(0, j);
+              break;
+            }
+          }
+         
+        }
+         
+
+      
+        
+        for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
+      
+          var LOS = BresenhamLOSChecker(randomCoordsNodes[i].value, otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]);
+          if(LOS){//if there is lOS then add neighbours(out of 5) to neoghtbours of node
+            randomCoordsNodes[i].neighbours.push(otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]);
+            var temp = [randomCoordsNodes[i].value,otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]];
+            //next few lines prevents the addition of edges that were already added but with a origin from another node
+            var tempSwapped = [otherRandomCoords[indexOfSelectedOtherRandomCoords[j]],randomCoordsNodes[i].value];
+            for (let k = 0; k < edgeAccumalator.length; ++k){
+              if (edgeAccumalator[k] == tempSwapped ){
+                var continueLoop = true;
+              } 
+            }
+            if(continueLoop)continue;
+            
+            edgeAccumalator.push(temp)//from,to
+          } 
+      
+        }
+      //const distances = [1, 4, 8, 3, 3, 5, 9, 0, 4, 2];
+        
+      
+      }
+      
+        for (let i = 0; i < edgeAccumalator.length; ++i) {
+          SVGCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
+        }
+      console.log("randomCoordsNodes",randomCoordsNodes);
     }
-  //const distances = [1, 4, 8, 3, 3, 5, 9, 0, 4, 2];
-    
-  
+
   }
-  
-    for (let i = 0; i < edgeAccumalator.length; ++i) {
-      SVGCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
-    }
-  console.log("randomCoordsNodes",randomCoordsNodes);
-}
+
   search(start, goal) {
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
@@ -291,29 +305,8 @@ class PRM extends GridPathFinder{
         var next_XY = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_XY[0] < 0 || next_XY[0] >= this.map_height || next_XY[1] < 0 || next_XY[1] >= this.map_width) continue;  // if the neighbour not within map borders, don't add it to queue
         
-        if (this.map.get_data(next_XY) == 1) {  // if neighbour is passable
-          if (this.diagonal_allow == false && this.num_neighbors == 8) { // if neighbour is not blocked
-            if (this.deltaNWSE[i] == "NW") {
-              if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
-                continue;
-              }
-            }
-            else if (this.deltaNWSE[i] == "SW") {
-              if (!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("W"))) {
-                continue;
-              }
-            }
-            else if (this.deltaNWSE[i] == "SE") {
-              if (!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("E"))) {
-                continue;
-              }
-            }
-            else if (this.deltaNWSE[i] == "NE") {
-              if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("E"))) {
-                continue;
-              }
-            }
-          }
+        
+        if(!this._nodeIsNeighbor(next_XY, surrounding_map_deltaNWSE)) continue;
 
           /* second check if visited */
           if (this.visited.get_data(next_XY)>0) {
@@ -377,7 +370,7 @@ class PRM extends GridPathFinder{
           this._save_step(false);
 
           if(this._found_goal(new_node)) return this._terminate_search();
-        }
+        
       }
 
 			this.closed_list.set(this.current_node_XY, this.current_node);

@@ -4,6 +4,17 @@
 // myUI.planners => array of planners
 // myUI.planner_choice => references the index of the planner in myUI.planners;
 
+
+
+
+
+document.getElementById("generate_new_map_btn").addEventListener("click", generate_new_map);
+function generate_new_map(){
+  myUI.planner.add_map(myUI.map_arr);
+  myUI.planner.generateNewMap(/*myUI.map_start, myUI.map_goal*/);
+}
+
+
 /* registers & starts searching for path on the given map using the given solver */
 document.getElementById("compute_btn").addEventListener("click", compute_path);
 

@@ -5,7 +5,6 @@ myUI.initialize = function(){
   // planners
   myUI.planners = [A_star,PRM];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
-
   myUI.top_Z = 99;
 
   myUI.vertex = false;
