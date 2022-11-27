@@ -364,7 +364,7 @@ class UICanvas{
 
     this.set_color(this.strokeColor, "stroke");
     this.ctx.beginPath();
-    this.ctx.lineWidth = r*1.8;
+    this.ctx.lineWidth = r*1.9;
     this.ctx.arc(x, y, r, 0, 2 * Math.PI);
     this.ctx.stroke();  
   }
@@ -376,7 +376,7 @@ class UICanvas{
     if(myUI.map_height>32 || myUI.map_width>32){
       r = Math.min(this.canvas.height/myUI.map_height * 4/16, this.canvas.width/myUI.map_width * 4/16)
     }
-    let d = r*2;
+    let d = r*2.1;
     this.ctx.clearRect(x-d, y-d, 2*d, 2*d);
   }
 
