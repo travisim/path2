@@ -34,7 +34,7 @@ myUI.parseMap = function(map_str_var, file_name){
 myUI.displayMap = function(){
   console.log("Map Arr");
 	console.log(myUI.map_arr);
-  if(myUI.map_width>64 || myUI.map_height>64) alert("Tip: Large maps work better with optimized A*!");
+  if(myUI.map_width>64 || myUI.map_height>64) alert("Tip: Large maps work better with big map optimization enabled!");
 	myUI.reset_animation();
 	myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
@@ -229,27 +229,27 @@ myUI.showPlanners = function() {
   }
 }
 
-myUI.loadPlanner = function() {
-	var planner_select_elem = myUI.selects["planner_select"].elem;
-  myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
-  myUI.planner = new myUI.planners[myUI.planner_choice]();
-  myUI.canvasReset();
-  for(const cb of myUI.planner.constructor.checkboxes){
-    appendCheckbox(...cb);
+myUI.loadPlanner = function(create_planner = true) {
+  if(create_planner){
+    var planner_select_elem = myUI.selects["planner_select"].elem;
+    myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
+    myUI.planner = new myUI.planners[myUI.planner_choice]();
+    // updates select
+    myUI.selects["planner_select"].elem.value = myUI.planner_choice;
   }
-  myUI.dynamicCanvas = myUI.canvasGenerator(myUI.planner.constructor.canvases);
+  myUI.canvasReset();
+  for(const cb of myUI.planner.constructor.checkboxes)
+    appendCheckbox(...cb);
+  myUI.dynamicCanvas = myUI.canvasGenerator(myUI.planner.canvases);
+  if(create_planner) myUI.setPlannerConfig();
 
-	// updates both selects
-	myUI.selects["planner_select"].elem.value = myUI.planner_choice;
-	// myUI.selects["planner_select2"].elem.value = myUI.planner_choice;
 	myUI.reset_animation();
-  /* switch to CanvasMode */
-  //myUI.InfoMap.PlannerMode(myUI.planner.infoMapPlannerMode());
   myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
   myUI.buttons.planner_config_btn.btn.innerHTML = myUI.planner.constructor.display_name;
-  myUI.setPlannerConfig();
   myUI.displayMap();
   myUI.initHover(myUI.planner.constructor.hoverData);
+  if(myUI.planner.bigMap) document.getElementById("info-container").classList.add("none");
+  else document.getElementById("info-container").classList.remove("none");
 }
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);

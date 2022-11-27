@@ -20,10 +20,34 @@ class A_star extends GridPathFinder{
     ];
   }
 
+  get canvases(){
+    if(this.bigMap){
+      return [
+        {
+          id:"path", drawType:"cell", drawOrder: 5, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, minVal: 1, maxVal: 1,
+        },
+        {
+          id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 8,
+        },
+        {
+          id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null,
+        },
+        {
+          id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null,
+        },
+        {
+          id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null,
+        },
+      ];
+    }
+    
+    return super.canvases;
+  }
+
   get configs(){
 		let configs = super.configs;
-		configs.push({uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.
-`},
+		configs.push(
+      {uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
@@ -39,20 +63,15 @@ class A_star extends GridPathFinder{
 		super.setConfig(uid, value);
     switch(uid){
       case "distance_metric":
-				this.distance_metric = value;
-        break;
+				this.distance_metric = value; break;
       case "g_weight":
-				this.gWeight = value;
-        break;
+				this.gWeight = value; break;
       case "h_weight":
-				this.hWeight = value;
-        break;
+				this.hWeight = value; break;
       case "h_optimized":
-				this.hOptimized = value=="On";
-        break;
+				this.hOptimized = value=="On"; break;
       case "time_ordering":
-				this.timeOrder = value;
-        break;
+				this.timeOrder = value; break;
     }
   }
 
@@ -112,9 +131,11 @@ class A_star extends GridPathFinder{
     this.current_node = new Node(0, 0, 0, null, this.start, undefined, 0);
     [this.current_node.f_cost, this.current_node.g_cost, this.current_node.h_cost] = this.calc_cost(this.current_node.self_XY);
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
-    this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [start[0]+','+start[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
-    this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: start});
-    this._save_step(true);
+    if(!this.bigMap){
+      this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [start[0]+','+start[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
+      this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: start});
+      this._save_step(true);
+    }
 
     this.open_list.set(this.current_node.self_XY, this.current_node);
     //---------------------checks if visited 2d array has been visited
@@ -152,17 +173,17 @@ class A_star extends GridPathFinder{
         continue;  // if the current node has been visited, skip to next one in queue
       }/* */
       this.visited.increment(this.current_node_XY); // marks current node XY as visited
-      
-      this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
-      //this._create_action({command: STATIC.EC, dest: STATIC.DT});
-      this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
-      this._create_action({command: STATIC.EC, dest: STATIC.CR});
-      this._create_action({command: STATIC.EC, dest: STATIC.NB});
-      this._create_action({command: STATIC.DP, dest: STATIC.CR, nodeCoord: this.current_node_XY});
-      this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: this.current_node_XY});
-      this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
-      this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 12});
+      this.visited_incs.push(this.current_node_XY);
       this.visited_incs.forEach(coord=>this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: coord}));
+      
+      if(!this.bigMap){
+        this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
+        this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
+        this._create_action({command: STATIC.EC, dest: STATIC.NB});
+        this._create_action({command: STATIC.DSP, dest: STATIC.CR, nodeCoord: this.current_node_XY});
+        this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
+        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 12});
+      }
       this._save_step(true);
 
       /* FOUND GOAL */
@@ -187,38 +208,35 @@ class A_star extends GridPathFinder{
         
         if(!this._nodeIsNeighbor(next_XY, surrounding_map_deltaNWSE)) continue;
 
-          /* second check if visited */
-          if (this.visited.get_data(next_XY)>0) {
-            this.visited_incs.push(next_XY);
-            this.visited.increment(next_XY);
-            continue;  // if the neighbour has been visited or is already in queue, don't add it to queue
-          }
+        /* second check if visited */
+        if (this.visited.get_data(next_XY)>0) {
+          this.visited_incs.push(next_XY);
+          this.visited.increment(next_XY);
+          continue;  // if the neighbour has been visited or is already in queue, don't add it to queue
+        }
 
-          // start to a node, taking into account obstacles
-          let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
-          
-          
-          let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, undefined, this.step_index);
-					let open_node = this.open_list.get(next_XY);
-					if(open_node !== undefined) if(open_node.f_cost<=f_cost) continue;
-					let closed_node = this.closed_list.get(next_XY);
-					if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
-          this.neighbors.unshift(new_node);
+        let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
+        
+        let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, undefined, this.step_index);
+        let open_node = this.open_list.get(next_XY);
+        if(open_node !== undefined) if(open_node.f_cost<=f_cost) continue;
+        let closed_node = this.closed_list.get(next_XY);
+        if(closed_node !== undefined) if(closed_node.f_cost<=f_cost) continue; // do not add to queue if closed list already has a lower cost node
+        this.neighbors.unshift(new_node);
 
-          this._create_action({command: STATIC.SP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
-          this._create_action({command: STATIC.SP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
-          this._create_action({command: STATIC.SP, dest: STATIC.HCanvas, nodeCoord: next_XY, cellVal: h_cost});
-
-          /* NEW */
-          
+        this._create_action({command: STATIC.SP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
+        this._create_action({command: STATIC.SP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
+        this._create_action({command: STATIC.SP, dest: STATIC.HCanvas, nodeCoord: next_XY, cellVal: h_cost});
+        
+        // since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
+        // see https://www.geeksforgeeks.org/a-search-algorithm/
+        
+        if(!this.bigMap){
           this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: next_XY});
           this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_XY});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 32});
-
-					// since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
-					// see https://www.geeksforgeeks.org/a-search-algorithm/
-					if (this.draw_arrows) {
-						// ARROW
+          if (this.draw_arrows) {
+            // ARROW
             if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
               //this._create_action(STATIC.EA, open_node.arrow_index);
               this._create_action({command: STATIC.EA, arrowIndex: open_node.arrow_index});
@@ -231,10 +249,10 @@ class A_star extends GridPathFinder{
             }
             new_node.arrow_index = myUI.create_arrow(next_XY, this.current_node_XY); // node is reference typed so properties can be modified after adding to queue or open list
             this.arrow_state[new_node.arrow_index] = 1;
-						//this._create_action(STATIC.DA, new_node.arrow_index);
+            //this._create_action(STATIC.DA, new_node.arrow_index);
             this._create_action({command: STATIC.DA, arrowIndex: new_node.arrow_index, colorIndex: 0});
-						// END OF ARROW
-					}
+            // END OF ARROW
+          }
           //this._create_action(STATIC.DP, STATIC.QU, next_XY);
           this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_XY});
           let numLess = 0;
@@ -242,14 +260,16 @@ class A_star extends GridPathFinder{
             if(node.f_cost < new_node.f_cost) numLess++;
           }
           this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(new_node.f_cost.toPrecision(5)), parseFloat(new_node.g_cost.toPrecision(5)), parseFloat(new_node.h_cost.toPrecision(5))]});
-          // add to queue 
-					if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO
-          else this.queue.unshift(new_node); // LIFO
-					this.open_list.set(next_XY, new_node);  // add to open list
-          this._save_step(false);
-
-          if(this._found_goal(new_node)) return this._terminate_search();
+        }
         
+        // add to queue 
+        if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO
+        else this.queue.unshift(new_node); // LIFO
+        this.open_list.set(next_XY, new_node);  // add to open list
+        this._save_step(false);
+
+        if(this._found_goal(new_node)) return this._terminate_search();
+      
       }
 
 			this.closed_list.set(this.current_node_XY, this.current_node);

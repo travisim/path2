@@ -149,7 +149,9 @@ html, body{
 .hidden{
 	visibility: hidden;
 }
-
+.none{
+	display: none;
+}
 .upload.highlight {
   border-color: purple;
 }
@@ -168,7 +170,8 @@ html, body{
 }
 .btn:hover {
   background: #d19b6d;
-	transform: scale(1.15);
+	transform: scale(1.05);
+	font-weight: bold;
 }
 
 .icon{

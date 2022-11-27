@@ -215,7 +215,7 @@ class UICanvas{
           this.draw_dotted_square(xy);
           break;
         case "vertex":
-          this.draw_vertex_circle(xy);
+          this.draw_vertex(xy);
           break;
         default:
           this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
@@ -353,10 +353,10 @@ class UICanvas{
     this.canvas_cache = this.matrixConstructor();
   }
 
-  draw_vertex_circle(xy, color_index){
+  draw_vertex(xy, color_index){
     let y = xy[0]*this.canvas.height/myUI.map_height;
     let x = xy[1]*this.canvas.width/myUI.map_width;
-    let r = 6;//this.data_height/myUI.map_height * 5/16;
+    let r = Math.max(1.5, 0.15 * this.canvas.height/myUI.map_height);
     /*if(myUI.map_height>32 || myUI.map_width>32){
       r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
       debugger;
@@ -366,13 +366,13 @@ class UICanvas{
     this.ctx.beginPath();
     this.ctx.lineWidth = r*1.8;
     this.ctx.arc(x, y, r, 0, 2 * Math.PI);
-    this.ctx.stroke();
+    this.ctx.stroke();  
   }
 
   erase_vertex_circle(xy){
     let y = xy[0]*this.canvas.height/myUI.map_height;
     let x = xy[1]*this.canvas.width/myUI.map_width;
-    let r = 6//this.data_height/myUI.map_height * 5/16;
+    let r = Math.max(1.5, 0.15 * this.canvas.height/myUI.map_height);
     if(myUI.map_height>32 || myUI.map_width>32){
       r = Math.min(this.canvas.height/myUI.map_height * 4/16, this.canvas.width/myUI.map_width * 4/16)
     }

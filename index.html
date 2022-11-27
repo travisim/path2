@@ -303,8 +303,8 @@
 							</div>
 						</div>
 						<div class="flex-row">
-							<button id="configLink" class="btn controlTabLink" onclick="openControlTab(event, 'configTab')">Config</button>
-							<button id="manualLink" class="btn controlTabLink" onclick="openControlTab(event, 'manualTab')">Manual</button>
+							<button id="configLink" class="controlTabLink" onclick="openControlTab(event, 'configTab')">Config</button>
+							<button id="manualLink" class="controlTabLink" onclick="openControlTab(event, 'manualTab')">Manual</button>
 						</div>
 						<div id="configTab" class="controlTabContent">
 							<div class="flex-row">
@@ -417,7 +417,9 @@
 				<p id="planner_label"></p>
 				<label for="planner_select" class="label_centered">Choose planner:</label>
 				<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
-				<table id="planner_config_body"></table>
+				<div style="overflow: auto;">
+					<table id="planner_config_body"></table>
+				</div>
 				<!--div class="flex-row">
 					<div class="flex-col" id="planner_config_body">
 						<div class="flex-row">
@@ -488,10 +490,8 @@
     <script src="scripts/PRM dependencies.js"></script>
 		<script src="scripts/helper.js"></script>
 		<script src="scripts/pathfinding/pathfinder.js"></script>
-    <script src="scripts/pathfinding/A_star_big_maps.js"></script>
     <script src="scripts/pathfinding/A_star.js"></script>
     <script src="scripts/pathfinding/PRM.js"></script>
-		<script src="scripts/pathfinding_vertex/bfs_v.js"></script>
 		<script src="scripts/ui_elements.js"></script>
     <script src="scripts/infomap.js"></script>
     <script src="scripts/infotable class.js"></script>

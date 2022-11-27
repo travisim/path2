@@ -21,28 +21,24 @@ function compute_path(){
 	});
 	document.getElementById("compute_btn").innerHTML = "computing... 0s";
 	myUI.startTime = Date.now();
-	clearInterval(myUI.interval);
+	clearInterval(myUI.interval);  // common interval used while updating the time of searching and generating steps
 	myUI.interval = setInterval(function(){
 		document.getElementById("compute_btn").innerHTML = `computing... ${(Date.now()-myUI.startTime)/1000.0}s`;
 	}, 50);
-	myUI.planner.search(myUI.map_start, myUI.map_goal).then(path=>{
+	// search
+	myUI.planner.search(myUI.map_start, myUI.map_goal).then(_=>{
 		myUI.genStart = Date.now();
 		myUI.searchDuration = myUI.genStart-myUI.startTime;
 		clearInterval(myUI.interval);
 		document.getElementById("compute_btn").innerHTML = "optimizing... 0%";
-		console.log(path ? path.length : -1);
 		myUI.step_data.fwd.data = myUI.planner.steps_data;
 	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
 		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
-		myUI.generateReverseSteps({genStates: true}).then(ret=>{
+		myUI.currentCoord = myUI.map_start;
+		// optimize
+		myUI.generateReverseSteps({genStates: true}).then(_=>{
 			myUI.genDuration = Date.now() - myUI.genStart;
-			if(ret!=0){
-				let error = `DID NOT GENERATE STATES PROPERLY`;
-				alert(error);
-				throw error;
-			}
 			console.log("Number of steps: ", myUI.step_data.fwd.map.length);
-			myUI.currentCoord = myUI.map_start;
 			myUI.sliders.search_progress_slider.elem.disabled = false;
 			myUI.animation.max_step = myUI.planner.max_step();
 			myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step+1;
@@ -50,7 +46,7 @@ function compute_path(){
 			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;
 			updateSpeedSlider();
 			document.getElementById("compute_btn").innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
-			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 10000);
+			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 30000);
 		})
 	}); 
 	

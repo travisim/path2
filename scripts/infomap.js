@@ -149,51 +149,6 @@ class UIInfoMap{
       });
   }
 
-  PlannerMode(planner='A_star'){
-    var infoMapInnerHTML;
-    if (planner == 'BFS' || planner == 'DFS'){
-      infoMapInnerHTML = '<section>Type:&nbsp<span class="type"></span></section>';
-  //initialise html for info squares as well
-    }
-    else if (planner == 'Dijkstra'){
-      infoMapInnerHTML  = '<section>G:&nbsp<span class="G"></span>Type:&nbsp<span class="type"></span></section>';
-      //initialise html for info squares as well
-    }
-    else if (planner == 'A_star'){
-      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div></section>';
-//      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
-      //initialise html for info squares as well
-    }
-    else if (planner == 'BFS_vertex'){
-      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div></section>';
-//      infoMapInnerHTML = '<section><div id="adjustment2">F:&nbsp<span class="F"></span></div><div id="adjustment">G:&nbsp<span class="G"></span>H:&nbsp<span class="H"></span></div>Type:&nbsp<span class="type"></span></section>';
-      //initialise html for info squares as well
-    }
-     else if (planner == 'none'){
-      document.getElementById("infomap").style.display = "none";
-      document.getElementById("infodivider").style.display = "none";
-      //initialise html for info squares as well
-    }
-
-   
-    
-    [
-    ["N"],
-		["NE"],
-    ["E"],
-    ["SE"],
-    ["S"],
-    ["SW"],
-    ["W"],
-    ["NW"] 
-    ].forEach(item=>{
-    let infoNWSE_Id = item[0];
-    document.getElementById(infoNWSE_Id).innerHTML = infoMapInnerHTML;
-  //initialise html for info squares as well
-    });
-  }
-
-
   NumneighborsMode(num_neighbors=8){
    if (num_neighbors == 8){
     [
@@ -212,9 +167,6 @@ class UIInfoMap{
       if (element.querySelector(".G"))  element.querySelector(".G").innerHTML = "";
       if (element.querySelector(".H"))  element.querySelector(".H").innerHTML = "";
       });
- 
-     
-
     }
    else  if (num_neighbors == 4){
       [
@@ -237,6 +189,8 @@ class UIInfoMap{
 
 var UIInfoCurrent = {
   DrawCurrent(x,y){
+    x = x===undefined ? '-' : x;
+    y = y===undefined ? '-' : y;
     document.getElementById("currentXY").innerHTML =  "( "+x+", "+y+")"; // flipped x and y because of matrix transformation
   }
 }

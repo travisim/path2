@@ -131,7 +131,7 @@ myUI.run_steps = function(num_steps, step_direction){
         myUI.arrow.elems[arrowIndex].classList.add("hidden");
       }
       // INFOMAP
-      if(dest==STATIC.CR && command==STATIC.DP){
+      if(dest==STATIC.CR && (command==STATIC.DP || command==STATIC.DSP)){
         myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
       }
       // INFOTABLE 
@@ -314,11 +314,11 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           try{
             if(myUI.canvases[statics_to_obj[dest]].virtualCanvas[x][y]==myUI.canvases[statics_to_obj[dest]].defaultVal)
               action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y]});
+            myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
           } catch(e){
             console.log(statics_to_obj[dest]);
             debugger;
           }
-          myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
           /**/
         }
         else if(command==STATIC.EP){
@@ -333,8 +333,14 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           }
           delete mem.canvasCoords[dest][i];
           /* virtualCanvas version */
-          action = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[statics_to_obj[dest]].virtualCanvas[x][y]});
-          myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y], true, false);
+          try{
+            action = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[statics_to_obj[dest]].virtualCanvas[x][y]});
+            myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y], true, false);
+          }
+          catch(e){
+            console.log(e);
+            debugger;
+          }
           /**/
         }
         else if(command==STATIC.EC){
@@ -347,18 +353,24 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           });
           mem.canvasCoords[dest] = [];
           /* virtualCanvas version */
-          let height = myUI.canvases[statics_to_obj[dest]].virtualCanvas.length;
-          let width = myUI.canvases[statics_to_obj[dest]].virtualCanvas[0].length;
-          let canvasDefaultVal = myUI.canvases[statics_to_obj[dest]].defaultVal;
-          for(let i=0;i<height;++i){
-            for(let j=0;j<width;++j){
-              if(myUI.canvases[statics_to_obj[dest]].virtualCanvas[i][j]!=canvasDefaultVal){
-                let subAction = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [i,j]});
-                Array.prototype.push.apply(action, subAction);
+          try{
+            let height = myUI.canvases[statics_to_obj[dest]].virtualCanvas.length;
+            let width = myUI.canvases[statics_to_obj[dest]].virtualCanvas[0].length;
+            let canvasDefaultVal = myUI.canvases[statics_to_obj[dest]].defaultVal;
+            for(let i=0;i<height;++i){
+              for(let j=0;j<width;++j){
+                if(myUI.canvases[statics_to_obj[dest]].virtualCanvas[i][j]!=canvasDefaultVal){
+                  let subAction = GridPathFinder.packAction({command: STATIC.SP, dest: dest, nodeCoord: [i,j], cellVal: myUI.canvases[statics_to_obj[dest]].virtualCanvas[i][j]});
+                  Array.prototype.push.apply(action, subAction);
+                }
               }
             }
+            myUI.canvases[statics_to_obj[dest]].erase_canvas(true);
           }
-          myUI.canvases[statics_to_obj[dest]].erase_canvas(true);
+          catch(e){
+            console.log(e);
+            debugger;
+          }
           /**/
         }
         else if(command==STATIC.INC_P){
@@ -502,7 +514,7 @@ myUI.jump_to_step = function(target_step){
   */
   target_step = target_step===undefined ? myUI.animation.step : target_step;
   myUI.target_step = target_step;
-  let idx = -1;
+  let idx = 0;
   for(const table of Object.values(myUI.InfoTables)) table.removeAllTableRows();
   for(const canvas of Object.values(myUI.dynamicCanvas)) canvas.erase_canvas();
   for(const elem of myUI.arrow.elems)
@@ -567,7 +579,7 @@ myUI.jump_to_step = function(target_step){
   }
 
   function finishJumping(){
-    myUI.animation.step = (idx)*stateFreq-1;
+    myUI.animation.step = idx*stateFreq-1;
     myUI.run_steps(target_step-myUI.animation.step, "fwd");
     document.getElementById("compute_btn").innerHTML = `Compute Path`;
     myUI.update_search_slider(target_step);

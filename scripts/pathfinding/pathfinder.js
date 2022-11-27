@@ -146,7 +146,7 @@ class GridPathFinder{
 		return obj.actionCache;
 	}
 
-	static get canvases(){
+	get canvases(){
 		return [
 			{
 				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
@@ -202,6 +202,7 @@ class GridPathFinder{
       {uid: "first_neighbor", displayName: "Starting Node:", options: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"], description: `The first direction to begin neighbour searching. Can be used for breaking ties. N is downwards (+i/+x/-row). W is rightwards (+j/+y/-column).`},//["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
       {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"], description: `The rotating direction to search neighbors. Can be used for breaking ties. Anticlockwise means the rotation from N to W. Clockwise for the opposite rotation.`},
 			{uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
+      {uid: "big_map", displayName: "Big Map Optimization:", options: ["Disabled", "Enabled"], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
     ];
 	}
 
@@ -233,7 +234,13 @@ class GridPathFinder{
 					myUI.toggleVertex(false);
 				}
 				myUI.displayScen();
-			default:
+				break;
+			case "big_map":
+				let bigMap = value=="Enabled";
+				if(this.bigMap != bigMap){
+					this.bigMap = bigMap;
+					myUI.loadPlanner(false);
+				}
     }
   }
 
@@ -564,7 +571,7 @@ class GridPathFinder{
     clearTimeout(this.search_timer);
     if (this.path == null) console.log("path does not exist");
     this.searched = true;
-    return this.path;
+    return 0;
   }
 
 	get_visited(tuple){
