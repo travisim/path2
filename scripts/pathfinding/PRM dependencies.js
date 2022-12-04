@@ -1,3 +1,27 @@
+// program to generate random strings
+
+// declare all characters
+const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+function generateString(length) {
+    let result = ' ';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
 function cyrb128(str) {
     let h1 = 1779033703, h2 = 3144134277,
         h3 = 1013904242, h4 = 2773480762;
@@ -210,7 +234,10 @@ class SVGCanvas {
     document.getElementById(canvas_id).appendChild(cir);
     
   }
-  reset(){
-    document.getElementById("node_edge").innerHTML = "";
+  reset(canvas_id){
+    if(document.getElementById(canvas_id)){
+      document.getElementById(canvas_id).innerHTML = "";
+    }
+    
   }
 }

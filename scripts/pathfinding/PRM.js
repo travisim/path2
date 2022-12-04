@@ -21,15 +21,21 @@ class PRM extends GridPathFinder{
   }
 
   get configs(){
-		let configs = super.configs;
+		let configs = [];
 		configs.push(
-       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
+      {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
+      {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "pi", description: `Sets seed for randomness of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 10, description: `Sets number of random points`},
+      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Closest Neighbours By Radius"],defaultVal:"Closest Neighbours By Radius", description: `Sets neighbours selection method`},
+      {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:3, description: `Sets number of closest neighbours to select`},
+      {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:3, description: `Sets radius of closest neighbours to select`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
       {uid: "time_ordering", displayName: "Time Ordering:", options: ["LIFO", "FIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`});
-		return configs;
+
+    return configs;
   }
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
@@ -55,7 +61,35 @@ class PRM extends GridPathFinder{
 				this.timeOrder = value;
         break;
       case "generate_new_map":
-				 this.generateNewMap();
+         this.seed = generateString(5);
+         document.getElementById("seed_pcfg").setAttribute("value", myUI.planner.seed)
+				this.generateNewMap();
+        break;
+      case "seed":
+				this.seed = value;
+        break;
+      case "sample_size":
+				this.samplesSize = value;
+        break;
+      case "neighbour_selection_method":
+				this.neighbourSelectionMethod = value;
+             /*
+        document.getElementById("number_of_closest_neighbours_pcfg").parentElement.style.display = "table-cell";
+        document.getElementById("closest_neighbours_by_radius_pcfg").parentElement.style.display = "table-cell";
+   
+        if(value == "Top Closest Neighbours"){
+          document.getElementById("number_of_closest_neighbours_pcfg").style.display = "none";
+        }
+        else if(value == "Closest Neighbours By Radius"){
+           document.getElementById("closest_neighbours_by_radius_pcfg").style.display = "none";
+        }
+        */
+        break;
+      case "number_of_closest_neighbours":
+				 this.numberOfTopClosestNeighbours = value;
+        break;
+      case "closest_neighbours_by_radius":
+				 this.connectionDistance = value;
         break;
     }
   }
@@ -105,9 +139,15 @@ class PRM extends GridPathFinder{
   }
 
   generateNewMap(){
-    PRMGenerator([0,0],[15,15],"pi",15,"getClosestNeighboursCoordByRadius",5,5)
-    function PRMGenerator(start = [0,0], goal=[15,15],seed = "hi", sampleSize = 9,neighbourSelectionMethod = "getClosestNeighboursCoordByRadius",/*or "getTopClosestNeighboursCoord" nnearestneighbours*/numberOfTopClosestNeighbours=5, connectionDistance = 5){
-      SVGCanvas = new SVGCanvas("node_edge");
+    
+    PRMGenerator([0,0],[15,15],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance)
+    function PRMGenerator(start = [0,0], goal=[15,15],seed = "hi", sampleSize = 4,neighbourSelectionMethod = "Closest Neighbours By Radius",/*or "Top Closest Neighbour" nnearestneighbours*/numberOfTopClosestNeighbours=2, connectionDistance = 2){
+        
+      if(document.getElementById("node_edge")){
+        document.getElementById("node_edge").innerHTML = "";
+      }
+      var SVGCanvasObj = new SVGCanvas("node_edge");
+    
       var seed = cyrb128(seed);
       var rand = mulberry32(seed[0]);
        //connectionDistance  
@@ -138,7 +178,7 @@ class PRM extends GridPathFinder{
       //myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
       
       randomCoordsNodes.forEach(node=>{
-          SVGCanvas.drawCircle(node.value)
+          SVGCanvasObj.drawCircle(node.value)
         });
       
       
@@ -164,14 +204,15 @@ class PRM extends GridPathFinder{
             distancesBetweenACoordAndAllOthers.push( Math.sqrt((randomCoordsNodes[i].value[0] - otherRandomCoords[j][0])**2 + (randomCoordsNodes[i].value[1]  - otherRandomCoords[j][1])**2)); // could store as befopre sqrt form
            // document.getElementById("3").innerHTML ="distance of first index coor to other coord ^2: "+otherRandomCoordsDistance[0];
           }
-          if( neighbourSelectionMethod = "getTopClosestNeighboursCoord" ){
+          if( neighbourSelectionMethod == "Top Closest Neighbours" ){
             var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
                             .sort(([,a],[,b]) => a - b)
                             .map(([index]) => +index)
                             .slice(0, numberOfTopClosestNeighbours)
+            console.log("Top Closest Neighbours")
                             
           }
-          else if (neighbourSelectionMethod = "getClosestNeighboursCoordByRadius" ){
+          else if (neighbourSelectionMethod == "Closest Neighbours By Radius" ){
            
             var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
                             .sort(([,a],[,b]) => a - b)
@@ -182,6 +223,7 @@ class PRM extends GridPathFinder{
               indexOfSelectedOtherRandomCoords = indexOfSelectedOtherRandomCoords.slice(0, j);
               break;
             }
+               console.log("Closest Neighbours By Radius")
           }
          
         }
@@ -214,7 +256,7 @@ class PRM extends GridPathFinder{
       }
       
         for (let i = 0; i < edgeAccumalator.length; ++i) {
-          SVGCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
+          SVGCanvasObj.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
         }
       console.log("randomCoordsNodes",randomCoordsNodes);
     }

@@ -60,6 +60,16 @@ myUI.setPlannerConfig = function(){
       button.addEventListener('click', myUI.plannerConfigCallback);
       conf.appendChild(button);
     }
+    else if(config.options=="text"){
+      let text_input = document.createElement("input");
+      text_input.setAttribute("value", config.defaultVal);
+      text_input.setAttribute("id", config.uid+"_pcfg");
+      text_input.setAttribute("required", '');
+      text_input.setAttribute("type", "text");
+      text_input.addEventListener("change", myUI.plannerConfigCallback);
+      conf.appendChild(text_input);
+			myUI.planner.setConfig(config.uid, config.defaultVal);
+    }
     else{// dropdown
       let dd = document.createElement("select");
       dd.setAttribute("id", config.uid+"_pcfg");
