@@ -151,7 +151,7 @@ class PRM extends GridPathFinder{
       var seed = cyrb128(seed);
       var rand = mulberry32(seed[0]);
        //connectionDistance  
-      var randomCoordsNodes = [];
+      var randomCoordsNodes = []
       for (let i = 0; i < sampleSize; ++i) {
         var randomCoord_XY = [Math.round(rand()*(myUI.map_arr.length/*this.map_height*/)), Math.round(rand()*(myUI.map_arr[0].length/*this.map_width*/))] //need seed
         /*
@@ -163,22 +163,22 @@ class PRM extends GridPathFinder{
         
         if(randomCoordsNodes.length != 0){
           for (let j = 0; j < randomCoordsNodes.length; ++j) {
-            if(randomCoordsNodes[j].value[0] == randomCoord_XY[0] && randomCoordsNodes[j].value[1] == randomCoord_XY[1]){//dont add random coord that is already added into list of random coord
+            if(randomCoordsNodes[j].value_XY[0] == randomCoord_XY[0] && randomCoordsNodes[j].value_XY[1] == randomCoord_XY[1]){//dont add random coord that is already added into list of random coord
               --i;
               continue;
             }
           }
         }
         
-        randomCoordsNodes.push(new PRMNode(randomCoord_XY));
+        randomCoordsNodes.push(new PRMNode(0,0,0,null,randomCoord_XY,null));
       }
-      randomCoordsNodes.push(new PRMNode(start))
-      randomCoordsNodes.push(new PRMNode(goal))
+      randomCoordsNodes.push(new PRMNode(0,0,0,null,start,null))
+      randomCoordsNodes.push(new PRMNode(0,0,0,null,goal,null))
       console.log("random coods node",randomCoordsNodes);
       //myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
       
       randomCoordsNodes.forEach(node=>{
-          SVGCanvasObj.drawCircle(node.value)
+          SVGCanvasObj.drawCircle(node.value_XY)
         });
       
       
@@ -192,7 +192,7 @@ class PRM extends GridPathFinder{
          // var otherRandomCoordsNodes = structuredClone(randomCoordsNodes);
          // otherRandomCoordsNodes.splice(i, 1); // from here is otherRandomCoordsNodes really correctly labeleld
           //if(i=0)console.log(otherRandomCoordsNodes[0],"otherRandomCoordsNodes");
-          let otherRandomCoords = deep_copy_matrix(nodes_to_array(randomCoordsNodes,"value")); // randomCoord passed by reference here
+          let otherRandomCoords = deep_copy_matrix(nodes_to_array(randomCoordsNodes,"value_XY")); // randomCoord passed by reference here
           //document.getElementById("1").innerHTML =randomCoords;
           otherRandomCoords.splice(i, 1); // from here is otherRandomCoords really correctly labeleld
          // document.getElementById("2").innerHTML ="modified array:" + otherRandomCoords+" original array:"+randomCoords+" index removed:"+i;
@@ -201,10 +201,12 @@ class PRM extends GridPathFinder{
           
           for (let j = 0; j < otherRandomCoords.length; ++j) {
            
-            distancesBetweenACoordAndAllOthers.push( Math.sqrt((randomCoordsNodes[i].value[0] - otherRandomCoords[j][0])**2 + (randomCoordsNodes[i].value[1]  - otherRandomCoords[j][1])**2)); // could store as befopre sqrt form
+            distancesBetweenACoordAndAllOthers.push( Math.sqrt((randomCoordsNodes[i].value_XY[0] - otherRandomCoords[j][0])**2 + (randomCoordsNodes[i].value_XY[1]  - otherRandomCoords[j][1])**2)); // could store as befopre sqrt form
            // document.getElementById("3").innerHTML ="distance of first index coor to other coord ^2: "+otherRandomCoordsDistance[0];
           }
-          if( neighbourSelectionMethod == "Top Closest Neighbours" ){
+
+         
+          /*if( neighbourSelectionMethod == "Top Closest Neighbours" ){
             var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
                             .sort(([,a],[,b]) => a - b)
                             .map(([index]) => +index)
@@ -219,12 +221,26 @@ class PRM extends GridPathFinder{
                             .map(([index]) => +index);
                             
             for (let j = 0; j < otherRandomCoords.length; ++j) {
-              if(distancesBetweenACoordAndAllOthers[indexOfSelectedOtherRandomCoords[j]]>connectionDistance){
+              if(distancesBetweenACoordAndAllOthers[indexOfSelectedOtherRandomCoords[j]]>connectionDistance ){
               indexOfSelectedOtherRandomCoords = indexOfSelectedOtherRandomCoords.slice(0, j);
               break;
             }
-               console.log("Closest Neighbours By Radius")
-          }
+            console.log("Closest Neighbours By Radius")
+          }*/
+
+            var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
+                            .sort(([,a],[,b]) => a - b)
+                            .map(([index]) => +index);
+                            
+            for (let j = 0; j < otherRandomCoords.length; ++j) {
+              if(distancesBetweenACoordAndAllOthers[indexOfSelectedOtherRandomCoords[j]]>=connectionDistance  || j >= numberOfTopClosestNeighbours){
+              indexOfSelectedOtherRandomCoords = indexOfSelectedOtherRandomCoords.slice(0, j);
+              break;
+            }
+            console.log("Closest Neighbours By Radius")
+
+        
+             
          
         }
          
@@ -233,19 +249,20 @@ class PRM extends GridPathFinder{
         
         for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
       
-          var LOS = BresenhamLOSChecker(randomCoordsNodes[i].value, otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]);
+          var LOS = BresenhamLOSChecker(randomCoordsNodes[i].value_XY, otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]);
           if(LOS){//if there is lOS then add neighbours(out of 5) to neoghtbours of node
             randomCoordsNodes[i].neighbours.push(otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]);
-            var temp = [randomCoordsNodes[i].value,otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]];
+            var temp = [randomCoordsNodes[i].value_XY,otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]];
             //next few lines prevents the addition of edges that were already added but with a origin from another node
-            var tempSwapped = [otherRandomCoords[indexOfSelectedOtherRandomCoords[j]],randomCoordsNodes[i].value];
+            var tempSwapped = [otherRandomCoords[indexOfSelectedOtherRandomCoords[j]],randomCoordsNodes[i].value_XY];
             for (let k = 0; k < edgeAccumalator.length; ++k){
               if (edgeAccumalator[k] == tempSwapped ){
                 var continueLoop = true;
+                console.log("skipped")
               } 
             }
             if(continueLoop)continue;
-            
+           
             edgeAccumalator.push(temp)//from,to
           } 
       
@@ -255,11 +272,22 @@ class PRM extends GridPathFinder{
       
       }
       
-        for (let i = 0; i < edgeAccumalator.length; ++i) {
-          SVGCanvasObj.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
-        }
+      for (let i = 0; i < edgeAccumalator.length; ++i) {
+        SVGCanvasObj.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
+      }
       console.log("randomCoordsNodes",randomCoordsNodes);
+
+      var current_XY = start;
+      /*
+      for (let i = 0; i < edgeAccumalator.length; ++i){
+    
+        if(edgeAccumalator
+          
+      }
+        */
     }
+
+    
 
   }
 

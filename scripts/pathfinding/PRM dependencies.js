@@ -170,12 +170,13 @@ class Tree {
 
 
 class PRMNode {
-  constructor(key, value = key, parent = null) {
-    this.key = key;
-    this.value = value;
+  constructor(f_cost=0,g_cost=0,h_cost=0, parent = null, value_XY) {
+    this.f_cost = f_cost;
+    this.g_cost = g_cost;
+    this.h_cost = h_cost;
     this.parent = [];
+    this.value_XY = value_XY;
     this.neighbours = [];
-    this.neighboursCost = [];
   }
 
   numberOfNeighbours() {
