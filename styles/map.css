@@ -1,7 +1,7 @@
 :root{
 	--canvas-length: 472px;;
 	--canvas-remaining: calc(512px - var(--canvas-length));
-  --canvas-z-index: 20;
+  --canvas-z-index: 40;
 }
 
 #map-container{
@@ -80,7 +80,7 @@
 }
 
 #arrow-div{
-  z-index: 21;/*calc(var(--canvas-z-index)+1);*/
+  z-index: calc(var(--canvas-z-index) + 1);
 }
 
 .hover_popup{

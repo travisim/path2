@@ -36,6 +36,7 @@ myUI.initialize = function(){
       ref.push(myUI.canvases[item.id]);
       if(item.toggle!="off"){
         appendCheckbox(`show_${item.id}`, item.checked, item.id, "layer", item.toggle);
+        if(item.checked==false) document.getElementById(item.id).classList.add("hidden");
       }
     });
     return ref;
@@ -48,7 +49,7 @@ myUI.initialize = function(){
     },
     // arrows draworder is -1
     {
-      id:"bg", drawType:"cell", drawOrder: 0, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
+      id:"bg", drawType:"cell", drawOrder: 20, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
     },
   ];
   
@@ -88,7 +89,7 @@ myUI.initialize = function(){
 	[ 
 		["edit_map_modal", "edit_map_close"],
 		["planner_config_modal", "planner_config_close"],
-    ["first_neighbour_modal", "first_neighbour_close"]
+    ["first_neighbor_modal", "first_neighbor_close"]
 	].forEach(item=>{
 		myUI.modals[item[0].slice(0, -6)] = {
 			elem: document.getElementById(item[0]),
@@ -120,12 +121,12 @@ myUI.initialize = function(){
     ["forward_btn"],
     ["end_btn"],
     ["direction_btn", "direction_forward_icon", "direction_reverse_icon"],
-    ["detail_btn", "map_detailed_icon", "map_simple_icon"],
+    ["detail_btn"],// "map_detailed_icon", "map_simple_icon"],
     ["draw_erase_btn", "draw_icon", "erase_icon"],
     ["edit_map_btn", "edit_map_icon"],
     ["stop_edit_btn", "stop_edit_icon"],
 		["planner_config_btn"],
-    ["first_neighbour_btn"]
+    ["first_neighbor_btn"]
   ].forEach(item=>{
     let btn_id = item[0];
     let svg_ids = item.slice(1);
@@ -180,23 +181,24 @@ myUI.initialize = function(){
 
   myUI.step_data = {fwd:{data:[], map:[], combined:[]}, bck:{data:[], map:[], combined:[]}};
 
-  myUI.infotableArray = [
-    {id:"ITQueue", displayName: "Queue", headers:["Vertex","Parent","F cost","G cost","H cost"]}
-  ];
-  myUI.InfoTables = {};
-  for(const item of myUI.infotableArray){
-    myUI.InfoTables[item.id] = new UIInfoTable(item.displayName, 5); // do not shift to top as prerequisite required
-    myUI.InfoTables[item.id].setTableActive();
-    myUI.InfoTables[item.id].setTableHeader(item.headers);
+  myUI.infoTableReset = function(){
+    if(myUI.InfoTables!=null) for(const table of Object.values(myUI.InfoTables))
+      table.removeFromDom();
+    myUI.InfoTables = {};
   }
+
+  myUI.infoTableGenerator = function(infoTables){
+    for(const item of infoTables){
+      myUI.InfoTables[item.id] = new UIInfoTable(item.displayName, item.headers.length);
+      myUI.InfoTables[item.id].setTableActive();
+      myUI.InfoTables[item.id].setTableHeader(item.headers);
+    }
+  }
+
   myUI.InfoMap  = new UIInfoMap();
   myUI.PseudoCode = new UIInfoPseudoCode();
   myUI.pseudoCodeRaw = 'def astar(map, start_vertex, goal_vertex): \nlist = OpenList() \npath = [ ] \n#Initialise h-cost for all \nfor vertex in map.vertices(): \n    vertex.set_h_cost(goal_vertex)  \n    vertex.g_cost = ∞  \n    vertex.visited = False \n  # Assign 0 g-cost to start_vertex  \n start_vertex.g_cost = 0 \n list.add(start_vertex) \n while list.not_empty(): \n  current_vertex = list.remove() \n  # Skip if visited: a cheaper path  \n  # was already found \n    if current_vertex.visited: \n      continue \n   # Trace back and return the path if at the goal \n   if current_vertex is goal_vertex : \n     while current_vertex is not None: \n      path.push(current_vertex) \n      current_vertex = current_vertex.parent \n     return path # exit the function \n  # Add all free, neighboring vertices which \n   # are cheaper, into the list  \n  for vertex in get_free_neighbors(map, current_vertex):  \n      # f or h-costs are not checked bcos obstacles \n     # affects the optimal path cost from the g-cost \n     tentative_g = calc_g_cost(vertex, current_vertex)  \n     if tentative_g < vertex.g_cost: \n       vertex.g_cost = tentative_g  \n      vertex.parent = current_vertex  \n      list.add(vertex) \nreturn path';
   if(myUI.pseudoCodeRaw == true) myUI.PseudoCode.rowGenerator(myUI.pseudoCodeRaw);
-
-  coll[1].click();
-  coll[3].click();
-  coll[4].click();
 
   myUI.tmp = {}; // DO NOT DELETE
 }

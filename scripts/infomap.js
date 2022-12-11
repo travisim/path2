@@ -42,37 +42,6 @@ class UIInfoNWSE{
     if(val==Number.POSITIVE_INFINITY) this.element.querySelector(qSelector).innerHTML = "inf";
     else this.element.querySelector(qSelector).innerHTML = +val.toFixed(2);
   }
-     
-  drawOneVisited(){
-    this.element.style.borderColor = "rgb(221,48,33)";
-    if (this.element.querySelector(".type")) this.element.querySelector(".type").innerHTML = "Visited"
-  } 
-  
-  drawOneQueue(){
-    this.element.style.borderColor = "rgb(116,250,76)";
-    if (this.element.querySelector(".type"))this.element.querySelector(".type").innerHTML = "Queue"
-    
-  }
-    
-  drawOneNeighbour(){
-    this.element.style.borderColor = "rgb(0,130,105)";
-    if (this.element.querySelector(".type")) this.element.querySelector(".type").innerHTML = "neighbour";
-  }
-
-  drawOneFGH(f,g,h){
-    if(f!=null ){
-      if(f==Number.POSITIVE_INFINITY) this.element.querySelector(".F").innerHTML = "inf";
-      else this.element.querySelector(".F").innerHTML = +f.toFixed(2);
-    }
-    if(g!=null ){
-      if(g==Number.POSITIVE_INFINITY) this.element.querySelector(".G").innerHTML = "inf";
-      else this.element.querySelector(".G").innerHTML = +g.toFixed(2);
-    }
-    if(h!=null ){
-      if(h==Number.POSITIVE_INFINITY) this.element.querySelector(".H").innerHTML = "inf";
-      else this.element.querySelector(".H").innerHTML = +h.toFixed(2);
-    }
-  }
 }
 
 

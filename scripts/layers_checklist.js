@@ -18,19 +18,14 @@ else{
 
   var s =  `
     #${id}:checked ~ label[for=${id}]{
-    background: #2C3E50;
-    border-bottom: 1px solid #34495E;
-    color: #1ABC9C;
-  }
+      background: #2C3E50;
+      border-bottom: 1px solid #34495E;
+      color: #1ABC9C;
+    }
 
-   #${id}:checked ~ label[for=${id}] h2 span{
-    color: #1ABC9C;
-
-  }
-
-   #${id}:checked ~ label[for=${id}]:after{
-    background:  white;
-  }
+    #${id}:checked ~ label[for=${id}] h2 span{
+      color: #1ABC9C;
+    }
   `;
   
   style.innerHTML = s;

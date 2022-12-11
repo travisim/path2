@@ -1,59 +1,9 @@
-
-function openTab(evt,tableName) {
-  /*
-  //remove all previosly displayed tabs
-  tabcontent = document.getElementsByClassName("tabcontent");
-  for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-  }
-  //remove tab highlight by removing all classes that are set as "active"
-  tablinks = document.getElementsByClassName("tablinks");
-  for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" active", "");
-  }
-  */
-  
-  
-
-  
-  if( document.getElementById(tableName).style.display != "table"){
-    //highlight tab by seting id as active
-    document.getElementById(tableName).style.display = "table";
-    evt.currentTarget.className += " active";
-  }
-  else{
-    document.getElementById(tableName).style.display = "none";
-    evt.currentTarget.className.replace(" active", "");
-  }
-
-}
-
-
-
-
-
-
-
-/*var tableid = "7"
-document.querySelector(`#t${tableid}`).getElementsByClassName('5')[0].innerHTML = "hi"; 
-/*
-const div = document.createElement("div");
-div.setAttribute("id", "t2");
-div.innerHTML = "   <div class='table_title'>Queue</div> 
-<table class = 'table_header'> </table> 
-<div  class='info_Table_Scroll' >
-  <table class='dynamic_table_container'> </table>
-</div> ";
-
-document.getElementById("info-container").append(div);
-*/
-
 class UIInfoTable{
   constructor(tableIdentifier, rowSize){ //input titles of table in string
 
     this.tableGenerator(tableIdentifier)
-    this.tableContainer = document.querySelector('#'+`t${tableIdentifier}`);
-    this.button = document.querySelector('#'+`b${tableIdentifier}`);
+    this.tableContainer = document.querySelector(`#t${tableIdentifier}`);
+    this.button = document.querySelector(`#b${tableIdentifier}`);
     this.rows = this.tableContainer.getElementsByClassName('infoTableRow');
     this.tableHeader = this.tableContainer.getElementsByClassName('table_header');
     this.highlightedRows = this.tableContainer.getElementsByClassName('highlighting');
@@ -62,21 +12,45 @@ class UIInfoTable{
     
     //querySelector returns 1 element but getElementsByClassName returns array of elements
   }
+
+  removeFromDom(){
+    this.tableContainer.remove();
+  }
+
+  wrongRowSizeHandler(providedSize){
+    let msg = `Wrong Infotable row size, provided: ${providedSize}, correct: ${this.rowSize}`;
+    alert(msg);
+    throw msg;
+  }
   
   tableGenerator(tableIdentifier){
     const div = document.createElement("div");
     div.setAttribute("id", `t${tableIdentifier}`);
     div.setAttribute("class", 'tabcontent');
-    div.innerHTML = `   <div class='table_title'>${tableIdentifier}</div>  <table class = 'table_header'> </table> <div  class='info_Table_Scroll' ><table class='dynamic_table_container'> </table> </div> `;
+    let toggler = document.createElement("div");
+    toggler.classList.add("table_title", "unselectable");
+    toggler.innerHTML = tableIdentifier;
+
+    let infoBody = document.createElement("div", );
+    infoBody.classList.add("table_content");
+
+    let tableHead = document.createElement("table");
+    tableHead.classList.add("table_header");
+
+    let tableScroll = document.createElement("div");
+    tableScroll.classList.add("info_Table_Scroll");
+
+    let tableContent = document.createElement("table");
+    tableContent.classList.add("dynamic_table_container");
+    
+    tableScroll.appendChild(tableContent);
+    infoBody.append(tableHead, tableScroll);
+    div.append(toggler, infoBody);
     document.getElementById("info-tables-dynamic").append(div);
-    
-    const button = document.createElement("button");
-    button.setAttribute("id", `b${tableIdentifier}`);
-    button.setAttribute("class", 'tablinks');
-    button.setAttribute("onclick", `openTab(event, "t${tableIdentifier}")`);
-    button.innerHTML = `${tableIdentifier}`;
-    document.querySelector(".tab").append(button);
-    
+
+    toggler.addEventListener("click", e=>{
+      toggler.nextElementSibling.classList.toggle("none");
+    });
   }
   
   setTableHeader(headers){
@@ -87,18 +61,17 @@ class UIInfoTable{
       temp.className = 'tableHeaderRow'; 
       temp.innerHTML = headers[i];
     }
+    // insert an extra column for the scrollbar
+    row.insertCell(headers.length);
   }
   setTableActive(){
-    this.tableContainer.style.display = "table";
-    this.button.classList.add('active');
+    this.tableContainer.classList.remove("none");
   }
   rowGenerator(values){
     //var t = document.createElement('table');
-    if(values.length!=this.rowSize){
-      let msg = 'Wrong Infotable row size';
-      alert(msg);
-      throw msg;
-    }
+    if(values.length!=this.rowSize)
+      return this.wrongRowSizeHandler(values.length);
+    
     var r = document.createElement("TR"); 
     for (let i = 0; i < values.length; i++) { 
       r.insertCell(i).innerHTML = values[i];
@@ -259,7 +232,7 @@ class UIInfoTable{
 
   eraseRowAtIndex(rowIndex){
     rowIndex = Math.abs(rowIndex)-1;
-    if (rowIndex>=this.rows.length || this.rows.length<1){
+    if (rowIndex >= this.rows.length || this.rows.length<1){
       console.log("row index does not yet exist")
       return 0;
     } 
@@ -275,18 +248,36 @@ class UIInfoTable{
     row.parentElement.removeChild(row);
     return [data, prevHighlight==rowIndex+1];
   }
+
+  updateRowAtIndex(rowIndex,values){
+    if(values.length != this.rowSize)
+      return this.wrongRowSizeHandler(values.length);
+    
+    let toHighlight = (rowIndex>0);
+    rowIndex = Math.abs(rowIndex)-1;
+    if (rowIndex >= this.rows.length || this.rows.length<1){
+      console.log("row index does not yet exist")
+      return 0;
+    }
+    let idx = 0;
+    let data = [];
+    for(const el of this.rows[rowIndex].children){
+      data.push(el.innerHTML);
+      el.innerHTML = values[idx];
+      idx++;
+    }
+    if(toHighlight) return [data, this.setHighlightAtIndex(rowIndex+1)];
+    let prevHighlight = this.highlightRow;
+    return [data, prevHighlight];
+  }
   
   flatten(){
+    // returns a flattened version of the infotable
+    // used for storing of states
     let ret = [this.highlightRow, this.rowSize];
-    for(const row of this.rows){
-      for(const el of row.children){
+    for(const row of this.rows)
+      for(const el of row.children)
         ret.push(el.innerHTML);
-        /*
-        if(isNaN(el.innerHTML) || !isFinite(el.innerHTML)) ret.push(el.innerHTML);
-        else ret.push(Number(el.innerHTML));
-        */
-      }
-    }
     return ret;
   }
 }

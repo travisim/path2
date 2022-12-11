@@ -8,7 +8,7 @@
 
 
 
-document.getElementById("generate_new_map_btn").addEventListener("click", generate_new_map);
+//document.getElementById("generate_new_map_btn").addEventListener("click", generate_new_map);
 function generate_new_map(){
   myUI.planner.seed = generateString(5);
   document.getElementById("seed_pcfg").setAttribute("value", myUI.planner.seed)
@@ -181,8 +181,7 @@ myUI.buttons.direction_btn.btn.addEventListener("click", myUI.toggleStepDirectio
 
 
 myUI.toggleMapDetail = function(){
-	myUI.buttons.detail_btn.next_svg();
-
+	myUI.buttons.detail_btn.toggle_pressed();
 	myUI.animation.detailed = !myUI.animation.detailed;
 }
 myUI.buttons.detail_btn.btn.addEventListener("click", myUI.toggleMapDetail);

@@ -149,7 +149,7 @@ class GridPathFinder{
 	get canvases(){
 		return [
 			{
-				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,55%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#8F00FF"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
 			},
 			{
 				id:"expanded", drawType:"cell", drawOrder: 2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
@@ -190,8 +190,8 @@ class GridPathFinder{
 		];
 	}
 
-	constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise"){
-		this.init_neighbors(num_neighbors, first_neighbour, search_direction);
+	constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise"){
+		this.init_neighbors(num_neighbors, first_neighbor, search_direction);
 		this.diagonal_allow = diagonal_allow;
 	}
 
@@ -218,7 +218,7 @@ class GridPathFinder{
         myUI.InfoMap.NumneighborsMode(num);
         break;
       case "first_neighbor":
-				this.init_first_neighbour(value);
+				this.init_first_neighbor(value);
         break;
       case "search_direction":
         value = value.toLowerCase();
@@ -248,40 +248,44 @@ class GridPathFinder{
 		return "default";
 	}
 
-	init_neighbors(num_neighbors, first_neighbour=this.first_neighbour, search_direction=this.search_direction){
+	get infoTables(){
+		return [
+			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Position", "F-Cost", "G-Cost", "H-Cost", "State"]},
+			{id:"ITQueue", displayName: "Queue", headers:["Vertex","Parent","F-Cost","G-Cost","H-Cost"]},
+		];
+	}
+
+	init_neighbors(num_neighbors, first_neighbor=this.first_neighbor, search_direction=this.search_direction){
 		this.num_neighbors = num_neighbors;
 		
 		if(this.num_neighbors==8){
 			this.delta = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]]; //x,y
 			this.deltaNWSE = ["N", "NW", "W", "SW", "S", "SE", "E", "NE"];// North is positive x 
+			this.neighborsIndex = [0, 1, 2, 3, 4, 5, 6, 7];
 		}
 		else{ // if(this.num_neighbors==4)
 			this.delta = [[1, 0], [0, 1], [-1, 0], [0, -1]];
 			this.deltaNWSE = ["N", "W", "S", "E"];
+			this.neighborsIndex = [0, 1, 2, 3];
 		}
 		this.search_direction = "anticlockwise";
-		if(!this.deltaNWSE.includes(first_neighbour)){
-			first_neighbour = this.deltaNWSE[0];
-			myUI.buttons.first_neighbour_btn.btn.innerHTML = first_neighbour;
-		}
-		this.first_neighbour = first_neighbour;
+		this.first_neighbor = first_neighbor;
 		this.init_search_direction(search_direction);
 	}
 
 	init_search_direction(search_direction){
 		if(this.search_direction!=search_direction){
-			this.deltaNWSE.reverse();
-			this.delta.reverse();
+			this.neighborsIndex.reverse();
 			this.search_direction = search_direction;
 		}
-		this.init_first_neighbour(this.first_neighbour);
+		this.init_first_neighbor(this.first_neighbor);
 	}
 
-	init_first_neighbour(first_neighbour){
-		this.first_neighbour = first_neighbour;
-		this.first_index = this.deltaNWSE.indexOf(this.first_neighbour);
-		this.deltaNWSE = this.deltaNWSE.slice(this.first_index).concat(this.deltaNWSE.slice(0, this.first_index));
-		this.delta = this.delta.slice(this.first_index).concat(this.delta.slice(0, this.first_index));
+	init_first_neighbor(first_neighbor){
+		this.first_neighbor = first_neighbor;
+		let first_index = this.neighborsIndex.indexOf(this.deltaNWSE.indexOf(this.first_neighbor));
+		this.neighborsIndex = this.neighborsIndex.slice(first_index).concat(this.neighborsIndex.slice(0, first_index));
+		return;
 	}
 
 	add_map(map){
@@ -314,7 +318,6 @@ class GridPathFinder{
     // generate empty 2d array
     this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new NBitMatrix(this.map_height, this.map_width, 8);
-		this.arrow_state = new Uint8Array(this.map_height*this.map_width); // stores the visibility of arrows; 1 is shown, 0 is hidden
     this.searched = false;
     this._create_cell_index();
 
@@ -334,7 +337,7 @@ class GridPathFinder{
     this.batch_interval = 0;
 	}
 
-	_nodeIsNeighbor(next_XY, surrounding_map_deltaNWSE){
+	_nodeIsNeighbor(next_XY, next_NWSE, cardinalCoords){
 		if(this.vertexEnabled){
 			// no diagonal blocking considered
 			if(next_XY[0]!=this.current_node_XY[0] && next_XY[1]!=this.current_node_XY[1]){
@@ -362,26 +365,18 @@ class GridPathFinder{
 		}
 		else{
 			if (this.map.get_data(next_XY) == 0) return false;  // if neighbour is not passable
-			if (this.diagonal_allow == false && this.num_neighbors == 8) { // if neighbour is not blocked
-				if (this.deltaNWSE[i] == "NW") {
-					if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("W"))) {
-						return false;
-					}
+			if (this.diagonal_allow == false && this.num_neighbors == 8) { // if diagonal blocking is enabled
+				if (next_NWSE == "NW") {
+					if(this.map.get_data(cardinalCoords["N"]) == 0 && this.map.get_data(cardinalCoords["W"]) == 0) return false;
 				}
-				else if (this.deltaNWSE[i] == "SW") {
-					if (!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("W"))) {
-						return false;
-					}
+				else if (next_NWSE == "SW") {
+					if(this.map.get_data(cardinalCoords["S"]) == 0 && this.map.get_data(cardinalCoords["W"]) == 0) return false;
 				}
-				else if (this.deltaNWSE[i] == "SE") {
-					if (!(surrounding_map_deltaNWSE.includes("S") || surrounding_map_deltaNWSE.includes("E"))) {
-						return false;
-					}
+				else if (next_NWSE == "SE") {
+					if(this.map.get_data(cardinalCoords["S"]) == 0 && this.map.get_data(cardinalCoords["E"]) == 0) return false;
 				}
-				else if (this.deltaNWSE[i] == "NE") {
-					if (!(surrounding_map_deltaNWSE.includes("N") || surrounding_map_deltaNWSE.includes("E"))) {
-						return false;
-					}
+				else if (next_NWSE == "NE") {
+					if(this.map.get_data(cardinalCoords["N"]) == 0 && this.map.get_data(cardinalCoords["E"]) == 0) return false;
 				}
 			}
 		}
@@ -496,6 +491,22 @@ class GridPathFinder{
 		this.step_cache = []; // clear steps to save another step
 	}
 
+  _handleArrow(next_XY, new_node, open_node, closed_node){
+    if (!this.draw_arrows) return;
+    // ARROW
+    if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
+      //this._create_action(STATIC.EA, open_node.arrow_index);
+      this._create_action({command: STATIC.EA, arrowIndex: open_node.arrow_index});
+    }
+    if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
+      //this._create_action(STATIC.EA, closed_node.arrow_index);
+      this._create_action({command: STATIC.EA, arrowIndex: closed_node.arrow_index});
+    }
+    new_node.arrow_index = myUI.create_arrow(next_XY, this.current_node_XY); // node is reference typed so properties can be modified after adding to queue or open list
+    this._create_action({command: STATIC.DA, arrowIndex: new_node.arrow_index, colorIndex: 0});
+    // END OF ARROW
+  }
+
 	_create_cell_index(){
 		this.cell_map = zero2D(this.map_height, this.map_width, Number.MAX_SAFE_INTEGER, NaN, "int");
 	}
@@ -504,36 +515,6 @@ class GridPathFinder{
 		// index is the step index for the first expansion of that cell
 		let [x,y] = xy;
 		this.cell_map[x][y] = this.step_index;
-	}
-
-	_manage_state(){
-		return;
-		// [node XY, FGH cost, arrayof queue, 2d array of current visited points, valid neighbors array, visited array]
-		if (this.step_index - this.prev_count >= 80) {  
-			this.prev_count = this.step_index;
-			++this.state_counter;
-			if (this.state_counter % 100 == 0) console.log(`reached state ${this.state_counter}, step ${this.step_index}`);
-			// add state
-
-			let uint32_len = 50099230;
-			if(!this.states.visited_data) this.states.visited_data = [new Uint32Array(uint32_len)];
-			if(!this.states.visited_index) this.states.visited_index = 0;
-			let curr_visited_section = this.states.visited_data.length - 1;
-			if(this.states.visited_index + this.visited.arr_length > this.states.visited_data[curr_visited_section].length){
-				if(this.states.visited_data.length<37) this.states.visited_data.push(new Uint32Array(uint32_len));
-				else this.states.visited_data.push(new Array(12567562));
-				this.states.visited_index = 0;
-				++curr_visited_section;
-			}
-			let nxt_index = this.visited.copy_data_to(this.states.visited_data[curr_visited_section], this.states.visited_index, true);
-			let visited_tuple = new Uint32Array([curr_visited_section, this.states.visited_index, nxt_index]);//this.states.visited_index + this.visited.arr_length]);
-			//this.states.visited_index+=this.visited.arr_length;
-			this.states.visited_index = nxt_index;
-//console.log("state","this.step_index",this.step_index,this.neighbors);
-			this.states[this.step_index] = { node_XY: this.current_node.self_XY, G_cost:this.current_node.g_cost, H_cost: this.current_node.h_cost, queue:deepCopyNodeArray(this.queue), neighbors:deepCopyNodeArray(this.neighbors),/* neighbors: deep_copy_matrix(this.neighbors_XY), */visited_tuple: visited_tuple, path: this.path, arrow_state: new Uint8Array(this.arrow_state)};
-
-
-		}
 	}
 
 	_found_goal(node){

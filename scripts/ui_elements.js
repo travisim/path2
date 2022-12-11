@@ -79,7 +79,7 @@ class UICanvas{
     else if(minOrMax=="max") this.maxVal = val;
   }
 
-  setDrawType(drawType="pixel"){
+  setDrawType(drawType="cell"){
     this.drawType = drawType;
     switch(drawType){
       case "vertex":
@@ -91,6 +91,9 @@ class UICanvas{
         break;
       default:
         this.fixedRes = false;
+        this.data_height = myUI.map_height;
+        this.data_width = myUI.map_width;
+        this.scale_canvas(this.data_height, this.data_width, false);
     }
     this.canvas_cache = this.matrixConstructor();
   }
@@ -346,8 +349,6 @@ class UICanvas{
 
   erase_canvas(virtual=false){
     if(virtual) return this.init_virtual_canvas();
-    //let height = this.data_height ? this.data_height : this.canvas.height;
-    //let width = this.data_width ? this.data_width : this.canvas.width;
     if(this.fixedRes) this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     else this.ctx.clearRect(0, 0, this.data_width, this.data_height);
     this.canvas_cache = this.matrixConstructor();
@@ -357,10 +358,6 @@ class UICanvas{
     let y = xy[0]*this.canvas.height/myUI.map_height;
     let x = xy[1]*this.canvas.width/myUI.map_width;
     let r = Math.max(1.5, 0.15 * this.canvas.height/myUI.map_height);
-    /*if(myUI.map_height>32 || myUI.map_width>32){
-      r = Math.min(this.data_height/myUI.map_height * 4/16, this.data_width/myUI.map_width * 4/16)
-      debugger;
-    }*/
 
     this.set_color(this.strokeColor, "stroke");
     this.ctx.beginPath();
@@ -510,6 +507,10 @@ class UIButton{
     this.svg_index = (this.svg_index+1)%this.svgs.length;  // increment to next svg in list
     this.svgs[this.svg_index].classList.remove("hidden");  // show the next one
   }
+
+  toggle_pressed(){
+    this.btn.classList.toggle("pressed");
+  }
 }
 
 // below 23 lines have been adapted from https://stackoverflow.com/a/4663129
@@ -539,8 +540,6 @@ if (CP && CP.lineTo) {
 
 
 var coll = document.getElementsByClassName("collapsible");
-
-
 
 for (var i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {

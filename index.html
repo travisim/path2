@@ -232,9 +232,8 @@
 									<img src="assets/forward.svg" id="direction_forward_icon" class="icon overlay hidden" alt="forward" ><!-- element with multiple svgs have them hidden by default -->
 									<img src="assets/reverse.svg" id="direction_reverse_icon" class="icon overlay hidden" alt="reverse">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
 								</button>
-								<button id="detail_btn" class="btn grid-overlay">
-									<img src="assets/map-simple.svg" id="map_simple_icon" class="icon overlay hidden" alt="simple" ><!-- element with multiple svgs have them hidden by default -->
-									<img src="assets/map-detailed.svg" id="map_detailed_icon" class="icon overlay hidden" alt="detailed">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
+								<button id="detail_btn" class="btn" style="font-weight: bold;">
+									Coarse Steps
 								</button>
 							</div>
 						</div>
@@ -309,7 +308,6 @@
 						<div id="configTab" class="controlTabContent">
 							<div class="flex-row">
 								<button id="compute_btn" class="btn">Compute Path</button>
-                <button id="generate_new_map_btn" class="btn">Generate new map</button>
 								<!--button id="display_btn" class="btn">Display Path</button-->
 								<button id="edit_map_btn" class="btn grid-overlay">
 									<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
@@ -437,7 +435,7 @@
 						</div>
 						<div class="flex-row">
 							<label class="label_centered">Starting Node:</label>
-							<button id="first_neighbour_btn" class="btn modal_btn">
+							<button id="first_neighbor_btn" class="btn modal_btn">
 							</button>
 						</div>
 						<div class="flex-row">
@@ -460,24 +458,24 @@
 				</div><!---->
 			</div>
 		</div>
-		<div id="first_neighbour_modal" class="modal">
+		<div id="first_neighbor_modal" class="modal">
 			<div class="modal-content mini">
-				<span id="first_neighbour_close" class="close">&times;</span>
+				<span id="first_neighbor_close" class="close">&times;</span>
 				<div class="flex-col">
 					<div class="flex-row">
-						<button class="first_neighbour_choice btn">NW</button>
-						<button class="first_neighbour_choice btn">N</button>
-						<button class="first_neighbour_choice btn">NE</button>
+						<button class="first_neighbor_choice btn">NW</button>
+						<button class="first_neighbor_choice btn">N</button>
+						<button class="first_neighbor_choice btn">NE</button>
 					</div>
 					<div class="flex-row">
-						<button class="first_neighbour_choice btn">W</button>
-						<button class="first_neighbour_choice btn empty"></button>
-						<button class="first_neighbour_choice btn">E</button>
+						<button class="first_neighbor_choice btn">W</button>
+						<button class="first_neighbor_choice btn empty"></button>
+						<button class="first_neighbor_choice btn">E</button>
 					</div>
 					<div class="flex-row">
-						<button class="first_neighbour_choice btn">SW</button>
-						<button class="first_neighbour_choice btn">S</button>
-						<button class="first_neighbour_choice btn">SE</button>
+						<button class="first_neighbor_choice btn">SW</button>
+						<button class="first_neighbor_choice btn">S</button>
+						<button class="first_neighbor_choice btn">SE</button>
 					</div>
 				</div>
 			</div>

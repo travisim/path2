@@ -130,33 +130,6 @@ myUI.loadScenario = function(){
 document.querySelectorAll(".scen_controls").forEach(elem=>{
   elem.addEventListener("change", myUI.loadScenario);
 })
-/* vertex has been moved to planner config */
-// document.getElementById("toggle-group").addEventListener("change", e=>{
-//   if(document.getElementById("vertexToggle").checked){
-//     // enable vertex
-//     myUI.vertex = true;
-//     ["hover_map", "queue", "visited", "expanded", "neighbors", "path", "fCost", "gCost", "hCost"].forEach(canvas=>{
-//       myUI.canvases[canvas].setDrawType("vertex");
-//       myUI.canvases[canvas].scale_canvas(myUI.map_height+1, myUI.map_width+1, false);
-//     });
-//     myUI.planners = myUI.planners_v;
-//     console.log("ENABLED VERTEX");
-//   }
-//   else{
-//     myUI.vertex = false;
-//     ["hover_map", "queue", "visited", "expanded", "neighbors", "path", "fCost", "gCost", "hCost"].forEach(canvas=>{
-//       myUI.canvases[canvas].scale_canvas(myUI.map_height, myUI.map_width, false);
-//       myUI.canvases[canvas].setDrawType("pixel");
-//     });
-//     myUI.planners = myUI.planners_cell;
-//     // disable vertex
-//   }
-//   myUI.showPlanners();
-//   myUI.loadPlanner();
-//   myUI.displayScen();
-// });
-// if(myUI.vertex) document.getElementById("vertexToggle").checked=true;
-// else document.getElementById("vertexToggle").checked=false;
 
 myUI.displayScen = function(update=false, reset_zero=false){
   console.log("INSIDE DISPLAY SCEN")
@@ -241,6 +214,8 @@ myUI.loadPlanner = function(create_planner = true) {
   for(const cb of myUI.planner.constructor.checkboxes)
     appendCheckbox(...cb);
   myUI.dynamicCanvas = myUI.canvasGenerator(myUI.planner.canvases);
+  myUI.infoTableReset();
+  myUI.infoTableGenerator(myUI.planner.infoTables);
   if(create_planner) myUI.setPlannerConfig();
 
 	myUI.reset_animation();
@@ -279,8 +254,7 @@ myUI.toggleVertex = function(enable=true){
     for(const uiCanvas of myUI.dynamicCanvas){
       if(uiCanvas.drawType=="dotted")
         uiCanvas.hide();
-      else
-      uiCanvas.setDrawType("vertex");
+      else uiCanvas.setDrawType("vertex");
     }
     myUI.canvases.hover_map.setDrawType("vertex");
   }
@@ -289,8 +263,8 @@ myUI.toggleVertex = function(enable=true){
     for(const uiCanvas of myUI.dynamicCanvas){
       uiCanvas.show();
       if(uiCanvas.drawType=="vertex")
-        uiCanvas.setDrawType("pixel");
+        uiCanvas.setDrawType("cell");
     }
-    myUI.canvases.hover_map.setDrawType("pixel");
+    myUI.canvases.hover_map.setDrawType("cell");
   }
 }

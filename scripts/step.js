@@ -11,6 +11,7 @@ const STATIC_COMMANDS = [
   "EA" , // erase arrow (arrow index)
   "InsertRowAtIndex", // dest, rowIndex
   "EraseRowAtIndex", // dest, rowIndex
+  "UpdateRowAtIndex", // dest, rowIndex
   "HighlightPseudoCodeRowPri", //highlight Pseudo
   "HighlightPseudoCodeRowSec", //highlight Pseudo
   "UnhighlightPseudoCodeRowSec", // unhighlight Pseudo
@@ -29,6 +30,7 @@ const STATIC_DESTS = [
   "GCanvas",
   "HCanvas",
   "ITQueue", //info table
+  "ITNeighbors", 
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -64,7 +66,8 @@ const statics_to_obj = {
   7: "fCost",
   8: "gCost",
   9: "hCost",
-  10: "ITQueue"
+  10: "ITQueue",
+  11: "ITNeighbors",
 }
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
@@ -141,6 +144,9 @@ myUI.run_steps = function(num_steps, step_direction){
       else if(command==STATIC.EraseRowAtIndex){
         myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
       }
+      else if(command==STATIC.UpdateRowAtIndex){
+        myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
+      }
       else if(command==STATIC.SetHighlightAtIndex){
         myUI.InfoTables[statics_to_obj[dest]].setHighlightAtIndex(infoTableRowIndex); 
       }
@@ -209,7 +215,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   //let mem = {canvasCoords:{}, drawSinglePixel:{}, fullCanvas:{}, arrowColor:{}, bounds:{}};
   let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}};
   Object.values(myUI.canvases).forEach(canvas=>canvas.init_virtual_canvas());
-  Object.values(myUI.InfoTables).forEach(tb=>tb.tableContainer.style.display = "none");
+  document.querySelector("#info-tables-dynamic").style.display = "none";
 
   const statusUpdate = setInterval(function(){
     document.getElementById("compute_btn").innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
@@ -226,20 +232,23 @@ myUI.generateReverseSteps = function({genStates=false}={}){
       if(myUI.canvases[statics_to_obj[dest]].minVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("min", bounds[0]);
       if(myUI.canvases[statics_to_obj[dest]].maxVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("max", bounds[1]);
     }
-    Object.values(myUI.InfoTables).forEach(tb=>tb.tableContainer.style.display = "table");
+    document.querySelector("#info-tables-dynamic").style.display = "flex";
     myUI.reset_animation();
     myUI.mem = mem;
     clearInterval(statusUpdate);
-    return 0;
   }
 
   function nextGenSteps(nxtSize){
     while(nxtSize--){
+      console.log(stepCnt, indexMap.length);
       if(stepCnt==indexMap.length) return finishGenerating();
       let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
+      console.log(step);
+      if(stepCnt==8) debugger;
       if(isNaN(step[0])) return finishGenerating();
       let i=0;
       myUI.step_data.bck.map.push(myUI.step_data.bck.data.length);
+      let curStep = [];
       while(i<step.length){
 
         // this is implementation specific for compressed actions
@@ -404,6 +413,12 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           let [data, toHighlight] = myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex);
           action = GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight?infoTableRowIndex:infoTableRowIndex*-1, infoTableRowData: data});
         }
+        else if(command==STATIC.UpdateRowAtIndex){
+          let [data, prevHighlight] = myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
+          action = GridPathFinder.packAction({command: STATIC.UpdateRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex, infoTableRowData: data});
+          if(prevHighlight)
+            Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
+        }
         else if(command==STATIC.SetHighlightAtIndex){
           let prevHighlight = myUI.InfoTables[statics_to_obj[dest]].setHighlightAtIndex(infoTableRowIndex); 
           action = GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight});
@@ -421,16 +436,18 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         } 
         // add more here
         if(includeAction)
-          Array.prototype.push.apply(myUI.step_data.bck.data, action);
+          Array.prototype.unshift.apply(curStep, action);
         i=j;
       }
+      Array.prototype.push.apply(myUI.step_data.bck.data, curStep);
       revCombinedCnt++;
       myUI.step_data.bck.combined.push(revCombinedCnt);
       if(combinedMap[stepCnt]==1) revCombinedCnt = 0;
       ++stepCnt;
 
       if(genStates && stepCnt%stateFreq==0){
-        if(stepCnt/stateFreq % 100==0) console.log("State", stepCnt/stateFreq);
+        //if(stepCnt/stateFreq % 100==0) 
+        console.log("State", stepCnt/stateFreq);
         let nextState = {canvas:{}, infotables:{}};
         // canvas
         for(const canvas of Object.values(mem.activeCanvas)){
