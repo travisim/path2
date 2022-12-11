@@ -220,7 +220,7 @@ myUI.loadPlanner = function(create_planner = true) {
 
 	myUI.reset_animation();
   myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
-  myUI.buttons.planner_config_btn.btn.innerHTML = myUI.planner.constructor.display_name;
+  myUI.buttons.planner_config_btn.btn.children[0].innerHTML = myUI.planner.constructor.display_name;
   myUI.displayMap();
   myUI.initHover(myUI.planner.constructor.hoverData);
   if(myUI.planner.bigMap) document.getElementById("info-container").classList.add("none");

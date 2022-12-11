@@ -170,8 +170,12 @@ html, body{
 }
 .btn:hover {
   background: #d19b6d;
-	transform: scale(1.05);
+	transform: scale(1.1);
 	font-weight: bold;
+}
+
+.btn:active {
+	transform: scale(1);
 }
 
 .btn.pressed{
@@ -274,4 +278,39 @@ html, body{
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+/**************************** TOOLTIP  *******************************/
+.btn[alt] {
+  display: flex;
+  justify-content: center;
+}
+.btn[alt]:hover::after { /* tooltip */
+  content: attr(alt);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px;
+  text-align: center;
+  border-radius: 7px;
+  position: absolute;
+  top: 100%;
+  margin-top: 4px;
+  box-sizing: border-box;
+  font-size: 13px;
+  font-family: arial, sans-serif;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
+.btn[alt]:hover::before { /* arrow */
+  display: block;
+  position: absolute;
+  top: 100%;
+  margin-top: -5px;
+  content: ' ';
+  border: 5px solid transparent;
+  border-bottom: 5px solid rgba(0,0,0,0.7);
+  box-sizing: border-box;
 }

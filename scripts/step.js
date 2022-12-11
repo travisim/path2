@@ -218,7 +218,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   document.querySelector("#info-tables-dynamic").style.display = "none";
 
   const statusUpdate = setInterval(function(){
-    document.getElementById("compute_btn").innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
+    document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
   }, 200);
 
   const batchSize=100, batchInterval = 0;
@@ -522,7 +522,6 @@ myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
 }
 
 myUI.jump_to_step = function(target_step){
-  //if(document.getElementById("compute_btn").innerHTML!=`Compute Path`) return;
   /*
   if state exists:
     load state
@@ -574,7 +573,7 @@ myUI.jump_to_step = function(target_step){
       if(canvasNo==-1) return -1;
       if(canvasNo==canvasesToDraw.length) return finishJumping();
       let [id,data] = canvasesToDraw[canvasNo];
-      document.getElementById("compute_btn").innerHTML = `drawing ${id}...`;
+      document.getElementById("compute_btn").children[0].innerHTML = `drawing ${id}...`;
       if(data.constructor==Array) var toDraw = data; // for 2d arrays (floats, etc.)
       else var toDraw = NBitMatrix.expand_2_matrix(data);
       return myUI.canvases[id].draw_canvas_recursive(toDraw, canvasNo, target_step);
@@ -598,7 +597,7 @@ myUI.jump_to_step = function(target_step){
   function finishJumping(){
     myUI.animation.step = idx*stateFreq-1;
     myUI.run_steps(target_step-myUI.animation.step, "fwd");
-    document.getElementById("compute_btn").innerHTML = `Compute Path`;
+    document.getElementById("compute_btn").children[0].innerHTML = `Compute Path`;
     myUI.update_search_slider(target_step);
   }
 }

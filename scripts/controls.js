@@ -32,18 +32,18 @@ function compute_path(){
 	Object.values(myUI.canvases).forEach(function(uiCanvas){
 		if(uiCanvas.valType=="float")uiCanvas.minVal = uiCanvas.maxVal = null;
 	});
-	document.getElementById("compute_btn").innerHTML = "computing... 0s";
+	document.getElementById("compute_btn").children[0].innerHTML = "computing... 0s";
 	myUI.startTime = Date.now();
 	clearInterval(myUI.interval);  // common interval used while updating the time of searching and generating steps
 	myUI.interval = setInterval(function(){
-		document.getElementById("compute_btn").innerHTML = `computing... ${(Date.now()-myUI.startTime)/1000.0}s`;
+		document.getElementById("compute_btn").children[0].innerHTML = `computing... ${(Date.now()-myUI.startTime)/1000.0}s`;
 	}, 50);
 	// search
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(_=>{
 		myUI.genStart = Date.now();
 		myUI.searchDuration = myUI.genStart-myUI.startTime;
 		clearInterval(myUI.interval);
-		document.getElementById("compute_btn").innerHTML = "optimizing... 0%";
+		document.getElementById("compute_btn").children[0].innerHTML = "optimizing... 0%";
 		myUI.step_data.fwd.data = myUI.planner.steps_data;
 	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
 		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
@@ -58,8 +58,8 @@ function compute_path(){
 			myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
 			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;
 			updateSpeedSlider();
-			document.getElementById("compute_btn").innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
-			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").innerHTML = "Compute Path", 30000);
+			document.getElementById("compute_btn").children[0].innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
+			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").children[0].innerHTML = "Compute Path", 30000);
 		})
 	}); 
 	

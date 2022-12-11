@@ -491,14 +491,19 @@ class UIButton{
     this.btn = document.getElementById(button_id);
 
     this.svgs = [];
-    if(arguments.length>1){
+    if(arguments.length>1 && arguments[1]!==undefined){
       let svg_ids = arguments[1];
+      console.log(arguments[1]);
       svg_ids.forEach(id=>{
         this.svgs.push(document.getElementById(id));
       });
       this.svg_index = 0;
     }
     if(this.svgs[0]) this.svgs[0].classList.remove("hidden");
+
+    if(arguments.length>2 && arguments[2]!==undefined){
+      this.alts = arguments[2];
+    }
   }
 
   next_svg(){
@@ -506,6 +511,7 @@ class UIButton{
     this.svgs[this.svg_index].classList.add("hidden");  // hide the current one
     this.svg_index = (this.svg_index+1)%this.svgs.length;  // increment to next svg in list
     this.svgs[this.svg_index].classList.remove("hidden");  // show the next one
+    this.btn.setAttribute("alt", this.alts[this.svg_index]);
   }
 
   toggle_pressed(){

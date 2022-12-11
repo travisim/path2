@@ -117,20 +117,21 @@ myUI.initialize = function(){
 		["download_scen_btn"],
     ["clear_btn"],
     ["back_btn"],
-    ["start_pause_btn", "start_icon", "pause_icon"],
+    ["start_pause_btn", ["start_icon", "pause_icon"], ["Play", "Pause"]],
     ["forward_btn"],
     ["end_btn"],
-    ["direction_btn", "direction_forward_icon", "direction_reverse_icon"],
-    ["detail_btn"],// "map_detailed_icon", "map_simple_icon"],
-    ["draw_erase_btn", "draw_icon", "erase_icon"],
-    ["edit_map_btn", "edit_map_icon"],
-    ["stop_edit_btn", "stop_edit_icon"],
+    ["direction_btn", ["direction_forward_icon", "direction_reverse_icon"], ["Reverse", "Forward"]],
+    ["detail_btn"],
+    ["draw_erase_btn", ["draw_icon", "erase_icon"]],
+    ["edit_map_btn"],
+    ["stop_edit_btn"],
 		["planner_config_btn"],
     ["first_neighbor_btn"]
   ].forEach(item=>{
     let btn_id = item[0];
-    let svg_ids = item.slice(1);
-    myUI.buttons[btn_id] = new UIButton(btn_id, svg_ids);
+    let svg_ids = item[1] ? item[1] : undefined;
+    let alts = item[2] ? item[2] : undefined;
+    myUI.buttons[btn_id] = new UIButton(btn_id, svg_ids, alts);
   });
 
   [

@@ -176,8 +176,8 @@
 						</div>
 						<div id="layer-controls">
 							<div class="flex-row">
-								<button id="reset_checkboxes" class="btn"><b>Reset All</b></button>
-								<button id="select_checkboxes" class="btn"><b>Select All</b></button>
+								<button id="reset_checkboxes" class="btn" alt="Hide all canvases"><b>Hide All</b></button>
+								<button id="select_checkboxes" class="btn" alt="Show all canvases"><b>Select All</b></button>
 							</div>
   						<div id="canvas_layers">
                <!-- <h1>Canvas Layers</h1>
@@ -208,29 +208,31 @@
 						<button class="collapsible ">Display Controls</button>
 						<div class="content">
 							<div id="display_controls" class="flex-row">
-								<button id="clear_btn" class="btn">
+								<button id="clear_btn" class="btn" alt="Go to start">
 									<img src="assets/clear.svg" class="icon" alt="clear">
 								</button>
-								<button id="back_btn" class="btn">
+								<button id="back_btn" class="btn" alt="Step back">
 									<img src="assets/back.svg" class="icon" alt="back">
 								</button>
-								<button id="start_pause_btn" class="btn">
+								<button id="start_pause_btn" class="btn" alt="Play">
 									<div class="grid-overlay">
 										<img src="assets/start.svg" id="start_icon" class="icon overlay hidden" alt="start">  <!-- element with multiple svgs have them hidden by default -->
 										<img src="assets/pause.svg" id="pause_icon" class="icon overlay hidden" alt="pause">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
 									</div>
 								</button>
-								<button id="forward_btn" class="btn">
+								<button id="forward_btn" class="btn" alt="Step forward">
 									<img src="assets/next.svg" class="icon" alt="next">
 								</button>
-								<button id="end_btn" class="btn">
+								<button id="end_btn" class="btn" alt="Go to end">
 									<img src="assets/end.svg" class="icon" alt="end">
 								</button>
 							</div>
 							<div id="edit_controls" class="flex-row">
-								<button id="direction_btn" class="btn grid-overlay">
-									<img src="assets/forward.svg" id="direction_forward_icon" class="icon overlay hidden" alt="forward" ><!-- element with multiple svgs have them hidden by default -->
-									<img src="assets/reverse.svg" id="direction_reverse_icon" class="icon overlay hidden" alt="reverse">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
+								<button id="direction_btn" class="btn">
+									<div class="grid-overlay">
+										<img src="assets/forward.svg" id="direction_forward_icon" class="icon overlay hidden" alt="forward" ><!-- element with multiple svgs have them hidden by default -->
+										<img src="assets/reverse.svg" id="direction_reverse_icon" class="icon overlay hidden" alt="reverse">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
+									</div>
 								</button>
 								<button id="detail_btn" class="btn" style="font-weight: bold;">
 									Coarse Steps
@@ -307,13 +309,15 @@
 						</div>
 						<div id="configTab" class="controlTabContent">
 							<div class="flex-row">
-								<button id="compute_btn" class="btn">Compute Path</button>
+								<button id="compute_btn" class="btn" alt="Find path using selected planner">
+									<div class="flex-col">Compute Path</div>
+								</button>
 								<!--button id="display_btn" class="btn">Display Path</button-->
-								<button id="edit_map_btn" class="btn grid-overlay">
+								<button id="edit_map_btn" class="btn grid-overlay" alt="Switch to editing mode">
 									<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
 								</button>
-								<button id="planner_config_btn" class="btn">
-									<!-- <img src="assets/planner-config-svgrepo-com.svg" id="planner_config_icon" class="icon overlay" alt="config planner"> -->
+								<button id="planner_config_btn" class="btn" alt="Choose and customize the algorithm">
+									<div class="flex-col"></div>
 								</button>
 							</div>
 							<div class="select_pane">
