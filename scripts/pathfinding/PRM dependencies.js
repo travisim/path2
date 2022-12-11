@@ -16,12 +16,6 @@ function generateString(length) {
 
 
 
-
-
-
-
-
-
 function cyrb128(str) {
     let h1 = 1779033703, h2 = 3144134277,
         h3 = 1013904242, h4 = 2773480762;
@@ -170,13 +164,13 @@ class Tree {
 
 
 class PRMNode {
-  constructor(f_cost=0,g_cost=0,h_cost=0, parent = null, value_XY) {
+  constructor(f_cost=0,g_cost=0,h_cost=0, parent = null, value_XY,neighbours = null) {
     this.f_cost = f_cost;
     this.g_cost = g_cost;
     this.h_cost = h_cost;
-    this.parent = [];
+    this.parent = parent;
     this.value_XY = value_XY;
-    this.neighbours = [];
+    this.neighbours = neighbours;
   }
 
   numberOfNeighbours() {
@@ -242,3 +236,27 @@ class SVGCanvas {
     
   }
 }
+
+
+function isArraysEqual(arr1, arr2)
+    {
+        let N = arr1.length;
+        let M = arr2.length;
+ 
+        // If lengths of array are not equal means
+        // array are not equal
+        if (N != M)
+            return false;
+ 
+        // Sort both arrays
+        arr1.sort();
+        arr2.sort();
+ 
+        // Linearly compare elements
+        for (let i = 0; i < N; i++)
+            if (arr1[i] != arr2[i])
+                return false;
+ 
+        // If all elements were same.
+        return true;
+    }
