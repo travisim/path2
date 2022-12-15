@@ -240,10 +240,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 
   function nextGenSteps(nxtSize){
     while(nxtSize--){
-      console.log(stepCnt, indexMap.length);
       if(stepCnt==indexMap.length) return finishGenerating();
       let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
-      console.log(step);
       if(stepCnt==8) debugger;
       if(isNaN(step[0])) return finishGenerating();
       let i=0;
@@ -446,8 +444,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
       ++stepCnt;
 
       if(genStates && stepCnt%stateFreq==0){
-        //if(stepCnt/stateFreq % 100==0) 
-        console.log("State", stepCnt/stateFreq);
+        if(stepCnt/stateFreq % 100==0) console.log("State", stepCnt/stateFreq);
         let nextState = {canvas:{}, infotables:{}};
         // canvas
         for(const canvas of Object.values(mem.activeCanvas)){
