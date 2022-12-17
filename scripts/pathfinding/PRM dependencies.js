@@ -218,7 +218,7 @@ class SVGCanvas {
     //document.getElementById(canvas_id).innerHTML =  `<line x1=${x1} y1=${y1} x2=${x2} y2=${y2} id=${line_id} style="" />`;
      document.getElementById(canvas_id).appendChild(line);
   }
-  drawCircle(circle_XY=[1,1], r= 20,canvas_id="node_edge",circle_id="circle"){
+  drawCircle(circle_XY=[1,1], r= 20,color = "grey",canvas_id="node_edge",circle_id="circle"){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
     const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;// the canvas square has fixed dimentions 472px
     var r = 0.3*display_ratio;

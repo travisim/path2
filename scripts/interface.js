@@ -214,3 +214,5 @@ myUI.export = function(){
   console.log("DEST ENUMS READING: ",JSON.stringify(statics_to_obj));
   console.log("INFOTABLE: ",JSON.stringify(myUI.infotableArray));
 }
+
+myUI.SVGCanvas = new SVGCanvas("node_edge");

@@ -63,7 +63,7 @@ class PRM extends GridPathFinder{
       case "generate_new_map":
          this.seed = generateString(5);
          document.getElementById("seed_pcfg").setAttribute("value", myUI.planner.seed)
-				this.generateNewMap();
+				this.generateNewMap(myUI.map_start, myUI.map_goal);
         break;
       case "seed":
 				this.seed = value;
@@ -147,7 +147,7 @@ class PRM extends GridPathFinder{
     if(document.getElementById("node_edge")){
       document.getElementById("node_edge").innerHTML = "";
     }
-    var SVGCanvasObj = new SVGCanvas("node_edge");
+
   
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
@@ -179,7 +179,7 @@ class PRM extends GridPathFinder{
     //myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
     
     this.randomCoordsNodes.forEach(node=>{
-        SVGCanvasObj.drawCircle(node.value_XY)
+        myUI.SVGCanvas.drawCircle(node.value_XY,20,"grey")
       });
     
     
@@ -275,7 +275,7 @@ class PRM extends GridPathFinder{
     }
     
     for (let i = 0; i < edgeAccumalator.length; ++i) {
-      SVGCanvasObj.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
+      myUI.SVGCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
     }
     console.log("randomCoordsNodes",this.randomCoordsNodes);
 

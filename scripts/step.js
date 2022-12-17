@@ -156,6 +156,11 @@ myUI.run_steps = function(num_steps, step_direction){
       if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
       }  /* */  
+      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
+         myUI.SVGCanvas.drawCircle(node.value_XY,20,"red")
+      }  /* */  
+
+                
       }catch(e){
         if(dest!=STATIC.PC){
           console.log(e);
