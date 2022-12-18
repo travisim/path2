@@ -133,7 +133,7 @@ class PRM extends GridPathFinder{
     var rand = mulberry32(seed[0]);
      //connectionDistance  
     this.randomCoordsNodes = []
-    this.randomCoordsNodes.push(new PRMNode(0,0,0,null,start,[]))
+    this.randomCoordsNodes.push(new PRMNode(null,start,[]))
     
     for (let i = 0; i < this.sampleSize; ++i) {
       var randomCoord_XY = [Math.round(rand()*(myUI.map_arr.length/*this.map_height*/)), Math.round(rand()*(myUI.map_arr[0].length/*this.map_width*/))] //need seed
@@ -153,10 +153,10 @@ class PRM extends GridPathFinder{
         }
       }
       
-      this.randomCoordsNodes.push(new PRMNode(0,0,0,null,randomCoord_XY,[]));
+      this.randomCoordsNodes.push(new PRMNode(null,randomCoord_XY,[]));
     }
    
-    this.randomCoordsNodes.push(new PRMNode(0,0,0,null,goal,[]))
+    this.randomCoordsNodes.push(new PRMNode(null,goal,[]))
     console.log("random coods node",this.randomCoordsNodes);
     //myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
     

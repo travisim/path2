@@ -164,10 +164,8 @@ class Tree {
 
 
 class PRMNode {
-  constructor(f_cost=0,g_cost=0,h_cost=0, parent = null, value_XY,neighbours = null) {
-    this.f_cost = f_cost;
-    this.g_cost = g_cost;
-    this.h_cost = h_cost;
+  constructor( parent = null, value_XY,neighbours = null) {
+
     this.parent = parent;
     this.value_XY = value_XY;
     this.neighbours = neighbours;

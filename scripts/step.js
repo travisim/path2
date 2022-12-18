@@ -17,7 +17,6 @@ const STATIC_COMMANDS = [
   "UnhighlightPseudoCodeRowSec", // unhighlight Pseudo
   "SetHighlightAtIndex",
   "DrawVertex"
-  "EraseVertex"
 ];
 
 const STATIC_DESTS = [
