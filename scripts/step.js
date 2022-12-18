@@ -159,13 +159,13 @@ myUI.run_steps = function(num_steps, step_direction){
       if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
       }  /* */  
-      if(dest == STATIC.SVGCanvas && command == STATIC.QU){
+      if(dest == STATIC.QU && command == STATIC.DrawVertex){
          myUI.SVGCanvas.drawCircle([x,y],20,"rgb(116, 250, 76)")
       }
-      if(dest == STATIC.SVGCanvas && command == STATIC.CR){
+      if(dest == STATIC.CR && command == STATIC.DrawVertex){
          myUI.SVGCanvas.drawCircle([x,y],20,"blue")
       } 
-      if(dest == STATIC.SVGCanvas && command == STATIC.NB){
+      if(dest == STATIC.NB && command == STATIC.DrawVertex){
          myUI.SVGCanvas.drawCircle([x,y],20,"rgb(0,130,105)")
       } /* */  
 
