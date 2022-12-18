@@ -410,63 +410,8 @@ class GridPathFinder{
 		infoTableRowData,
 		cellVal
 	} = {}){
-		/* NEW */
-		/*
-			this new system will process the arguments using certain keywords
-		*/
-		/* bits are read from right to left */
-		/* 1111111111*/
-		this.actionCache = [1];
-		this.bitOffset = 12;
-		let idx = 0;
-
-		// command is assumed to exist
-		idx = this._manageAction(this.static_bit_len);
-		this.actionCache[idx] += bit_shift(command, this.bitOffset - this.static_bit_len);
-		//console.log("NEW ACTION")
-		//console.log(this.actionCache);
-		if(dest!==undefined){
-			idx = this._manageAction(this.static_bit_len);
-			this.actionCache[0] += 1<<1;
-			this.actionCache[idx] += bit_shift(dest, this.bitOffset - this.static_bit_len);
-		}/* switched coordinate to new system */
-		if(colorIndex!==undefined){
-			idx = this._manageAction(this.color_bit_len);
-			this.actionCache[0] += 1<<2;
-			this.actionCache[idx] += bit_shift(colorIndex, this.bitOffset - this.color_bit_len);
-		}
-		if(nodeCoord!==undefined){
-			++idx;
-			this.actionCache[0] += 1<<3;
-			this.actionCache[idx] = (nodeCoord[0]*this.map_width+nodeCoord[1])*2;
-		}
-		if(arrowIndex!==undefined){
-			++idx;
-			this.actionCache[0] += 1<<4;
-			this.actionCache[idx] = arrowIndex*2;
-		}
-    if(pseudoCodeRow!==undefined){
-			++idx;
-			this.actionCache[0] += 1<<5;
-			this.actionCache[idx] = pseudoCodeRow*2;
-		}
-		if(infoTableRowIndex!==undefined){
-			++idx;
-			this.actionCache[0] += 1<<6;
-			this.actionCache[idx] = infoTableRowIndex*2;
-		}
-		if(infoTableRowData!==undefined){
-			++idx;
-			this.actionCache[0] += 1<<7;
-			this.actionCache[idx] = infoTableRowData;
-		}
-		if(cellVal!==undefined){
-			++idx;
-			this.actionCache[0] += 1<<8;
-			this.actionCache[idx] = cellVal*2;
-		}
+		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal});
 		Array.prototype.push.apply(this.step_cache, this.actionCache);
-		//console.log(cellVal)
 		return this.actionCache.length;
 	}
 	
