@@ -224,7 +224,7 @@ class SVGCanvas {
     var r = 0.3*display_ratio;
     var cx = display_ratio*circle_coord.y;
     var cy = display_ratio*circle_coord.x;
-    var cir = this.getSvgNode('circle', { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, fill:"grey"});
+    var cir = this.getSvgNode('circle', { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, fill:color});
     //var toAppend =`<circle cx=${cx} cy=${cy} r=${r} id=${circle_id} stroke-width="2" fill="grey" />`
     document.getElementById(canvas_id).appendChild(cir);
     

@@ -215,4 +215,3 @@ myUI.export = function(){
   console.log("INFOTABLE: ",JSON.stringify(myUI.infotableArray));
 }
 
-myUI.SVGCanvas = new SVGCanvas("node_edge");

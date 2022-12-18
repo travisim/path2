@@ -36,6 +36,7 @@ myUI.displayMap = function(){
 	console.log(myUI.map_arr);
   if(myUI.map_width>64 || myUI.map_height>64) alert("Tip: Large maps work better with big map optimization enabled!");
 	myUI.reset_animation();
+  
 	myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
 	
@@ -222,6 +223,7 @@ myUI.loadPlanner = function(create_planner = true) {
   myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
   myUI.buttons.planner_config_btn.btn.children[0].innerHTML = myUI.planner.constructor.display_name;
   myUI.displayMap();
+  myUI.SVGCanvas = new SVGCanvas("node_edge");
   myUI.initHover(myUI.planner.constructor.hoverData);
   if(myUI.planner.bigMap) document.getElementById("info-container").classList.add("none");
   else document.getElementById("info-container").classList.remove("none");

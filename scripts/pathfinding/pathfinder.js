@@ -591,7 +591,7 @@ class GridPathFinder{
 }
 
 class Node{
-	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index,id){
+	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index,id,neighbours){
 	  	this.f_cost = f_cost;
       this.g_cost = g_cost;
       this.h_cost = h_cost;
@@ -600,6 +600,7 @@ class Node{
 			this.arrow_index = arrow_index;  // refers to the index (or arrow array) at which the arrow points from the node to the parent
 			// arrow index is used to construct the steps/states when computing the path
       this.id = id;
+      this.neighbours = neighbours;
   }
 
 	clone(){

@@ -16,6 +16,8 @@ const STATIC_COMMANDS = [
   "HighlightPseudoCodeRowSec", //highlight Pseudo
   "UnhighlightPseudoCodeRowSec", // unhighlight Pseudo
   "SetHighlightAtIndex",
+  "DrawVertex"
+  "EraseVertex"
 ];
 
 const STATIC_DESTS = [
@@ -31,6 +33,7 @@ const STATIC_DESTS = [
   "HCanvas",
   "ITQueue", //info table
   "ITNeighbors", 
+  "SVGCanvas"
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -68,6 +71,7 @@ const statics_to_obj = {
   9: "hCost",
   10: "ITQueue",
   11: "ITNeighbors",
+  12: "SVGCanvas"
 }
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
@@ -156,9 +160,15 @@ myUI.run_steps = function(num_steps, step_direction){
       if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
       }  /* */  
-      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
-         myUI.SVGCanvas.drawCircle(node.value_XY,20,"red")
-      }  /* */  
+      if(dest == STATIC.SVGCanvas && command == STATIC.QU){
+         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(116, 250, 76)")
+      }
+      if(dest == STATIC.SVGCanvas && command == STATIC.CR){
+         myUI.SVGCanvas.drawCircle([x,y],20,"blue")
+      } 
+      if(dest == STATIC.SVGCanvas && command == STATIC.NB){
+         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(0,130,105)")
+      } /* */  
 
                 
       }catch(e){
@@ -437,6 +447,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           else action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: -1});
           mem.pseudoCodeRowSec = pseudoCodeRow;
         } 
+      
+        
         // add more here
         if(includeAction)
           Array.prototype.unshift.apply(curStep, action);

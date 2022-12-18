@@ -99,40 +99,20 @@ class PRM extends GridPathFinder{
   }
   
   calc_cost(successor){
-    function manhattan(c1, c2){
-      return Math.abs(c1[0]-c2[0]) + Math.abs(c1[1]-c2[1]);
-    }
+
 
     function euclidean(c1, c2){
       return Math.hypot(c1[0]-c2[0], c1[1]-c2[1]);
     }
     
-    function chebyshev(c1, c2){
-      return Math.max(Math.abs(c1[0]-c2[0]), Math.abs(c1[1]-c2[1]));
-    }
 
-    function octile(c1, c2){
-      var dx = Math.abs(c1[0]-c2[0]);
-      var dy =  Math.abs(c1[1]-c2[1]);
-      return Math.min(dx, dy)*Math.SQRT2 + Math.abs(dy-dx);
-    }
 
-    if(this.distance_metric == "Manhattan"){
-      var g_cost = this.current_node.g_cost + manhattan(this.current_node.self_XY, successor);
-      var h_cost = manhattan(successor, this.goal);
-    }
-    else if(this.distance_metric == "Euclidean"){
+    
+   if(this.distance_metric == "Euclidean"){
       var g_cost = this.current_node.g_cost + euclidean(this.current_node.self_XY, successor);
       var h_cost = euclidean(successor, this.goal);
     }
-    else if(this.distance_metric == "Chebyshev"){
-      var g_cost = this.current_node.g_cost + chebyshev(this.current_node.self_XY, successor);
-      var h_cost = chebyshev(successor, this.goal);
-    }
-    else if(this.distance_metric == "Octile"){
-      var g_cost = this.current_node.g_cost + octile(this.current_node.self_XY, successor);
-      var h_cost = octile(successor, this.goal);
-    }
+
 
     var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
     return [f_cost, g_cost, h_cost];
@@ -153,6 +133,8 @@ class PRM extends GridPathFinder{
     var rand = mulberry32(seed[0]);
      //connectionDistance  
     this.randomCoordsNodes = []
+    this.randomCoordsNodes.push(new PRMNode(0,0,0,null,start,[]))
+    
     for (let i = 0; i < this.sampleSize; ++i) {
       var randomCoord_XY = [Math.round(rand()*(myUI.map_arr.length/*this.map_height*/)), Math.round(rand()*(myUI.map_arr[0].length/*this.map_width*/))] //need seed
       /*
@@ -173,7 +155,7 @@ class PRM extends GridPathFinder{
       
       this.randomCoordsNodes.push(new PRMNode(0,0,0,null,randomCoord_XY,[]));
     }
-    this.randomCoordsNodes.push(new PRMNode(0,0,0,null,start,[]))
+   
     this.randomCoordsNodes.push(new PRMNode(0,0,0,null,goal,[]))
     console.log("random coods node",this.randomCoordsNodes);
     //myUI.canvases["path"].draw_canvas(randomCoords, `1d`, false, false);
@@ -277,7 +259,9 @@ class PRM extends GridPathFinder{
     for (let i = 0; i < edgeAccumalator.length; ++i) {
       myUI.SVGCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
     }
-    console.log("randomCoordsNodes",this.randomCoordsNodes);
+
+//    var nextelement = myUI.planner.randomCoordsNodes.shift();
+ //   console.log("randomCoordsNodes",nextelement);
 
 /*
     this._init_search(start, goal);
@@ -317,35 +301,44 @@ class PRM extends GridPathFinder{
   }
 
   search(start, goal) {
+    if(!this.randomCoordsNodes) this.generateNewMap(start, goal);
+      console.log(this.randomCoordsNodes[0].f_cost,"fcost");
+    console.log(this.randomCoordsNodes[0].neighbours,"neighborus");
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
 		this.closed_list =  new Empty2D(this.map_height, this.map_width);
 		this.open_list =  new Empty2D(this.map_height, this.map_width);
 
     console.log("starting");
-    
+   
     // starting node
-    this.current_node = new Node(0, 0, 0, null, this.start, undefined, 0);
+    var nextNode = this.randomCoordsNodes.shift();
+    this.current_node =  new Node(0, 0, 0, null, nextNode.value_XY, undefined, 0,nextNode.neighbours);
+       // constructor(f_cost, g_cost, h_cost, parent = null, value_XY,neighbours = null) {
+     // 	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index,id){
+      
+     // new Node(0, 0, 0, null, this.start, undefined, 0);
 
     // assigns the F, G, H cost to the node
     [this.current_node.f_cost, this.current_node.g_cost, this.current_node.h_cost] = this.calc_cost(this.current_node.self_XY);
 
     // pushes the starting node onto the queue
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
+    
     if(!this.bigMap){
 
       // initialize the starting sequences
-      this.deltaNWSE.slice().reverse().forEach(item=>
+     this.current_node.neighbours.slice().forEach(item=>
         this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: 1, infoTableRowData: [item, "?", "?", "?", "?", "?"]})
       );
 
       // for every node that is pushed onto the queue, it should be added to the queue infotable
       this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [start[0]+','+start[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
-      this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: start});
+      this._create_action({command: STATIC.DrawVertex, dest: STATIC.QU, nodeCoord: start});
       this._save_step(true);
     }
 
-    this.open_list.set(this.current_node.self_XY, this.current_node);
+    this.open_list.set(this.current_node.self_XY, this.current_node); 
     //---------------------checks if visited 2d array has been visited
     let planner = this;
 
@@ -381,22 +374,22 @@ class PRM extends GridPathFinder{
       
 			this.closed_list.set(this.current_node_XY, this.current_node);
       this.open_list.set(this.current_node_XY, undefined); // remove from open list
-
+/*
       //this.visited.increment(this.current_node_XY); // marks current node XY as visited
       this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: this.current_node_XY});
       
       if(!this.bigMap){
-        for(const i of this.neighborsIndex){
-          this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], "?", "?", "?", "?", "?"]})
+        for (let i = 0; i < this.current_node.neighbours.length; ++i){
+          this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.current_node.neighbours[i], "?", "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
         //this._create_action({command: STATIC.EC, dest: STATIC.DT, nodeCoord: this.current_node_XY});
         this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.EC, dest: STATIC.NB});
-        this._create_action({command: STATIC.DSP, dest: STATIC.CR, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY});
+        this._create_action({command: STATIC.EC, dest: STATIC.NB});// erase all neighbours
+        this._create_action({command: STATIC.DSP, dest: STATIC.CR, nodeCoord: this.current_node_XY}); //draw current
+        this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY}); // erase vertex in queue
         this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 12});
-      }
+      }*/ //add
       this._save_step(true);
 
       this._assign_cell_index(this.current_node_XY);
@@ -404,36 +397,23 @@ class PRM extends GridPathFinder{
       /* FOUND GOAL */
       if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
-      let cardinalCoords = {};
-      if(this.diagonal_allow == false && this.num_neighbors == 8)
-        for(let i = 0; i < this.num_neighbors; ++i)
-          if(this.delta[i].includes(0))
-            cardinalCoords[this.deltaNWSE[i]] = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];
+      
 
       /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
-      for(const i of this.neighborsIndex){
-        var next_XY = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
-        if (next_XY[0] < 0 || next_XY[0] >= this.map_height || next_XY[1] < 0 || next_XY[1] >= this.map_width){
-          if(!this.bigMap) this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, 'inf', 'inf', 'inf', "Out of Bounds"]});
-          continue;  // if the neighbour not within map borders, don't add it to queue
-        }
-
+       for (let i = 0; i < this.current_node.neighbours.length; ++i){
+        var next_XY = this.current_node.neighbours[i]; // calculate the coordinates for the new neighbour
+        
+         
+/*
         if(!this.bigMap){
           this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: next_XY});
         }
-        
-        if(!this._nodeIsNeighbor(next_XY, this.deltaNWSE[i], cardinalCoords)){
-          if(!this.bigMap){
-            // records the neighbor as a obstacle
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, 'inf', 'inf', 'inf', "Obstacle"]});
-            this._save_step(false);
-          }
-          continue;
-        }
+        */
+    
 
         let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
-        
-        let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, undefined, this.step_index);
+        var nextNode = this.randomCoordsNodes.shift();
+        let new_node = new Node(f_cost, g_cost, h_cost, nextNode.value_XY, next_XY, undefined, this.step_index, nextNode.neighbours);
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){
@@ -456,7 +436,7 @@ class PRM extends GridPathFinder{
           //this.visited.increment(next_XY); 
 
           // increment after visiting a node on the closed list
-          this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: next_XY});
+          /*this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: next_XY});*///add on
           this._save_step(false);
           continue; // do not add to queue if closed list already has a lower cost node
         }
@@ -469,11 +449,11 @@ class PRM extends GridPathFinder{
         // see https://www.geeksforgeeks.org/a-search-algorithm/
         
         if(!this.bigMap){
-          this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_XY});
+          /*this._create_action({command: STATIC.DP, dest: STATIC.NB, nodeCoord: next_XY});*/ //add on
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 32});
-          this._handleArrow(next_XY, new_node, open_node, closed_node);
+      
 
-          this._create_action({command: STATIC.DP, dest: STATIC.QU, nodeCoord: next_XY});
+         this._create_action({command: STATIC.DrawVertex, dest: STATIC.QU, nodeCoord: next_XY});
 
           // counts the number of nodes that have a lower F-Cost than the new node
           // to find the position to add it to the queue
