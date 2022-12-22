@@ -132,7 +132,7 @@ class A_star extends GridPathFinder{
     // assigns the F, G, H cost to the node
     [this.current_node.f_cost, this.current_node.g_cost, this.current_node.h_cost] = this.calc_cost(this.current_node.self_XY);
 
-    // pushes the starting node onto the queue
+    
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
     if(!this.bigMap){
 
@@ -172,7 +172,7 @@ class A_star extends GridPathFinder{
       
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
-      this.open_list[this.current_node_XY] = undefined;
+      this.open_list.set(this.current_node_XY, undefined); // remove from open list
 
       if(this.step_index % 100==0) console.log(`F: ${this.current_node.f_cost.toPrecision(5)}, H: ${this.current_node.h_cost.toPrecision(5)}`);
       
@@ -182,7 +182,6 @@ class A_star extends GridPathFinder{
       }/* */
       
 			this.closed_list.set(this.current_node_XY, this.current_node);
-      this.open_list.set(this.current_node_XY, undefined); // remove from open list
 
       //this.visited.increment(this.current_node_XY); // marks current node XY as visited
       this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: this.current_node_XY});

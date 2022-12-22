@@ -305,31 +305,16 @@ class GridPathFinder{
     this.start = start; //in array form [x,y]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited
-    this.neighbors = [];
     this.path = null;
     this._clear_steps();
-    this.requires_uint16 = this.map_height > 255 || this.map_width > 255;
     this.draw_arrows = this.map_height <= 65 && this.map_width <= 65;
-    this.states = {};
-		this.visited_incs = [];
 		this.current_node = undefined;
-    
 
     // generate empty 2d array
-    this.queue_matrix = zero2D(this.map_height, this.map_width); // initialise a matrix of 0s (zeroes), height x width
     this.visited = new NBitMatrix(this.map_height, this.map_width, 8);
     this.searched = false;
     this._create_cell_index();
-
-    this.step_index = -1;
-    this.prev_count = -1;
-    this.state_counter = 0;
-		this.step_cache = [];
 		myUI.reset_arrow(true);
-    // step_index is used to count the number of times a step is created
-    // at every ~100 steps, a state is saved
-    // this balances between processer and memory usage
-		this.prev_node_XY = undefined;
 		
 		if(this.map_height<=32) this.batch_size = 10;
 		else if(this.map_height<=64) this.batch_size = 40;
@@ -384,6 +369,8 @@ class GridPathFinder{
 	}
 
 	_clear_steps(){
+		this.step_index = -1;
+		this.step_cache = [];
 		this.steps_data = [];
 		this.step_index_map = [];
 		this.combined_index_map = [];
@@ -500,37 +487,8 @@ class GridPathFinder{
     return 0;
   }
 
-	get_visited(tuple){
-		return this.states.visited_data[tuple[0]].slice(tuple[1], tuple[2]);
-	}
-
-	get_queue(tuple){
-		if(!tuple) return;
-		return this.states.queue_data[tuple[0]].slice(tuple[1], tuple[2]);
-	}
-
-	search_state(step_num){
-		while(!this.states.hasOwnProperty(step_num) && step_num>-1)
-    	--step_num;
-		return step_num;
-	}
-
-	get_state(step_num){
-		return this.states[step_num];
-	}
-
-	final_state() {
-    if (!this.start) return alert("haven't computed!");
-    return { path: this.path, queue: this.queue, visited: this.visited.copy_data()};
-  }
-
   max_step(){
     return this.step_index-1 ; // because of dummy step at the end and final step is n-1
-  }
-
-  all_states() {
-    if (this.searched) return this.states;
-    return null;
   }
   
 }

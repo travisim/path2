@@ -202,6 +202,7 @@ class SVGCanvas {
    // svg.width = myUI.canvases.bg.canvas.clientWidth;
    // svg.height = myUI.canvases.bg.canvas.clientHeight;
     svg.setAttribute('id',canvas_id)
+    svg.setAttribute('style', "position: absolute");
     document.getElementById("canvas_container").append(svg);
   }
   drawLine(start_XY=[0,0], end_XY = [3,3],canvas_id="node_edge",line_id="ki"){
