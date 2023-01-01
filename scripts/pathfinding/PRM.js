@@ -25,9 +25,9 @@ class PRM extends GridPathFinder{
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "pi", description: `Sets seed for randomness of random points`},
-      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 10, description: `Sets number of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 25, description: `Sets number of random points`},
       {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Closest Neighbours By Radius"],defaultVal:"Closest Neighbours By Radius", description: `Sets neighbours selection method`},
-      {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:4, description: `Sets number of closest neighbours to select`},
+      {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], defaultVal:"Euclidean", description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
@@ -380,9 +380,9 @@ class PRM extends GridPathFinder{
       
 			this.closed_list.set(this.current_node_XY, this.current_node);
       this.open_list.set(this.current_node_XY, undefined); // remove from open list
-/*
+
       //this.visited.increment(this.current_node_XY); // marks current node XY as visited
-      this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: this.current_node_XY});
+      this._create_action({command: STATIC.drawVertex, dest: STATIC.VI, nodeCoord: this.current_node_XY});
       
       if(!this.bigMap){
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
@@ -395,7 +395,7 @@ class PRM extends GridPathFinder{
         this._create_action({command: STATIC.DSP, dest: STATIC.CR, nodeCoord: this.current_node_XY}); //draw current
         this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY}); // erase vertex in queue
         this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 12});
-      }*/ //add
+      }//add
       this._save_step(true);
 
       this._assign_cell_index(this.current_node_XY);

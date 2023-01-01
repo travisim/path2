@@ -205,7 +205,7 @@ class SVGCanvas {
     svg.setAttribute('style', "position: absolute");
     document.getElementById("canvas_container").append(svg);
   }
-  drawLine(start_XY=[0,0], end_XY = [3,3],canvas_id="node_edge",line_id="ki"){
+  drawLine(start_XY=[0,0], end_XY = [3,3],canvas_id="node_edge",id="ki"){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
     const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;// the canvas square has fixed dimentions 472px
@@ -213,20 +213,29 @@ class SVGCanvas {
     var y1 = display_ratio*start_coord.x;
     var x2 = display_ratio*end_coord.y;
     var y2 = display_ratio*end_coord.x; 
-    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id: line_id, strokeWidth:2, id:line_id, style:"stroke:rgb(255,0,0);stroke-width:2" });
+    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:id, strokeWidth:2, id:line_id, style:"stroke:rgb(255,0,0);stroke-width:2" });
     //document.getElementById(canvas_id).innerHTML =  `<line x1=${x1} y1=${y1} x2=${x2} y2=${y2} id=${line_id} style="" />`;
      document.getElementById(canvas_id).appendChild(line);
   }
-  drawCircle(circle_XY=[1,1], r= 20,color = "grey",canvas_id="node_edge",circle_id="circle"){
+  drawCircle(circle_XY=[1,1], r= 20,color = "grey",circle_id="null", circle_class = "null",canvas_id="node_edge",){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
     const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;// the canvas square has fixed dimentions 472px
     var r = 0.3*display_ratio;
     var cx = display_ratio*circle_coord.y;
-    var cy = display_ratio*circle_coord.x;
-    var cir = this.getSvgNode('circle', { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, fill:color});
+    var cy = display_ratio*circle_coord.x; 
+    var cir = this.getSvgNode('circle', { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color});
     //var toAppend =`<circle cx=${cx} cy=${cy} r=${r} id=${circle_id} stroke-width="2" fill="grey" />`
     document.getElementById(canvas_id).appendChild(cir);
     
+  }
+  EraseSvgById(svg_id,canvas_id ="node_edge"){
+    document.getElementById(canvas_id).getElementById(svg_id).remove();
+  }
+  EraseSvgsbyClass(svg_class,canvas_id ="node_edge")){
+    var classElements = document.getElementById(canvas_id).getElementsByClass(svg_class);
+    for (let i = 0; i < this.classElements.length; ++i){
+      classElements[i].remove();
+    }
   }
   reset(canvas_id){
     if(document.getElementById(canvas_id)){

@@ -16,7 +16,9 @@ const STATIC_COMMANDS = [
   "HighlightPseudoCodeRowSec", //highlight Pseudo
   "UnhighlightPseudoCodeRowSec", // unhighlight Pseudo
   "SetHighlightAtIndex",
-  "DrawVertex"
+  "DrawVertex",
+  "EraseVertex",
+  "EraseAllVertex"
 ];
 
 const STATIC_DESTS = [
@@ -160,14 +162,27 @@ myUI.run_steps = function(num_steps, step_direction){
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
       }  /* */  
       if(dest == STATIC.QU && command == STATIC.DrawVertex){
-         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(116, 250, 76)")
+         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(116, 250, 76)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);//id generated from coord and type
       }
       if(dest == STATIC.CR && command == STATIC.DrawVertex){
-         myUI.SVGCanvas.drawCircle([x,y],20,"blue")
+         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(105,206,230)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
       } 
       if(dest == STATIC.NB && command == STATIC.DrawVertex){
-         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(0,130,105)")
-      } /* */  
+         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(0,130,105)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
+      }
+      if(dest == STATIC.VI && command == STATIC.DrawVertex){
+         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(255,0,0)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
+      } 
+      if(command == STATIC.EraseVertex){
+         myUI.SVGCanvas.EraseSvgById(`SVGId_${x}${y}${dest}`);
+      } 
+      if(command == STATIC.EraseAllVertex){
+         myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_${dest}`);
+      } 
+        
+    
+        
+        /* */  
 
                 
       }catch(e){
