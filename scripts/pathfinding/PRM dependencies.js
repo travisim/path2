@@ -237,6 +237,10 @@ class SVGCanvas {
       element.remove();
     });
   }
+  eraseAllandDrawCircle(circle_XY, r, color ,circle_id, circle_class ,canvas_id){
+    EraseSvgsbyClass(circle_class,canvas_id);
+    drawCircle(circle_XY, r, color ,circle_id, circle_class ,canvas_id);
+  }
 
   //myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_1`);
   reset(canvas_id){

@@ -17,6 +17,7 @@ const STATIC_COMMANDS = [
   "UnhighlightPseudoCodeRowSec", // unhighlight Pseudo
   "SetHighlightAtIndex",
   "DrawVertex",
+  "DrawSpecialVertex",
   "EraseVertex",
   "EraseAllVertex"
 ];
@@ -139,7 +140,7 @@ myUI.run_steps = function(num_steps, step_direction){
         myUI.arrow.elems[arrowIndex].classList.add("hidden");
       }
       // INFOMAP
-      if(dest==STATIC.CR && (command==STATIC.DP || command==STATIC.DSP)){
+      if(dest==STATIC.CR && (command==STATIC.DP || command==STATIC.DSP || command==STATIC.DrawSpecialVertex)){
         myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
       }
       // INFOTABLE 
@@ -164,21 +165,26 @@ myUI.run_steps = function(num_steps, step_direction){
       if(dest == STATIC.QU && command == STATIC.DrawVertex){
          myUI.SVGCanvas.drawCircle([x,y],20,"rgb(116, 250, 76)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);//id generated from coord and type
       }
-      if(dest == STATIC.CR && command == STATIC.DrawVertex){
+      else if(dest == STATIC.CR && command == STATIC.DrawVertex){
          myUI.SVGCanvas.drawCircle([x,y],20,"rgb(105,206,230)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
       } 
-      if(dest == STATIC.NB && command == STATIC.DrawVertex){
+      else if(dest == STATIC.NB && command == STATIC.DrawVertex){
          myUI.SVGCanvas.drawCircle([x,y],20,"rgb(0,130,105)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
       }
-      if(dest == STATIC.VI && command == STATIC.DrawVertex){
+      else if(dest == STATIC.VI && command == STATIC.DrawVertex){
          myUI.SVGCanvas.drawCircle([x,y],20,"rgb(255,0,0)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
       } 
-      if(command == STATIC.EraseVertex){
+      else if(command == STATIC.EraseVertex){
          myUI.SVGCanvas.EraseSvgById(`SVGId_${x}${y}${dest}`);
       } 
-      if(command == STATIC.EraseAllVertex){
+      else if(command == STATIC.EraseAllVertex){
          myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_${dest}`);
       } 
+      else if(command == STATIC.DrawSpecialVertex){ //now hard coded for current vertex
+         myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_${dest}`);
+         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(105,206,230)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
+      } 
+        
         
     
         
