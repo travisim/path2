@@ -232,12 +232,13 @@ class SVGCanvas {
     document.getElementById(canvas_id).getElementById(svg_id).remove();
   }
   EraseSvgsbyClass(svg_class,canvas_id ="node_edge"){
-    var classElements = document.getElementsByClassName(svg_class);
-    var classElementslength = classElements.length
-    for (let i = 0; i < classElementslength; ++i){
-      classElements[i].remove();
-    }
+    const classElements = document.querySelectorAll("."+svg_class);
+    classElements.forEach(element => {
+      element.remove();
+    });
   }
+
+  //myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_1`);
   reset(canvas_id){
     if(document.getElementById(canvas_id)){
       document.getElementById(canvas_id).innerHTML = "";
