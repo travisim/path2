@@ -19,7 +19,7 @@ class GridPathFinder{
 		return [numBits, offset, idx];
 	}
 
-	static unpackAction(action){
+	static unpackAction(action, readable = false){
 		/* NEW */
 		let bitOffset = 12;
 		let idx = 0;
@@ -62,6 +62,18 @@ class GridPathFinder{
 			var cellVal = action[idx]/2;
 		}
     
+		if(readable){
+			return `
+			Command          : ${STATIC_COMMANDS[command]}
+			Dest             : ${statics_to_obj[dest]}
+			x,y              : ${x}, ${y}
+			colorIndex       : ${colorIndex}
+			pseudoCodeRow    : ${pseudoCodeRow}
+			infoTableRowIndex: ${infoTableRowIndex}
+			infoTableRowData : ${infoTableRowData}
+			cellVal          : ${cellVal}
+			`
+		}
 		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal];/**/
 	}
 
@@ -449,7 +461,7 @@ class GridPathFinder{
 		this.cell_map[x][y] = this.step_index;
 	}
 
-	_found_goal(node){
+	_found_goal(node, draw_mode = "grid"){
 		// found the goal & exits the loop
 		if (node.self_XY[0] != this.goal[0] || node.self_XY[1] != this.goal[1]) return false;
 		
@@ -464,17 +476,18 @@ class GridPathFinder{
 			this._create_action(STATIC.DP, STATIC.PA, node.self_XY);
 			this._create_action(STATIC.DA, node.arrow_index, 1);
 			/* NEW */
-			this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_XY});
-			if(!isNaN(node.arrow_index))
+			console.log(draw_mode);
+			if(draw_mode == "free_vertex") this._create_action({command: STATIC.DrawVertex, dest: STATIC.CR, nodeCoord: node.self_XY});
+			else this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_XY});
+			if(! node.arrow_index === null){
 				this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
+			}
 			node = node.parent;
 		}
 		console.log("found");
 		/* NEW */
-		this._create_action({command: STATIC.SIMPLE});
 		this._save_step(true);
 
-		this._create_action({command: STATIC.SIMPLE});
 		this._save_step(true);
 
 		return true;
@@ -494,7 +507,7 @@ class GridPathFinder{
 }
 
 class Node{
-	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index,neighbours = []){
+	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index = null, neighbours = []){
 	  	this.f_cost = f_cost;
       this.g_cost = g_cost;
       this.h_cost = h_cost;

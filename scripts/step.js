@@ -11,13 +11,14 @@ const STATIC_COMMANDS = [
   "EA" , // erase arrow (arrow index)
   "InsertRowAtIndex", // dest, rowIndex
   "EraseRowAtIndex", // dest, rowIndex
+  "EraseAllRows", // dest, rowIndex
   "UpdateRowAtIndex", // dest, rowIndex
   "HighlightPseudoCodeRowPri", //highlight Pseudo
   "HighlightPseudoCodeRowSec", //highlight Pseudo
   "UnhighlightPseudoCodeRowSec", // unhighlight Pseudo
   "SetHighlightAtIndex",
   "DrawVertex",
-  "DrawSpecialVertex",
+  "DrawSingleVertex",
   "EraseVertex",
   "EraseAllVertex"
 ];
@@ -147,6 +148,9 @@ myUI.run_steps = function(num_steps, step_direction){
       if(command==STATIC.InsertRowAtIndex){
         myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
       }
+      if(command==STATIC.EraseAllRows){
+        myUI.InfoTables[statics_to_obj[dest]].removeAllTableRows(); 
+      }
       else if(command==STATIC.EraseRowAtIndex){
         myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
       }
@@ -180,7 +184,7 @@ myUI.run_steps = function(num_steps, step_direction){
       else if(command == STATIC.EraseAllVertex){
          myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_${dest}`);
       } 
-      else if(command == STATIC.DrawSpecialVertex){ //now hard coded for current vertex
+      else if(command == STATIC.DrawSingleVertex){ //now hard coded for current vertex
          myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_${dest}`);
          myUI.SVGCanvas.drawCircle([x,y],20,"rgb(105,206,230)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
       } 
@@ -195,14 +199,14 @@ myUI.run_steps = function(num_steps, step_direction){
         if(dest!=STATIC.PC){
           console.log(e);
           console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
-          console.log(step.slice(i, j));
+          console.log(GridPathFinder.unpackAction(step.slice(i, j), true));
           debugger;
         }
       }
       
       i=j;
     }
-    if(myUI.map_width<=64 && myUI.map_height<=64) 
+    if(myUI.map_width<=64 && myUI.map_height<=64 && myUI.currentCoord) 
       myUI.updateInfoMap(myUI.planner.infoMapPlannerMode(),...myUI.currentCoord);
   }
 }
@@ -248,7 +252,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 	let revCombinedCnt = 0;
 
   //let mem = {canvasCoords:{}, drawSinglePixel:{}, fullCanvas:{}, arrowColor:{}, bounds:{}};
-  let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}};
+  let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}};
   Object.values(myUI.canvases).forEach(canvas=>canvas.init_virtual_canvas());
   document.querySelector("#info-tables-dynamic").style.display = "none";
 
@@ -277,7 +281,6 @@ myUI.generateReverseSteps = function({genStates=false}={}){
     while(nxtSize--){
       if(stepCnt==indexMap.length) return finishGenerating();
       let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
-      if(stepCnt==8) debugger;
       if(isNaN(step[0])) return finishGenerating();
       let i=0;
       myUI.step_data.bck.map.push(myUI.step_data.bck.data.length);
@@ -446,6 +449,14 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           let [data, toHighlight] = myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex);
           action = GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight?infoTableRowIndex:infoTableRowIndex*-1, infoTableRowData: data});
         }
+        else if(command==STATIC.EraseAllRows){
+          // IT SHOULD WORK, UNTESTED
+          action = [];
+          while (!myUI.InfoTables[statics_to_obj[dest]].empty()){
+            let [data, toHighlight] = myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(1); 
+            Array.prototype.unshift.apply(action, GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight ? 1 : -1, infoTableRowData: data}));
+          }
+        }
         else if(command==STATIC.UpdateRowAtIndex){
           let [data, prevHighlight] = myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
           action = GridPathFinder.packAction({command: STATIC.UpdateRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex, infoTableRowData: data});
@@ -466,8 +477,42 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           if(mem.pseudoCodeRowSec!==undefined) action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: mem.pseudoCodeRowSec});
           else action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: -1});
           mem.pseudoCodeRowSec = pseudoCodeRow;
+        }
+        else if(command == STATIC.DrawVertex){
+          action = GridPathFinder.packAction({command: STATIC.EraseVertex, dest: dest, nodeCoord: [x,y]});
+          if(!mem.vertices.hasOwnProperty(dest))
+            mem.vertices[dest] = [];
+          mem.vertices[dest].push([x,y]);
+        }
+        else if(command == STATIC.EraseVertex){
+          action = GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y]});
+          if(!mem.vertices.hasOwnProperty(dest)){
+            console.log("BRUH"); alert("BRUH"); debugger;
+          }
+          for(let i = 0; i < mem.vertices[dest].length; ++i){
+            console.log(mem.vertices[dest][i]);
+            if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y){
+              mem.vertices[dest].splice(i, 1);
+              break;
+            }
+          }
+        }
+        else if(command == STATIC.EraseAllVertex){
+          action = [];
+          if(!mem.vertices.hasOwnProperty(dest))
+            mem.vertices[dest] = [];
+          mem.vertices[dest].forEach(coord => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: coord})));
+          mem.vertices[dest] = [];
         } 
-      
+        else if(command == STATIC.DrawSingleVertex){ //now hard coded for current vertex
+          action = GridPathFinder.packAction({command: STATIC.EraseAllVertex, dest: dest});
+          if(!mem.vertices.hasOwnProperty(dest))
+            mem.vertices[dest] = [];
+          mem.vertices[dest].forEach(coord => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: coord})));
+          mem.vertices[dest] = [];
+          mem.vertices[dest].push([x,y]);
+        } 
+          
         
         // add more here
         if(includeAction)

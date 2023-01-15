@@ -79,6 +79,10 @@ class UIInfoTable{
     r.classList.add('infoTableRow'); // rmeoved rowId
     return r;
   }
+
+  empty(){
+    return this.rows.length == 0;
+  }
   /*
   inTop(rowId,values){
   
@@ -256,7 +260,7 @@ class UIInfoTable{
     let toHighlight = (rowIndex>0);
     rowIndex = Math.abs(rowIndex)-1;
     if (rowIndex >= this.rows.length || this.rows.length<1){
-      console.log("row index does not yet exist")
+      console.log("row index does not yet exist", rowIndex+1);
       return 0;
     }
     let idx = 0;
@@ -267,8 +271,7 @@ class UIInfoTable{
       idx++;
     }
     if(toHighlight) return [data, this.setHighlightAtIndex(rowIndex+1)];
-    let prevHighlight = this.highlightRow;
-    return [data, prevHighlight];
+    return [data, this.highlightRow];
   }
   
   flatten(){

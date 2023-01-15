@@ -180,18 +180,8 @@
 								<button id="select_checkboxes" class="btn" ><b>Select All</b></button>
 							</div>
   						<div id="canvas_layers">
-               <!-- <h1>Canvas Layers</h1>
-              -->
-              <!--
-                <input type="checkbox" id="show_visited" name="show_visited" class="layers" >
-                <label for="show_visited">
-                   <h2>Visited<span>hi</span></h2>
-                </label>
-              
-              --> 
               </div>
               <div id = "checkbox_style"></div>
-
 						</div>
 					</div>
 					<div class="flex-row">
@@ -312,7 +302,6 @@
 								<button id="compute_btn" class="btn" alt="Find path using selected planner">
 									<div class="flex-col">Compute Path</div>
 								</button>
-								<!--button id="display_btn" class="btn">Display Path</button-->
 								<button id="edit_map_btn" class="btn grid-overlay" alt="Switch to editing mode">
 									<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
 								</button>
@@ -335,26 +324,6 @@
 									<label class="scen_label">Y2:</label>
 									<input id="scen_goal_y" class="shrink scen_controls" type="number" min="0">
 								</div>
-              
-                <!-- <div id="toggle-group" class="toggle-group">
-                     <div class="toggle-button gridPixelToggle">
-                        <input type="radio" name="vertexToggle" id="gridPixelToggle" value="gridPixelToggle" />
-                        <label for="gridPixelToggle"><div>Grid Pixel</div></label>
-                    </div>
-                    <div class="toggle-button vertexToggle">
-                        <input type="radio" name="vertexToggle" id="vertexToggle" value="vertex" />
-                        <label for="vertexToggle"><div>Grid Vertex </div></label>
-                    </div>
-                    <div class="toggle-button freeVertexToggle">
-                        <input type="radio" name="vertexToggle" id="freeVertexToggle" value="freeVertex" />
-                        <label for="freeVertexToggle"><div>Free Vertex </div></label>
-                    </div>
-                </div> -->
-                
-								
-								<!-- <p id="planner_label"></p>
-								<label for="planner_select" class="label_centered">Choose planner:</label>
-								<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select> -->
 							</div>
 							<div id="file_droparea" class="upload overlay">
 								<form class="my-form">
@@ -423,43 +392,6 @@
 				<div style="overflow: auto;">
 					<table id="planner_config_body"></table>
 				</div>
-				<!--div class="flex-row">
-					<div class="flex-col" id="planner_config_body">
-						<div class="flex-row">
-							<label class="label_centered">Diagonal Blocking:</label>
-							<button id="diagonal_block_btn" class="btn modal_btn">
-								<span id="diagonal_block_label">Block</span>
-							</button>
-						</div>
-						<div class="flex-row">
-							<label class="label_centered">neighbors:</label>
-							<button id="num_neighbors_btn" class="btn modal_btn">
-								<span id="num_neighbors_label">Octal (8-directions)</span>
-							</button>
-						</div>
-						<div class="flex-row">
-							<label class="label_centered">Starting Node:</label>
-							<button id="first_neighbor_btn" class="btn modal_btn">
-							</button>
-						</div>
-						<div class="flex-row">
-							<label class="label_centered">Search Direction:</label>
-							<button id="search_direction_btn" class="btn modal_btn">
-								<span id="search_direction_label">Clockwise</span>
-							</button>
-						</div>
-						<div class="flex-row" id="distance_select_ctn">
-							<label for="distance_select" class="label_centered">Distance Metric:</label>
-							<select name="distance_select" size="1" id="distance_select" class="select-dropdown"></select>
-						</div>
-						<div class="flex-row">
-							<label class="label_centered">H-optimized:</label>
-							<button id="h_optimized_btn" class="btn modal_btn">
-								<span id="h_optimized_label">Disabled</span>
-							</button>
-						</div>
-					</div>
-				</div><!---->
 			</div>
 		</div>
 		<div id="first_neighbor_modal" class="modal">

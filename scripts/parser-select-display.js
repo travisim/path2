@@ -229,6 +229,36 @@ myUI.loadPlanner = function(create_planner = true) {
   else document.getElementById("info-container").classList.remove("none");
 }
 
+/*
+myUI.loadPlanner = function(create_planner = true) {
+  let tmp_planner = myUI.planner;
+  if(create_planner){
+    var planner_select_elem = myUI.selects["planner_select"].elem;
+    myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
+    tmp_planner = new myUI.planners[myUI.planner_choice]();
+    // updates select
+    myUI.selects["planner_select"].elem.value = myUI.planner_choice;
+  }
+  myUI.canvasReset();
+  for(const cb of tmp_planner.constructor.checkboxes)
+    appendCheckbox(...cb);
+  myUI.dynamicCanvas = myUI.canvasGenerator(tmp_planner.canvases);
+  myUI.infoTableReset();
+  myUI.infoTableGenerator(tmp_planner.infoTables);
+  if(create_planner) myUI.setPlannerConfig();
+
+	myUI.reset_animation();
+  myUI.InfoMap.CanvasMode(tmp_planner.infoMapPlannerMode(), myUI.dynamicCanvas);
+  myUI.buttons.planner_config_btn.btn.children[0].innerHTML = tmp_planner.constructor.display_name;
+  myUI.displayMap();
+  myUI.SVGCanvas = new SVGCanvas("node_edge");
+  myUI.initHover(tmp_planner.constructor.hoverData);
+  if(tmp_planner.bigMap) document.getElementById("info-container").classList.add("none");
+  else document.getElementById("info-container").classList.remove("none");
+  if(create_planner) myUI.planner = new myUI.planners[myUI.planner_choice]();
+}
+*/
+
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
 // myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
 

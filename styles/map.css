@@ -54,19 +54,6 @@
 	padding-right: 0px;
 }
 
-/* controls map order and how the canvases are displayed
-#hover_map{z-index:62}
-#dotted{z-index:48}
-#current_XY{z-index:46}
-#start, #goal{z-index:45}
-#path{z-index:44}
-#neighbors{z-index:43}
-#visited{z-index:42}
-#queue{z-index:41}
-#fCost{z-index:40}
-#gCost{z-index:39}
-#hCost{z-index:38}
-#bg{z-index:37}/**/
 
 .draggable{
 	position: absolute;
