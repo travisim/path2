@@ -43,7 +43,7 @@ function mulberry32(a) {
 }
 
 function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if there is LOS also checks the start and goal//LOS uses canvas data for greater detail
-  const start_coord = {y0:start_XY[1]*59, x0:start_XY[0]*59};
+  const start_coord = {y0:start_XY[1]*(944/myUI.map_height), x0:start_XY[0]*(944/myUI.map_width)};
   const end_coord = {y1:end_XY[1]*59, x1:end_XY[0]*59};
   var x0 = start_coord.x0;
   var y0 = start_coord.y0;
@@ -90,7 +90,9 @@ function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if
 //tree data structure---------------------------------------
 // from https://www.30secondsofcode.org/articles/s/js-data-structures-tree
 
+function CustomLOSChecker(){
 
+}
 
 
 class TreeNode {
@@ -186,9 +188,9 @@ class PRMNode {
 }
 
 class SVGCanvas {
-  constructor(canvas_id) {
+  constructor(canvas_id, drawOrder) {
     this.canvas_id = canvas_id;
-    this.createSvgCanvas(this.canvas_id);
+    this.createSvgCanvas(this.canvas_id, drawOrder);
    // this.reset(this.canvas_id);
   }
   getSvgNode(n, v) {
@@ -197,41 +199,87 @@ class SVGCanvas {
       n.setAttributeNS(null, p.replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
     return n
   }
-  createSvgCanvas(canvas_id="node_edge"){
+  createSvgCanvas(canvas_id, drawOrder){
     var svg = this.getSvgNode("svg",{width:472/*myUI.canvases.bg.canvas.clientWidth*/,height:472/*myUI.canvases.bg.canvas.clientHeight*/,id:canvas_id});
    // svg.width = myUI.canvases.bg.canvas.clientWidth;
    // svg.height = myUI.canvases.bg.canvas.clientHeight;
+   
+    const documentStyle = getComputedStyle(document.body)
+    const canvas_length = documentStyle.getPropertyValue('--canvas-length'); // #336699
     svg.setAttribute('id',canvas_id)
-    svg.setAttribute('style', "position: absolute");
+    svg.setAttribute('style', "position: absolute;");
+    svg.style.height = canvas_length;
+    svg.style.width = canvas_length;
+
+    const CANVAS_OFFSET = getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top');
+    svg.setAttribute('viewBox', `-${CANVAS_OFFSET.slice(0,-2)} -${CANVAS_OFFSET.slice(0,-2)} ${canvas_length.slice(0,-2)} ${canvas_length.slice(0,-2)}`);
+    svg.style.zIndex = Number(documentStyle.getPropertyValue('--canvas-z-index')) - drawOrder;
+    
     document.getElementById("canvas_container").append(svg);
+    return svg;
   }
-  drawLine(start_XY=[0,0], end_XY = [3,3],canvas_id="node_edge",line_id="ki"){
+  drawLine(start_XY, end_XY, dest = STATIC.map){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
     const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;// the canvas square has fixed dimentions 472px
     var x1 = display_ratio*start_coord.y;
     var y1 = display_ratio*start_coord.x;
     var x2 = display_ratio*end_coord.y;
-    var y2 = display_ratio*end_coord.x; 
-    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, id:line_id, style:"stroke:rgb(255,0,0);stroke-width:2" });
-    //document.getElementById(canvas_id).innerHTML =  `<line x1=${x1} y1=${y1} x2=${x2} y2=${y2} id=${line_id} style="" />`;
-     document.getElementById(canvas_id).appendChild(line);
+    var y2 = display_ratio*end_coord.x;
+    var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
+    var line_class = `SVGline_${dest}`;
+    var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
+    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, class:line_class, stroke: color});
+    document.getElementById(this.canvas_id).appendChild(line);
   }
-  drawCircle(circle_XY=[1,1], r= 20,color = "grey",circle_id="null", circle_class = "null",canvas_id="node_edge",){
+  eraseLine(start_XY, end_XY, dest = STATIC.map){
+    const start_coord = {y:start_XY[1], x:start_XY[0]};
+    const end_coord = {y:end_XY[1], x:end_XY[0]};
+    var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
+    try{this.EraseSvgById(line_id);}catch{
+      line_id = `SVGline_${end_coord.x}_${end_coord.y}_${start_coord.x}_${start_coord.y}_${dest}`;
+      try{this.EraseSvgById(line_id);}catch{
+        alert("LINE DOES NOT EXIST");
+      }
+    }
+  }
+  eraseAllLines(dest = STATIC.map){
+    this.EraseSvgsbyClass(`SVGline_${dest}`);
+  }
+  drawCircle(circle_XY, dest = STATIC.map){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
     const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;// the canvas square has fixed dimentions 472px
-    var r = 0.3*display_ratio;
+    var r = 0.25*display_ratio;
     var cx = display_ratio*circle_coord.y;
     var cy = display_ratio*circle_coord.x; 
-    var cir = this.getSvgNode('circle', { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color});
-    //var toAppend =`<circle cx=${cx} cy=${cy} r=${r} id=${circle_id} stroke-width="2" fill="grey" />`
-    document.getElementById(canvas_id).appendChild(cir);
     
+    var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
+    var circle_class = `SVGcircle_${dest}`;
+    var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
+    var drawType = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].drawType : "cell";
+    let config = { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color};
+    if(drawType == "dotted"){
+      config.fill = "none";
+      config.stroke = color;
+      config.strokeDasharray = "6.5,6.5";
+      config.r = 0.2*display_ratio;
+      config.strokeWidth = 5;
+    }
+    var cir = this.getSvgNode('circle', config);
+    //var toAppend =`<circle cx=${cx} cy=${cy} r=${r} id=${circle_id} stroke-width="2" fill="grey" />`
+    document.getElementById(this.canvas_id).appendChild(cir);
   }
-  EraseSvgById(svg_id,canvas_id ="node_edge"){
-    document.getElementById(canvas_id).getElementById(svg_id).remove();
+  eraseCircle(circle_XY, dest = STATIC.map){
+    const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
+    var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
+    try{this.EraseSvgById(circle_id);}catch{
+      alert("CIRCLE DOES NOT EXIST");
+    }
   }
-  EraseSvgsbyClass(svg_class,canvas_id ="node_edge"){
+  EraseSvgById(svg_id){
+    document.getElementById(this.canvas_id).getElementById(svg_id).remove();
+  }
+  EraseSvgsbyClass(svg_class){
     const classElements = document.querySelectorAll("."+svg_class);
     classElements.forEach(element => {
       element.remove();
@@ -243,11 +291,33 @@ class SVGCanvas {
   }
 
   //myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_1`);
-  reset(canvas_id){
-    if(document.getElementById(canvas_id)){
-      document.getElementById(canvas_id).innerHTML = "";
+  reset(eraseMap = false){
+    if(!document.getElementById(this.canvas_id)) return;
+    if(eraseMap){
+      document.getElementById(this.canvas_id).innerHTML = "";
     }
-    
+    else{
+      let tmp_doc = this.createSvgCanvas("tmp_svg", 0);
+      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGcircle_${STATIC.map}`))
+        tmp_doc.appendChild(el.cloneNode());
+      
+      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGline_${STATIC.map}`))
+        tmp_doc.appendChild(el.cloneNode());
+      
+      document.getElementById(this.canvas_id).innerHTML = "";
+      for(const el of tmp_doc.children)
+        document.getElementById(this.canvas_id).appendChild(el.cloneNode());
+
+      tmp_doc.remove();
+    }
+  }
+
+  show(){
+    document.getElementById(this.canvas_id).classList.remove("none");
+  }
+
+  hide(){
+    document.getElementById(this.canvas_id).classList.add("none");
   }
 }
 

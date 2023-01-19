@@ -1,5 +1,6 @@
 :root{
-	--canvas-length: 472px;;
+	--canvas-length: 488px;
+  --canvas-offset: calc((var(--canvas-length) - 472px) / 2);
 	--canvas-remaining: calc(512px - var(--canvas-length));
   --canvas-z-index: 40;
 }
@@ -24,20 +25,23 @@
 	top: var(--canvas-remaining);
 	left: var(--canvas-remaining);
 	/*margin-top: var(--canvas-remaining);*/
-	border: 1px solid black;
+	border: none;
+  padding: none;
 }
 
 .map_canvas{
-	height: 100%;
-	width: 100%;
+	height: calc(var(--canvas-length) - 2 * var(--canvas-offset));
+	width: calc(var(--canvas-length) - 2 * var(--canvas-offset));
 	position: absolute;
-	border: 1px solid black;
+  top: var(--canvas-offset);
+  left: var(--canvas-offset);
+	border: none;
 }
 
 #left_axes{
 	position: absolute;
 	height: var(--canvas-length);
-	width: calc(512px - var(--canvas-length));
+	width: var(--canvas-remaining);
 	overflow: hidden;
 	top: var(--canvas-remaining);
 	padding: 0px;

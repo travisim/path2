@@ -79,6 +79,7 @@ function dragElement(elmnt) {
 
   var bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
 	let x1, y1, dx, dy;
+	const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
 	const e_num = Math.pow(10, -3);
 	elmnt.onmousedown = dragMouseDown;
 
@@ -102,11 +103,11 @@ function dragElement(elmnt) {
 		//console.log(e.clientX);
     dx = x1 - e.clientX;
     dy = y1 - e.clientY;
-		if(elmnt.offsetTop - dy >= -elmnt.height/2 && elmnt.offsetTop - dy <= bounds.height-elmnt.height/2){  // if within y-bounds
+		if(elmnt.offsetTop - dy >= -elmnt.height/2 + CANVAS_OFFSET && elmnt.offsetTop - dy <= bounds.height-elmnt.height/2 + CANVAS_OFFSET){  // if within y-bounds
 			elmnt.style.top = (elmnt.offsetTop - dy) + "px";  // move the element in y-axis
 			y1 = elmnt.getBoundingClientRect().y + elmnt.height/2;// update the y-coordinate when mouseup 
 		}
-		if(elmnt.offsetLeft - dx >= -elmnt.width/2 && elmnt.offsetLeft - dx <= bounds.width-elmnt.width/2){  // if within x-bounds
+		if(elmnt.offsetLeft - dx >= -elmnt.width/2 + CANVAS_OFFSET && elmnt.offsetLeft - dx <= bounds.width-elmnt.width/2 + CANVAS_OFFSET){  // if within x-bounds
 			elmnt.style.left = (elmnt.offsetLeft - dx) + "px";  // move the element in x-axis
 			x1 = elmnt.getBoundingClientRect().x + elmnt.width/2; // update the x-coordinate when mouseup
 		}
@@ -120,8 +121,8 @@ function dragElement(elmnt) {
     e.preventDefault();
 		let y = x1 - bounds.left;
 		let x = y1 - bounds.top;
-		y = Math.max(0, Math.min(bounds.width-e_num, y));  // fix to boundaries
-		x = Math.max(0, Math.min(bounds.height-e_num, x));
+		y = Math.max(CANVAS_OFFSET, Math.min(bounds.width- e_num + CANVAS_OFFSET, y));  // fix to boundaries
+		x = Math.max(CANVAS_OFFSET, Math.min(bounds.height- e_num + CANVAS_OFFSET, x));
 		let [scaled_x, scaled_y] = myUI.scale_coord(x,y);
 		console.log(scaled_x, scaled_y);
 		if(elmnt.id=="map_start_icon"){

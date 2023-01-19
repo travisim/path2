@@ -37,18 +37,17 @@ window.addEventListener("click", event=>{
 let edit_map_ctn = document.getElementById("edit_map_ctn");
 let edit_mouse_tip = document.getElementById("edit_mouse_tip");
 edit_map_ctn.addEventListener("mouseenter", e=>{
-  edit_mouse_tip.style.display = "block";
-  edit_map_ctn.style.cursor = "none";
+  //edit_mouse_tip.style.display = "block";
+  //edit_map_ctn.style.cursor = "none";
 });
 
 edit_map_ctn.addEventListener("mouseleave", e=>{
-  edit_map_ctn.style.cursor = "auto";
-	edit_mouse_tip.style.display = "none";
+  //edit_map_ctn.style.cursor = "auto";
+	//edit_mouse_tip.style.display = "none";
   
 });
 
 edit_map_ctn.addEventListener("mousemove", e=>{
-  edit_mouse_tip.style.cursor = "none"
   let bounds = edit_map_ctn.getBoundingClientRect();
 	edit_mouse_tip.style.left = e.clientX - bounds.left - 2 + 'px';
   edit_mouse_tip.style.top = e.clientY - bounds.top - 32 + 'px';
@@ -60,13 +59,13 @@ myUI.toggleDrawErase = function(){
   let draw_el = document.getElementById("draw_marker");
 	if(myUI.canvases.edit_map.toggle_draw_erase()){
     // erasing now
-    erase_el.style.display = "block";
-    draw_el.style.display = "none";
+    //erase_el.style.display = "block";
+    //draw_el.style.display = "none";
   }
   else{
     // drawing now
-    erase_el.style.display = "none";
-    draw_el.style.display = "block";
+    //erase_el.style.display = "none";
+    //draw_el.style.display = "block";
   };
 }
 myUI.buttons.draw_erase_btn.btn.addEventListener("click", myUI.toggleDrawErase);

@@ -511,7 +511,7 @@ class UIButton{
     this.svgs[this.svg_index].classList.add("hidden");  // hide the current one
     this.svg_index = (this.svg_index+1)%this.svgs.length;  // increment to next svg in list
     this.svgs[this.svg_index].classList.remove("hidden");  // show the next one
-    this.btn.setAttribute("alt", this.alts[this.svg_index]);
+    if(this.alts) this.btn.setAttribute("alt", this.alts[this.svg_index]);
   }
 
   toggle_pressed(){

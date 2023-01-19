@@ -20,7 +20,10 @@ const STATIC_COMMANDS = [
   "DrawVertex",
   "DrawSingleVertex",
   "EraseVertex",
-  "EraseAllVertex"
+  "EraseAllVertex",
+  "DrawEdge",
+  "EraseEdge",
+  "EraseAllEdge"
 ];
 
 const STATIC_DESTS = [
@@ -35,8 +38,8 @@ const STATIC_DESTS = [
   "GCanvas",
   "HCanvas",
   "ITQueue", //info table
-  "ITNeighbors", 
-  "SVGCanvas"
+  "ITNeighbors",
+  "map",
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -73,8 +76,7 @@ const statics_to_obj = {
   8: "gCost",
   9: "hCost",
   10: "ITQueue",
-  11: "ITNeighbors",
-  12: "SVGCanvas"
+  11: "ITNeighbors"
 }
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
@@ -105,9 +107,7 @@ myUI.run_steps = function(num_steps, step_direction){
       while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))
         ++j;
       // [i,j) is the action
-			
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
-      //console.log("command", STATIC_COMMANDS[command], "dest", STATIC_DESTS[dest], "x", x, "y", y, "colorIndex", colorIndex, "arrowIndex", arrowIndex, "pseudoCodeRow", pseudoCodeRow, "infoTableRowIndex", infoTableRowIndex, "infoTableRowData", infoTableRowData, "cellVal", cellVal);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j));
 
       try{
       if(command==STATIC.DSP){
@@ -166,40 +166,37 @@ myUI.run_steps = function(num_steps, step_direction){
       if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
         myUI.PseudoCode.highlightSec(pseudoCodeRow);
       }  /* */  
-      if(dest == STATIC.QU && command == STATIC.DrawVertex){
-         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(116, 250, 76)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);//id generated from coord and type
+      if(command == STATIC.DrawVertex){
+        let color = myUI.canvases[statics_to_obj[dest]].fillColor;
+        myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
       }
-      else if(dest == STATIC.CR && command == STATIC.DrawVertex){
-         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(105,206,230)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
-      } 
-      else if(dest == STATIC.NB && command == STATIC.DrawVertex){
-         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(0,130,105)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
-      }
-      else if(dest == STATIC.VI && command == STATIC.DrawVertex){
-         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(255,0,0)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
-      } 
       else if(command == STATIC.EraseVertex){
-         myUI.SVGCanvas.EraseSvgById(`SVGId_${x}${y}${dest}`);
+        myUI.nodeCanvas.eraseCircle([x,y], dest);
       } 
       else if(command == STATIC.EraseAllVertex){
-         myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_${dest}`);
+        myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
       } 
-      else if(command == STATIC.DrawSingleVertex){ //now hard coded for current vertex
-         myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_${dest}`);
-         myUI.SVGCanvas.drawCircle([x,y],20,"rgb(105,206,230)",`SVGId_${x}${y}${dest}`,`SVGClass_${dest}`);
-      } 
-        
-        
-    
-        
-        /* */  
+      else if(command == STATIC.DrawSingleVertex){
+        myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
+        let color = myUI.canvases[statics_to_obj[dest]].fillColor;
+        myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
+      }
+      else if(command == STATIC.DrawEdge){
+        let color = myUI.canvases[statics_to_obj[dest]]?.fillColor;
+        myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest);
+      }
+      else if(command == STATIC.EraseEdge){
+        myUI.edgeCanvas.eraseLine([x,y], [endX,endY], dest);
+        console.log("removing EDGE");
+      }
+      else if(command == STATIC.EraseAllEdge){
+        myUI.edgeCanvas.eraseAllLines(dest);
+      }
 
-                
       }catch(e){
         if(dest!=STATIC.PC){
           console.log(e);
           console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
-          console.log(GridPathFinder.unpackAction(step.slice(i, j), true));
           debugger;
         }
       }
@@ -252,7 +249,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 	let revCombinedCnt = 0;
 
   //let mem = {canvasCoords:{}, drawSinglePixel:{}, fullCanvas:{}, arrowColor:{}, bounds:{}};
-  let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}};
+  let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}, edges:{}};
   Object.values(myUI.canvases).forEach(canvas=>canvas.init_virtual_canvas());
   document.querySelector("#info-tables-dynamic").style.display = "none";
 
@@ -293,7 +290,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal] = GridPathFinder.unpackAction(step.slice(i, j));
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j));
 
         let action = [];
         var includeAction = true;
@@ -487,10 +484,9 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         else if(command == STATIC.EraseVertex){
           action = GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y]});
           if(!mem.vertices.hasOwnProperty(dest)){
-            console.log("BRUH"); alert("BRUH"); debugger;
+            console.log("ERROR: VERTEX NOT FOUND"); alert("ERROR: VERTEX NOT FOUND"); debugger;
           }
           for(let i = 0; i < mem.vertices[dest].length; ++i){
-            console.log(mem.vertices[dest][i]);
             if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y){
               mem.vertices[dest].splice(i, 1);
               break;
@@ -512,7 +508,36 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           mem.vertices[dest] = [];
           mem.vertices[dest].push([x,y]);
         } 
-          
+        else if(command == STATIC.DrawEdge){
+          action = GridPathFinder.packAction({command: STATIC.EraseEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
+          if(!mem.edges.hasOwnProperty(dest))
+            mem.edges[dest] = [];
+          mem.edges[dest].push([x,y,endX,endY]);
+        }
+        else if(command == STATIC.EraseEdge){
+          action = GridPathFinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
+          if(!mem.edges.hasOwnProperty(dest)){
+            console.log("ERROR: EDGE NOT FOUND");
+            Array.prototype.unshift.apply(curStep, action);
+            i=j;
+            continue;
+          }
+          for(let i = 0; i < mem.edges[dest].length; ++i){
+            let a = mem.edges[dest][i][0] == x && mem.edges[dest][i][1] == y && mem.edges[dest][i][2] == endX && mem.edges[dest][i][3] == endY;
+            let b = mem.edges[dest][i][2] == x && mem.edges[dest][i][3] == y && mem.edges[dest][i][0] == endX && mem.edges[dest][i][1] == endY;
+            if(a || b){
+              mem.edges[dest].splice(i, 1);
+              break;
+            }
+          }
+        }
+        else if(command == STATIC.EraseAllEdge){
+          action = [];
+          if(!mem.edges.hasOwnProperty(dest))
+            mem.edges[dest] = [];
+          mem.edges[dest].forEach(quad => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [quad[0], quad[1]], endCoord: [quad[2], quad[3]]})));
+          mem.edges[dest] = [];
+        }
         
         // add more here
         if(includeAction)
@@ -527,7 +552,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 
       if(genStates && stepCnt%stateFreq==0){
         if(stepCnt/stateFreq % 100==0) console.log("State", stepCnt/stateFreq);
-        let nextState = {canvas:{}, infotables:{}};
+        let nextState = {canvas:{}, infotables:{}, vertices:{}, edges:{}};
         // canvas
         for(const canvas of Object.values(mem.activeCanvas)){
           if(canvas===undefined){
@@ -560,6 +585,18 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         // pseudoCode
         nextState.pseudoCodeRowPri = mem.pseudoCodeRowPri;
         nextState.pseudoCodeRowSec = mem.pseudoCodeRowSec;
+        
+        for(const [dest, vertices] of Object.entries(mem.vertices)){
+          nextState.vertices[dest] = [];
+          for(const coord of vertices)
+            nextState.vertices[dest].push([coord[0], coord[1]]);
+        }
+
+        for(const [dest, edges] of Object.entries(mem.edges)){
+          nextState.edges[dest] = [];
+          for(const coord of edges)
+            nextState.edges[dest].push([coord[0], coord[1], coord[2], coord[3]]);
+        }
 
         myUI.states.push(nextState);
       }
@@ -614,6 +651,9 @@ myUI.jump_to_step = function(target_step){
   for(const canvas of Object.values(myUI.dynamicCanvas)) canvas.erase_canvas();
   for(const elem of myUI.arrow.elems)
     elem.classList.add("hidden");
+  
+  myUI.nodeCanvas.reset(false);
+  myUI.edgeCanvas.reset(false);
 
   const stateFreq = myUI.states[0];
 
@@ -645,6 +685,22 @@ myUI.jump_to_step = function(target_step){
     catch(e){
 
     }
+
+    // free vertices
+    for(const [dest, vertices] of Object.entries(state.vertices)){
+      if(dest == STATIC.QU) console.log(vertices.length);
+      
+      for(coord of vertices)
+        myUI.nodeCanvas.drawCircle(coord, dest);
+    
+    }
+
+    // free edge
+    for(const [dest, edges] of Object.entries(state.edges))
+      for(line of edges)
+        myUI.edgeCanvas.drawLine([line[0], line[1]], [line[2], line[3]], dest);
+    
+
     // canvases
 
     let canvasesToDraw = Object.entries(state.canvas);

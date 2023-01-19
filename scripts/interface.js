@@ -26,6 +26,14 @@ myUI.initialize = function(){
         delete myUI.canvases[id];
       }
     }
+    if(myUI.planner && myUI.planner.generateNewMap){
+      myUI.edgeCanvas.show();
+      myUI.nodeCanvas.show();
+    }
+    else{
+      myUI.edgeCanvas.hide();
+      myUI.nodeCanvas.hide();
+    }
   }
 
   // Initialize canvases
@@ -45,7 +53,7 @@ myUI.initialize = function(){
   let canvasStatic = [
     // draggables at -3
     {
-      id:"hover_map", drawType:"cell", drawOrder: -2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945", "#00ff99"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
+      id:"hover_map", drawType:"cell", drawOrder: -4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#d19b6d", "#AA1945", "#00ff99"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
     },
     // arrows draworder is -1
     {
@@ -64,6 +72,9 @@ myUI.initialize = function(){
   myUI.map_arr;
   myUI.map_height = myUI.canvases.bg.canvas.height;
   myUI.map_width = myUI.canvases.bg.canvas.width;
+
+  myUI.nodeCanvas = new SVGCanvas("node", -3);
+  myUI.edgeCanvas = new SVGCanvas("edge", -2);
 
  //initialise info
   

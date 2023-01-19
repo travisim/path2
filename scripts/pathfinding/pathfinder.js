@@ -21,7 +21,7 @@ class GridPathFinder{
 
 	static unpackAction(action, readable = false){
 		/* NEW */
-		let bitOffset = 12;
+		let bitOffset = 13	;
 		let idx = 0;
 		
 		let mask;
@@ -61,20 +61,27 @@ class GridPathFinder{
 			++idx;
 			var cellVal = action[idx]/2;
 		}
+		if(action[0]&(1<<9)){
+			++idx;
+			let coord = action[idx]>>1;
+			var endX = Math.floor(coord/myUI.planner.map_width);
+			var endY = coord - endX * myUI.planner.map_width;
+		}
     
 		if(readable){
 			return `
 			Command          : ${STATIC_COMMANDS[command]}
 			Dest             : ${statics_to_obj[dest]}
-			x,y              : ${x}, ${y}
+			x,y              : ${x + ", " + y}
 			colorIndex       : ${colorIndex}
 			pseudoCodeRow    : ${pseudoCodeRow}
 			infoTableRowIndex: ${infoTableRowIndex}
 			infoTableRowData : ${infoTableRowData}
 			cellVal          : ${cellVal}
+			endCoord         : ${endX + ", " + endY}
 			`
 		}
-		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal];/**/
+		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY];/**/
 	}
 
 	static _managePacking(numBits, obj){
@@ -95,7 +102,8 @@ class GridPathFinder{
     pseudoCodeRow,
     infoTableRowIndex,
 		infoTableRowData,
-		cellVal
+		cellVal,
+		endCoord,
 	} = {}){
 		/* NEW */
 		/*
@@ -105,14 +113,12 @@ class GridPathFinder{
 		/* 1111111111*/
 		let obj = {};
 		obj.actionCache = [1];
-		obj.bitOffset = 12;
+		obj.bitOffset = 13;
 		obj.idx = 0;
 
 		// command is assumed to exist
 		this._managePacking(myUI.planner.static_bit_len, obj);
 		obj.actionCache[obj.idx] += bit_shift(command, obj.bitOffset - myUI.planner.static_bit_len);
-		//console.log("NEW ACTION")
-		//console.log(obj.actionCache);
 		if(dest!==undefined){
 			this._managePacking(myUI.planner.static_bit_len, obj);
 			obj.actionCache[0] += 1<<1; 
@@ -153,6 +159,11 @@ class GridPathFinder{
 			obj.idx++;
 			obj.actionCache[0] += 1<<8;
 			obj.actionCache[obj.idx] = cellVal*2;
+		}
+		if(endCoord!==undefined){
+			obj.idx++;
+			obj.actionCache[0] += 1<<9;
+			obj.actionCache[obj.idx] = (endCoord[0]*myUI.planner.map_width+endCoord[1])*2;
 		}
 
 		return obj.actionCache;
@@ -407,9 +418,10 @@ class GridPathFinder{
     pseudoCodeRow,
 		infoTableRowIndex,
 		infoTableRowData,
-		cellVal
+		cellVal,
+		endCoord
 	} = {}){
-		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal});
+		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord});
 		Array.prototype.push.apply(this.step_cache, this.actionCache);
 		return this.actionCache.length;
 	}
@@ -468,23 +480,32 @@ class GridPathFinder{
 		this._assign_cell_index(this.current_node_XY);
 		this.path = [];
 		// retraces the entire parent tree until start is found
+		var prevNode = null;
 		const originalNode = node;
 		myUI.node = originalNode;
+		console.log("RETRACING PATH");
 		while (node != null) {
 			this.path.unshift(node.self_XY);
 			/* OLD *//*
 			this._create_action(STATIC.DP, STATIC.PA, node.self_XY);
 			this._create_action(STATIC.DA, node.arrow_index, 1);
 			/* NEW */
-			console.log(draw_mode);
-			if(draw_mode == "free_vertex") this._create_action({command: STATIC.DrawVertex, dest: STATIC.CR, nodeCoord: node.self_XY});
-			else this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_XY});
-			if(! node.arrow_index === null){
-				this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
+			if(draw_mode == "free_vertex"){
+				this._create_action({command: STATIC.DrawVertex, dest: STATIC.PA, nodeCoord: node.self_XY});
+				if(prevNode){
+					this._create_action({command: STATIC.DrawEdge, dest: STATIC.PA, nodeCoord: node.self_XY, endCoord: prevNode.self_XY});
+				}
 			}
+			else this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_XY});
+
+			if(! node.arrow_index === null)
+				this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
+			
+			prevNode = node;
 			node = node.parent;
 		}
 		console.log("found");
+		console.log(this.path);
 		/* NEW */
 		this._save_step(true);
 

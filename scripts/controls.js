@@ -87,8 +87,10 @@ myUI.reset_animation = function(){
 		myUI.dynamicCanvas.forEach(uiCanvas=>{
 			uiCanvas.erase_canvas();
 		});
-	Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
+	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(false);
+	myUI.nodeCanvas.reset(false);
+	myUI.edgeCanvas.reset(false);
 	myUI.arrow.step = -1;
 }
 

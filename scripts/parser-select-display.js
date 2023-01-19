@@ -167,13 +167,14 @@ myUI.displayScen = function(update=false, reset_zero=false){
 }
 
 function moveDraggable(xy){
+  const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
 	let bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
   let offset = 0.5;
   if(myUI.vertex)
     offset = 0;
 
-  this.elem.style.top = ((xy[0]+offset)*bounds.height / myUI.map_height - this.elem.height/2) + "px";
-  this.elem.style.left =  ((xy[1]+offset)*bounds.width / myUI.map_width - this.elem.width/2) + "px";
+  this.elem.style.top = ((xy[0]+offset)*bounds.height / myUI.map_height - this.elem.height/2) + CANVAS_OFFSET + "px";
+  this.elem.style.left =  ((xy[1]+offset)*bounds.width / myUI.map_width - this.elem.width/2) + CANVAS_OFFSET + "px";
 }
 
 myUI.map_start_icon.move = moveDraggable;
@@ -223,44 +224,13 @@ myUI.loadPlanner = function(create_planner = true) {
   myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
   myUI.buttons.planner_config_btn.btn.children[0].innerHTML = myUI.planner.constructor.display_name;
   myUI.displayMap();
-  myUI.SVGCanvas = new SVGCanvas("node_edge");
   myUI.initHover(myUI.planner.constructor.hoverData);
   if(myUI.planner.bigMap) document.getElementById("info-container").classList.add("none");
   else document.getElementById("info-container").classList.remove("none");
+  if(myUI.planner.postProcess) myUI.planner.postProcess();
 }
-
-/*
-myUI.loadPlanner = function(create_planner = true) {
-  let tmp_planner = myUI.planner;
-  if(create_planner){
-    var planner_select_elem = myUI.selects["planner_select"].elem;
-    myUI.planner_choice = planner_select_elem.options[planner_select_elem.selectedIndex].value;
-    tmp_planner = new myUI.planners[myUI.planner_choice]();
-    // updates select
-    myUI.selects["planner_select"].elem.value = myUI.planner_choice;
-  }
-  myUI.canvasReset();
-  for(const cb of tmp_planner.constructor.checkboxes)
-    appendCheckbox(...cb);
-  myUI.dynamicCanvas = myUI.canvasGenerator(tmp_planner.canvases);
-  myUI.infoTableReset();
-  myUI.infoTableGenerator(tmp_planner.infoTables);
-  if(create_planner) myUI.setPlannerConfig();
-
-	myUI.reset_animation();
-  myUI.InfoMap.CanvasMode(tmp_planner.infoMapPlannerMode(), myUI.dynamicCanvas);
-  myUI.buttons.planner_config_btn.btn.children[0].innerHTML = tmp_planner.constructor.display_name;
-  myUI.displayMap();
-  myUI.SVGCanvas = new SVGCanvas("node_edge");
-  myUI.initHover(tmp_planner.constructor.hoverData);
-  if(tmp_planner.bigMap) document.getElementById("info-container").classList.add("none");
-  else document.getElementById("info-container").classList.remove("none");
-  if(create_planner) myUI.planner = new myUI.planners[myUI.planner_choice]();
-}
-*/
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
-// myUI.selects["planner_select2"].elem.addEventListener("change", myUI.loadPlanner);
 
 myUI.parseCustom = function(contents){
   const STRUCT = JSON.parse(contents);
