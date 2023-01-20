@@ -148,12 +148,7 @@ class PRM extends GridPathFinder{
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
       var randomCoord_XY = [Math.round(rand()*(myUI.map_arr.length/*this.map_height*/)), Math.round(rand()*(myUI.map_arr[0].length/*this.map_width*/))] //need seed
-      /*
-      if (myUI.planner.map.get_data(randomCoord_XY) == 0) {  // if neighbour is not passable
-        --i;
-        continue;
-      }
-      */
+     
       
       if(this.randomCoordsNodes.length != 0){
         for (let j = 0; j < this.randomCoordsNodes.length; ++j) {
