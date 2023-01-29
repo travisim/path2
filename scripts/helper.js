@@ -115,20 +115,29 @@ function zero2D(rows, cols, max_val=255, defaultVal=0, type="int") {
 }
 
 class Empty2D{
-	constructor(rows, cols){
-		this.data = [];
-		while(rows--) this.data.push(new Array(cols));
+	constructor(rows, cols, allowFloat = false){
+		this.allowFloat = allowFloat;
+		if(allowFloat){
+			this.data = {};
+		}
+		else{
+			this.data = [];
+			while(rows--) this.data.push(new Array(cols));
+		}
 	}
 
 	set(xy, item){
-		this.data[xy[0]][xy[1]] = item;
+		if(this.allowFloat) this.data[xy] = item;
+		else this.data[xy[0]][xy[1]] = item;
 	}
 
 	get(xy){
-		return this.data[xy[0]][xy[1]];
+		if(this.allowFloat) return this.data[xy];
+		else return this.data[xy[0]][xy[1]];
 	}
 
 	clear(){
+		if(this.allowFloat) return this.data = {};
 		for(let i=0;i<this.data.length;++i){
 			for(let j=0;j<this.data[i].length;++j){
 				try{this.data[i][j].remove();}

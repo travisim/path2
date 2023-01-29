@@ -4,7 +4,7 @@
 const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
 function generateString(length) {
-    let result = ' ';
+    let result = '';
     const charactersLength = characters.length;
     for ( let i = 0; i < length; i++ ) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -44,7 +44,7 @@ function mulberry32(a) {
 
 function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if there is LOS also checks the start and goal//LOS uses canvas data for greater detail
   const start_coord = {y0:start_XY[1]*(944/myUI.map_height), x0:start_XY[0]*(944/myUI.map_width)};
-  const end_coord = {y1:end_XY[1]*59, x1:end_XY[0]*59};
+  const end_coord = {y1:end_XY[1]*(944/myUI.map_height), x1:end_XY[0]*(944/myUI.map_width)};
   var x0 = start_coord.x0;
   var y0 = start_coord.y0;
   var x1 = end_coord.x1;
@@ -90,10 +90,116 @@ function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if
 //tree data structure---------------------------------------
 // from https://www.30secondsofcode.org/articles/s/js-data-structures-tree
 
-function CustomLOSChecker(){
-
+function CustomLOSChecker(src, tgt){
+  let path = CustomLOSGenerator(src, tgt, false);
+  for(coord of path){
+    let x = coord[0] * (944/myUI.map_height);
+    let y = coord[1] * (944/myUI.map_width);
+    PixelCloudObstacleStrength = myUI.canvases["bg"].ctx.getImageData(y, x, 1, 1).data[3];//(myUI.canvases["bg"].ctx.getImageData(y+1, x, 1, 1).data[3] + myUI.canvases["bg"].ctx.getImageData(y, x+1, 1, 1).data[3] + myUI.canvases["bg"].ctx.getImageData(y-1, x, 1, 1).data[3] +myUI.canvases["bg"].ctx.getImageData(y, x-1, 1, 1).data[3])/4;
+    if(PixelCloudObstacleStrength == 255) return false;
+  }
+  return true;
 }
 
+
+
+function CustomLOSGenerator(src, tgt, cons = true){
+  const THRES = 1e-3;
+
+  if(src.reduce(add, 0) < tgt.reduce(add, 0))
+    [src, tgt] = [tgt, src];  // swap the arrays
+
+  let diffX = tgt.map((x, i) => x - src[i]);
+  let absX = diffX.map(Math.abs);
+
+  let cflag = absX[0] > absX[1];
+
+  let diffZ = conv(cflag, diffX);
+  let absZ = diffZ.map(Math.abs);
+  let dZ = diffZ.map(x => x > 0 ? 1 : x < 0 ? -1 : 0);
+
+  let srcZ = conv(cflag, src);
+  let tgtZ = conv(cflag, tgt);
+  let tgtFloorZ = tgtZ.map(Math.floor);
+  let floorZ = srcZ.map(Math.floor);
+  let prevS = srcZ[1];
+
+  let psiZ = dZ.map(x => x > 0 ? x : 0);
+  let cmp = (floorZ[0] + psiZ[0] - srcZ[0]) * absZ[1] / diffZ[0] - dZ[1] * psiZ[1];
+  let changeS = diffZ[1] / absZ[0];
+
+  let path = [];
+  /* addition to given algo */
+  if(src[0] > 0 && src[1] > 0){
+    let srcFloor = src.map(Math.floor);
+    if(src[0] > srcFloor[0] && src[1] > srcFloor[1]) path.push(srcFloor);
+  }
+  /* end of addition */
+  let step = 0;
+  while (!equal(floorZ, tgtFloorZ)) {
+    step++;
+
+    let S = changeS * step + srcZ[1];
+    let floorS = Math.floor(S);
+    if (floorS !== floorZ[1]) {
+      // short incremented
+      let cmpS = dZ[1] * (floorZ[1] - prevS);
+
+      if(cons) console.log(`cmpS: ${cmpS}, cmp: ${cmp}`);
+      if (cmpS - THRES > cmp) {
+        // pass thru large first
+        floorZ[0] = floorZ[0] + dZ[0];
+        path.push(conv(cflag, floorZ));
+        if(cons) console.log(`small1: [${floorZ}]`);
+        if (equal(floorZ, tgtFloorZ)) {
+            break; // reached destination
+        }
+        floorZ[1] = floorZ[1] + dZ[1];
+        if(cons)console.log(`small2: [${floorZ}]`);
+      } 
+      else if (cmpS + THRES < cmp) {
+        // pass thru small first
+        floorZ[1] = floorZ[1] + dZ[1];
+        path.push(conv(cflag, floorZ));
+        if(cons) console.log(`long1: [${floorZ}]`);
+        if (equal(floorZ, tgtFloorZ)) {
+            break;
+        }
+        floorZ[0] = floorZ[0] + dZ[0];
+        if(cons) console.log(`long2: [${floorZ}]`);
+      } 
+      else {
+        // pass thru both at same time
+        floorZ = floorZ.map((x, i) => x + dZ[i]);
+        if(cons) console.log(`eq: [${floorZ}]`);
+      }
+    }
+    else {
+      // no change in short
+      floorZ[0] = floorZ[0] + dZ[0];
+      if(cons) console.log(`nc: [${floorZ}]`);
+    }
+    let cur = conv(cflag, floorZ);
+    path.push(cur);
+    prevS = S;
+  }
+      
+  if(cons) console.log(path);
+  return path;
+  
+  function conv(absDx_Gt_absDy, B) {
+    return absDx_Gt_absDy ? [B[0], B[1]] : [B[1], B[0]];
+  }
+  
+  function equal(A, B) {
+    return A.every((x, i) => x === B[i]);
+  }
+
+  function add(accumulator, a) {
+    return accumulator + a;
+  }
+
+}
 
 class TreeNode {
   constructor(key, value = key, parent = null) {

@@ -69,7 +69,7 @@ class GridPathFinder{
 		}
     
 		if(readable){
-			return `
+			console.log(`
 			Command          : ${STATIC_COMMANDS[command]}
 			Dest             : ${statics_to_obj[dest]}
 			x,y              : ${x + ", " + y}
@@ -79,7 +79,7 @@ class GridPathFinder{
 			infoTableRowData : ${infoTableRowData}
 			cellVal          : ${cellVal}
 			endCoord         : ${endX + ", " + endY}
-			`
+			`);
 		}
 		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY];/**/
 	}
@@ -209,7 +209,7 @@ class GridPathFinder{
 
 	static get checkboxes(){
 		return [
-			[`show_arrow-div`, true, "Arrows", "layer", "multi"]
+			[`show_arrow-div`, true, "Arrows", "", "multi"]
 		];
 	}
 
@@ -497,8 +497,8 @@ class GridPathFinder{
 				}
 			}
 			else this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_XY});
-
-			if(! node.arrow_index === null)
+			console.log("ARROW INDEX: " ,node.arrow_index);
+			if(! (node.arrow_index === null))
 				this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
 			
 			prevNode = node;

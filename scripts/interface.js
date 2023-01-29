@@ -43,7 +43,7 @@ myUI.initialize = function(){
       myUI.canvases[item.id] = new UICanvas(item.id, item.drawOrder, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal, true, item.minVal, item.maxVal, item.infoMapBorder, item.infoMapValue);
       ref.push(myUI.canvases[item.id]);
       if(item.toggle!="off"){
-        appendCheckbox(`show_${item.id}`, item.checked, item.id, "layer", item.toggle);
+        appendCheckbox(`show_${item.id}`, item.checked, item.id, "", item.toggle);
         if(item.checked==false) document.getElementById(item.id).classList.add("hidden");
       }
     });

@@ -24,11 +24,12 @@ class PRM extends GridPathFinder{
 		let configs = [];
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
-      {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "pi", description: `Sets seed for randomness of random points`},
-      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 25, description: `Sets number of random points`},
-      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Closest Neighbours By Radius"],defaultVal:"Closest Neighbours By Radius", description: `Sets neighbours selection method`},
+      {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 35, description: `Sets number of random points`},
+      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
+      {uid: "round_nodes", displayName: "Round Node Values", options: ["Round to Nearest Integer", "Allow Floats"], description: `Round the nodes`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], defaultVal:"Euclidean", description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
@@ -63,10 +64,15 @@ class PRM extends GridPathFinder{
 				this.timeOrder = value;
         break;
       case "generate_new_map":
-         let startTime = Date.now();
-         this.seed = generateString(5);
-         document.getElementById("seed_pcfg").setAttribute("value", myUI.planner.seed)
+        let startTime = Date.now();
+        let save_seed = true;
+        if(this.seed == ""){
+          this.seed = generateString(5);
+          save_seed = false;
+          document.getElementById("seed_pcfg").value = this.seed;
+        }
 				this.generateNewMap(myUI.map_start, myUI.map_goal);
+        if(!save_seed) this.seed = "";
         console.log(Date.now() - startTime);
         break;
       case "seed":
@@ -90,11 +96,14 @@ class PRM extends GridPathFinder{
         */
         break;
       case "number_of_closest_neighbours":
-				 this.numberOfTopClosestNeighbours = value;
+				this.numberOfTopClosestNeighbours = value;
         break;
       case "closest_neighbours_by_radius":
-				 this.connectionDistance = value;
+				this.connectionDistance = value;
         break;
+      case "round_nodes":
+        this.roundNodes = (value == `Round to Nearest Integer`);
+
     }
   }
 
@@ -147,8 +156,8 @@ class PRM extends GridPathFinder{
     this.exports.coords.push(start);
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
-      var randomCoord_XY = [Math.round(rand()*(myUI.map_arr.length/*this.map_height*/)), Math.round(rand()*(myUI.map_arr[0].length/*this.map_width*/))] //need seed
-     
+      var randomCoord_XY = [rand()*(myUI.map_arr.length/*this.map_height*/), rand()*(myUI.map_arr[0].length/*this.map_width*/)] //need seed
+      if(this.roundNodes) randomCoord_XY = randomCoord_XY.map(Math.round);
       
       if(this.randomCoordsNodes.length != 0){
         for (let j = 0; j < this.randomCoordsNodes.length; ++j) {
@@ -171,63 +180,76 @@ class PRM extends GridPathFinder{
     }
     
     this.randomCoordsNodes.forEach(node=>{
-        myUI.nodeCanvas.drawCircle(node.value_XY);
-      });
-    
+      myUI.nodeCanvas.drawCircle(node.value_XY);
+    });
     
     
     //var otherRandomCoordsDistance = empty2D(randomCoordsNodes.length,randomCoordsNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
-    var XYOfSelectedRandomCoordNeighbours = [];
     
     var edgeAccumalator = [];
-     for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
+    for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
+      let currentCoord = [...this.randomCoordsNodes[i].value_XY];
       var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCorrdNodes, 
-      // var otherRandomCoordsNodes = structuredClone(randomCoordsNodes);
-      // otherRandomCoordsNodes.splice(i, 1); // from here is otherRandomCoordsNodes really correctly labeleld
-      //if(i=0)console.log(otherRandomCoordsNodes[0],"otherRandomCoordsNodes");
       let otherRandomCoords = deep_copy_matrix(nodes_to_array(this.randomCoordsNodes,"value_XY")); // randomCoord passed by reference here
-      //document.getElementById("1").innerHTML =randomCoords;
-      // document.getElementById("2").innerHTML ="modified array:" + otherRandomCoords+" original array:"+randomCoords+" index removed:"+i;
       
       for (let j = 0; j < otherRandomCoords.length; ++j) {
         if(i == j) continue;
-        distancesBetweenACoordAndAllOthers.push( Math.sqrt((this.randomCoordsNodes[i].value_XY[0] - otherRandomCoords[j][0])**2 + (this.randomCoordsNodes[i].value_XY[1]  - otherRandomCoords[j][1])**2)); // could store as befopre sqrt form
-        // document.getElementById("3").innerHTML ="distance of first index coor to other coord ^2: "+otherRandomCoordsDistance[0];
+        //distancesBetweenACoordAndAllOthers.push( Math.sqrt((this.randomCoordsNodes[i].value_XY[0] - otherRandomCoords[j][0])**2 + (this.randomCoordsNodes[i].value_XY[1]  - otherRandomCoords[j][1])**2)); // could store as before sqrt form
+        // Math.sqrt -> Math.hypot
+        distancesBetweenACoordAndAllOthers.push( [Math.hypot(currentCoord[0] - otherRandomCoords[j][0], currentCoord[1]  - otherRandomCoords[j][1]), j]); // could store as before sqrt form
       }
+      distancesBetweenACoordAndAllOthers.sort((a,b)=>{
+        return a[0] - b[0]; // sort by first index
+      });
 
-      var indexOfSelectedOtherRandomCoords = Object.entries(distancesBetweenACoordAndAllOthers) // returns array with index of the 5 lowest values in array
-                      .sort(([,a],[,b]) => a - b)
-                      .map(([index]) => +index);
-                        
-      for (let j = 0; j < otherRandomCoords.length; ++j) {
-          if(distancesBetweenACoordAndAllOthers[indexOfSelectedOtherRandomCoords[j]]>=this.connectionDistance  || j >= this.numberOfTopClosestNeighbours){
-          indexOfSelectedOtherRandomCoords = indexOfSelectedOtherRandomCoords.slice(0, j);
-          break;
-        }
-        console.log("Closest Neighbours By Radius");
+
+      let indexOfSelectedOtherRandomCoords;
+
+      console.log(this.neighbourSelectionMethod, this.numberOfTopClosestNeighbours, this.connectionDistance)
+      if(this.neighbourSelectionMethod == "Top Closest Neighbours"){
+        // checks LOS between the the top X closes neighbours 
+        indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+          .slice(0, this.numberOfTopClosestNeighbours)
+          .map(p => p[1]);
       }
+      else if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours"){
+        indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+          .map(p => p[1]);
+      }
+      else if(this.neighbourSelectionMethod == "Closest Neighbours By Radius"){
+        indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+          .filter(p => p[0] < this.connectionDistance)
+          .map(p => p[1]);
+      }
+      
+      console.log("COORD: ", otherRandomCoords[i][0], otherRandomCoords[i][1]);
+      let cnt = 0;
       coordLoop: for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
-        var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]);
+        let jdx = indexOfSelectedOtherRandomCoords[j];
+        if(i == jdx) continue;
+        //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
+        
+        var LOS = CustomLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
         if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
-          let jdx = indexOfSelectedOtherRandomCoords[j];
-          if(i == jdx) continue;
-          
+          ++cnt;
+          // bidirectional
           if(!this.randomCoordsNodes[i].neighbours.includes(jdx)) this.randomCoordsNodes[i].neighbours.push(jdx);
           if(!this.randomCoordsNodes[jdx].neighbours.includes(i)) this.randomCoordsNodes[jdx].neighbours.push(i);
           if(!this.exports.neighbors[i].includes(jdx)) this.exports.neighbors[i].push(jdx);
           if(!this.exports.neighbors[jdx].includes(i)) this.exports.neighbors[jdx].push(i);
-          var temp = [this.randomCoordsNodes[i].value_XY,otherRandomCoords[indexOfSelectedOtherRandomCoords[j]]];
+          var temp = [this.randomCoordsNodes[i].value_XY,otherRandomCoords[jdx]];
           //next few lines prevents the addition of edges that were already added but with a origin from another node
-          var tempSwapped = [otherRandomCoords[indexOfSelectedOtherRandomCoords[j]],this.randomCoordsNodes[i].value_XY];
+          var tempSwapped = [otherRandomCoords[jdx],this.randomCoordsNodes[i].value_XY];
+          
           for (let k = 0; k < edgeAccumalator.length; ++k){
             if (isArraysEqual(edgeAccumalator[k].flat(),tempSwapped.flat())){
-              console.log("skipped")
               continue coordLoop;
             } 
           }
           edgeAccumalator.push(temp)//from,to
           this.exports.edges.push(temp);
         } 
+        if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours" && cnt >= this.numberOfTopClosestNeighbours) break coordLoop;
       }
     }
     
@@ -242,8 +264,8 @@ class PRM extends GridPathFinder{
     if(!this.randomCoordsNodes) this.generateNewMap(start, goal);
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
-		this.closed_list =  new Empty2D(this.map_height, this.map_width);
-		this.open_list =  new Empty2D(this.map_height, this.map_width);
+		this.closed_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
+		this.open_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
 
     console.log("starting");
    

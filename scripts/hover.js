@@ -80,7 +80,7 @@ function dragElement(elmnt) {
   var bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
 	let x1, y1, dx, dy;
 	const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
-	const e_num = Math.pow(10, -3);
+	const e_num = 1e-3;
 	elmnt.onmousedown = dragMouseDown;
 
   function dragMouseDown(e) {
