@@ -1,7 +1,7 @@
 :root{
 	--canvas-length: 488px;
   --canvas-offset: calc((var(--canvas-length) - 472px) / 2);
-	--canvas-remaining: calc(512px - var(--canvas-length));
+	--canvas-remaining: calc(550px - var(--canvas-length));
   --canvas-z-index: 40;
 }
 
@@ -13,8 +13,8 @@
 #map{
 	overflow: hidden;
 	position: relative;
-	min-width: 520px;
-	height: 520px;
+	min-width: 570px;
+	height: 570px;
 }
 
 #canvas_container{
@@ -24,7 +24,7 @@
 	float: right;
 	top: var(--canvas-remaining);
 	left: var(--canvas-remaining);
-	/*margin-top: var(--canvas-remaining);*/
+	margin: 0px 20px 20px 0px;
 	border: none;
   padding: none;
 }
@@ -40,24 +40,71 @@
 
 #left_axes{
 	position: absolute;
-	height: var(--canvas-length);
+	height: calc(var(--canvas-length) - var(--canvas-offset) + 20px);
 	width: var(--canvas-remaining);
 	overflow: hidden;
-	top: var(--canvas-remaining);
+	top: calc(var(--canvas-remaining) + var(--canvas-offset));
 	padding: 0px;
+}
+#left_axes:after { 
+  content: ' ';
+  display: block; position: relative;
+  border: 1px solid black;
+  height: calc(var(--canvas-length) - 2 * var(--canvas-offset));
+}
+
+#left_axes_markers{
+  width: calc(var(--canvas-remaining) - 30px);
+  padding: 0px;
+}
+
+.left-tick {
+  border-top: 2px solid black;
+  height: 18px;
+  width: calc(var(--canvas-remaining) - 30px);
+  position: absolute;
+  text-align: right;
+}
+
+.left-tick > :first-child{
+  padding-right: 5px;
 }
 
 #top_axes{
 	position: absolute;
-	width: var(--canvas-length);
+	width: calc(var(--canvas-length) - var(--canvas-offset) + 20px);
 	height: var(--canvas-remaining);
-	left: var(--canvas-remaining);
+	left: calc(var(--canvas-remaining) + var(--canvas-offset));
 	top: 0;
 	overflow: hidden;
 	padding-left: 0px;
 	padding-right: 0px;
 }
+#top_axes:after { 
+  content: ' ';
+  display: block; position: relative;
+  border: 1px solid black;
+  width: calc(var(--canvas-length) - 2 * var(--canvas-offset));
+}
 
+#top_axes_markers{
+  height: calc(var(--canvas-remaining) - 30px);
+  width: 100%;
+  padding: 0px;
+}
+
+.top-tick {
+  border-left: 2px solid black;
+  width: 18px;
+  height: calc(var(--canvas-remaining) - 30px);
+  position: absolute;
+}
+
+.top-tick > :first-child{
+  position: absolute;
+  top: 12px; 
+  padding-left: 3px;
+}
 
 .draggable{
 	position: absolute;

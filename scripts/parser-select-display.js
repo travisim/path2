@@ -56,16 +56,55 @@ myUI.displayMap = function(){
   for scaling down, image gets lighter, solution: make lines thicker
   for scaling up, lines between pixel forms, solution: make lines thicker
   */
-	document.getElementById("map_height_axis").innerHTML = myUI.map_arr.length - 1;
-	document.getElementById("map_width_axis").innerHTML = myUI.map_arr[0].length - 1;
-  document.getElementById("left_axes").style.height = myUI.canvases.bg.canvas.clientHeight+"px";
-  document.getElementById("top_axes").style.width = myUI.canvases.bg.canvas.clientWidth+"px";
+  let height_px = getComputedStyle(document.getElementById("bg")).getPropertyValue('height').slice(0, -2);
+  if(height < width) height_px *= height / width;
+  let height_interval = height_px / height;
+  let height_muls = calcIntervals(height, height_interval, 10);
+  console.log("LEFT:", height_muls);
+  document.getElementById("left_axes_markers").innerHTML = "";
+  for(const m of height_muls){
+    let el = document.createElement("div");
+    el.classList.add("left-tick");
+    el.innerHTML = `<span>${m}</span>`;
+    el.style.top = m * height_interval + "px";
+    document.getElementById("left_axes_markers").appendChild(el);
+  }
+
+  let width_px = getComputedStyle(document.getElementById("bg")).getPropertyValue('width').slice(0, -2);
+  if(height > width) width_px *= width / height;
+  let width_interval = width_px / width;
+  let width_muls = calcIntervals(width, width_interval, 10);
+  console.log("TOP:", width_muls);
+  document.getElementById("top_axes_markers").innerHTML = "";
+  for(const m of width_muls){
+    let el = document.createElement("div");
+    el.classList.add("top-tick");
+    el.innerHTML = `<span>${m}</span>`;
+    el.style.left = m * width_interval + "px";
+    document.getElementById("top_axes_markers").appendChild(el);
+  }
 
   myUI.canvases["bg"].draw_canvas(myUI.map_arr, "2d", true);
   console.log(myUI.canvases);
 	myUI.canvases["edit_map"].draw_canvas(myUI.map_arr, "2d", true);
 	if(myUI.scenFail)
 		myUI.displayScen();
+}
+
+function calcIntervals(num, intervalSize, minDist){
+  let ret = [0];
+  let interval = Math.ceil(num / 16);
+  let allowed = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+
+  let i = 0;
+  while(allowed[i] < interval || allowed[i] * intervalSize < minDist) i++;
+  interval = allowed[i];
+
+  for(let i = interval; i < num; i += interval) ret.push(i);
+
+  if( (num - ret[ret.length - 1]) * intervalSize < minDist) ret[ret.length - 1] = num;
+  else ret.push(num);
+  return ret;
 }
 
 /* SCEN PARSER */

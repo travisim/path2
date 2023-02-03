@@ -205,7 +205,6 @@ class PRM extends GridPathFinder{
 
       let indexOfSelectedOtherRandomCoords;
 
-      console.log(this.neighbourSelectionMethod, this.numberOfTopClosestNeighbours, this.connectionDistance)
       if(this.neighbourSelectionMethod == "Top Closest Neighbours"){
         // checks LOS between the the top X closes neighbours 
         indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
