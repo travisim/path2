@@ -57,7 +57,6 @@ myUI.displayMap = function(){
   for scaling up, lines between pixel forms, solution: make lines thicker
   */
   let height_px = getComputedStyle(document.getElementById("bg")).getPropertyValue('height').slice(0, -2);
-  if(height < width) height_px *= height / width;
   let height_interval = height_px / height;
   let height_muls = calcIntervals(height, height_interval, 10);
   console.log("LEFT:", height_muls);
@@ -71,9 +70,8 @@ myUI.displayMap = function(){
   }
 
   let width_px = getComputedStyle(document.getElementById("bg")).getPropertyValue('width').slice(0, -2);
-  if(height > width) width_px *= width / height;
   let width_interval = width_px / width;
-  let width_muls = calcIntervals(width, width_interval, 10);
+  let width_muls = calcIntervals(width, width_interval, 29);
   console.log("TOP:", width_muls);
   document.getElementById("top_axes_markers").innerHTML = "";
   for(const m of width_muls){
