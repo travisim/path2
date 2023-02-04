@@ -25,7 +25,7 @@ class PRM extends GridPathFinder{
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
-      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 15, description: `Sets number of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 35, description: `Sets number of random points`},
       {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
@@ -152,8 +152,8 @@ class PRM extends GridPathFinder{
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
     this.randomCoordsNodes = []
-    //this.randomCoordsNodes.push(new PRMNode(null,start,[]))
-    //this.exports.coords.push(start);
+    this.randomCoordsNodes.push(new PRMNode(null,start,[]))
+    this.exports.coords.push(start);
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
       var randomCoord_XY = [rand()*(myUI.map_arr.length/*this.map_height*/), rand()*(myUI.map_arr[0].length/*this.map_width*/)] //need seed
@@ -255,76 +255,9 @@ class PRM extends GridPathFinder{
     for (let i = 0; i < edgeAccumalator.length; ++i) {
       myUI.edgeCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
     }
-    this.addStartNode(start)
- //   download("PRM Map.txt", JSON.stringify(this.exports));
+
+    download("PRM Map.txt", JSON.stringify(this.exports));
   }
-
-
-
-  addStartNode(start = [4,1]){
-
-    
-    if(this.prevStartCoord){
-      myUI.edgeCanvas.eraseLine(this.prevStartCoord, this.prevCoordStartConnectedto);
-      myUI.nodeCanvas.eraseCircle(this.prevStartCoord);
-    } 
-
-
-    this.prevStartCoord = start
-    myUI.nodeCanvas.drawCircle(start);
-
-    var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCoordNodes, 
- 
-    for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
-        distancesBetweenACoordAndAllOthers.push( [Math.hypot(start[0] - this.randomCoordsNodes[i].value_XY[0], start[1]  - this.randomCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
-    }
-    
-    distancesBetweenACoordAndAllOthers.sort((a,b)=>{
-      return a[0] - b[0]; // sort by first index/sort by distances shortest at start
-    });
-
-
-    let indexOfSelectedRandomCoords;
-    indexOfSelectedRandomCoords = distancesBetweenACoordAndAllOthers // same as code for   if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours"")
-      .map(p => p[1]);
-    
-
-  
-    var selectedVertexIndex;
-    let cnt = 0;
-    coordLoop: for (let j = 0; j < indexOfSelectedRandomCoords.length; ++j) {
-      let jdx = indexOfSelectedRandomCoords[j];
-      if(i == jdx) continue; 
-      //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
-
-      //below currently takes the first vertex that passes LOS
-      var LOS = CustomLOSChecker(start, this.randomCoordsNodes[jdx].value_XY);
-      if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
-        ++cnt;
-        // bidirectional
-      
-        selectedVertexIndex = jdx
-
-        
-      } 
-      if(cnt >= 1) break coordLoop;
-    }
-
-    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(this.randomCoordsNodes.length)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(this.randomCoordsNodes.length);
-    if(!this.exports.neighbors[selectedVertexIndex].includes(this.randomCoordsNodes.length)) this.exports.neighbors[selectedVertexIndex].push(this.randomCoordsNodes.length);
-    
-    this.exports.coords.push(start);
-    this.randomCoordsNodes.push(new PRMNode(null,start,[this.randomCoordsNodes[selectedVertexIndex].value_XY]));
-    this.exports.edges.push([start,this.randomCoordsNodes[selectedVertexIndex].value_XY]);
-    myUI.edgeCanvas.drawLine(start,this.randomCoordsNodes[selectedVertexIndex].value_XY);
-
-    this.prevCoordStartConnectedto = this.randomCoordsNodes[selectedVertexIndex].value_XY;
-
-    
-  }
-    
-   
-  
 
   search(start, goal) {
     if(!this.randomCoordsNodes) this.generateNewMap(start, goal);
@@ -360,6 +293,9 @@ class PRM extends GridPathFinder{
       setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
     });
   }
+
+
+
 
 
 
