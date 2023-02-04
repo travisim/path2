@@ -25,7 +25,7 @@ class PRM extends GridPathFinder{
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
-      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 15, description: `Sets number of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 25, description: `Sets number of random points`},
       {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
