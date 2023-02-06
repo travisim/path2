@@ -25,7 +25,7 @@ class PRM extends GridPathFinder{
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
-      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 25, description: `Sets number of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 35, description: `Sets number of random points`},
       {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
@@ -172,8 +172,8 @@ class PRM extends GridPathFinder{
       this.randomCoordsNodes.push(new PRMNode(null,randomCoord_XY,[]));
     }
    
-    this.randomCoordsNodes.push(new PRMNode(null,goal,[]));
-    this.exports.coords.push(goal);
+    //this.randomCoordsNodes.push(new PRMNode(null,goal,[]));
+    //this.exports.coords.push(goal);
     console.log("random coods node",this.randomCoordsNodes);
 
     for(let i = 0; i < this.exports.coords.length; ++i){
@@ -229,7 +229,7 @@ class PRM extends GridPathFinder{
         //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
         
         var LOS = CustomLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
-        debugger;
+        //debugger;
         if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
           ++cnt;
           // bidirectional
@@ -256,26 +256,53 @@ class PRM extends GridPathFinder{
     for (let i = 0; i < edgeAccumalator.length; ++i) {
       myUI.edgeCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
     }
-    this.addStartNode(start)
- //   download("PRM Map.txt", JSON.stringify(this.exports));
+    
+    
+    this.addStartGoalNode("goal",goal);
+    this.addStartGoalNode("start",start);
+    download("PRM Map.txt", JSON.stringify(this.exports));
   }
 
 
 
-  addStartNode(start = [4,1]){
-    if(this.prevStartCoord){
-      myUI.edgeCanvas.eraseLine(this.prevStartCoord, this.prevCoordStartConnectedto);
-      myUI.nodeCanvas.eraseCircle(this.prevStartCoord);
+  addStartGoalNode(isStartOrGoal = "start",coord_XY = [4,1]){
+
+    if (isStartOrGoal == "start" && this.prevStartCoord){
+      prevCoord = this.prevStartCoord
+      prevCoordConnectedto = this.prevCoordStartConnectedTo
+    }
+    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
+      prevCoord = this.prevGoalCoord
+      prevCoordConnectedto = this.prevCoordGoalConnectedTo
+    }
+    else {
+      var prevCoord;
+    }
+
+
+     if(prevCoord){
+      myUI.edgeCanvas.eraseLine(prevCoord, prevCoordConnectedto);
+      myUI.nodeCanvas.eraseCircle(prevCoord);
     } 
+   
 
 
-    this.prevStartCoord = start
-    myUI.nodeCanvas.drawCircle(start);
+    if (isStartOrGoal == "start" && this.prevStartCoord){
+      this.prevStartCoord = coord_XY;
+  
+    }
+    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
+      this.prevGoalCoord = coord_XY;
+     
+    }
+
+    
+    myUI.nodeCanvas.drawCircle(coord_XY);
 
     var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCoordNodes, 
  
     for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
-        distancesBetweenACoordAndAllOthers.push( [Math.hypot(start[0] - this.randomCoordsNodes[i].value_XY[0], start[1]  - this.randomCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
+        distancesBetweenACoordAndAllOthers.push( [Math.hypot(coord_XY[0] - this.randomCoordsNodes[i].value_XY[0], coord_XY[1]  - this.randomCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
     }
     
     distancesBetweenACoordAndAllOthers.sort((a,b)=>{
@@ -297,11 +324,14 @@ class PRM extends GridPathFinder{
       //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
 
       //below currently takes the first vertex that passes LOS
-      var LOS = CustomLOSChecker(start, this.randomCoordsNodes[jdx].value_XY);
+      var LOS = CustomLOSChecker(coord_XY, this.randomCoordsNodes[jdx].value_XY);
       if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
         ++cnt;
         // bidirectional
+      
         selectedVertexIndex = jdx
+
+        
       } 
       if(cnt >= 1) break coordLoop;
     }
@@ -309,14 +339,26 @@ class PRM extends GridPathFinder{
     if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(this.randomCoordsNodes.length)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(this.randomCoordsNodes.length);
     if(!this.exports.neighbors[selectedVertexIndex].includes(this.randomCoordsNodes.length)) this.exports.neighbors[selectedVertexIndex].push(this.randomCoordsNodes.length);
     
-    this.exports.coords.push(start);
-    this.randomCoordsNodes.push(new PRMNode(null,start,[selectedVertexIndex]));
-    this.exports.edges.push([start, selected_XY]);
-    myUI.edgeCanvas.drawLine(start, selected_XY);
+    this.exports.coords.push(coord_XY);
+    this.randomCoordsNodes.push(new PRMNode(null,coord_XY,[selected_XY]));
+    this.exports.edges.push([coord_XY,selected_XY]);
+    myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
-    this.prevCoordStartConnectedto = selected_XY;
 
+
+
+    if (isStartOrGoal == "start" && this.prevStartCoord){
+      this.prevStartCoordConnectedto = selected_XY;
+  
+    }
+    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
+      this.prevGoalCoordConnectedto = selected_XY;
+     
+    }
+
+    
   }
+    
     
    
   
