@@ -8,7 +8,7 @@ class PRM extends GridPathFinder{
   }
   
   static get distance_metrics(){
-    return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
+    return ["Euclidean"];
   }
 
   static get hoverData(){
@@ -42,6 +42,8 @@ class PRM extends GridPathFinder{
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
     this.vertexEnabled = true;
+    myUI.nodeCanvas.isDisplayRatioGrid(true)
+    myUI.edgeCanvas.isDisplayRatioGrid(true)
     //try{this.setConfig("mapType", "Grid Vertex");}catch(e){}
   }
 
@@ -153,8 +155,7 @@ class PRM extends GridPathFinder{
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
     this.randomCoordsNodes = []
-    //this.randomCoordsNodes.push(new PRMNode(null,start,[]))
-    //this.exports.coords.push(start);
+  
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
       var randomCoord_XY = [rand()*(myUI.map_arr.length/*this.map_height*/), rand()*(myUI.map_arr[0].length/*this.map_width*/)] //need seed
@@ -169,11 +170,10 @@ class PRM extends GridPathFinder{
         }
       }
       this.exports.coords.push(randomCoord_XY);
-      this.randomCoordsNodes.push(new PRMNode(null,randomCoord_XY,[]));
+      this.randomCoordsNodes.push(new mapNode(null,randomCoord_XY,[]));
     }
    
-    //this.randomCoordsNodes.push(new PRMNode(null,goal,[]));
-    //this.exports.coords.push(goal);
+    
     console.log("random coods node",this.randomCoordsNodes);
 
     for(let i = 0; i < this.exports.coords.length; ++i){
@@ -336,13 +336,21 @@ class PRM extends GridPathFinder{
       if(cnt >= 1) break coordLoop;
     }
     const selected_XY = this.randomCoordsNodes[selectedVertexIndex].value_XY;
-    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(this.randomCoordsNodes.length)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(this.randomCoordsNodes.length);
-    if(!this.exports.neighbors[selectedVertexIndex].includes(this.randomCoordsNodes.length)) this.exports.neighbors[selectedVertexIndex].push(this.randomCoordsNodes.length);
-    
+    var selectedIndexForStartEndVertex = this.randomCoordsNodes.length // determined before push to array below
+
+
+
     this.exports.coords.push(coord_XY);
-    this.randomCoordsNodes.push(new PRMNode(null,coord_XY,[selected_XY]));
+    this.exports.neighbors.push(new Array());
+    this.randomCoordsNodes.push(new mapNode(null,coord_XY,[selected_XY]));
     this.exports.edges.push([coord_XY,selected_XY]);
     myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
+
+    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
+    if(!this.exports.neighbors[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbors[selectedVertexIndex].push(selectedIndexForStartEndVertex);
+    if(!this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
+    if(!this.exports.neighbors[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbors[selectedIndexForStartEndVertex].push(selectedVertexIndex);
+    
 
 
 
