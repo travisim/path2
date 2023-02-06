@@ -91,12 +91,51 @@ function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if
 // from https://www.30secondsofcode.org/articles/s/js-data-structures-tree
 
 function CustomLOSChecker(src, tgt){
-  let path = CustomLOSGenerator(src, tgt, false);
-  for(coord of path){
-    let x = coord[0] * (944/myUI.map_height);
-    let y = coord[1] * (944/myUI.map_width);
-    PixelCloudObstacleStrength = myUI.canvases["bg"].ctx.getImageData(y, x, 1, 1).data[3];//(myUI.canvases["bg"].ctx.getImageData(y+1, x, 1, 1).data[3] + myUI.canvases["bg"].ctx.getImageData(y, x+1, 1, 1).data[3] + myUI.canvases["bg"].ctx.getImageData(y-1, x, 1, 1).data[3] +myUI.canvases["bg"].ctx.getImageData(y, x-1, 1, 1).data[3])/4;
-    if(PixelCloudObstacleStrength == 255) return false;
+  let path = [];
+  let grid = myUI.canvases.bg.canvas_cache;
+  if(grid == undefined || grid[0] == undefined) return false;
+  if(src[0] == tgt[0] || src[1] == tgt[1]){
+    // cardinal crossing
+    if(src[0] == tgt[0]){
+      let x1 = src[0], x0 = src[0] - 1;
+      if(x0 < 0 || x1 >= myUI.map_height){
+        // travelling along edge of map
+        // accept or reject depending on the map configuration
+        // we'll just accept it for now
+        return true;
+      }
+      let start = Math.min(src[1], tgt[1]);
+      let end = Math.max(src[1], tgt[1]);
+      for(let y = start; y < end; ++y){
+        if(grid[x0][y] && grid[x1][y]) return false;
+      }
+      return true;
+    }
+    if(src[1] == tgt[1]){
+      let y1 = src[1], y0 = src[1] - 1;
+      if(y0 < 0 || y1 >= myUI.map_height){
+        // travelling along edge of map
+        // accept or reject depending on the map configuration
+        // we'll just accept it for now
+        return true;
+      }
+      let start = Math.min(src[0], tgt[0]);
+      let end = Math.max(src[0], tgt[0]);
+      for(let x = start; x < end; ++x){
+        if(grid[x][y0] && grid[x][y1]) return false;
+      }
+      return true;
+    }
+  }
+  else{
+    let path = CustomLOSGenerator(src, tgt, false);
+    for(coord of path){
+      let x = coord[0];
+      let y = coord[1];
+      if(x >= myUI.map_height || y >= myUI.map_width) continue;
+      if(grid[x][y]) return false;
+    }
+    return true;
   }
   return true;
 }
@@ -346,6 +385,7 @@ class SVGCanvas {
       line_id = `SVGline_${end_coord.x}_${end_coord.y}_${start_coord.x}_${start_coord.y}_${dest}`;
       try{this.EraseSvgById(line_id);}catch{
         alert("LINE DOES NOT EXIST");
+        debugger;
       }
     }
   }
@@ -355,7 +395,7 @@ class SVGCanvas {
   drawCircle(circle_XY, dest = STATIC.map){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
     const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;// the canvas square has fixed dimentions 472px
-    var r = 0.25*display_ratio;
+    var r = Math.max(0.25*display_ratio, Math.max(myUI.map_width, myUI.map_height) *0.4);
     var cx = display_ratio*circle_coord.y;
     var cy = display_ratio*circle_coord.x; 
     
@@ -368,7 +408,7 @@ class SVGCanvas {
       config.fill = "none";
       config.stroke = color;
       config.strokeDasharray = "6.5,6.5";
-      config.r = 0.2*display_ratio;
+      config.r = Math.max(0.2*display_ratio, 1)
       config.strokeWidth = 5;
     }
     var cir = this.getSvgNode('circle', config);
@@ -380,6 +420,7 @@ class SVGCanvas {
     var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
     try{this.EraseSvgById(circle_id);}catch{
       alert("CIRCLE DOES NOT EXIST");
+      debugger;
     }
   }
   EraseSvgById(svg_id){

@@ -83,7 +83,6 @@ myUI.displayMap = function(){
   }
 
   myUI.canvases["bg"].draw_canvas(myUI.map_arr, "2d", true);
-  console.log(myUI.canvases);
 	myUI.canvases["edit_map"].draw_canvas(myUI.map_arr, "2d", true);
 	if(myUI.scenFail)
 		myUI.displayScen();
@@ -170,7 +169,6 @@ document.querySelectorAll(".scen_controls").forEach(elem=>{
 })
 
 myUI.displayScen = function(update=false, reset_zero=false){
-  console.log("INSIDE DISPLAY SCEN")
 	//myUI.canvases.start.erase_canvas();
 	//myUI.canvases.goal.erase_canvas();
 	myUI.reset_animation();
@@ -197,9 +195,9 @@ myUI.displayScen = function(update=false, reset_zero=false){
     document.querySelector("#scen_goal_y").value =myUI.map_goal[1];
   }
   if(reset_zero) document.querySelector('#scen_num').value = 0;
-  console.log("moving");
   myUI.map_start_icon.move(myUI.map_start);
   myUI.map_goal_icon.move(myUI.map_goal);
+  console.log("LOS:", CustomLOSChecker(myUI.map_start, myUI.map_goal));
 	try{myUI.updateInfoMap(myUI.map_start);}catch(e){}
 }
 

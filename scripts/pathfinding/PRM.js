@@ -136,6 +136,7 @@ class PRM extends GridPathFinder{
   }
 
   generateNewMap(start = [0,0], goal=[13,13]){
+    this.prevStartCoord = null;
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
    
     this.exports = {coords:[],neighbors:[],edges:[]};
@@ -199,7 +200,7 @@ class PRM extends GridPathFinder{
         distancesBetweenACoordAndAllOthers.push( [Math.hypot(currentCoord[0] - otherRandomCoords[j][0], currentCoord[1]  - otherRandomCoords[j][1]), j]); // could store as before sqrt form
       }
       distancesBetweenACoordAndAllOthers.sort((a,b)=>{
-        return a[0] - b[0]; // sort by first index
+        return a[0] - b[0]; // sort by distance
       });
 
 
@@ -221,7 +222,6 @@ class PRM extends GridPathFinder{
           .map(p => p[1]);
       }
       
-      console.log("COORD: ", otherRandomCoords[i][0], otherRandomCoords[i][1]);
       let cnt = 0;
       coordLoop: for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
         let jdx = indexOfSelectedOtherRandomCoords[j];
@@ -229,6 +229,7 @@ class PRM extends GridPathFinder{
         //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
         
         var LOS = CustomLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
+        debugger;
         if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
           ++cnt;
           // bidirectional
@@ -262,8 +263,6 @@ class PRM extends GridPathFinder{
 
 
   addStartNode(start = [4,1]){
-
-    
     if(this.prevStartCoord){
       myUI.edgeCanvas.eraseLine(this.prevStartCoord, this.prevCoordStartConnectedto);
       myUI.nodeCanvas.eraseCircle(this.prevStartCoord);
@@ -302,25 +301,21 @@ class PRM extends GridPathFinder{
       if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
         ++cnt;
         // bidirectional
-      
         selectedVertexIndex = jdx
-
-        
       } 
       if(cnt >= 1) break coordLoop;
     }
-
+    const selected_XY = this.randomCoordsNodes[selectedVertexIndex].value_XY;
     if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(this.randomCoordsNodes.length)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(this.randomCoordsNodes.length);
     if(!this.exports.neighbors[selectedVertexIndex].includes(this.randomCoordsNodes.length)) this.exports.neighbors[selectedVertexIndex].push(this.randomCoordsNodes.length);
     
     this.exports.coords.push(start);
-    this.randomCoordsNodes.push(new PRMNode(null,start,[this.randomCoordsNodes[selectedVertexIndex].value_XY]));
-    this.exports.edges.push([start,this.randomCoordsNodes[selectedVertexIndex].value_XY]);
-    myUI.edgeCanvas.drawLine(start,this.randomCoordsNodes[selectedVertexIndex].value_XY);
+    this.randomCoordsNodes.push(new PRMNode(null,start,[selectedVertexIndex]));
+    this.exports.edges.push([start, selected_XY]);
+    myUI.edgeCanvas.drawLine(start, selected_XY);
 
-    this.prevCoordStartConnectedto = this.randomCoordsNodes[selectedVertexIndex].value_XY;
+    this.prevCoordStartConnectedto = selected_XY;
 
-    
   }
     
    
@@ -336,8 +331,7 @@ class PRM extends GridPathFinder{
     console.log("starting");
    
     // starting node
-    var nextNode = this.randomCoordsNodes[0]; // PRM Node
-    console.log("STARTING NODE: ", nextNode);
+    var nextNode = this.randomCoordsNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // PRM Node
     this.current_node =  new Node(0, 0, 0, null, nextNode.value_XY, null, nextNode.neighbours); // Regular Node
     
     // assigns the F, G, H cost to the node

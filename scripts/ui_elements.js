@@ -249,7 +249,7 @@ class UICanvas{
   draw_start_goal(point, strokeColor=this.ctx.strokeStyle){
     //this.set_color(strokeColor, "all");
     this.set_color(this.fillColor, "all");
-    if (myUI.map_height < 64 || this.fixedRes){
+    if (myUI.map_height < 64){
       this.draw_pixel(point, false, 1, -1, false);
     }
     else{
@@ -257,19 +257,40 @@ class UICanvas{
     }
   }
 
-  draw_scaled_cross(array_data, strokeColor){
-    let ctx = this.ctx;
-    const scaled_cross_length = Math.round(this.data_height*0.02);
+  draw_scaled_cross(coord, strokeColor){
+    const scaled_cross_length = Math.round(this.data_height*0.025);
+    let lineWidth = this.data_height/128;
+    if(lineWidth % 2) lineWidth--;
+    if(lineWidth < 0) lineWidth = 0;
+    let [x,y] = coord; 
+    this.ctx.fillRect(y - scaled_cross_length, x - lineWidth/2, scaled_cross_length * 2 + 1, lineWidth + 1);
+    this.ctx.fillRect(y - lineWidth/2, x - scaled_cross_length, lineWidth + 1, scaled_cross_length * 2 + 1);
+    return;
+    for(let offset = -lineWidth/2; offset <= lineWidth/2; ++offset){
+      console.log("OFFSET:", offset);
+      let data = [coord[0], coord[1] + offset];
+      for(let i = data[0] - scaled_cross_length; i <= data[0] + scaled_cross_length; ++i){
+        this.draw_pixel([i, data[1]], false, 1, -1, false);
+      }
+      data = [coord[0] + offset, coord[1]];
+      for(let j = data[1] - scaled_cross_length; j <= data[1] + scaled_cross_length; ++j){
+        this.draw_pixel([data[0], j], false, 1, -1, false);
+      }
+    }
+    /*
     //drawing the crosses from top left down and top right down
+    let ctx = this.ctx;
     ctx.beginPath();
     ctx.lineWidth = this.data_height/128;
    // context.arc(point[1], point[0], 7.5, 0, 2 * Math.PI);
-    ctx.moveTo(array_data[1]-scaled_cross_length, array_data[0]-scaled_cross_length);
-    ctx.lineTo(array_data[1]+scaled_cross_length, array_data[0]+scaled_cross_length);
-    ctx.moveTo(array_data[1]-scaled_cross_length, array_data[0]+scaled_cross_length);
-    ctx.lineTo(array_data[1]+scaled_cross_length, array_data[0]-scaled_cross_length);
+    
+    ctx.moveTo(coord[1]-scaled_cross_length, coord[0]-scaled_cross_length);
+    ctx.lineTo(coord[1]+scaled_cross_length, coord[0]+scaled_cross_length);
+    ctx.moveTo(coord[1]-scaled_cross_length, coord[0]+scaled_cross_length);
+    ctx.lineTo(coord[1]+scaled_cross_length, coord[0]-scaled_cross_length);
     this.set_color(strokeColor, "stroke");
     ctx.stroke();
+    */
   }
 
   draw_canvas(array_data, array_type, draw_zeroes=false, virtual=false){
@@ -361,7 +382,7 @@ class UICanvas{
 
     this.set_color(this.strokeColor, "stroke");
     this.ctx.beginPath();
-    this.ctx.lineWidth = r*1.9;
+    this.ctx.lineWidth = Math.max(r*1.9, 1);
     this.ctx.arc(x, y, r, 0, 2 * Math.PI);
     this.ctx.stroke();  
   }
