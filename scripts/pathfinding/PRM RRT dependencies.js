@@ -354,21 +354,16 @@ class SVGCanvas {
   }
 
   isDisplayRatioGrid(isGrid=true){
-     
-    if(isGrid){
-      this.displayRatio = myUI.canvases.bg.canvas.clientWidth/myUI.map_width;
-      
-       // only need width or height as client width and map width both change as map aspect changes
-    }
-    else{ //no grid
-      this.displayRatio = 472;
-      console.log(this.displayRatio)
-    } 
-
-  
-
-    
+    this.isGrid = isGrid;
   }
+
+  get displayRatio(){
+    if(this.isGrid)
+      return myUI.canvases.bg.canvas.clientWidth/Math.max(myUI.map_width, myUI.map_height);
+    else
+      return 472;
+  }
+
   getSvgNode(n, v) {
     n = document.createElementNS("http://www.w3.org/2000/svg", n);
     for (var p in v)
@@ -425,7 +420,7 @@ class SVGCanvas {
   }
   drawCircle(circle_XY, dest = STATIC.map){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
-    var r = Math.max(0.25*this.displayRatio, Math.max(myUI.map_width, myUI.map_height) *0.4);
+    var r = Math.max(0.25*this.displayRatio, 7.375);
     var cx = this.displayRatio*circle_coord.y;
     var cy = this.displayRatio*circle_coord.x; 
     

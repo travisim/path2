@@ -44,7 +44,6 @@ class PRM extends GridPathFinder{
     this.vertexEnabled = true;
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
-    //try{this.setConfig("mapType", "Grid Vertex");}catch(e){}
   }
 
   setConfig(uid, value){
@@ -433,13 +432,8 @@ class PRM extends GridPathFinder{
       if(!this.bigMap){
         this._create_action({command: STATIC.EraseAllRows, dest: STATIC.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
-          try{
-            const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
-            this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
-          }
-          catch(e){
-            debugger;
-          }
+          const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
 
