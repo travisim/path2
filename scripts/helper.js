@@ -127,7 +127,10 @@ class Empty2D{
 	}
 
 	set(xy, item){
-		if(this.allowFloat) this.data[xy] = item;
+		if(this.allowFloat){
+			if(item === undefined) delete this.data[xy];
+			else this.data[xy] = item;
+		}
 		else this.data[xy[0]][xy[1]] = item;
 	}
 

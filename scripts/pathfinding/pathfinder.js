@@ -37,9 +37,13 @@ class GridPathFinder{
 		}
 		if(action[0]&(1<<3)){
 			++idx;
+			/*
 			let coord = action[idx]>>1;
 			var x = Math.floor(coord/myUI.planner.map_width);
 			var y = coord - x * myUI.planner.map_width;
+			*/
+			var x = action[idx][0]; // for floating point coordinates
+			var y = action[idx][1];
 		}
 		if(action[0]&(1<<4)){
 			++idx;
@@ -63,9 +67,13 @@ class GridPathFinder{
 		}
 		if(action[0]&(1<<9)){
 			++idx;
+			/*
 			let coord = action[idx]>>1;
 			var endX = Math.floor(coord/myUI.planner.map_width);
 			var endY = coord - endX * myUI.planner.map_width;
+			*/
+			var endX = action[idx][0]; // for floating point coordinates
+			var endY = action[idx][1];
 		}
     
 		if(readable){
@@ -133,7 +141,8 @@ class GridPathFinder{
 		if(nodeCoord!==undefined){
 			obj.idx++;
 			obj.actionCache[0] += 1<<3;
-			obj.actionCache[obj.idx] = (nodeCoord[0]*myUI.planner.map_width+nodeCoord[1])*2;
+			//obj.actionCache[obj.idx] = (nodeCoord[0]*myUI.planner.map_width+nodeCoord[1])*2;
+			obj.actionCache[obj.idx] = nodeCoord; // for floating point coordinates
 		}
 		if(arrowIndex!==undefined){
 			obj.idx++;
@@ -163,7 +172,8 @@ class GridPathFinder{
 		if(endCoord!==undefined){
 			obj.idx++;
 			obj.actionCache[0] += 1<<9;
-			obj.actionCache[obj.idx] = (endCoord[0]*myUI.planner.map_width+endCoord[1])*2;
+			//obj.actionCache[obj.idx] = (endCoord[0]*myUI.planner.map_width+endCoord[1])*2;
+			obj.actionCache[obj.idx] = endCoord; // for floating point coordinates
 		}
 
 		return obj.actionCache;
@@ -477,7 +487,7 @@ class GridPathFinder{
 		// found the goal & exits the loop
 		if (node.self_XY[0] != this.goal[0] || node.self_XY[1] != this.goal[1]) return false;
 		
-		this._assign_cell_index(this.current_node_XY);
+		if(this.roundNodes===undefined || this.roundNodes) this._assign_cell_index(this.current_node_XY);
 		this.path = [];
 		// retraces the entire parent tree until start is found
 		var prevNode = null;
@@ -497,7 +507,6 @@ class GridPathFinder{
 				}
 			}
 			else this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_XY});
-			console.log("ARROW INDEX: " ,node.arrow_index);
 			if(! (node.arrow_index === null))
 				this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
 			
@@ -533,7 +542,7 @@ class Node{
       this.g_cost = g_cost;
       this.h_cost = h_cost;
 		  this.parent = parent;
-		  this.self_XY = self_XY[0]>255 || self_XY[1]>255 ? new Uint16Array(self_XY) : new Uint8Array(self_XY);
+		  this.self_XY = self_XY;
 			this.arrow_index = arrow_index;  // refers to the index (or arrow array) at which the arrow points from the node to the parent
 			// arrow index is used to construct the steps/states when computing the path
       this.neighbours = neighbours;

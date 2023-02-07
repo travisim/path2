@@ -79,7 +79,7 @@ myUI.fileHandler.handleFiles = function (){
 				myUI.showPlanners();
 			}
 			else if(fileType=="json"){
-				myUI.parseCustom(contents);
+				myUI.parseNodeMap(contents);
 			}
       else if(fileType=="pseudo"){
         console.log(contents);  

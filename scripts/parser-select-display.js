@@ -305,3 +305,37 @@ myUI.toggleVertex = function(enable=true){
     myUI.canvases.hover_map.setDrawType("cell");
   }
 }
+
+myUI.parseNodeMap = function(contents){
+  let data = JSON.parse(contents);
+  console.log(data);  
+  if(document.getElementById("node")){
+    document.getElementById("node").innerHTML = "";
+  }
+  if(document.getElementById("edge")){
+    document.getElementById("edge").innerHTML = "";
+  }
+  myUI.planner.randomCoordsNodes = [];
+  for(const coord of data.coords){
+    myUI.planner.randomCoordsNodes.push(new PRMNode(null, coord, []));
+  }
+
+  myUI.planner.randomCoordsNodes.forEach(node=>{
+    myUI.nodeCanvas.drawCircle(node.value_XY);
+  });
+
+  for(let i = 0; i < myUI.planner.randomCoordsNodes.length; ++i){
+    myUI.planner.randomCoordsNodes[i].neighbours.push(...data.neighbors[i]);
+  }
+
+  for (let i = 0; i < data.edges.length; ++i) {
+    myUI.edgeCanvas.drawLine(data.edges[i][0],data.edges[i][1]);
+  }
+
+  for(const coord of data.coords){
+    if(!(Number.isInteger(coord[0]) && Number.isInteger(coord[0]))){
+      myUI.planner.roundNodes = false;
+      break;
+    }
+  }
+}

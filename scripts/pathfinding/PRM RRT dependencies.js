@@ -91,7 +91,6 @@ function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if
 // from https://www.30secondsofcode.org/articles/s/js-data-structures-tree
 
 function CustomLOSChecker(src, tgt){
-  let path = [];
   let grid = myUI.canvases.bg.canvas_cache;
   if(grid == undefined || grid[0] == undefined) return false;
   if(src[0] == tgt[0] || src[1] == tgt[1]){
@@ -144,10 +143,11 @@ function CustomLOSChecker(src, tgt){
 
 function CustomLOSGenerator(src, tgt, cons = true){
   const THRES = 1e-3;
-
+  
+  /* addition to given algo */
   if(src.reduce(add, 0) < tgt.reduce(add, 0))
     [src, tgt] = [tgt, src];  // swap the arrays
-
+  /* end of addition */
   let diffX = tgt.map((x, i) => x - src[i]);
   let absX = diffX.map(Math.abs);
 
@@ -174,8 +174,11 @@ function CustomLOSGenerator(src, tgt, cons = true){
     if(src[0] > srcFloor[0] && src[1] > srcFloor[1]) path.push(srcFloor);
   }
   /* end of addition */
+  if(cons) console.log(`src, tgt: [${src[0]}, ${src[1]}], [${tgt[0]}, ${tgt[1]}]`);
+  if(cons) console.log(floorZ, tgtFloorZ);
   let step = 0;
   while (!equal(floorZ, tgtFloorZ)) {
+    if(cons) console.log(`floorZ: ${floorZ}, tgtFloorZ: ${tgtFloorZ}`);
     step++;
 
     let S = changeS * step + srcZ[1];
@@ -189,34 +192,44 @@ function CustomLOSGenerator(src, tgt, cons = true){
         // pass thru large first
         floorZ[0] = floorZ[0] + dZ[0];
         path.push(conv(cflag, floorZ));
-        if(cons) console.log(`small1: [${floorZ}]`);
+        if(cons) console.log(`small1: [${conv(cflag, floorZ)}]`);
         if (equal(floorZ, tgtFloorZ)) {
             break; // reached destination
         }
         floorZ[1] = floorZ[1] + dZ[1];
-        if(cons)console.log(`small2: [${floorZ}]`);
+        if(cons)console.log(`small2: [${conv(cflag, floorZ)}]`);
       } 
       else if (cmpS + THRES < cmp) {
         // pass thru small first
         floorZ[1] = floorZ[1] + dZ[1];
         path.push(conv(cflag, floorZ));
-        if(cons) console.log(`long1: [${floorZ}]`);
+        if(cons) console.log(`long1: [${conv(cflag, floorZ)}]`);
         if (equal(floorZ, tgtFloorZ)) {
             break;
         }
         floorZ[0] = floorZ[0] + dZ[0];
-        if(cons) console.log(`long2: [${floorZ}]`);
+        if(cons) console.log(`long2: [${conv(cflag, floorZ)}]`);
       } 
       else {
         // pass thru both at same time
+        /* addition to given algo */
+        // check if moving x reaches tgt
+        let floorZ1 = [...floorZ];
+        floorZ1[0] = floorZ1[0] + dZ[0];
+        if(equal(floorZ1, tgtFloorZ)) break;
+        // then check y
+        let floorZ2 = [...floorZ];
+        floorZ2[1] = floorZ2[1] + dZ[1];
+        if(equal(floorZ2, tgtFloorZ)) break;
+        /* end of addition */
         floorZ = floorZ.map((x, i) => x + dZ[i]);
-        if(cons) console.log(`eq: [${floorZ}]`);
+        if(cons) console.log(`eq: [${conv(cflag, floorZ)}]`);
       }
     }
     else {
       // no change in short
       floorZ[0] = floorZ[0] + dZ[0];
-      if(cons) console.log(`nc: [${floorZ}]`);
+      if(cons) console.log(`nc: [${conv(cflag, floorZ)}]`);
     }
     let cur = conv(cflag, floorZ);
     path.push(cur);
