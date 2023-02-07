@@ -317,7 +317,7 @@ myUI.parseNodeMap = function(contents){
   }
   myUI.planner.randomCoordsNodes = [];
   for(const coord of data.coords){
-    myUI.planner.randomCoordsNodes.push(new PRMNode(null, coord, []));
+    myUI.planner.randomCoordsNodes.push(new MapNode(null, coord, []));
   }
 
   myUI.planner.randomCoordsNodes.forEach(node=>{

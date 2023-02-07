@@ -323,7 +323,7 @@ class Tree {
 } 
 
 
-class PRMNode {
+class MapNode {
   constructor( parent = null, value_XY,neighbours = null) {
 
     this.parent = parent;
@@ -349,7 +349,25 @@ class SVGCanvas {
   constructor(canvas_id, drawOrder) {
     this.canvas_id = canvas_id;
     this.createSvgCanvas(this.canvas_id, drawOrder);
+  
    // this.reset(this.canvas_id);
+  }
+
+  isDisplayRatioGrid(isGrid=true){
+     
+    if(isGrid){
+      this.displayRatio = myUI.canvases.bg.canvas.clientWidth/myUI.map_width;
+      
+       // only need width or height as client width and map width both change as map aspect changes
+    }
+    else{ //no grid
+      this.displayRatio = 472;
+      console.log(this.displayRatio)
+    } 
+
+  
+
+    
   }
   getSvgNode(n, v) {
     n = document.createElementNS("http://www.w3.org/2000/svg", n);
@@ -379,11 +397,11 @@ class SVGCanvas {
   drawLine(start_XY, end_XY, dest = STATIC.map){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
-    const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;// the canvas square has fixed dimentions 472px
-    var x1 = display_ratio*start_coord.y;
-    var y1 = display_ratio*start_coord.x;
-    var x2 = display_ratio*end_coord.y;
-    var y2 = display_ratio*end_coord.x;
+ 
+    var x1 = this.displayRatio*start_coord.y;
+    var y1 = this.displayRatio*start_coord.x;
+    var x2 = this.displayRatio*end_coord.y;
+    var y2 = this.displayRatio*end_coord.x;
     var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
     var line_class = `SVGline_${dest}`;
     var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
@@ -407,10 +425,9 @@ class SVGCanvas {
   }
   drawCircle(circle_XY, dest = STATIC.map){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
-    const display_ratio = myUI.canvases.bg.canvas.clientWidth / myUI.map_width;// the canvas square has fixed dimentions 472px
-    var r = Math.max(0.25*display_ratio, Math.max(myUI.map_width, myUI.map_height) *0.4);
-    var cx = display_ratio*circle_coord.y;
-    var cy = display_ratio*circle_coord.x; 
+    var r = Math.max(0.25*this.displayRatio, Math.max(myUI.map_width, myUI.map_height) *0.4);
+    var cx = this.displayRatio*circle_coord.y;
+    var cy = this.displayRatio*circle_coord.x; 
     
     var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
     var circle_class = `SVGcircle_${dest}`;
@@ -421,13 +438,15 @@ class SVGCanvas {
       config.fill = "none";
       config.stroke = color;
       config.strokeDasharray = "6.5,6.5";
-      config.r = Math.max(0.2*display_ratio, 1)
+      config.r = Math.max(0.2*this.displayRatio, 1)
       config.strokeWidth = 5;
     }
     var cir = this.getSvgNode('circle', config);
     //var toAppend =`<circle cx=${cx} cy=${cy} r=${r} id=${circle_id} stroke-width="2" fill="grey" />`
     document.getElementById(this.canvas_id).appendChild(cir);
   }
+
+
   eraseCircle(circle_XY, dest = STATIC.map){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
     var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;

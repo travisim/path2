@@ -8,7 +8,7 @@ class PRM extends GridPathFinder{
   }
   
   static get distance_metrics(){
-    return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
+    return ["Euclidean"];
   }
 
   static get hoverData(){
@@ -25,7 +25,7 @@ class PRM extends GridPathFinder{
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
-      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 25, description: `Sets number of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 35, description: `Sets number of random points`},
       {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
@@ -42,6 +42,8 @@ class PRM extends GridPathFinder{
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
     this.vertexEnabled = true;
+    myUI.nodeCanvas.isDisplayRatioGrid(true)
+    myUI.edgeCanvas.isDisplayRatioGrid(true)
     //try{this.setConfig("mapType", "Grid Vertex");}catch(e){}
   }
 
@@ -136,7 +138,6 @@ class PRM extends GridPathFinder{
   }
 
   generateNewMap(start = [0,0], goal=[13,13]){
-    this.prevStartCoord = null;
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
    
     this.exports = {coords:[],neighbors:[],edges:[]};
@@ -149,12 +150,11 @@ class PRM extends GridPathFinder{
       document.getElementById("edge").innerHTML = "";
     }
 
-    this.exports.seed = this.seed;
+    this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
     this.randomCoordsNodes = []
-    //this.randomCoordsNodes.push(new PRMNode(null,start,[]))
-    //this.exports.coords.push(start);
+  
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
       var randomCoord_XY = [rand()*(myUI.map_arr.length/*this.map_height*/), rand()*(myUI.map_arr[0].length/*this.map_width*/)] //need seed
@@ -169,11 +169,8 @@ class PRM extends GridPathFinder{
         }
       }
       this.exports.coords.push(randomCoord_XY);
-      this.randomCoordsNodes.push(new PRMNode(null,randomCoord_XY,[]));
+      this.randomCoordsNodes.push(new MapNode(null,randomCoord_XY,[]));
     }
-   
-    this.randomCoordsNodes.push(new PRMNode(null,goal,[]));
-    this.exports.coords.push(goal);
 
     for(let i = 0; i < this.exports.coords.length; ++i){
       this.exports.neighbors.push(new Array());
@@ -253,26 +250,53 @@ class PRM extends GridPathFinder{
     for (let i = 0; i < edgeAccumalator.length; ++i) {
       myUI.edgeCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
     }
-    this.addStartNode(start)
-    //download("PRM Map.json", JSON.stringify(this.exports));
+    
+    
+    this.addStartGoalNode("goal",goal);
+    this.addStartGoalNode("start",start);
+    download("PRM Map.json", JSON.stringify(this.exports));
   }
 
 
 
-  addStartNode(start = [4,1]){
-    if(this.prevStartCoord){
-      myUI.edgeCanvas.eraseLine(this.prevStartCoord, this.prevCoordStartConnectedto);
-      myUI.nodeCanvas.eraseCircle(this.prevStartCoord);
+  addStartGoalNode(isStartOrGoal = "start",coord_XY = [4,1]){
+
+    if (isStartOrGoal == "start" && this.prevStartCoord){
+      prevCoord = this.prevStartCoord
+      prevCoordConnectedto = this.prevCoordStartConnectedTo
+    }
+    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
+      prevCoord = this.prevGoalCoord
+      prevCoordConnectedto = this.prevCoordGoalConnectedTo
+    }
+    else {
+      var prevCoord;
+    }
+
+
+     if(prevCoord){
+      myUI.edgeCanvas.eraseLine(prevCoord, prevCoordConnectedto);
+      myUI.nodeCanvas.eraseCircle(prevCoord);
     } 
+   
 
 
-    this.prevStartCoord = start
-    myUI.nodeCanvas.drawCircle(start);
+    if (isStartOrGoal == "start" && this.prevStartCoord){
+      this.prevStartCoord = coord_XY;
+  
+    }
+    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
+      this.prevGoalCoord = coord_XY;
+     
+    }
+
+    
+    myUI.nodeCanvas.drawCircle(coord_XY);
 
     var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCoordNodes, 
  
     for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
-        distancesBetweenACoordAndAllOthers.push( [Math.hypot(start[0] - this.randomCoordsNodes[i].value_XY[0], start[1]  - this.randomCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
+        distancesBetweenACoordAndAllOthers.push( [Math.hypot(coord_XY[0] - this.randomCoordsNodes[i].value_XY[0], coord_XY[1]  - this.randomCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
     }
     
     distancesBetweenACoordAndAllOthers.sort((a,b)=>{
@@ -292,27 +316,46 @@ class PRM extends GridPathFinder{
       //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
 
       //below currently takes the first vertex that passes LOS
-      var LOS = CustomLOSChecker(start, this.randomCoordsNodes[jdx].value_XY);
+      var LOS = CustomLOSChecker(coord_XY, this.randomCoordsNodes[jdx].value_XY);
       if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
         ++cnt;
         // bidirectional
+      
         selectedVertexIndex = jdx
+
+        
       } 
       if(cnt >= 1) break coordLoop;
     }
     const selected_XY = this.randomCoordsNodes[selectedVertexIndex].value_XY;
-    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(this.randomCoordsNodes.length)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(this.randomCoordsNodes.length);
-    if(!this.exports.neighbors[selectedVertexIndex].includes(this.randomCoordsNodes.length)) this.exports.neighbors[selectedVertexIndex].push(this.randomCoordsNodes.length);
-    
-    this.exports.coords.push(start);
-    this.exports.neighbors.push([selectedVertexIndex]);
-    this.randomCoordsNodes.push(new PRMNode(null,start,[selectedVertexIndex]));
-    this.exports.edges.push([start, selected_XY]);
-    myUI.edgeCanvas.drawLine(start, selected_XY);
+    var selectedIndexForStartEndVertex = this.randomCoordsNodes.length // determined before push to array below
 
-    this.prevCoordStartConnectedto = selected_XY;
+    this.exports.coords.push(coord_XY);
+    this.exports.neighbors.push(new Array());
+    this.randomCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
+    this.exports.edges.push([coord_XY,selected_XY]);
+    myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
+    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
+    if(!this.exports.neighbors[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbors[selectedVertexIndex].push(selectedIndexForStartEndVertex);
+    if(!this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
+    if(!this.exports.neighbors[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbors[selectedIndexForStartEndVertex].push(selectedVertexIndex);
+
+    if (isStartOrGoal == "start"){
+      console.log("Start:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);
+    }
+    else{
+      console.log("Goal:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);
+    }
+
+    if (isStartOrGoal == "start" && this.prevStartCoord){
+      this.prevStartCoordConnectedto = selected_XY;
+    }
+    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
+      this.prevGoalCoordConnectedto = selected_XY;
+    }
   }
+    
     
    
   
@@ -335,6 +378,8 @@ class PRM extends GridPathFinder{
 
     // pushes the starting node onto the queue
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
+    console.log(this.current_node);
+    debugger;
     
     if(!this.bigMap){
       // for every node that is pushed onto the queue, it should be added to the queue infotable
@@ -388,8 +433,13 @@ class PRM extends GridPathFinder{
       if(!this.bigMap){
         this._create_action({command: STATIC.EraseAllRows, dest: STATIC.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
-          const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
+          try{
+            const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
+            this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
+          }
+          catch(e){
+            debugger;
+          }
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
 
