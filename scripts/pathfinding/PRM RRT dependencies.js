@@ -91,39 +91,121 @@ function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if
 // from https://www.30secondsofcode.org/articles/s/js-data-structures-tree
 
 function CustomLOSChecker(src, tgt){
-  let grid = myUI.canvases.bg.canvas_cache;
+  let grid = myUI.canvases.bg.canvas_cache;                     // obstacle 2d matrix
   if(grid == undefined || grid[0] == undefined) return false;
   if(src[0] == tgt[0] || src[1] == tgt[1]){
-    // cardinal crossing
-    if(src[0] == tgt[0]){
+    // cardinal crossing(horizontal/vertica;)
+    if(src[0] == tgt[0]){                      
       let x1 = src[0], x0 = src[0] - 1;
-      if(x0 < 0 || x1 >= myUI.map_height){
-        // travelling along edge of map
+      if(x0 < 0 || x1 >= myUI.map_height){                      //if(x0 == 0 || x1 == myUI.map_height){
+        // travelling along edge of map/ top or bottom of map
         // accept or reject depending on the map configuration
-        // we'll just accept it for now
-        return true;
+        // we'll just not accept it for now
+        if (src[1]>tgt[1]){
+          for (let y = src[1]; y > tgt[1]; --y){
+            if (grid[src[0]][y]){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [src[0],y],
+              } 
+            } 
+          }  
+        }
+        if (src[1]<tgt[1]){
+          for (let y = src[1]; y < tgt[1]; ++y){
+            if (grid[src[0]][y]){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [src[0],y],
+              } 
+            } 
+          }  
+        }   
       }
-      let start = Math.min(src[1], tgt[1]);
-      let end = Math.max(src[1], tgt[1]);
-      for(let y = start; y < end; ++y){
-        if(grid[x0][y] && grid[x1][y]) return false;
+      //below is the case for LOS is not at the edge of canvas
+      if (src[1]>tgt[1]){
+        for (let y = src[1]; y > tgt[1]; --y){
+          if (grid[x0][y] && grid[x1][y]){
+            return{
+              boolean: false,
+              lastPassableCoordBeforeUnpassable: [src[0],y],
+            } 
+          } 
+        }
       }
-      return true;
-    }
+      if (src[1]<tgt[1]){
+        for (let y = src[1]; y < tgt[1]; ++y){
+          if (grid[x0][y] && grid[x1][y]){
+            return{
+              boolean: false,
+              lastPassableCoordBeforeUnpassable: [src[0],y],
+            } 
+          } 
+        }
+      }
+      return{
+        boolean: true,
+      }
+    } 
     if(src[1] == tgt[1]){
       let y1 = src[1], y0 = src[1] - 1;
       if(y0 < 0 || y1 >= myUI.map_height){
         // travelling along edge of map
         // accept or reject depending on the map configuration
-        // we'll just accept it for now
-        return true;
+        // we'll just not accept it for now
+        if (src[0]>tgt[0]){
+          for (let x = src[0]; x > tgt[0]; --x){
+            if (grid[x][src[1]]){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [x,src[1]],
+              } 
+            } 
+          }
+          
+        }
+        if (src[0]<tgt[0]){
+          for (let x = src[0]; x < tgt[0]; ++x){
+            if (grid[x][src[0]]){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [x,src[1]],
+              } 
+            } 
+          }
+        }
       }
-      let start = Math.min(src[0], tgt[0]);
-      let end = Math.max(src[0], tgt[0]);
-      for(let x = start; x < end; ++x){
-        if(grid[x][y0] && grid[x][y1]) return false;
+        
+      if (src[0]>tgt[0]){
+        for (let x = src[0]; x > tgt[0]; --x){
+          if (grid[x][y0] && grid[x][y1]){
+            return{
+              boolean: false,
+              lastPassableCoordBeforeUnpassable: [x,src[1]],
+            } 
+          } 
+        }
+        
       }
-      return true;
+      if (src[0]<tgt[0]){
+        for (let x = src[0]; x < tgt[0]; ++x){
+          if (grid[x][y0] && grid[x][y1]){
+            return{
+              boolean: false,
+              lastPassableCoordBeforeUnpassable: [x,src[1]],
+            } 
+          } 
+        }
+      }
+      return{
+        boolean: true,
+      }
+
+
+
+
+
+
     }
   }
   else{
@@ -132,11 +214,20 @@ function CustomLOSChecker(src, tgt){
       let x = coord[0];
       let y = coord[1];
       if(x >= myUI.map_height || y >= myUI.map_width) continue;
-      if(grid[x][y]) return false;
+      if(grid[x][y]){
+        return{
+          boolean: false,
+          lastPassableCoordBeforeUnpassable: [x,y],
+        } 
+      } 
     }
-    return true;
+    return{
+      boolean: true,
+    }
   }
-  return true;
+  return{
+    boolean: true,
+  }
 }
 
 
@@ -146,12 +237,12 @@ function CustomLOSGenerator(src, tgt, cons = true){
   
   /* addition to given algo */
   if(src.reduce(add, 0) < tgt.reduce(add, 0))
-    [src, tgt] = [tgt, src];  // swap the arrays
+  [src, tgt] = [tgt, src];  // swap the arrays
   /* end of addition */
-  let diffX = tgt.map((x, i) => x - src[i]);
+  let diffX = tgt.map((x, i) => x - src[i]);    // i is index here
   let absX = diffX.map(Math.abs);
 
-  let cflag = absX[0] > absX[1];
+  let cflag = absX[0] > absX[1];   
 
   let diffZ = conv(cflag, diffX);
   let absZ = diffZ.map(Math.abs);
@@ -324,11 +415,13 @@ class Tree {
 
 
 class MapNode {
-  constructor( parent = null, value_XY,neighbours = null) {
+  constructor( parent = null, value_XY,neighbours = null, additionalCoord, additionalEdge) { // additionalCoord, additionalEdge used for RRT
 
     this.parent = parent;
     this.value_XY = value_XY;
     this.neighbours = neighbours;
+    this.additionalCoord = additionalCoord;
+    this.additionalEdge = additionalEdge;
   }
 
   numberOfNeighbours() {
@@ -359,7 +452,9 @@ class SVGCanvas {
 
   get displayRatio(){
     if(this.isGrid)
-      return myUI.canvases.bg.canvas.clientWidth/Math.max(myUI.map_width, myUI.map_height);
+      //return myUI.canvases.bg.canvas.clientWidth/myUI.map_width;
+      return Math.max(myUI.canvases.bg.canvas.clientWidth,myUI.canvases.bg.canvas.clientHeight)/Math.max(myUI.map_width, myUI.map_height);
+       // only need width or height as client width and map width both change as map aspect changes
     else
       return 472;
   }
@@ -534,4 +629,13 @@ function deepCopy(src) {
   }
 
   return target;
+}
+
+// for explanation https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point 
+function getCoordinatesofPointsXAwayFromSource(src,tgt,x){
+  var distanceBetween2Points = Math.sqrt( Math.pow((src[0]-tgt[0]), 2) + Math.pow((src[1]-tgt[1]), 2) );
+  var ratioOfDistance = x/distanceBetween2Points;
+  var differenceInXAndYCoordinateOfSourceAndTarget = [tgt[0]-src[0],tgt[1]-src[1]];
+  var coordinatesXAwayFromSource = [(1-(ratioOfDistance))*src[0] + ratioOfDistance*tgt[0],(1-(ratioOfDistance))*src[1] + ratioOfDistance*tgt[1]];
+  return coordinatesXAwayFromSource;
 }

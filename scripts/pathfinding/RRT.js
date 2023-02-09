@@ -21,8 +21,8 @@ class RRT extends GridPathFinder{
   }
 
   get configs(){
-	let configs = [];
-	configs.push(
+		let configs = [];
+		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new RRT map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
       {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 35, description: `Sets number of random points`},
@@ -42,9 +42,8 @@ class RRT extends GridPathFinder{
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
     this.vertexEnabled = true;
-    myUI.nodeCanvas.isDisplayRatioGrid(false)
-    myUI.edgeCanvas.isDisplayRatioGrid(false)
-    //try{this.setConfig("mapType", "Grid Vertex");}catch(e){}
+    myUI.nodeCanvas.isDisplayRatioGrid(true)
+    myUI.edgeCanvas.isDisplayRatioGrid(true)
   }
 
   setConfig(uid, value){
@@ -138,7 +137,6 @@ class RRT extends GridPathFinder{
   }
 
   generateNewMap(start = [0,0], goal=[13,13]){
-    this.prevStartCoord = null;
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
    
     this.exports = {coords:[],neighbors:[],edges:[]};
@@ -151,30 +149,22 @@ class RRT extends GridPathFinder{
       document.getElementById("edge").innerHTML = "";
     }
 
-  
+    this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
     this.randomCoordsNodes = []
   
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
-      var randomCoord_XY = [rand(), rand()] //need seed, eg [0.5750681762583554,0.5750681762583554]
-      if(this.roundNodes) randomCoord_XY = randomCoord_XY.map(Math.round);
-      
-      if(this.randomCoordsNodes.length != 0) {
-        for (let j = 0; j < this.randomCoordsNodes.length; ++j) {
-          if(this.randomCoordsNodes[j].value_XY[0] == randomCoord_XY[0] && this.randomCoordsNodes[j].value_XY[1] == randomCoord_XY[1]){//dont add random coord that is already added into list of random coord
-            --i;
-            continue nextCoord;
-          }
-        }
-      }
+      var randomCoord_XY = [rand(), rand()] //need seed
+      //CustomLOSChecker(currentCoord, otherRandomCoords[jdx]
+      var coordBetweenPreviousCoordAndRandomCoord = getCoordinatesofPointsXAwayFromSource(start,randomCoord_XY,4)
+
+
+
       this.exports.coords.push(randomCoord_XY);
       this.randomCoordsNodes.push(new MapNode(null,randomCoord_XY,[]));
     }
-   
-    
-    console.log("random coods node",this.randomCoordsNodes);
 
     for(let i = 0; i < this.exports.coords.length; ++i){
       this.exports.neighbors.push(new Array());
@@ -226,10 +216,8 @@ class RRT extends GridPathFinder{
       coordLoop: for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
         let jdx = indexOfSelectedOtherRandomCoords[j];
         if(i == jdx) continue;
-        //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
+        var LOS = CustomLOSChecker(currentCoord, otherRandomCoords[jdx]);
         
-        var LOS = CustomLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
-        //debugger;
         if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
           ++cnt;
           // bidirectional
@@ -237,9 +225,9 @@ class RRT extends GridPathFinder{
           if(!this.randomCoordsNodes[jdx].neighbours.includes(i)) this.randomCoordsNodes[jdx].neighbours.push(i);
           if(!this.exports.neighbors[i].includes(jdx)) this.exports.neighbors[i].push(jdx);
           if(!this.exports.neighbors[jdx].includes(i)) this.exports.neighbors[jdx].push(i);
-          var temp = [this.randomCoordsNodes[i].value_XY,otherRandomCoords[jdx]];
+          var temp = [currentCoord, otherRandomCoords[jdx]];
           //next few lines prevents the addition of edges that were already added but with a origin from another node
-          var tempSwapped = [otherRandomCoords[jdx],this.randomCoordsNodes[i].value_XY];
+          var tempSwapped = [otherRandomCoords[jdx], currentCoord];
           
           for (let k = 0; k < edgeAccumalator.length; ++k){
             if (isArraysEqual(edgeAccumalator[k].flat(),tempSwapped.flat())){
@@ -260,7 +248,7 @@ class RRT extends GridPathFinder{
     
     this.addStartGoalNode("goal",goal);
     this.addStartGoalNode("start",start);
-    download("RRT Map.txt", JSON.stringify(this.exports));
+    download("RRT Map.json", JSON.stringify(this.exports));
   }
 
 
@@ -313,8 +301,6 @@ class RRT extends GridPathFinder{
     let indexOfSelectedRandomCoords;
     indexOfSelectedRandomCoords = distancesBetweenACoordAndAllOthers // same as code for   if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours"")
       .map(p => p[1]);
-    
-
   
     var selectedVertexIndex;
     let cnt = 0;
@@ -336,27 +322,32 @@ class RRT extends GridPathFinder{
       if(cnt >= 1) break coordLoop;
     }
     const selected_XY = this.randomCoordsNodes[selectedVertexIndex].value_XY;
-    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(this.randomCoordsNodes.length)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(this.randomCoordsNodes.length);
-    if(!this.exports.neighbors[selectedVertexIndex].includes(this.randomCoordsNodes.length)) this.exports.neighbors[selectedVertexIndex].push(this.randomCoordsNodes.length);
-    
+    var selectedIndexForStartEndVertex = this.randomCoordsNodes.length // determined before push to array below
+
     this.exports.coords.push(coord_XY);
-    this.randomCoordsNodes.push(new MapNode(null,coord_XY,[selected_XY]));
+    this.exports.neighbors.push(new Array());
+    this.randomCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
     this.exports.edges.push([coord_XY,selected_XY]);
     myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
+    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
+    if(!this.exports.neighbors[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbors[selectedVertexIndex].push(selectedIndexForStartEndVertex);
+    if(!this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
+    if(!this.exports.neighbors[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbors[selectedIndexForStartEndVertex].push(selectedVertexIndex);
 
-
+    if (isStartOrGoal == "start"){
+      console.log("Start:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);
+    }
+    else{
+      console.log("Goal:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);
+    }
 
     if (isStartOrGoal == "start" && this.prevStartCoord){
       this.prevStartCoordConnectedto = selected_XY;
-  
     }
     else if (isStartOrGoal == "goal" && this.prevGoalCoord){
       this.prevGoalCoordConnectedto = selected_XY;
-     
     }
-
-    
   }
     
     
@@ -381,6 +372,8 @@ class RRT extends GridPathFinder{
 
     // pushes the starting node onto the queue
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
+    console.log(this.current_node);
+    debugger;
     
     if(!this.bigMap){
       // for every node that is pushed onto the queue, it should be added to the queue infotable
@@ -396,10 +389,6 @@ class RRT extends GridPathFinder{
       setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
     });
   }
-
-
-
-  
 
   _run_next_search(planner, num) {
     while (num--) {
@@ -417,7 +406,8 @@ class RRT extends GridPathFinder{
       
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
-      this.open_list[this.current_node_XY] = undefined;
+      this.open_list.set(this.current_node_XY, undefined);
+      console.log(this.current_node_XY);
 
       //if(this.current_node_XY[0] == 8 && this.current_node_XY[1] == 2) debugger;
 
@@ -438,7 +428,7 @@ class RRT extends GridPathFinder{
         this._create_action({command: STATIC.EraseAllRows, dest: STATIC.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
           const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , XY + ', ' + XY, "?", "?", "?", "?"]})
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
 
@@ -459,7 +449,7 @@ class RRT extends GridPathFinder{
       }//add
       this._save_step(true);
 
-      this._assign_cell_index(this.current_node_XY);
+      //this._assign_cell_index(this.current_node_XY);
 
       /* FOUND GOAL */
       if(this._found_goal(this.current_node, "free_vertex")) return this._terminate_search(); // found the goal & exits the loop
@@ -480,7 +470,7 @@ class RRT extends GridPathFinder{
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
             this._save_step(false);
           }
@@ -490,9 +480,9 @@ class RRT extends GridPathFinder{
         if(closed_node !== undefined && closed_node.f_cost<=f_cost){
           if(!this.bigMap){
             if(this.current_node.parent.self_XY[0] == next_XY[0] && this.current_node.parent.self_XY[1] == next_XY[1])
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
             else
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
           }
           
@@ -526,9 +516,9 @@ class RRT extends GridPathFinder{
           this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
           
           if(open_node===undefined && closed_node===undefined) 
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
           else if(open_node)
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
         }
         this._save_step(false);

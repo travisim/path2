@@ -221,7 +221,7 @@ class PRM extends GridPathFinder{
       coordLoop: for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
         let jdx = indexOfSelectedOtherRandomCoords[j];
         if(i == jdx) continue;
-        var LOS = CustomLOSChecker(currentCoord, otherRandomCoords[jdx]);
+        var LOS = CustomLOSChecker(currentCoord, otherRandomCoords[jdx]).boolean;
         
         if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
           ++cnt;
