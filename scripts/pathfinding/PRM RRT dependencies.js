@@ -93,68 +93,141 @@ function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if
 function CustomLOSChecker(src, tgt){
   let grid = myUI.canvases.bg.canvas_cache;                     // obstacle 2d matrix
   if(grid == undefined || grid[0] == undefined) return false;
+
+  
+
+  var src_dynamic = [];
+  src[0] == myUI.map_width ? src_dynamic.push(src[0]-1):src_dynamic.push(src[0]);
+  src[1] == myUI.map_width ? src_dynamic.push(src[1]-1):src_dynamic.push(src[1]);
+  var tgt_dynamic= [];
+  tgt[0] == myUI.map_width ? tgt_dynamic.push(tgt[0]-1):tgt_dynamic.push(tgt[0]);
+  tgt[1] == myUI.map_width ? tgt_dynamic.push(tgt[1]-1):tgt_dynamic.push(tgt[1]);
+  
+
+
   if(src[0] == tgt[0] || src[1] == tgt[1]){
-    // cardinal crossing(horizontal/vertica;)
+    // cardinal crossing(horizontal/vertical)
+    let x1 = src[0], x0 = src[0] - 1;
     if(src[0] == tgt[0]){                      
-      let x1 = src[0], x0 = src[0] - 1;
-      if(x0 < 0 || x1 >= myUI.map_height){                      //if(x0 == 0 || x1 == myUI.map_height){
+      if(src[0]-1 < 0){                 //at top edge of canvas     //if(x0 == 0 || x1 == myUI.map_height){
         // travelling along edge of map/ top or bottom of map
         // accept or reject depending on the map configuration
         // we'll just not accept it for now
         if (src[1]>tgt[1]){
-          for (let y = src[1]; y > tgt[1]; --y){
+          for (let y = src_dynamic[1]; y > tgt_dynamic[1]-1; --y){
             if (grid[src[0]][y]){
               return{
                 boolean: false,
-                lastPassableCoordBeforeUnpassable: [src[0],y],
+                lastPassableCoordBeforeUnpassable: [src[0],y+1],
               } 
             } 
           }  
+          return{
+            boolean: true,
+          } 
+          
         }
         if (src[1]<tgt[1]){
-          for (let y = src[1]; y < tgt[1]; ++y){
+          for (let y = src_dynamic[1]; y < tgt_dynamic[1]; ++y){
             if (grid[src[0]][y]){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [src[0],y],
               } 
             } 
+          } 
+          return{
+            boolean: true,
+          } 
+          
+        }  
+        
+      }
+      else if(src[0] == myUI.map_height){ // at bottom edge of canvas need check index 16 of grid which is not there so check index 15 instead
+        if (src[1]>tgt[1]){
+          for (let y = src_dynamic[1]; y > tgt_dynamic[1]-1; --y){
+            if (grid[src[0]-1][y]){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [src[0],y+1],
+              } 
+            } 
+          } 
+          return{
+            boolean: true,
           }  
-        }   
-      }
-      //below is the case for LOS is not at the edge of canvas
-      if (src[1]>tgt[1]){
-        for (let y = src[1]; y > tgt[1]; --y){
-          if (grid[x0][y] && grid[x1][y]){
-            return{
-              boolean: false,
-              lastPassableCoordBeforeUnpassable: [src[0],y],
+          
+        }
+        if (src[1]<tgt[1]){
+          for (let y = src_dynamic[1]; y < tgt_dynamic[1]; ++y){
+            if (grid[src[0]-1][y]){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [src[0],y],
+              } 
             } 
           } 
-        }
+          return{
+            boolean: true,
+          } 
+        }  
+          
+
       }
-      if (src[1]<tgt[1]){
-        for (let y = src[1]; y < tgt[1]; ++y){
-          if (grid[x0][y] && grid[x1][y]){
-            return{
-              boolean: false,
-              lastPassableCoordBeforeUnpassable: [src[0],y],
+      else{
+        //below is the case for LOS is not at the edge of canvas
+        if (src[1]>tgt[1]){
+          for (let y = src_dynamic[1]; y > tgt_dynamic[1]-1; --y){
+            console.log(x0,y,x1,y)
+            if (grid[src[0]-1][y] && (grid[src[0]][y] == undefined || grid[src[0]][y])){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [src[0],y+1],
+              } 
             } 
+          }
+          return{
+            boolean: true,
           } 
         }
+        if (src[1]<tgt[1]){
+          for (let y = src_dynamic[1]; y < tgt_dynamic[1]; ++y){
+            if (grid[src[0]-1][y] && (grid[src[0]][y] == undefined || grid[src[0]][y])){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [src[0],y],
+              } 
+            } 
+          }
+          return{
+            boolean: true,
+          }
+        }
       }
-      return{
-        boolean: true,
-      }
-    } 
+    }
+    let y1 = src[1], y0 = src[1] - 1;
     if(src[1] == tgt[1]){
-      let y1 = src[1], y0 = src[1] - 1;
-      if(y0 < 0 || y1 >= myUI.map_height){
+      
+      if(src[1]-1 < 0 ){
         // travelling along edge of map
         // accept or reject depending on the map configuration
         // we'll just not accept it for now
         if (src[0]>tgt[0]){
-          for (let x = src[0]; x > tgt[0]; --x){
+          for (let x = src_dynamic[0]; x > tgt_dynamic[0]-1; --x){
+            if (grid[x][src[1]]){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [x+1,src[1]],
+              } 
+            } 
+          }
+          return{
+            boolean: true,
+          }
+          
+        }
+        if (src[0]<tgt[0]){
+          for (let x = src_dynamic[0]; x < tgt_dynamic[0]; ++x){
             if (grid[x][src[1]]){
               return{
                 boolean: false,
@@ -162,49 +235,74 @@ function CustomLOSChecker(src, tgt){
               } 
             } 
           }
+          return{
+            boolean: true,
+          }
+          
+        }
+      }
+      else if( src[1] == myUI.map_width){
+        if (src[0]>tgt[0]){
+          for (let x = src_dynamic[0]; x > tgt_dynamic[0]-1; --x){
+            if (grid[x][src[1]-1]){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [x+1,src[1]],
+              } 
+            } 
+          }
+          return{
+            boolean: true,
+          }
+          
           
         }
         if (src[0]<tgt[0]){
-          for (let x = src[0]; x < tgt[0]; ++x){
-            if (grid[x][src[0]]){
+          for (let x = src_dynamic[0]; x < tgt_dynamic[0]; ++x){
+            if (grid[x][src[1]-1]){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [x,src[1]],
               } 
             } 
           }
+          return{
+            boolean: true,
+          }
+         
         }
       }
-        
-      if (src[0]>tgt[0]){
-        for (let x = src[0]; x > tgt[0]; --x){
-          if (grid[x][y0] && grid[x][y1]){
-            return{
-              boolean: false,
-              lastPassableCoordBeforeUnpassable: [x,src[1]],
+      
+      else{ 
+        if (src[0]>tgt[0]){
+          for (let x = src_dynamic[0]; x > tgt_dynamic[0]-1; --x){
+            if (grid[x][src[1]-1] && (grid[x][src[1]] == undefined || grid[x][[src[1]]])){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [x+1,src[1]],
+              } 
             } 
-          } 
+          }
+          return{
+            boolean: true,
+          }
+          
         }
-        
-      }
-      if (src[0]<tgt[0]){
-        for (let x = src[0]; x < tgt[0]; ++x){
-          if (grid[x][y0] && grid[x][y1]){
-            return{
-              boolean: false,
-              lastPassableCoordBeforeUnpassable: [x,src[1]],
+        if (src[0]<tgt[0]){
+          for (let x = src_dynamic[0]; x < tgt_dynamic[0]; ++x){
+            if (grid[x][src[1]-1] && (grid[x][src[1]] == undefined || grid[x][src[1]])){
+              return{
+                boolean: false,
+                lastPassableCoordBeforeUnpassable: [x,src[1]],
+              } 
             } 
-          } 
+          }
+          return{
+            boolean: true,
+          }
+        
         }
       }
-      return{
-        boolean: true,
-      }
-
-
-
-
-
 
     }
   }
@@ -220,14 +318,13 @@ function CustomLOSChecker(src, tgt){
           lastPassableCoordBeforeUnpassable: [x,y],
         } 
       } 
+      
     }
     return{
       boolean: true,
     }
   }
-  return{
-    boolean: true,
-  }
+  
 }
 
 
