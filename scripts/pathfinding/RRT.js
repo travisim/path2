@@ -152,17 +152,57 @@ class RRT extends GridPathFinder{
     this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
-    this.randomCoordsNodes = []
+    this.choosenCoordsNodes = []
+    this.pointsXawayFromSource = 4;
   
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
-      var randomCoord_XY = [rand(), rand()] //need seed
-      //CustomLOSChecker(currentCoord, otherRandomCoords[jdx]
-      var coordBetweenPreviousCoordAndRandomCoord = getCoordinatesofPointsXAwayFromSource(start,randomCoord_XY,4)
+      var randomCoord_XY = [rand()*map_height, rand()*map_width] //need seed
+      if(choosenCoordsNodes.length = 0){
+        this.exports.coords.push(randomCoord_XY); 
+        this.choosenCoordsNodes.push(new MapNode(null,randomCoord_XY,[],null,null));//last 2 parameters are  additionalCoord, additionalEdge) 
+      }
+      if(choosenCoordsNodes.length = 1){
+        var nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(start,randomCoord_XY,this.pointsXawayFromSource);
+        this.exports.coords.push(nextCoordToAdd_XY); 
+        this.choosenCoordsNodes.push(new MapNode(null,nextCoordToAdd_XY,[0],randomCoord_XY,[choosenCoordsNodes[0].value_XY,randomCoord_XY]));//[0] refers to first choosenCoord.last 2 parameters are  additionalCoord, additionalEdge) 
+        // hard coded
+        this.choosenCoordsNodes[0].neighbors.push(1);
+        this.exports.neighbors[0].push(1);
+      }
+      else if(this.choosenCoordsNodes.length >1){ //runs when length is 2 or greater
+        var indexOfClosestCoordInTreeToRandomCoord = 0;
+        for (let x = 0; x > choosenCoordsNodes.length-1; ++x){
+          distanceBetween2Points(choosenCoordsNodes[indexOfClosestCoordInTreeToRandomCoord].value_XY,randomCoord_XY)>distanceBetween2Points(choosenCoordsNodes[x+1].value_XY,randomCoord_XY) ? closestCoordInTreeToRandomCoord = x:closestCoordInTreeToRandomCoord = x+1
+        }
+
+        var k = indexOfClosestCoordInTreeToRandomCoord;
+        var nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(choosenCoordsNodes[k].value_XY,randomCoord_XY,this.pointsXawayFromSource);
+        this.choosenCoordsNodes.push(new MapNode(null,nextCoordToAdd_XY,[k],randomCoord_XY,[choosenCoordsNodes[k].value_XY,randomCoord_XY]));//[0] refers to first choosenCoord.last 2 parameters are  additionalCoord, additionalEdge) 
+        this.exports.neighbors[this.exports.neighbors.length].push(k)
+        // bidirectional
+        if(!this.randomCoordsNodes[k].neighbours.includes(this.choosenCoordsNodes.length)) this.randomCoordsNodes[k].neighbours.push(this.choosenCoordsNodes.length);
+        
+        if(!this.exports.neighbors[k].includes(this.choosenCoordsNodes.length)) this.exports.neighbors[k].push(this.choosenCoordsNodes.length);
+        if(!this.exports.neighbors[k].includes(i)) this.exports.neighbors[k].push(this.choosenCoordsNodes.length);
+
+      }
+      
+
+      
+      var returnsFromCustomLOSChecker = CustomLOSChecker(randomCoord_XY[0]*map_start, randomCoord_XY[1]*map_width)
+      if(returnsFromCustomLOSChecker.boolean){
+        var coordBetweenPreviousCoordAndRandomCoord = getCoordinatesofPointsXAwayFromSource(start,randomCoord_XY,4)
+
+      }
+      else{
+        var coordBetweenPreviousCoordAndRandomCoord = returnsFromCustomLOSChecker.lastPassableCoordBeforeUnpassable
+      }
+      
 
 
 
-      this.exports.coords.push(randomCoord_XY);
+      this.exports.coords.push(coordBetweenPreviousCoordAndRandomCoord);
       this.randomCoordsNodes.push(new MapNode(null,randomCoord_XY,[]));
     }
 

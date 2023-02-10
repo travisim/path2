@@ -730,9 +730,13 @@ function deepCopy(src) {
 
 // for explanation https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point 
 function getCoordinatesofPointsXAwayFromSource(src,tgt,x){
-  var distanceBetween2Points = Math.sqrt( Math.pow((src[0]-tgt[0]), 2) + Math.pow((src[1]-tgt[1]), 2) );
+  var distanceBetween2Points = Math.sqrt(Math.pow((src[0]-tgt[0]), 2) + Math.pow((src[1]-tgt[1]), 2));
   var ratioOfDistance = x/distanceBetween2Points;
   var differenceInXAndYCoordinateOfSourceAndTarget = [tgt[0]-src[0],tgt[1]-src[1]];
   var coordinatesXAwayFromSource = [(1-(ratioOfDistance))*src[0] + ratioOfDistance*tgt[0],(1-(ratioOfDistance))*src[1] + ratioOfDistance*tgt[1]];
   return coordinatesXAwayFromSource;
+}
+
+function distanceBetween2Points(src,tgt){
+ return Math.sqrt(Math.pow((src[0]-tgt[0]), 2) + Math.pow((src[1]-tgt[1]), 2));
 }
