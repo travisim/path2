@@ -21,7 +21,7 @@ class GridPathFinder{
 
 	static unpackAction(action, readable = false){
 		/* NEW */
-		let bitOffset = 13	;
+		let bitOffset = 10;
 		let idx = 0;
 		
 		let mask;
@@ -42,8 +42,8 @@ class GridPathFinder{
 			var x = Math.floor(coord/myUI.planner.map_width);
 			var y = coord - x * myUI.planner.map_width;
 			*/
-			var x = action[idx][0]; // for floating point coordinates
-			var y = action[idx][1];
+			var x = action[idx] / 2; // for floating point coordinates
+			var y = action[++idx] / 2;
 		}
 		if(action[0]&(1<<4)){
 			++idx;
@@ -121,7 +121,7 @@ class GridPathFinder{
 		/* 1111111111*/
 		let obj = {};
 		obj.actionCache = [1];
-		obj.bitOffset = 13;
+		obj.bitOffset = 10;
 		obj.idx = 0;
 
 		// command is assumed to exist
@@ -129,51 +129,52 @@ class GridPathFinder{
 		obj.actionCache[obj.idx] += bit_shift(command, obj.bitOffset - myUI.planner.static_bit_len);
 		if(dest!==undefined){
 			this._managePacking(myUI.planner.static_bit_len, obj);
-			obj.actionCache[0] += 1<<1; 
+			obj.actionCache[0] |= 1<<1; 
 			obj.actionCache[obj.idx] += bit_shift(dest, obj.bitOffset - myUI.planner.static_bit_len);
   		
 		}
 		if(colorIndex!==undefined){
 			this._managePacking(myUI.planner.color_bit_len, obj);
-			obj.actionCache[0] += 1<<2;
+			obj.actionCache[0] |= 1<<2;
 			obj.actionCache[obj.idx] += bit_shift(colorIndex, obj.bitOffset - myUI.planner.color_bit_len);
 		}
 		if(nodeCoord!==undefined){
 			obj.idx++;
-			obj.actionCache[0] += 1<<3;
+			obj.actionCache[0] |= 1<<3;
 			//obj.actionCache[obj.idx] = (nodeCoord[0]*myUI.planner.map_width+nodeCoord[1])*2;
-			obj.actionCache[obj.idx] = nodeCoord; // for floating point coordinates
+			obj.actionCache.push(nodeCoord[0] * 2); // for floating point coordinates
+			obj.actionCache.push(nodeCoord[1] * 2); // for floating point coordinates
 		}
 		if(arrowIndex!==undefined){
 			obj.idx++;
-			obj.actionCache[0] += 1<<4;
-			obj.actionCache[obj.idx] = arrowIndex*2;
+			obj.actionCache[0] |= 1<<4;
+			obj.actionCache.push(arrowIndex*2);
 		}
     if(pseudoCodeRow!==undefined){
 			obj.idx++;
-			obj.actionCache[0] += 1<<5;
-			obj.actionCache[obj.idx] = pseudoCodeRow*2;
+			obj.actionCache[0] |= 1<<5;
+			obj.actionCache.push(pseudoCodeRow*2);
 		}
     if(infoTableRowIndex!==undefined){
 			obj.idx++;
-			obj.actionCache[0] += 1<<6;
-			obj.actionCache[obj.idx] = infoTableRowIndex*2;
+			obj.actionCache[0] |= 1<<6;
+			obj.actionCache.push(infoTableRowIndex*2);
 		}
 		if(infoTableRowData!==undefined){
 			obj.idx++;
-			obj.actionCache[0] += 1<<7;
-			obj.actionCache[obj.idx] = infoTableRowData;
+			obj.actionCache[0] |= 1<<7;
+			obj.actionCache.push(infoTableRowData);
 		}
 		if(cellVal!==undefined){
 			obj.idx++;
-			obj.actionCache[0] += 1<<8;
-			obj.actionCache[obj.idx] = cellVal*2;
+			obj.actionCache[0] |= 1<<8;
+			obj.actionCache.push(cellVal*2);
 		}
 		if(endCoord!==undefined){
 			obj.idx++;
-			obj.actionCache[0] += 1<<9;
+			obj.actionCache[0] |= 1<<9;
 			//obj.actionCache[obj.idx] = (endCoord[0]*myUI.planner.map_width+endCoord[1])*2;
-			obj.actionCache[obj.idx] = endCoord; // for floating point coordinates
+			obj.actionCache.push(endCoord); // for floating point coordinates
 		}
 
 		return obj.actionCache;
@@ -474,13 +475,12 @@ class GridPathFinder{
   }
 
 	_create_cell_index(){
-		this.cell_map = zero2D(this.map_height, this.map_width, Number.MAX_SAFE_INTEGER, NaN, "int");
+		this.cell_map = new Empty2D(this.map_height, this.map_width);
 	}
 
 	_assign_cell_index(xy){
 		// index is the step index for the first expansion of that cell
-		let [x,y] = xy;
-		this.cell_map[x][y] = this.step_index;
+		this.cell_map.set(xy, this.step_index);
 	}
 
 	_found_goal(node, draw_mode = "grid"){

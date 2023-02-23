@@ -73,10 +73,6 @@ class A_star extends GridPathFinder{
 				this.timeOrder = value; break;
     }
   }
-
-  set_distance_metric(metric){
-    this.distance_metric = metric;
-  }
   
   calc_cost(successor){
     function manhattan(c1, c2){

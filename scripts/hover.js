@@ -31,10 +31,10 @@ myUI.handle_map_hover = function(e){
 	myUI.canvases.hover_map.canvas.style.cursor = "auto";
 	//document.getElementById("hover_cell_index").innerHTML = "-";
 	tooltip_data.style.backgroundColor = ``;
-	if(myUI.planner.cell_map && !isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
+	if(myUI.planner.cell_map && !isNaN(myUI.planner.cell_map.get([scaled_x, scaled_y]))){
 		myUI.canvases.hover_map.set_color_index(2, "both");
 		myUI.canvases.hover_map.canvas.style.cursor = "pointer";
-		//document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map[scaled_x][scaled_y];
+		//document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map.get([scaled_x, scaled_y])
 	}
 	myUI.canvases.hover_map.draw_start_goal([scaled_x, scaled_y]);
 
@@ -57,8 +57,9 @@ myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hov
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let [scaled_x, scaled_y] = myUI.scale_coord(e.offsetY, e.offsetX);
 	if(myUI.planner.cell_map){
-		if(!isNaN(myUI.planner.cell_map[scaled_x][scaled_y])){
-			myUI.animation.step = myUI.planner.cell_map[scaled_x][scaled_y];
+		let stepIdx = myUI.planner.cell_map.get([scaled_x, scaled_y]);
+		if(!isNaN(stepIdx)){
+			myUI.animation.step = stepIdx;
 			myUI.jump_to_step();
 		}
 	}

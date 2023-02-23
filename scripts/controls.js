@@ -43,7 +43,8 @@ function compute_path(){
 			myUI.genDuration = Date.now() - myUI.genStart;
 			console.log("Number of steps: ", myUI.step_data.fwd.map.length);
 			myUI.sliders.search_progress_slider.elem.disabled = false;
-			myUI.animation.max_step = myUI.planner.max_step();
+			console.log(myUI.step_data.fwd.map.length - 2, myUI.planner.max_step());
+			myUI.animation.max_step = myUI.step_data.fwd.map.length - 2;
 			myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
 			myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
 			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;

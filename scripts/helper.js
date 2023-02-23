@@ -115,19 +115,34 @@ function zero2D(rows, cols, max_val=255, defaultVal=0, type="int") {
 }
 
 class Empty2D{
-	constructor(rows, cols, allowFloat = false){
+	constructor(rows, cols, allowFloat = false, data = null){
+		if(data){
+			// data = emscripten vectorvectorint object
+			// Empty2D becomes a wrapper for it
+			this.data = data;
+			// this.data is an emscripten vectorvectorint object
+			this.isV2D = true;
+			return;
+		}
 		this.allowFloat = allowFloat;
 		if(allowFloat){
+			// this.data is a map
 			this.data = {};
 		}
 		else{
+			// this.data is a grid
 			this.data = [];
 			while(rows--) this.data.push(new Array(cols));
 		}
 	}
 
 	set(xy, item){
-		if(this.allowFloat){
+		if(this.isV2D){
+			let tmpV = this.data.get(xy[0]);
+			tmpV.set(xy[1], item);
+			this.data.set(xy[0], tmpV);
+		}
+		else if(this.allowFloat){
 			if(item === undefined) delete this.data[xy];
 			else this.data[xy] = item;
 		}
@@ -135,11 +150,22 @@ class Empty2D{
 	}
 
 	get(xy){
-		if(this.allowFloat) return this.data[xy];
+		if(this.isV2D) return this.data.get(xy[0]).get(xy[1]);
+		else if(this.allowFloat) return this.data[xy];
 		else return this.data[xy[0]][xy[1]];
 	}
 
 	clear(){
+		if(this.isV2D){
+			for(let i = 0; i < this.data.size(); ++i){
+				tmpV = this.data.get(i);
+				let sz = tmpV.size();
+				tmpV.resize(0, 0);  // assume int
+				tmpV.resize(sz, 0);  // assume int
+				this.data.set(i, tmpV);
+			}
+			return;
+		}
 		if(this.allowFloat) return this.data = {};
 		for(let i=0;i<this.data.length;++i){
 			for(let j=0;j<this.data[i].length;++j){

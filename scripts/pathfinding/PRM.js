@@ -107,10 +107,6 @@ class PRM extends GridPathFinder{
 
     }
   }
-
-  set_distance_metric(metric){
-    this.distance_metric = metric;
-  }
   
   calc_cost(successor){
 

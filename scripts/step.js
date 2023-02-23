@@ -194,7 +194,7 @@ myUI.run_steps = function(num_steps, step_direction){
       }
 
       }catch(e){
-        if(dest!=STATIC.PC){
+        if(dest!=STATIC.PC && command!=STATIC.DA && command!=STATIC.EA){
           console.log(e);
           console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
           debugger;

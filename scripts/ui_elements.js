@@ -113,7 +113,7 @@ class UICanvas{
   }
 
   scale_canvas(data_height, data_width, retain_data=false){
-    const dpr = 2;
+    const dpr = 2;  // controls canvas resolution
     //window.devicePixelRatio usually got decimals
 
     this.canvas.style.width = Math.min(this.defaultWidth, data_width/data_height*this.defaultWidth) + "px";
