@@ -202,13 +202,13 @@ public:
         return terminateSearch(false);
 
       currentNode = pq.top();
-      //std::cout << "Current: " << *currentNode;
+      std::cout << "Current: " << *currentNode;
       pq.pop();
       currentNodeXY = {currentNode->coordX, currentNode->coordY};
       openList.set(currentNodeXY, nullptr);
 
       if (stepIndex % 100 == 0)
-        //std::cout << "F: " << std::setprecision(5) << currentNode->fCost << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
+        std::cout << "F: " << std::setprecision(5) << currentNode->fCost << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
 
       if (closedList.get(currentNodeXY) != nullptr && closedList.get(currentNodeXY)->fCost <= currentNode->fCost)
         continue;
@@ -268,10 +268,10 @@ public:
         std::pair<int, int> nextXY;
         nextXY.first = currentNodeXY.first + delta[i][0];
         nextXY.second = currentNodeXY.second + delta[i][1];
-        // std::cout << "next: " << nextXY.first << ' ' << nextXY.second << ' ';
+        std::cout << "next: " << nextXY.first << ' ' << nextXY.second << ' ' << std::endl;
         if (nextXY.first < 0 || nextXY.first >= gridHeight || nextXY.second < 0 || nextXY.second >= gridWidth)
         {
-          // std::cout << "pass" << std::endl;
+          //std::cout << "pass" << std::endl;
           if (!bigMap)
             createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Out of Bounds"});
           continue;

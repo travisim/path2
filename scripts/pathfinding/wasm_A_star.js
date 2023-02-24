@@ -101,20 +101,28 @@ class wasm_A_star extends GridPathFinder{
     }
     
     // postProcess
+    console.log("getting steps now");
     this.steps_data = [...vector_values(Module["getStepData"]())];
-    console.log(this.steps_data);
+    console.log("getting index map now");
     this.step_index_map = [...vector_values(Module["getStepIndexMap"]())];
+    console.log("getting combined map now");
     this.combined_index_map = [...vector_values(Module["getCombinedIndexMap"]())];
+    console.log("getting cell map now");
     this.cell_map = new Empty2D(0, 0, 0, Module["getCellMap"]());  // override using emscripten version
   
+    console.log("getting IT Row Data Cache now");
+    // since vector<int> doesn't allow for strings or vector<strings>, we need to add the IT Row Data back to the steps
     let rows = Module["getITRowDataCache"]();
-    let idx = 0, i = 0;
+    let idx = 0;
     
     for(let i = 0; i < rows.size(); ++i){
-      while(myUI.planner.steps_data[idx] != -1) idx++;
-      myUI.planner.steps_data[idx] = [...vector_values(rows.get(i))];
+      while(this.steps_data[idx] != -1 && idx < this.steps_data.length) idx++;
+      this.steps_data[idx] = [...vector_values(rows.get(i))];
     }
 
+    console.log("getting arrow coords now");
+    // since c++ cannot create arrows, we need to do it here
+    // possible to export the javascript create_arrow function, will do so after the c++ A* is finalized
     let arrows = Module["getArrowCoords"]();
     for(let i = 0; i < arrows.size(); ++i){
       let arrow_data = [...vector_values(arrows.get(i))];

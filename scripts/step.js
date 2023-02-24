@@ -107,7 +107,7 @@ myUI.run_steps = function(num_steps, step_direction){
       while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j));
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), true);
 
       try{
       if(command==STATIC.DSP){

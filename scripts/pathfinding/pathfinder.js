@@ -82,6 +82,7 @@ class GridPathFinder{
 			Dest             : ${statics_to_obj[dest]}
 			x,y              : ${x + ", " + y}
 			colorIndex       : ${colorIndex}
+			arrowIndex       : ${arrowIndex}
 			pseudoCodeRow    : ${pseudoCodeRow}
 			infoTableRowIndex: ${infoTableRowIndex}
 			infoTableRowData : ${infoTableRowData}
@@ -348,7 +349,6 @@ class GridPathFinder{
     this.visited = new NBitMatrix(this.map_height, this.map_width, 8);
     this.searched = false;
     this._create_cell_index();
-		myUI.reset_arrow(true);
 		
 		if(this.map_height<=32) this.batch_size = 10;
 		else if(this.map_height<=64) this.batch_size = 40;

@@ -12,13 +12,12 @@ document.getElementById("compute_btn").addEventListener("click", compute_path);
 
 function compute_path(){
 	clearTimeout(myUI.finalTimeout);
-	myUI.reset_animation();  // reset first time for arrows to be removed
+	myUI.reset_animation(true);
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
   if(!myUI.map_start) return alert("no scene loaded!");
 	myUI.planner.add_map(myUI.map_arr);
 	myUI.updateInfoMap(...myUI.map_start);
-	myUI.reset_animation();
 	Object.values(myUI.canvases).forEach(function(uiCanvas){
 		if(uiCanvas.valType=="float")uiCanvas.minVal = uiCanvas.maxVal = null;
 	});
@@ -81,7 +80,7 @@ myUI.sliders.state_freq_slider.elem.addEventListener("input",function(){
 	myUI.sliders.state_freq_slider.label.innerHTML = this.value;
 });
 
-myUI.reset_animation = function(){
+myUI.reset_animation = function(clear_data = false){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
 	myUI.update_search_slider(-1);
 	if(myUI.dynamicCanvas)
@@ -89,9 +88,9 @@ myUI.reset_animation = function(){
 			uiCanvas.erase_canvas();
 		});
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
-	myUI.reset_arrow(false);
-	myUI.nodeCanvas.reset(false);
-	myUI.edgeCanvas.reset(false);
+	myUI.reset_arrow(clear_data);
+	myUI.nodeCanvas.reset(clear_data);
+	myUI.edgeCanvas.reset(clear_data);
 	myUI.arrow.step = -1;
 }
 

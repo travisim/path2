@@ -244,6 +244,8 @@ public:
     stepData.clear();
     stepIndexMap.clear();
     combinedIndexMap.clear();
+    ITRowDataCache.clear();
+    arrowCoords.clear();
     drawArrows = gridHeight <= 65 && gridWidth <= 65;
     currentNode = nullptr;
 
@@ -339,14 +341,13 @@ public:
 
   void createAction(Command command, int dest = -1, std::pair<int, int> nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), int cellVal = -1, std::pair<int, int> endCoord = {-1, -1})
   {
-    if(stepIndex < 10) std::cout<<command<<' ';
+    //if(stepIndex < 10) std::cout<<command<<' ';
     actionCache = {1};
     bitOffset = 10;
     int idx = 0;
 
     // command is assumed to exist
     idx = manageAction(staticBitLen);
-    if(stepIndex < 10) std::cout<<(bitOffset - staticBitLen)<<std::endl;
     actionCache[idx] += (command << (bitOffset - staticBitLen));
     if (dest != -1)
     {
@@ -390,7 +391,7 @@ public:
     }
     if (infoTableRowData.size() > 0)
     { 
-      if(stepIndex < 10) std::cout<<infoTableRowData.size()<<std::endl;
+      //if(stepIndex < 10) std::cout<<infoTableRowData.size()<<std::endl;
       ++idx;
       actionCache[0] |= (1 << 7);
       actionCache.push_back(-1); // signalling to increment infotableRowData
@@ -411,8 +412,8 @@ public:
       // overload the createAction method? idk
     }
     if(stepIndex < 10){
-      for(auto it : actionCache) std::cout<<it<<", ";
-      std::cout<<"\ndone saving action\n";
+      //for(auto it : actionCache) std::cout<<it<<", ";
+      //std::cout<<"\ndone saving action\n";
     }
     stepCache.insert(stepCache.end(), actionCache.begin(), actionCache.end());
     actionCache = {1};
@@ -431,8 +432,8 @@ public:
     stepIndexMap.push_back(stepData.size());
     stepData.insert(stepData.end(), stepCache.begin(), stepCache.end());
     if(stepIndex < 10){
-      for(auto it : stepCache) std::cout<<it<<' ';
-      std::cout<<"\ndone saving step\n";
+      //for(auto it : stepCache) std::cout<<it<<' ';
+      //std::cout<<"\ndone saving step\n";
     }
     ++stepIndex;
     stepCache.clear(); // clear steps to save another step
@@ -453,7 +454,8 @@ public:
     }
     arrowCoords.push_back({nextXY.first, nextXY.second, currentNodeXY.first, currentNodeXY.second});
     // newNode->arrowIndex = myUI.create_arrow(nextXY, currentNodeXY); // node is reference typed so properties can be modified after adding to queue or open list
-    newNode->arrowIndex = ++arrowCnt;
+    newNode->arrowIndex = arrowCnt++;
+    std::cout<<"Arrow: "<<arrowCnt<<' '<<nextXY.first<<' '<<nextXY.second<<' '<<currentNodeXY.first<<' '<<currentNodeXY.second<<std::endl;
     createAction(DrawArrow, -1, {-1, -1}, 0, newNode->arrowIndex);
     // END OF ARROW
   }
