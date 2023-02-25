@@ -19,8 +19,8 @@ class UIInfoTable{
 
   wrongRowSizeHandler(providedSize){
     let msg = `Wrong Infotable row size, provided: ${providedSize}, correct: ${this.rowSize}`;
-    //alert(msg);
-    //throw msg;
+    alert(msg);
+    throw msg;
   }
   
   tableGenerator(tableIdentifier){
@@ -69,11 +69,9 @@ class UIInfoTable{
   }
   rowGenerator(values){
     //var t = document.createElement('table');
-    if(values.length!=this.rowSize){
-      console.log(values);
-      debugger;
+    if(values.length!=this.rowSize)
       return this.wrongRowSizeHandler(values.length);
-    }
+    
     
     var r = document.createElement("TR"); 
     for (let i = 0; i < values.length; i++) { 
