@@ -29,6 +29,7 @@ class PRM extends GridPathFinder{
       {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
+      {uid: "goal_radius", displayName: "Goal Radius", options: "number",defaultVal:3, description: `Sets radius of goal`},
       {uid: "round_nodes", displayName: "Round Node Values", options: ["Round to Nearest Integer", "Allow Floats"], description: `Round the nodes`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], defaultVal:"Euclidean", description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
@@ -104,9 +105,14 @@ class PRM extends GridPathFinder{
         break;
       case "round_nodes":
         this.roundNodes = (value == `Round to Nearest Integer`);
-
+        break;
+      case "goal_radius":
+        this.goalRadius = value;
+          
     }
   }
+
+
   
   calc_cost(successor){
 
@@ -135,7 +141,7 @@ class PRM extends GridPathFinder{
   generateNewMap(start = [0,0], goal=[13,13]){
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
    
-    this.exports = {coords:[],neighbors:[],edges:[]};
+    this.exports = {coords:[],neighbours:[],edges:[]};
    
     //clears SVG canvas
     if(document.getElementById("node")){
@@ -163,13 +169,11 @@ class PRM extends GridPathFinder{
           }
         }
       }
-      this.exports.coords.push(randomCoord_XY);
+     // this.exports.coords.push(randomCoord_XY);
       this.randomCoordsNodes.push(new MapNode(null,randomCoord_XY,[]));
     }
 
-    for(let i = 0; i < this.exports.coords.length; ++i){
-      this.exports.neighbors.push(new Array());
-    }
+    
     
     this.randomCoordsNodes.forEach(node=>{
       myUI.nodeCanvas.drawCircle(node.value_XY);
@@ -225,8 +229,6 @@ class PRM extends GridPathFinder{
           // bidirectional
           if(!this.randomCoordsNodes[i].neighbours.includes(jdx)) this.randomCoordsNodes[i].neighbours.push(jdx);
           if(!this.randomCoordsNodes[jdx].neighbours.includes(i)) this.randomCoordsNodes[jdx].neighbours.push(i);
-          if(!this.exports.neighbors[i].includes(jdx)) this.exports.neighbors[i].push(jdx);
-          if(!this.exports.neighbors[jdx].includes(i)) this.exports.neighbors[jdx].push(i);
           var temp = [currentCoord, otherRandomCoords[jdx]];
           //next few lines prevents the addition of edges that were already added but with a origin from another node
           var tempSwapped = [otherRandomCoords[jdx], currentCoord];
@@ -237,7 +239,6 @@ class PRM extends GridPathFinder{
             } 
           }
           edgeAccumalator.push(temp)//from,to
-          this.exports.edges.push(temp);
         } 
         if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours" && cnt >= this.numberOfTopClosestNeighbours) break coordLoop;
       }
@@ -246,7 +247,15 @@ class PRM extends GridPathFinder{
     for (let i = 0; i < edgeAccumalator.length; ++i) {
       myUI.edgeCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
     }
-    
+
+
+    for(let i = 0; i < this.randomCoordsNodes.length; ++i){
+      this.exports.coords.push(this.randomCoordsNodes[i].value_XY);
+      this.exports.neighbours.push(this.randomCoordsNodes[i].neighbours);
+    }
+    for(let i = 0; i < edgeAccumalator.length; ++i){
+      this.exports.edges.push([edgeAccumalator[i][0],edgeAccumalator[i][1]]);
+    }
     
     this.addStartGoalNode("goal",goal);
     this.addStartGoalNode("start",start);
@@ -289,6 +298,8 @@ class PRM extends GridPathFinder{
     
     myUI.nodeCanvas.drawCircle(coord_XY);
 
+
+
     var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCoordNodes, 
  
     for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
@@ -319,23 +330,26 @@ class PRM extends GridPathFinder{
       
         selectedVertexIndex = jdx
 
+          //var selectedParent_Index = this.determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index,this.choosenCoordsNodes);
+
+
         
       } 
-      if(cnt >= 1) break coordLoop;
+      if(cnt >= 1) break coordLoop; // hardcoded to take the closest node not least cost
     }
     const selected_XY = this.randomCoordsNodes[selectedVertexIndex].value_XY;
     var selectedIndexForStartEndVertex = this.randomCoordsNodes.length // determined before push to array below
 
     this.exports.coords.push(coord_XY);
-    this.exports.neighbors.push(new Array());
+    this.exports.neighbours.push(new Array());
     this.randomCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
     this.exports.edges.push([coord_XY,selected_XY]);
     myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
     if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
-    if(!this.exports.neighbors[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbors[selectedVertexIndex].push(selectedIndexForStartEndVertex);
+    if(!this.exports.neighbours[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbours[selectedVertexIndex].push(selectedIndexForStartEndVertex);
     if(!this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
-    if(!this.exports.neighbors[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbors[selectedIndexForStartEndVertex].push(selectedVertexIndex);
+    if(!this.exports.neighbours[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbours[selectedIndexForStartEndVertex].push(selectedVertexIndex);
 
     if (isStartOrGoal == "start"){
       console.log("Start:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);

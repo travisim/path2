@@ -26,9 +26,10 @@ class RRT extends GridPathFinder{
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new RRT map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
       {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 35, description: `Sets number of random points`},
-      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
-      {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
-      {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
+      {uid: "neighbour_selection_method", displayName: "Closest Neighbours By Radius", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
+      {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:3, description: `Sets number of closest neighbours to select`},
+      {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:3, description: `Sets radius of closest neighbours to select`},
+      {uid: "goal_radius", displayName: "Goal Radius", options: "number",defaultVal:3, description: `Sets radius of goal`},
       {uid: "round_nodes", displayName: "Round Node Values", options: ["Round to Nearest Integer", "Allow Floats"], description: `Round the nodes`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], defaultVal:"Euclidean", description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
@@ -104,9 +105,13 @@ class RRT extends GridPathFinder{
         break;
       case "round_nodes":
         this.roundNodes = (value == `Round to Nearest Integer`);
-
+        break;
+      case "goal_radius":
+        this.goalRadius = value;
+       
     }
   }
+
   
   calc_cost(successor){
 
@@ -135,8 +140,8 @@ class RRT extends GridPathFinder{
   generateNewMap(start = [0,0], goal=[13,13]){
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
    
-    this.exports = {coords:[],neighbors:[],edges:[]};
-   
+    this.exports = {coords:[],neighbours:[],edges:[]};
+ 
     //clears SVG canvas
     if(document.getElementById("node")){
       document.getElementById("node").innerHTML = "";
@@ -148,145 +153,106 @@ class RRT extends GridPathFinder{
     this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
-    this.choosenCoordsNodes = []
-    this.pointsXawayFromSource = 4;
-  
-    
-    nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
-      var randomCoord_XY = [rand()*map_height, rand()*map_width] //need seed
-      if(choosenCoordsNodes.length = 0){
-        this.exports.coords.push(randomCoord_XY); 
-        this.choosenCoordsNodes.push(new MapNode(null,randomCoord_XY,[],null,null));//last 2 parameters are  additionalCoord, additionalEdge) 
-      }
-      if(choosenCoordsNodes.length = 1){
-        var nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(start,randomCoord_XY,this.pointsXawayFromSource);
-        this.exports.coords.push(nextCoordToAdd_XY); 
-        this.choosenCoordsNodes.push(new MapNode(null,nextCoordToAdd_XY,[0],randomCoord_XY,[choosenCoordsNodes[0].value_XY,randomCoord_XY]));//[0] refers to first choosenCoord.last 2 parameters are  additionalCoord, additionalEdge) 
-        // hard coded
-        this.choosenCoordsNodes[0].neighbors.push(1);
-        this.exports.neighbors[0].push(1);
-      }
-      else if(this.choosenCoordsNodes.length >1){ //runs when length is 2 or greater
-        var indexOfClosestCoordInTreeToRandomCoord = 0;
-        for (let x = 0; x > choosenCoordsNodes.length-1; ++x){
-          distanceBetween2Points(choosenCoordsNodes[indexOfClosestCoordInTreeToRandomCoord].value_XY,randomCoord_XY)>distanceBetween2Points(choosenCoordsNodes[x+1].value_XY,randomCoord_XY) ? closestCoordInTreeToRandomCoord = x:closestCoordInTreeToRandomCoord = x+1
-        }
-
-        var k = indexOfClosestCoordInTreeToRandomCoord;
-        var nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(choosenCoordsNodes[k].value_XY,randomCoord_XY,this.pointsXawayFromSource);
-        this.choosenCoordsNodes.push(new MapNode(null,nextCoordToAdd_XY,[k],randomCoord_XY,[choosenCoordsNodes[k].value_XY,randomCoord_XY]));//[0] refers to first choosenCoord.last 2 parameters are  additionalCoord, additionalEdge) 
-        this.exports.neighbors[this.exports.neighbors.length].push(k)
-        // bidirectional
-        if(!this.randomCoordsNodes[k].neighbours.includes(this.choosenCoordsNodes.length)) this.randomCoordsNodes[k].neighbours.push(this.choosenCoordsNodes.length);
-        
-        if(!this.exports.neighbors[k].includes(this.choosenCoordsNodes.length)) this.exports.neighbors[k].push(this.choosenCoordsNodes.length);
-        if(!this.exports.neighbors[k].includes(i)) this.exports.neighbors[k].push(this.choosenCoordsNodes.length);
-
-      }
-      
-
-      
-      var returnsFromCustomLOSChecker = CustomLOSChecker(randomCoord_XY[0]*map_start, randomCoord_XY[1]*map_width)
-      if(returnsFromCustomLOSChecker.boolean){
-        var coordBetweenPreviousCoordAndRandomCoord = getCoordinatesofPointsXAwayFromSource(start,randomCoord_XY,4)
-
-      }
-      else{
-        var coordBetweenPreviousCoordAndRandomCoord = returnsFromCustomLOSChecker.lastPassableCoordBeforeUnpassable
-      }
-      
-
-
-
-      this.exports.coords.push(coordBetweenPreviousCoordAndRandomCoord);
-      this.randomCoordsNodes.push(new MapNode(null,randomCoord_XY,[]));
-    }
-
-    for(let i = 0; i < this.exports.coords.length; ++i){
-      this.exports.neighbors.push(new Array());
-    }
-    
-    this.randomCoordsNodes.forEach(node=>{
-      myUI.nodeCanvas.drawCircle(node.value_XY);
-    });
-    
-    
-    //var otherRandomCoordsDistance = empty2D(randomCoordsNodes.length,randomCoordsNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
-    
+    this.choosenCoordsNodes = [];
     var edgeAccumalator = [];
-    for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
-      let currentCoord = [...this.randomCoordsNodes[i].value_XY];
-      var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCorrdNodes, 
-      let otherRandomCoords = deep_copy_matrix(nodes_to_array(this.randomCoordsNodes,"value_XY")); // randomCoord passed by reference here
+    this.choosenCoordsNodes.push(new MapNode(null,start,[],null,null,0));//last 2 parameters are  additionalCoord, additionalEdge) 
+    this.pointsXawayFromSource = 2;
+    myUI.nodeCanvas.drawCircle(start);
+   
+    //var testrandom = [[10,3],[4,20],[15,2]]
+    
+    for (let i = 0; i < this.sampleSize; ++i) {
+        var randomCoord_XY = [rand()*myUI.map_height, rand()*myUI.map_width]; //need seed
+       // var randomCoord_XY = testrandom[i];
+        var nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(this.choosenCoordsNodes,randomCoord_XY)
+        var nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(this.choosenCoordsNodes[nearestNode_Index].value_XY,randomCoord_XY,this.pointsXawayFromSource);
       
-      for (let j = 0; j < otherRandomCoords.length; ++j) {
-        if(i == j) continue;
-        //distancesBetweenACoordAndAllOthers.push( Math.sqrt((this.randomCoordsNodes[i].value_XY[0] - otherRandomCoords[j][0])**2 + (this.randomCoordsNodes[i].value_XY[1]  - otherRandomCoords[j][1])**2)); // could store as before sqrt form
-        // Math.sqrt -> Math.hypot
-        distancesBetweenACoordAndAllOthers.push( [Math.hypot(currentCoord[0] - otherRandomCoords[j][0], currentCoord[1]  - otherRandomCoords[j][1]), j]); // could store as before sqrt form
-      }
-      distancesBetweenACoordAndAllOthers.sort((a,b)=>{
-        return a[0] - b[0]; // sort by distance
-      });
-
-
-      let indexOfSelectedOtherRandomCoords;
-
-      if(this.neighbourSelectionMethod == "Top Closest Neighbours"){
-        // checks LOS between the the top X closes neighbours 
-        indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
-          .slice(0, this.numberOfTopClosestNeighbours)
-          .map(p => p[1]);
-      }
-      else if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours"){
-        indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
-          .map(p => p[1]);
-      }
-      else if(this.neighbourSelectionMethod == "Closest Neighbours By Radius"){
-        indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
-          .filter(p => p[0] < this.connectionDistance)
-          .map(p => p[1]);
-      }
       
-      let cnt = 0;
-      coordLoop: for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
-        let jdx = indexOfSelectedOtherRandomCoords[j];
-        if(i == jdx) continue;
-        var LOS = CustomLOSChecker(currentCoord, otherRandomCoords[jdx]);
-        
-        if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
-          ++cnt;
-          // bidirectional
-          if(!this.randomCoordsNodes[i].neighbours.includes(jdx)) this.randomCoordsNodes[i].neighbours.push(jdx);
-          if(!this.randomCoordsNodes[jdx].neighbours.includes(i)) this.randomCoordsNodes[jdx].neighbours.push(i);
-          if(!this.exports.neighbors[i].includes(jdx)) this.exports.neighbors[i].push(jdx);
-          if(!this.exports.neighbors[jdx].includes(i)) this.exports.neighbors[jdx].push(i);
-          var temp = [currentCoord, otherRandomCoords[jdx]];
-          //next few lines prevents the addition of edges that were already added but with a origin from another node
-          var tempSwapped = [otherRandomCoords[jdx], currentCoord];
-          
-          for (let k = 0; k < edgeAccumalator.length; ++k){
-            if (isArraysEqual(edgeAccumalator[k].flat(),tempSwapped.flat())){
-              continue coordLoop;
-            } 
-          }
-          edgeAccumalator.push(temp)//from,to
-          this.exports.edges.push(temp);
+        if (CustomLOSChecker(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY).boolean){ // checks if new randomm coord is on a non-obstacle coord and if path from parent to node has LOS
+          //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY,nextCoordToAdd_XY);
+          myUI.nodeCanvas.drawCircle(nextCoordToAdd_XY);
+          if(this.choosenCoordsNodes.length == 1) myUI.edgeCanvas.drawLine(start,nextCoordToAdd_XY);;
+          //myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,true);
+         // myUI.nodeCanvas.drawCircle(randomCoord_XY);
+
+          var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, nextCoordToAdd_XY,this.neighbourSelectionMethod,this.connectionDistance); 
+          var selectedParent_Index = determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index,this.choosenCoordsNodes);
+          myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[selectedParent_Index].value_XY,nextCoordToAdd_XY);
+          this.insertNodeToTree(selectedParent_Index,nextCoordToAdd_XY,[selectedParent_Index],randomCoord_XY,[nextCoordToAdd_XY,randomCoord_XY]);
+          this.rewireTree(this.choosenCoordsNodes.length-1, nodesNearby_Index)
+          //parent, value_XY,neighbours, additionalCoord, additionalEdge, g_cost) parent left as null here as it is not used in search()
+          //g cost calculated within in insertNodeToTree()
         } 
-        if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours" && cnt >= this.numberOfTopClosestNeighbours) break coordLoop;
-      }
+
+    }
+
+   
+    
+    
+    
+    for(let i = 0; i < this.choosenCoordsNodes.length; ++i){
+      this.exports.coords.push(this.choosenCoordsNodes[i].value_XY);
+      this.exports.neighbours.push(this.choosenCoordsNodes[i].neighbours);
+    }
+    for(let i = 0; i < edgeAccumalator.length; ++i){
+      this.exports.edges.push([edgeAccumalator[i][0],edgeAccumalator[i][1]]);
     }
     
-    for (let i = 0; i < edgeAccumalator.length; ++i) {
-      myUI.edgeCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
-    }
     
     
     this.addStartGoalNode("goal",goal);
-    this.addStartGoalNode("start",start);
+   // this.addStartGoalNode("start",start);
     download("RRT Map.json", JSON.stringify(this.exports));
+
+   
   }
 
+
+
+  insertNodeToTree(parent_Index,current_XY,neighbours_IndexArray,additionalCoord_XY, additionalEdge_XYXY){ //parent, value_XY,neighbours, additionalCoord, additionalEdge, g_cost)
+    if (CustomLOSChecker(this.choosenCoordsNodes[parent_Index].value_XY, current_XY).boolean){
+      var g_cost = this.choosenCoordsNodes[parent_Index].g_cost+distanceBetween2Points(current_XY,this.choosenCoordsNodes[parent_Index].value_XY);
+      //add neighbours for parents
+      this.choosenCoordsNodes[parent_Index].neighbours.push(this.choosenCoordsNodes.length);
+      this.choosenCoordsNodes.push(new MapNode(parent_Index,current_XY,neighbours_IndexArray,additionalCoord_XY,additionalEdge_XYXY,g_cost));
+    }
+    
+
+  }
+
+  rewireTree(currentNode_index, nodesNearby_Index){ // rewires neighbouring nodes within radius of current node to current node as parent if it results in a lower g cost
+    
+    for (let i = 0; i < nodesNearby_Index.length; ++i) {
+      var nodeNearby_index  = nodesNearby_Index[i];
+
+      if(nodeNearby_index == this.choosenCoordsNodes[currentNode_index].parent) continue;
+      var newConnection_g_cost = distanceBetween2Points(this.choosenCoordsNodes[currentNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY) + this.choosenCoordsNodes[currentNode_index].g_cost
+      var LOS = CustomLOSChecker(this.choosenCoordsNodes[currentNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY).boolean;
+      if(this.choosenCoordsNodes[nodeNearby_index].g_cost>newConnection_g_cost && LOS){ // yes rewire
+        this.choosenCoordsNodes[nodeNearby_index].neighbours.push(currentNode_index);// forms edge between nearby node and current
+        this.choosenCoordsNodes[currentNode_index].neighbours.push(nodeNearby_index);
+
+
+        for (let j = 0; j < this.choosenCoordsNodes[nodeNearby_index].neighbours.length; ++j) { // remove edge between nearby node and parent of nearby node
+          if(this.choosenCoordsNodes[nodeNearby_index].neighbours[j] == this.choosenCoordsNodes[nodeNearby_index].parent){
+            var formerParentOfNearbyNode_index =  this.choosenCoordsNodes[nodeNearby_index].neighbours[j];
+            continue;
+          }
+        }
+        this.choosenCoordsNodes[nodeNearby_index].parent = currentNode_index;
+        this.choosenCoordsNodes[nodeNearby_index].neighbours.splice(formerParentOfNearbyNode_index, 1); // removes parent as a neighbour 
+
+        for (let j = 0; j < this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours.length; ++j) {
+          if(this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours[j] == nodeNearby_index){
+            this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours.splice(j, 1); // removes nearby node as a neighbour of (nearby node parent)
+          }
+        }
+        console.log("rewire",this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY)
+        myUI.edgeCanvas.eraseLine(this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, STATIC.map);
+        myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[currentNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY);
+      }
+    }
+  }
 
 
   addStartGoalNode(isStartOrGoal = "start",coord_XY = [4,1]){
@@ -320,13 +286,15 @@ class RRT extends GridPathFinder{
      
     }
 
+   
+
     
     myUI.nodeCanvas.drawCircle(coord_XY);
 
     var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCoordNodes, 
  
-    for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
-        distancesBetweenACoordAndAllOthers.push( [Math.hypot(coord_XY[0] - this.randomCoordsNodes[i].value_XY[0], coord_XY[1]  - this.randomCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
+    for (let i = 0; i < this.choosenCoordsNodes.length; ++i) {
+        distancesBetweenACoordAndAllOthers.push( [Math.hypot(coord_XY[0] - this.choosenCoordsNodes[i].value_XY[0], coord_XY[1]  - this.choosenCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
     }
     
     distancesBetweenACoordAndAllOthers.sort((a,b)=>{
@@ -343,10 +311,9 @@ class RRT extends GridPathFinder{
     coordLoop: for (let j = 0; j < indexOfSelectedRandomCoords.length; ++j) {
       let jdx = indexOfSelectedRandomCoords[j];
       if(i == jdx) continue; 
-      //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
-
+      
       //below currently takes the first vertex that passes LOS
-      var LOS = CustomLOSChecker(coord_XY, this.randomCoordsNodes[jdx].value_XY);
+      var LOS = CustomLOSChecker(coord_XY, this.choosenCoordsNodes[jdx].value_XY);
       if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
         ++cnt;
         // bidirectional
@@ -357,25 +324,25 @@ class RRT extends GridPathFinder{
       } 
       if(cnt >= 1) break coordLoop;
     }
-    const selected_XY = this.randomCoordsNodes[selectedVertexIndex].value_XY;
-    var selectedIndexForStartEndVertex = this.randomCoordsNodes.length // determined before push to array below
+    const selected_XY = this.choosenCoordsNodes[selectedVertexIndex].value_XY;
+    var selectedIndexForStartEndVertex = this.choosenCoordsNodes.length // determined before push to array below
 
     this.exports.coords.push(coord_XY);
-    this.exports.neighbors.push(new Array());
-    this.randomCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
+    this.exports.neighbours.push(new Array());
+    this.choosenCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
     this.exports.edges.push([coord_XY,selected_XY]);
     myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
-    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
-    if(!this.exports.neighbors[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbors[selectedVertexIndex].push(selectedIndexForStartEndVertex);
-    if(!this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
-    if(!this.exports.neighbors[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbors[selectedIndexForStartEndVertex].push(selectedVertexIndex);
+    if(!this.choosenCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.choosenCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
+    if(!this.exports.neighbours[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbours[selectedVertexIndex].push(selectedIndexForStartEndVertex);
+    if(!this.choosenCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.choosenCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
+    if(!this.exports.neighbours[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbours[selectedIndexForStartEndVertex].push(selectedVertexIndex);
 
     if (isStartOrGoal == "start"){
-      console.log("Start:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);
+      console.log("Start:", this.choosenCoordsNodes[selectedIndexForStartEndVertex]);
     }
     else{
-      console.log("Goal:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);
+      console.log("Goal:", this.choosenCoordsNodes[selectedIndexForStartEndVertex]);
     }
 
     if (isStartOrGoal == "start" && this.prevStartCoord){
@@ -390,8 +357,9 @@ class RRT extends GridPathFinder{
    
   
 
+
   search(start, goal) {
-    if(!this.randomCoordsNodes) this.generateNewMap(start, goal);
+    if(!this.choosenCoordsNodes) this.generateNewMap(start, goal);
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
 		this.closed_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
@@ -400,7 +368,7 @@ class RRT extends GridPathFinder{
     console.log("starting");
    
     // starting node
-    var nextNode = this.randomCoordsNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // RRT Node
+    var nextNode = this.choosenCoordsNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // PRM Node
     this.current_node =  new Node(0, 0, 0, null, nextNode.value_XY, null, nextNode.neighbours); // Regular Node
     
     // assigns the F, G, H cost to the node
@@ -463,7 +431,7 @@ class RRT extends GridPathFinder{
       if(!this.bigMap){
         this._create_action({command: STATIC.EraseAllRows, dest: STATIC.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
-          const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
+          const XY = this.choosenCoordsNodes[this.current_node.neighbours[i]].value_XY;
           this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
@@ -494,7 +462,7 @@ class RRT extends GridPathFinder{
       /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
        for (let i = 0; i < this.current_node.neighbours.length; ++i){
         const idx = this.current_node.neighbours[i];
-        var next_XY = this.randomCoordsNodes[idx].value_XY; // calculate the coordinates for the new neighbour
+        var next_XY = this.choosenCoordsNodes[idx].value_XY; // calculate the coordinates for the new neighbour
     
 
         let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
@@ -502,7 +470,7 @@ class RRT extends GridPathFinder{
         this._create_action({command: STATIC.EraseAllEdge, dest: STATIC.DT});
         this._create_action({command: STATIC.DrawEdge, dest: STATIC.DT, nodeCoord: next_XY, endCoord: this.current_node_XY});
         
-        let next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, null, this.randomCoordsNodes[idx].neighbours);
+        let next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, null, this.choosenCoordsNodes[idx].neighbours);
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){

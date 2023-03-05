@@ -105,8 +105,10 @@ function CustomLOSChecker(src, tgt){
   
 
 
-  if(src[0] == tgt[0] || src[1] == tgt[1]){
+  if((src[0] == tgt[0] && Number.isInteger(src[0])) || (src[1] == tgt[1] && Number.isInteger(src[1]))){
     // cardinal crossing(horizontal/vertical)
+    
+    
     let x1 = src[0], x0 = src[0] - 1;
     if(src[0] == tgt[0]){                      
       if(src[0]-1 < 0){                 //at top edge of canvas     //if(x0 == 0 || x1 == myUI.map_height){
@@ -174,8 +176,8 @@ function CustomLOSChecker(src, tgt){
           
 
       }
-      else{
-        //below is the case for LOS is not at the edge of canvas
+      else{//below is the case for LOS is not at the edge of canvas
+        
         if (src[1]>tgt[1]){
           for (let y = src_dynamic[1]; y > tgt_dynamic[1]-1; --y){
             console.log(x0,y,x1,y)
@@ -205,7 +207,7 @@ function CustomLOSChecker(src, tgt){
         }
       }
     }
-    let y1 = src[1], y0 = src[1] - 1;
+    let y1 = src[1], y0 = src[1] - 1; 
     if(src[1] == tgt[1]){
       
       if(src[1]-1 < 0 ){
@@ -269,7 +271,7 @@ function CustomLOSChecker(src, tgt){
           return{
             boolean: true,
           }
-         
+        
         }
       }
       
@@ -306,6 +308,7 @@ function CustomLOSChecker(src, tgt){
 
     }
   }
+
   else{
     let path = CustomLOSGenerator(src, tgt, false);
     for(coord of path){
@@ -315,7 +318,7 @@ function CustomLOSChecker(src, tgt){
       if(grid[x][y]){
         return{
           boolean: false,
-          lastPassableCoordBeforeUnpassable: [x,y],
+          
         } 
       } 
       
@@ -512,13 +515,14 @@ class Tree {
 
 
 class MapNode {
-  constructor( parent = null, value_XY,neighbours = null, additionalCoord, additionalEdge) { // additionalCoord, additionalEdge used for RRT
+  constructor( parent = null, value_XY,neighbours = null, additionalCoord, additionalEdge, g_cost) { // additionalCoord, additionalEdge used for RRT
 
     this.parent = parent;
     this.value_XY = value_XY;
     this.neighbours = neighbours;
     this.additionalCoord = additionalCoord;
     this.additionalEdge = additionalEdge;
+    this.g_cost = g_cost;
   }
 
   numberOfNeighbours() {
@@ -581,7 +585,7 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY, dest = STATIC.map){
+  drawLine(start_XY, end_XY, isDashStroke = false,dest = STATIC.map,){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
  
@@ -592,7 +596,8 @@ class SVGCanvas {
     var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
     var line_class = `SVGline_${dest}`;
     var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
-    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, class:line_class, stroke: color});
+    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, class:line_class, stroke: color,});
+    if (isDashStroke) line.style.strokeDasharray = 5;
     document.getElementById(this.canvas_id).appendChild(line);
   }
   eraseLine(start_XY, end_XY, dest = STATIC.map){
@@ -731,12 +736,89 @@ function deepCopy(src) {
 // for explanation https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point 
 function getCoordinatesofPointsXAwayFromSource(src,tgt,x){
   var distanceBetween2Points = Math.sqrt(Math.pow((src[0]-tgt[0]), 2) + Math.pow((src[1]-tgt[1]), 2));
-  var ratioOfDistance = x/distanceBetween2Points;
-  var differenceInXAndYCoordinateOfSourceAndTarget = [tgt[0]-src[0],tgt[1]-src[1]];
-  var coordinatesXAwayFromSource = [(1-(ratioOfDistance))*src[0] + ratioOfDistance*tgt[0],(1-(ratioOfDistance))*src[1] + ratioOfDistance*tgt[1]];
-  return coordinatesXAwayFromSource;
+  if(distanceBetween2Points<x){
+    return tgt;
+  }
+  else{
+    var ratioOfDistance = x/distanceBetween2Points;
+    var differenceInXAndYCoordinateOfSourceAndTarget = [tgt[0]-src[0],tgt[1]-src[1]];
+    var coordinatesXAwayFromSource = [(1-(ratioOfDistance))*src[0] + ratioOfDistance*tgt[0],(1-(ratioOfDistance))*src[1] + ratioOfDistance*tgt[1]];
+    return coordinatesXAwayFromSource;
+  }
+ 
+  
 }
 
-function distanceBetween2Points(src,tgt){
+function distanceBetween2Points2(src,tgt){
  return Math.sqrt(Math.pow((src[0]-tgt[0]), 2) + Math.pow((src[1]-tgt[1]), 2));
+}
+
+
+function distanceBetween2Points(src,tgt){
+  return Math.hypot(src[0] - tgt[0], src[1]  - tgt[1]);
+ }
+
+
+
+
+
+ function getNearestNodeIndexInTreeToRandomCoord(mapNodes,randomCoord_XY){
+  var indexOfClosestCoordInTreeToRandomCoord = 0;
+  var k = indexOfClosestCoordInTreeToRandomCoord;
+  var distanceOfClosestCoordInTreeToRandomCoord = distanceBetween2Points(mapNodes[k].value_XY,randomCoord_XY)
+
+  for (let x = 1; x < mapNodes.length; ++x){
+      var distanceOfPotentialClosestCoordInTreeToRandomCoord = distanceBetween2Points(mapNodes[x].value_XY,randomCoord_XY)
+      if (distanceOfClosestCoordInTreeToRandomCoord>distanceOfPotentialClosestCoordInTreeToRandomCoord){
+        k = x;
+        var distanceOfClosestCoordInTreeToRandomCoord = distanceBetween2Points(mapNodes[k].value_XY,randomCoord_XY)
+        
+      }
+  }  
+  return k;
+}
+
+function getNodesNearby(mapNodes ,nextCoordToAdd_XY,neighbourSelectionMethod, connectionDistance ){
+var distancesBetweenACoordAndAllOthers =[];
+for (let i = 0; i < mapNodes.length; ++i) {
+ 
+  
+  distancesBetweenACoordAndAllOthers.push([distanceBetween2Points(mapNodes[i].value_XY ,nextCoordToAdd_XY),i]); // could store as before sqrt form
+}
+distancesBetweenACoordAndAllOthers.sort((a,b)=>{
+  return a[0] - b[0]; // sort by distance
+});
+
+
+var indexOfSelectedOtherRandomCoords;
+
+if(neighbourSelectionMethod == "Top Closest Neighbours"){
+  // checks LOS between the the top X closes neighbours 
+  indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+    .slice(0, 2)//this.numberOfTopClosestNeighbours)
+    .map(p => p[1]);
+}
+else if(neighbourSelectionMethod == "Top Closest Visible Neighbours"){
+  indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+    .map(p => p[1]);
+}
+else if(neighbourSelectionMethod == "Closest Neighbours By Radius"){
+  indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+    .filter(p => p[0] < connectionDistance)
+    .map(p => p[1]);
+}
+return indexOfSelectedOtherRandomCoords;
+}
+
+
+function determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index, mapNodes){  // parent maybe further than nearest node but with lower cost
+var selectedParent_index = nearestNode_Index;
+for (let i = 0; i < nodesNearby_Index.length; ++i) {
+  //console.log(nodesNearby_Index,i,"i",selectedParent_index,mapNodes)
+  if(mapNodes[nodesNearby_Index[i]].g_cost + distanceBetween2Points(mapNodes[nodesNearby_Index[i]].value_XY,nextCoordToAdd_XY)<mapNodes[selectedParent_index].g_cost+distanceBetween2Points(mapNodes[selectedParent_index].value_XY,nextCoordToAdd_XY)){
+    selectedParent_index = nodesNearby_Index[i];
+    
+  }
+}
+return selectedParent_index;
 }
