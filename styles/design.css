@@ -1,107 +1,98 @@
-html, body{
-	height: 100%;
-	width: 100%;
-	margin: 0;
-	border: 0;
-	padding: 0;
-	font-family: sans-serif;
-	background-color: #d1cfe2;
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #d1cfe2;
   background-size: cover;
 }
 
-#main-title{
-	text-align: center;
-	height: 5%;
-	width: 100%;
-  
+#main-title {
+  text-align: center;
+  height: 5%;
+  width: 100%;
 }
 
-
-#dark-toggle{
-	display: inline-block;
-	position: absolute;
+#dark-toggle {
+  display: inline-block;
+  position: absolute;
 }
 
-#main{
-	width: 100%;
-	min-width: 1500px;
+#main {
+  width: 100%;
+  min-width: 1500px;
   height: 1500px;
-	height: 90%;
-	display: flex;
-	display: -webkit-flex;
-	justify-content: center;
-	flex-direction: row;
-	margin-left: auto;
-	margin-right: auto;
-	white-space: nowrap; /* this does the trick */
+  height: 90%;
+  display: flex;
+  display: -webkit-flex;
+  justify-content: center;
+  flex-direction: row;
+  margin-left: auto;
+  margin-right: auto;
+  /*white-space: nowrap;*/ /* this does the trick */
   overflow: hidden; /* this prevents the grey divs from overflowing */
-  background-color: #d1cfe2 ;
+  background-color: #d1cfe2;
 }
 
-#map-container{
+#map-container {
   min-width: 650px;
 }
 
-#info-container{
+#info-container {
   min-width: 395px;
   max-width: 395px;
- 
 }
-.container{
-	display: inline-block;
-	vertical-align:middle;
-	height: 99%;
-	width: auto;
-	flex: 3 1 0;
-	border: 3px solid black;
-	margin: 2px;
-	overflow: hidden;
-}
-
-.thin-container{
-	display: inline-block;
-	vertical-align:middle;
-	height: 95%;
-	width: 100px;
-	border: 3px solid black;
-	margin: 2px;
-	overflow: hidden;
-}
-
-#info-container{
-	flex-grow: 4;
-}
-
-.sub-container{
+.container {
+  display: inline-block;
+  vertical-align: middle;
+  height: 99%;
+  width: auto;
+  flex: 3 1 0;
+  border: 3px solid black;
+  margin: 2px;
   overflow: hidden;
-	width: 100%;
-	height: 100%;
-  
-  
 }
 
-.interface{
-	width: 100%;
-	height: 512px;
+.thin-container {
+  display: inline-block;
+  vertical-align: middle;
+  height: 95%;
+  width: 100px;
+  border: 3px solid black;
+  margin: 2px;
+  overflow: hidden;
 }
 
+#info-container {
+  flex-grow: 4;
+}
 
+.sub-container {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
 
+.interface {
+  width: 100%;
+  height: 512px;
+}
 
 /*start of triple toggle css*/
 
 .toggle-group {
-    background-color: rgb(180,177,196);
-    padding: 4px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    width: 100%;
-    border-radius: 8px;
-    font-size: 14px;
-    vertical-align: middle;
-  
-  
+  background-color: rgb(180, 177, 196);
+  padding: 4px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  border-radius: 8px;
+  font-size: 14px;
+  vertical-align: middle;
 }
 .toggle-button input[type="radio"] {
   display: none;
@@ -112,45 +103,44 @@ html, body{
   width: 100%;
   height: 20px;
   border-radius: 8px;
-  padding:2px;
+  padding: 2px;
 }
 
-.toggle-button div{
-   border-radius: 8px;
+.toggle-button div {
+  border-radius: 8px;
 }
 .toggle-button.gridPixelToggle input:checked + label div {
-  background-color: rgb(203,144,98);
+  background-color: rgb(203, 144, 98);
 }
 .toggle-button.vertexToggle input:checked + label div {
-  background-color: rgb(203,144,98);
+  background-color: rgb(203, 144, 98);
 }
 .toggle-button.freeVertexToggle input:checked + label div {
-  background-color: rgb(203,144,98);
+  background-color: rgb(203, 144, 98);
 }
 
 .toggle-button div:hover {
-  background-color: grey
+  background-color: grey;
 }
 /*end of triple toggle css*/
 
-
 /* drag and drop css */
 
-.upload{
-	width: 95%;
-	height: 70px;
-	margin: 0 auto;
-	padding: 5px;
-	border: 2px dashed #555;
+.upload {
+  width: 95%;
+  height: 70px;
+  margin: 0 auto;
+  padding: 5px;
+  border: 2px dashed #555;
   border-radius: 20px;
-	font-family: sans-serif;
+  font-family: sans-serif;
 }
 
-.hidden{
-	visibility: hidden;
+.hidden {
+  visibility: hidden;
 }
-.none{
-	display: none;
+.none {
+  display: none;
 }
 .upload.highlight {
   border-color: purple;
@@ -158,18 +148,18 @@ html, body{
 
 .btn {
   display: inline-block;
-	flex-grow: 1;
-	margin: 2px;
+  flex-grow: 1;
+  margin: 2px;
   padding: 2px;
   background: #bcbacb;
   cursor: pointer;
   border-radius: 7px;
   border: 1px solid #bcbacb;
-	height: 50px;
-	width: 100%;
+  height: 50px;
+  width: 100%;
 
-	/* makes element text unselectable */
-	-webkit-touch-callout: none;
+  /* makes element text unselectable */
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
@@ -178,109 +168,109 @@ html, body{
 }
 .btn:hover {
   background: #d19b6d;
-	transform: scale(1.1);
-	font-weight: bold;
+  transform: scale(1.1);
+  font-weight: bold;
 }
 
 .btn:active {
-	transform: scale(1);
+  transform: scale(1);
 }
 
-.btn.pressed{
-	background: #2C3E50;
-	border-bottom: 1px solid #34495E;
-	color: #1ABC9C;
+.btn.pressed {
+  background: #2c3e50;
+  border-bottom: 1px solid #34495e;
+  color: #1abc9c;
 }
 
-.icon{
-	height: 30px;
-	min-width: 60px;
-	display: block;
-	margin: auto;
+.icon {
+  height: 30px;
+  min-width: 60px;
+  display: block;
+  margin: auto;
 }
 
-.file_input{
-	display: none;
+.file_input {
+  display: none;
 }
 
-.flex-row{
-	display: flex;
-	justify-content: center;
-	flex-direction: row;
-	padding: 2px 0px 2px 0px;
+.flex-row {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  padding: 2px 0px 2px 0px;
 }
 
-.flex-col{
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
-	padding: 0px 2px 0px 2px;
+.flex-col {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0px 2px 0px 2px;
 }
 
-.upload-btn{
-	display: inline-block;
+.upload-btn {
+  display: inline-block;
   background: #ccc;
   cursor: pointer;
   border-radius: 5px;
   border: 1px solid #ccc;
 }
 
-.grid-overlay{
-	display: grid;
+.grid-overlay {
+  display: grid;
 }
 
-.overlay{
-	grid-column: 1;
+.overlay {
+  grid-column: 1;
   grid-row: 1;
 }
 
-.label_centered{
-	display: block;
-	margin: 0px auto;
-	text-align: center;
+.label_centered {
+  display: block;
+  margin: 0px auto;
+  text-align: center;
 }
 
-.slider{
-	display: inline-block;
-	margin: 0px 10px;
-	flex-basis: 100%;
+.slider {
+  display: inline-block;
+  margin: 0px 10px;
+  flex-basis: 100%;
 }
 
-.rotated{
-	transform: rotate(-90deg);
+.rotated {
+  transform: rotate(-90deg);
   -moz-transform: rotate(-90deg); /*do same for other browsers if required*/
 }
 
-.select-dropdown{
-	margin: 0 auto;
-	display: block;
-	width: 95%;
+.select-dropdown {
+  margin: 0 auto;
+  display: block;
+  width: 95%;
 }
 
-.shrink{
-	display: flex;
-	width: 100%;
-	height: 100%;
+.shrink {
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
-.axis{
-	border-style: none;
+.axis {
+  border-style: none;
 }
 
-.empty{
-	z-index: -100;
+.empty {
+  z-index: -100;
 }
 
-.scen_label{
-	margin: 0px 5px 0px 10px;
+.scen_label {
+  margin: 0px 5px 0px 10px;
 }
 
-.active{
-	background: #d19b6d;
+.active {
+  background: #d19b6d;
 }
 
-.unselectable{
-	-webkit-touch-callout: none;
+.unselectable {
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
@@ -293,7 +283,8 @@ html, body{
   display: flex;
   justify-content: center;
 }
-.btn[alt]:hover::after { /* tooltip */
+.btn[alt]:hover::after {
+  /* tooltip */
   content: attr(alt);
   background: rgba(0, 0, 0, 0.7);
   color: white;
@@ -312,19 +303,20 @@ html, body{
   white-space: -o-pre-wrap;
   word-wrap: break-word;
 }
-.btn[alt]:hover::before { /* arrow */
+.btn[alt]:hover::before {
+  /* arrow */
   display: block;
   position: absolute;
   top: 100%;
   margin-top: -5px;
-  content: ' ';
+  content: " ";
   border: 5px solid transparent;
-  border-bottom: 5px solid rgba(0,0,0,0.7);
+  border-bottom: 5px solid rgba(0, 0, 0, 0.7);
   box-sizing: border-box;
 }
 
-.empty-outer{
-	margin: 0;
-	border: 0;
-	padding: 0;
+.empty-outer {
+  margin: 0;
+  border: 0;
+  padding: 0;
 }

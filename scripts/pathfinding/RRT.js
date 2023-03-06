@@ -85,16 +85,16 @@ class RRT extends GridPathFinder{
         break;
       case "neighbour_selection_method":
 				this.neighbourSelectionMethod = value;
-             /*
+      /*
         document.getElementById("number_of_closest_neighbours_pcfg").parentElement.style.display = "table-cell";
         document.getElementById("closest_neighbours_by_radius_pcfg").parentElement.style.display = "table-cell";
-   
+
         if(value == "Top Closest Neighbours"){
           document.getElementById("number_of_closest_neighbours_pcfg").style.display = "none";
         }
         else if(value == "Closest Neighbours By Radius"){
-           document.getElementById("closest_neighbours_by_radius_pcfg").style.display = "none";
-        }
+          document.getElementById("closest_neighbours_by_radius_pcfg").style.display = "none";
+l        }
         */
         break;
       case "number_of_closest_neighbours":
@@ -108,7 +108,7 @@ class RRT extends GridPathFinder{
         break;
       case "goal_radius":
         this.goalRadius = value;
-       
+
     }
   }
 
@@ -139,7 +139,7 @@ class RRT extends GridPathFinder{
 
   generateNewMap(start = [0,0], goal=[13,13]){
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
-   
+
     this.exports = {coords:[],neighbours:[],edges:[]};
  
     //clears SVG canvas
