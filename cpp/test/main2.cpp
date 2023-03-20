@@ -25,20 +25,21 @@ int main(){
   };
   neighbors_t neighborsIndex = {0, 7, 6, 5, 4, 3, 2, 1};
 
-  for(int i = 0; i < 3 * 2; ++i){
-    path_t path = planner.search(grid, 0, 0, 13, 13, neighborsIndex, false, false, false, Octile, FIFO);
+  bool finished = planner.search(grid, 0, 0, 13, 13, neighborsIndex, false, false, false, pathfinder::Octile, pathfinder::FIFO);
 
-    for(long unsigned int i = 0; i < path.size(); ++i){
-      std::cout<<path[i].first<<','<<path[i].second<<std::endl;
-    }
-    std::cout<<planner.stepData.size()<<' '<<planner.stepIndexMap.size()<<' '<<planner.combinedIndexMap.size()<<std::endl;
-    for(int i = 0; i < 10; ++i){
-      std::cout<<planner.stepData[i]<<' ';
-    }
-    std::cout<<std::endl;
-    std::string s;
-    std::cin>>s;
+  while(!finished){
+    finished = planner.runNextSearch();
   }
+  path_t path = planner.path;
+  for(int i = 0; i < 10; ++i){
+    std::cout<<planner.stepData[i]<<' ';
+  }
+  std::cout<<"Created: "<<pathfinder::created<<" Destroyed: "<<pathfinder::destroyed<<std::endl;
+
+  for(long unsigned int i = 0; i < path.size(); ++i){
+    std::cout<<path[i].first<<','<<path[i].second<<std::endl;
+  }
+  std::cout<<planner.stepData.size()<<' '<<planner.stepIndexMap.size()<<' '<<planner.combinedIndexMap.size()<<std::endl;
 
   return 0;
 }

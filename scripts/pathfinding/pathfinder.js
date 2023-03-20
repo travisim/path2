@@ -175,7 +175,8 @@ class GridPathFinder{
 			obj.idx++;
 			obj.actionCache[0] |= 1<<9;
 			//obj.actionCache[obj.idx] = (endCoord[0]*myUI.planner.map_width+endCoord[1])*2;
-			obj.actionCache.push(endCoord); // for floating point coordinates
+			obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
+			obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates
 		}
 
 		return obj.actionCache;

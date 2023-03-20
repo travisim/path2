@@ -50,7 +50,7 @@ class wasm_A_star extends GridPathFinder{
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
-      {uid: "time_ordering", displayName: "Time Ordering:", options: ["LIFO", "FIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`});
+      {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`});
 		return configs;
   }
 
@@ -75,6 +75,11 @@ class wasm_A_star extends GridPathFinder{
   }
 
   search(start, goal) {
+    this.n = 1;
+    //this._init_search(start, goal); // for batch size and batch interval
+    this.batch_interval = 0;
+    this.batch_size = 2000;
+
     let chosenCost = ["Manhattan",
       "Euclidean",
       "Chebyshev",
@@ -84,14 +89,46 @@ class wasm_A_star extends GridPathFinder{
     let order = ["FIFO", "LIFO"].findIndex(cost=>{
         return cost == this.timeOrder;
       });
-    Module["AStarSearch"](
+    let finished = Module["AStarSearch"](
       this.map.copy_2d(),
       ...start, ...goal,
       this.neighborsIndex,
       this.vertexEnabled, this.diagonal_allow, this.bigMap,
       chosenCost, order
     );
+    //return new Promise((resolve, reject)=>resolve(this._terminate_search()));
+    if(finished) return this._finish_searching();
+
+    let planner = this;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(planner._run_next_search()), planner.batch_interval);
+    });
+  }
+
+  _run_next_search(){
+    let finished;
+    try{
+      finished = Module["AStarRunNextSearch"](this.batch_size);
+      if(finished) return this._finish_searching();
+      let planner = this;
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(planner._run_next_search()), planner.batch_interval);
+      });
+    }
+    catch(e){
+      let t = Date.now() - myUI.startTime;
+      let n = Module["getStepIndex"]();
+      console.log(t);
+      console.log(e);
+      console.log("Number of steps before error: ",n);
+      console.log(n/t);
+      return this._finish_searching();
+    }
     
+  }
+
+  _finish_searching(){
+    console.log(Date.now() - myUI.startTime);
     Module["printPath"]();/**/
 
     function* vector_values(vector) {
@@ -129,12 +166,6 @@ class wasm_A_star extends GridPathFinder{
       let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
       myUI.create_arrow(start, end);
     }
-
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(this._terminate_search()), 0);
-    });
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
-    });
+    return this._terminate_search();
   }
 }

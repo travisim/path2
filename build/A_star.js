@@ -1000,7 +1000,7 @@ function createWasm() {
     // This assertion doesn't hold when emscripten is run in --post-link
     // mode.
     // TODO(sbc): Read INITIAL_MEMORY out of the wasm file in post-link mode.
-    //assert(wasmMemory.buffer.byteLength === 16777216);
+    //assert(wasmMemory.buffer.byteLength === 1048576000);
     updateMemoryViews();
 
     wasmTable = Module['asm']['__indirect_function_table'];
@@ -3293,55 +3293,25 @@ function unexportedRuntimeSymbol(sym) {
     }
   Module["__emval_take_value"] = __emval_take_value;
 
-  var ENV = {};
-  Module["ENV"] = ENV;
+  var _emscripten_get_now;if (ENVIRONMENT_IS_NODE) {
+    _emscripten_get_now = () => {
+      var t = process['hrtime']();
+      return t[0] * 1e3 + t[1] / 1e6;
+    };
+  } else _emscripten_get_now = () => performance.now();
+  ;
+  Module["_emscripten_get_now"] = _emscripten_get_now;
   
-  function getExecutableName() {
-      return thisProgram || './this.program';
-    }
-  Module["getExecutableName"] = getExecutableName;
-  function getEnvStrings() {
-      if (!getEnvStrings.strings) {
-        // Default values.
-        // Browser language detection #8751
-        var lang = ((typeof navigator == 'object' && navigator.languages && navigator.languages[0]) || 'C').replace('-', '_') + '.UTF-8';
-        var env = {
-          'USER': 'web_user',
-          'LOGNAME': 'web_user',
-          'PATH': '/',
-          'PWD': '/',
-          'HOME': '/home/web_user',
-          'LANG': lang,
-          '_': getExecutableName()
-        };
-        // Apply the user-provided values, if any.
-        for (var x in ENV) {
-          // x is a key in ENV; if ENV[x] is undefined, that means it was
-          // explicitly set to be so. We allow user code to do that to
-          // force variables with default values to remain unset.
-          if (ENV[x] === undefined) delete env[x];
-          else env[x] = ENV[x];
-        }
-        var strings = [];
-        for (var x in env) {
-          strings.push(x + '=' + env[x]);
-        }
-        getEnvStrings.strings = strings;
-      }
-      return getEnvStrings.strings;
-    }
-  Module["getEnvStrings"] = getEnvStrings;
+  var nowIsMonotonic = true;;
+  Module["nowIsMonotonic"] = nowIsMonotonic;
   
-  /** @param {boolean=} dontAddNull */
-  function writeAsciiToMemory(str, buffer, dontAddNull) {
-      for (var i = 0; i < str.length; ++i) {
-        assert(str.charCodeAt(i) === (str.charCodeAt(i) & 0xff));
-        HEAP8[((buffer++)>>0)] = str.charCodeAt(i);
-      }
-      // Null-terminate the pointer to the HEAP.
-      if (!dontAddNull) HEAP8[((buffer)>>0)] = 0;
+  function checkWasiClock(clock_id) {
+      return clock_id == 0 ||
+             clock_id == 1 ||
+             clock_id == 2 ||
+             clock_id == 3;
     }
-  Module["writeAsciiToMemory"] = writeAsciiToMemory;
+  Module["checkWasiClock"] = checkWasiClock;
   
   var PATH = {isAbs:(path) => path.charAt(0) === '/',splitPath:(filename) => {
         var splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
@@ -5630,6 +5600,77 @@ function unexportedRuntimeSymbol(sym) {
         return stream;
       }};
   Module["SYSCALLS"] = SYSCALLS;
+  function _clock_time_get(clk_id, ignored_precision_low, ignored_precision_high, ptime) {
+      if (!checkWasiClock(clk_id)) {
+        return 28;
+      }
+      var now;
+      // all wasi clocks but realtime are monotonic
+      if (clk_id === 0) {
+        now = Date.now();
+      } else if (nowIsMonotonic) {
+        now = _emscripten_get_now();
+      } else {
+        return 52;
+      }
+      // "now" is in ms, and wasi times are in ns.
+      var nsec = Math.round(now * 1000 * 1000);
+      HEAP32[((ptime)>>2)] = nsec >>> 0;
+      HEAP32[(((ptime)+(4))>>2)] = (nsec / Math.pow(2, 32)) >>> 0;
+      return 0;
+    }
+  Module["_clock_time_get"] = _clock_time_get;
+
+  var ENV = {};
+  Module["ENV"] = ENV;
+  
+  function getExecutableName() {
+      return thisProgram || './this.program';
+    }
+  Module["getExecutableName"] = getExecutableName;
+  function getEnvStrings() {
+      if (!getEnvStrings.strings) {
+        // Default values.
+        // Browser language detection #8751
+        var lang = ((typeof navigator == 'object' && navigator.languages && navigator.languages[0]) || 'C').replace('-', '_') + '.UTF-8';
+        var env = {
+          'USER': 'web_user',
+          'LOGNAME': 'web_user',
+          'PATH': '/',
+          'PWD': '/',
+          'HOME': '/home/web_user',
+          'LANG': lang,
+          '_': getExecutableName()
+        };
+        // Apply the user-provided values, if any.
+        for (var x in ENV) {
+          // x is a key in ENV; if ENV[x] is undefined, that means it was
+          // explicitly set to be so. We allow user code to do that to
+          // force variables with default values to remain unset.
+          if (ENV[x] === undefined) delete env[x];
+          else env[x] = ENV[x];
+        }
+        var strings = [];
+        for (var x in env) {
+          strings.push(x + '=' + env[x]);
+        }
+        getEnvStrings.strings = strings;
+      }
+      return getEnvStrings.strings;
+    }
+  Module["getEnvStrings"] = getEnvStrings;
+  
+  /** @param {boolean=} dontAddNull */
+  function writeAsciiToMemory(str, buffer, dontAddNull) {
+      for (var i = 0; i < str.length; ++i) {
+        assert(str.charCodeAt(i) === (str.charCodeAt(i) & 0xff));
+        HEAP8[((buffer++)>>0)] = str.charCodeAt(i);
+      }
+      // Null-terminate the pointer to the HEAP.
+      if (!dontAddNull) HEAP8[((buffer)>>0)] = 0;
+    }
+  Module["writeAsciiToMemory"] = writeAsciiToMemory;
+  
   function _environ_get(__environ, environ_buf) {
       var bufSize = 0;
       getEnvStrings().forEach(function(string, i) {
@@ -6008,6 +6049,7 @@ var wasmImports = {
   "_emval_new_cstring": __emval_new_cstring,
   "_emval_run_destructors": __emval_run_destructors,
   "_emval_take_value": __emval_take_value,
+  "clock_time_get": _clock_time_get,
   "environ_get": _environ_get,
   "environ_sizes_get": _environ_sizes_get,
   "fd_close": _fd_close,

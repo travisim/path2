@@ -2,16 +2,16 @@
 #include <iostream>
 #define STBI_ASSERT(x)
 
-#include "algo/A_star.cpp"
+#include "pathfinder/A_star.hpp"
 #include "conversion.cpp"
 
-A_star planner;
+pathfinder::A_star planner;
 path_t path;
 
 int main() { return 0; }
 
 //std::vector<std::pair<int, int>> 
-void AStarSearch(
+bool AStarSearch(
   emscripten::val gridArr,  // grid
   int startX, int startY, int goalX, int goalY,  // start and end coordinates
   emscripten::val neighborsIndexArr,
@@ -26,15 +26,18 @@ void AStarSearch(
   }
   std::vector<uint8_t> neighborsIndex = js1DtoVect1D(neighborsIndexArr);
   vectDigitPrint(neighborsIndex);
-  path = planner.search(
-    grid, 
-    startX, startY, goalX, goalY,
-    neighborsIndex,
-    vertexEnabled, diagonalAllow, bigMap,
-    chosenCost, order
-  );
-  return;
-  //return path;
+  
+  bool finished = planner.search(grid, startX, startY, goalX, goalY, neighborsIndex, vertexEnabled, diagonalAllow, bigMap, chosenCost, order);
+  //bool finished = planner.search(grid, 125, 10, 127, 198, neighborsIndex, false, false, false, Octile, FIFO);
+  return finished;
+}
+
+bool AStarRunNextSearch(int batchSize = -1){
+  return planner.runNextSearch(batchSize);
+}
+
+int getStepIndex(){
+  return planner.stepIndex;
 }
 
 std::vector<int> getStepData(){ return planner.stepData; }
@@ -43,10 +46,17 @@ std::vector<int> getCombinedIndexMap(){ return planner.combinedIndexMap; }
 std::vector<std::vector<int>> getCellMap(){ return planner.cellMap; }
 std::vector<std::vector<std::string>> getITRowDataCache(){ return planner.ITRowDataCache; }
 std::vector<std::vector<int>> getArrowCoords(){ return planner.arrowCoords; }
+std::vector<int> createDumbArray(int len){
+  std::vector<int> v;
+  for(int i = 0; i < len; ++i){
+    v.push_back(std::rand() * INT_MAX);
+  }
+  return v;
+}
 
 // LEGACY DUE TO INSTANTIATESTREAMING
 void printPath(){
-  int sz = path.size() * (sizeof(int) * 2 + 2);
+  int sz = planner.path.size() * (sizeof(int) * 2 + 2);
   unsigned char *s = (unsigned char*)malloc(sz);
   int i = 0;
   for(auto p : path){
@@ -73,12 +83,15 @@ void wasmfree(void *ptr){
 EMSCRIPTEN_BINDINGS(myModule) {
   
   emscripten::function("AStarSearch", &AStarSearch);
+  emscripten::function("AStarRunNextSearch", &AStarRunNextSearch);
+  emscripten::function("getStepIndex", &getStepIndex);
   emscripten::function("getStepData", &getStepData);
   emscripten::function("getStepIndexMap", &getStepIndexMap);
   emscripten::function("getCombinedIndexMap", &getCombinedIndexMap);
   emscripten::function("getCellMap", &getCellMap);
   emscripten::function("getITRowDataCache", &getITRowDataCache);
   emscripten::function("getArrowCoords", &getArrowCoords);
+  emscripten::function("createDumbArray", &createDumbArray);
 
   emscripten::function("printPath", &printPath);
   emscripten::register_vector<int>("vectorInt");

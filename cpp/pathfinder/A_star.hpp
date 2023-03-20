@@ -5,91 +5,46 @@
 #include <utility>
 #include <cmath>     // M_SQRT2
 #include <algorithm> // max, min
-#include <iomanip> // std::setprecision
-#include <vector>  // any general iterable
-#include <deque> // priority_queue
+#include <iomanip>   // std::setprecision
+#include <vector>    // any general iterable
+#include <deque>     // priority_queue
+#include <queue>
 
-#include "pathfinder.cpp"
+#include "pathfinder.hpp"
 
-enum costType
-{
-  Manhattan,
-  Euclidean,
-  Chebyshev,
-  Octile,
-};
+#include "node.hpp"
+#include "rbt.hpp"
 
-enum timeOrder
-{
-  FIFO,
-  LIFO
-};
+#ifndef ASTAR_HPP
+#define ASTAR_HPP
 
-class PQCompare
-{
-  bool hOptimized;
-  double THRESH;
-
-public:
-  PQCompare(double THRESH, bool hOptimized) : THRESH(THRESH), hOptimized(hOptimized)
-  {
-  }
-  bool operator()(const Node *n1, const Node *n2)
-  {
-    if (hOptimized && std::abs(n1->fCost - n2->fCost) < THRESH)
-    {
-      // lower hCost will be first
-      return n1->hCost < n2->hCost;
-    }
-    // lower fCost will be first
-    return n1->fCost < n2->fCost;
-  }
-};
+namespace pathfinder{
 
 class PriorityQueue
 {
 public:
-  PriorityQueue(timeOrder order = FIFO, double THRESH = 1e-8, bool hOptimized = false) : order(order), THRESH(THRESH), hOptimized(hOptimized), myComp(THRESH, hOptimized) {}
+  PriorityQueue(timeOrder order = FIFO, double THRESH = 1e-8, bool hOptimized = false) : order(order), THRESH(THRESH), hOptimized(hOptimized), data(THRESH, hOptimized, order) {}
   bool empty() { return data.empty(); }
-  int push(Node *n)
+  int push(Node* n)
   {
-    int pos = 0, SZ = data.size();
-    while (pos < SZ && data[pos]->fCost < n->fCost)
-    {
-      pos++;
-      // check up till fCost are equal
-    }
-    if (order == FIFO)
-    {
-      while (pos < SZ && data[pos]->fCost <= n->fCost)
-        pos++;
-      // check until neq for FIFO case
-    }
-    if (order == FIFO)
-      data.push_back(n);
-    else
-      data.push_front(n);
-    stable_sort(data.begin(), data.end(), myComp);
-    return pos;
+    data.insert(n);
+    return data.osRank(data.find(n)); // 1-indexed
   }
-  Node *pop()
+  void pop()
   {
-    Node *ret = data.front();
-    data.pop_front();
-    return ret;
+    data.erase(data.minimumVal());
   }
-  Node *top()
+  Node* top()
   {
-    return data.front();
+    return data.minimumVal();
   }
   void clear() { data.clear(); }
 
 private:
-  std::deque<Node *> data;
+  RedBlackTree data;
   timeOrder order;
   double THRESH;
   bool hOptimized;
-  PQCompare myComp;
 };
 
 class A_star : public GridPathFinder
@@ -141,25 +96,22 @@ private:
     }
     return {gCost + hCost, gCost, hCost};
   }
-
 public:
-  Empty2D<Node *> openList, closedList;
+  Empty2D<Node*> openList, closedList;
   A_star() {}
 
-  path_t search(grid_t &grid, int startX, int startY, int goalX, int goalY, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap, costType chosenCost, timeOrder order)
+  bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap, costType chosenCost, timeOrder order)
   {
-    gridHeight = grid.size();
-    gridWidth = grid[0].size();
     initSearch(grid, {startX, startY}, {goalX, goalY}, neighborsIndex, vertexEnabled, diagonalAllow, bigMap);
-    std::cout<<ITRowDataCache.size()<<std::endl;
     this->chosenCost = chosenCost;
     this->order = order;
-    closedList = Empty2D<Node *>(gridHeight, gridWidth);
-    openList = Empty2D<Node *>(gridHeight, gridWidth);
+    pq = PriorityQueue(order, 1e-8, false);
+    closedList = Empty2D<Node*>(gridHeight, gridWidth);
+    openList = Empty2D<Node*>(gridHeight, gridWidth);
     openList.clear();
     closedList.clear();
 
-    //std::cout << "Starting: " << start.first << ' ' << start.second << "->" << goal.first << ' ' << goal.second << std::endl;
+    // std::cout << "Starting: " << start.first << ' ' << start.second << "->" << goal.first << ' ' << goal.second << std::endl;
 
     currentNodeXY = {startX, startY};
     currentNode = new Node(startX, startY, nullptr, -1, 0, 0, 0);
@@ -169,8 +121,7 @@ public:
     std::array<double, 3> trip = calcCost({startX, startY});
     currentNode->fCost = trip[0], currentNode->hCost = trip[2]; // gCost is 0
 
-    // clear pq
-    pq.clear();
+    //pq.clear();
 
     // pushes the starting node onto the queue
     pq.push(currentNode);
@@ -191,25 +142,26 @@ public:
     currentNode = nullptr;
 
     // there exists a Node object which can only be referenced by the ptr in pq;
-    return runNextSearch();
+    // return runNextSearch();
+    return false;
   }
 
-  path_t runNextSearch()
+  bool runNextSearch(int givenBatchSize = -1)
   {
-    int num = batchSize;
+    if (givenBatchSize == -1)
+      givenBatchSize = batchSize;
+    int num = givenBatchSize;
     while (num--)
     {
       if (pq.empty())
         return terminateSearch(false);
 
       currentNode = pq.top();
-      //std::cout << "Current: " << *currentNode;
       pq.pop();
       currentNodeXY = {currentNode->coordX, currentNode->coordY};
       openList.set(currentNodeXY, nullptr);
-
-      if (stepIndex % 100 == 0)
-        //std::cout << "F: " << std::setprecision(5) << currentNode->fCost << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
+      if (stepIndex % 10000 == 0)
+        std::cout << "F: " << std::setprecision(5) << currentNode->fCost << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
 
       if (closedList.get(currentNodeXY) != nullptr && closedList.get(currentNodeXY)->fCost <= currentNode->fCost)
         continue;
@@ -242,7 +194,7 @@ public:
       {
         for (int i = 0; i < 8; ++i)
         {
-          nwse pick = nil;
+          NWSE pick = nil;
           if (delta[i][1] == 0)
           {
             if (delta[i][0] == 1)
@@ -269,10 +221,10 @@ public:
         std::pair<int, int> nextXY;
         nextXY.first = currentNodeXY.first + delta[i][0];
         nextXY.second = currentNodeXY.second + delta[i][1];
-        //std::cout << "next: " << nextXY.first << ' ' << nextXY.second << ' ' << std::endl;
+        // std::cout << "next: " << nextXY.first << ' ' << nextXY.second << ' ' << std::endl;
         if (nextXY.first < 0 || nextXY.first >= gridHeight || nextXY.second < 0 || nextXY.second >= gridWidth)
         {
-          //std::cout << "pass" << std::endl;
+          // std::cout << "pass" << std::endl;
           if (!bigMap)
             createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Out of Bounds"});
           continue;
@@ -298,7 +250,7 @@ public:
 
         // std::cout<<fCost<<std::endl;
 
-        Node *openNode = openList.get(nextXY);
+        Node* openNode = openList.get(nextXY);
         if (openNode != NULL && openNode->fCost <= fCost)
         {
           if (!bigMap)
@@ -309,7 +261,7 @@ public:
           continue;
         }
 
-        Node *closedNode = closedList.get(nextXY);
+        Node* closedNode = closedList.get(nextXY);
         if (closedNode != NULL && closedNode->fCost <= fCost)
         {
           if (!bigMap)
@@ -324,15 +276,14 @@ public:
           continue;
         }
 
-        Node *nextNode = new Node(nextXY.first, nextXY.second, currentNode, -1, fCost, gCost, hCost);
+        Node* nextNode = new Node(nextXY.first, nextXY.second, currentNode, -1, fCost, gCost, hCost);
         currentNode->addChild(nextNode);
 
         createAction(SetPixel, CanvasFCost, nextXY, -1, -1, -1, -1, {}, fCost);
         createAction(SetPixel, CanvasGCost, nextXY, -1, -1, -1, -1, {}, gCost);
         createAction(SetPixel, CanvasHCost, nextXY, -1, -1, -1, -1, {}, hCost);
 
-        int numLess = pq.push(nextNode);
-        // std::cout << "numLess: " << numLess << std::endl;
+        int posInQueue = pq.push(nextNode);  //  2nd ownership
 
         if (!bigMap)
         {
@@ -342,7 +293,7 @@ public:
 
           createAction(DrawPixel, CanvasQueue, nextXY);
 
-          createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, numLess + 1, {std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(currentNodeXY.first) + "," + std::to_string(currentNodeXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5))});
+          createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, posInQueue, {std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(currentNodeXY.first) + "," + std::to_string(currentNodeXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5))});
 
           if (openNode == nullptr && closedNode == nullptr)
             createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "New encounter"});
@@ -354,6 +305,11 @@ public:
         openList.set(nextXY, nextNode);
       }
     }
-    return runNextSearch();
+    // return runNextSearch();
+    return false;
   }
 };
+
+}
+
+#endif

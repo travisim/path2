@@ -1,0 +1,28 @@
+#include <iostream>
+#include "../pathfinder/A_star.hpp"
+#include "large_map.cpp"
+#include <string>
+
+int main(){
+  pathfinder::A_star planner;
+
+  grid_t grid = getMap256Bowl();
+  neighbors_t neighborsIndex = {0, 1, 2, 3, 4, 5, 6, 7};
+
+  std::cout<<"starting"<<std::endl;
+  uint64_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  bool finished = planner.search(grid, 125, 10, 127, 198, neighborsIndex, false, false, false, pathfinder::Octile, pathfinder::FIFO);
+
+  while(!finished){
+    finished = planner.runNextSearch();
+  }
+  uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  std::cout<<"Total time: "<<now - start<<"ms"<<std::endl;
+  path_t path = planner.path;
+
+  for(long unsigned int i = 0; i < path.size(); ++i){
+    //std::cout<<path[i].first<<','<<path[i].second<<std::endl;
+  }
+
+  return 0;
+}

@@ -437,10 +437,17 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           delete mem.arrowColor[arrowIndex];
         }
         else if(command==STATIC.InsertRowAtIndex){
-          let prevHighlight = myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
-          action = GridPathFinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
-          if(prevHighlight)
-            Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
+          try{
+            let prevHighlight = myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
+            action = GridPathFinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
+            if(prevHighlight)
+              Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
+          }
+          catch(e){
+            console.log(e);
+            console.log(infoTableRowIndex);
+            debugger;
+          }
         }
         else if(command==STATIC.EraseRowAtIndex){
           let [data, toHighlight] = myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex);

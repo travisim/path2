@@ -1,4 +1,18 @@
-#include "helper.hpp"
+#ifndef HELPER_HPP
+#define HELPER_HPP
+#define USE_MATH_DEFINES
+
+#include <vector>
+#include <iostream>
+#include <utility>
+#include <map>
+#include <chrono>
+#include <cstdint>
+
+using row_t = std::vector<uint8_t>;
+using grid_t = std::vector<row_t>;
+using neighbors_t = std::vector<uint8_t>;
+using path_t = std::vector<std::pair<int, int>>;
 
 template <class T>
 class Empty2D{
@@ -50,3 +64,13 @@ double roundSF(double n, int sf){
   const int dp = sf - floor(log10(n + 1));
   return roundDP(n, dp);
 }
+
+bool coordIsEqual(const std::pair<int, int> &c1, const std::pair<int, int> &c2){
+  return c1.first == c2.first && c1.second == c2.second;
+}
+
+grid_t makeGrid(int height, int width){
+  return grid_t(height, row_t(width, 0));
+}
+
+#endif

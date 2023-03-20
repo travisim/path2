@@ -12,6 +12,10 @@ myUI.scale_coord = function(x,y){
 	return [scaled_x, scaled_y];
 }
 
+function cellIsValid(xy){
+	return myUI.planner.cell_map && !isNaN(myUI.planner.cell_map.get(xy)) && myUI.planner.cell_map.get(xy) != -1;
+}
+
 myUI.handle_map_hover = function(e){
 
 	let tooltip_data = document.getElementById("tooltip_data");
@@ -31,7 +35,7 @@ myUI.handle_map_hover = function(e){
 	myUI.canvases.hover_map.canvas.style.cursor = "auto";
 	//document.getElementById("hover_cell_index").innerHTML = "-";
 	tooltip_data.style.backgroundColor = ``;
-	if(myUI.planner.cell_map && !isNaN(myUI.planner.cell_map.get([scaled_x, scaled_y]))){
+	if(cellIsValid([scaled_x, scaled_y])){
 		myUI.canvases.hover_map.set_color_index(2, "both");
 		myUI.canvases.hover_map.canvas.style.cursor = "pointer";
 		//document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map.get([scaled_x, scaled_y])
@@ -56,12 +60,9 @@ myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hov
 
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let [scaled_x, scaled_y] = myUI.scale_coord(e.offsetY, e.offsetX);
-	if(myUI.planner.cell_map){
-		let stepIdx = myUI.planner.cell_map.get([scaled_x, scaled_y]);
-		if(!isNaN(stepIdx)){
-			myUI.animation.step = stepIdx;
-			myUI.jump_to_step();
-		}
+	if(cellIsValid([scaled_x, scaled_y])){
+		myUI.animation.step = stepIdx;
+		myUI.jump_to_step();
 	}
 });
 
