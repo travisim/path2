@@ -354,8 +354,8 @@ l        }
 
   
     var radiusInPixels = Math.max(myUI.canvases.bg.canvas.clientWidth,myUI.canvases.bg.canvas.clientHeight)/Math.max(myUI.map_width, myUI.map_height)*this.goalRadius
-    myUI.map_goal_radius.resize(2*radiusInPixels)
-    myUI.map_goal_radius.move[coord_XY]
+    myUI.map_goal_radius.resize(2 * radiusInPixels);
+    myUI.map_goal_radius.move(coord_XY);
 
 
     var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, coord_XY, "Closest Neighbours By Radius", this.goalRadius); 
