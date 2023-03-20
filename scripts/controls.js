@@ -15,7 +15,7 @@ function compute_path(){
 	myUI.reset_animation(true);
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
-  if(!myUI.map_start) return alert("no scene loaded!");
+	if(!myUI.map_start) return alert("no scene loaded!");
 	myUI.planner.add_map(myUI.map_arr);
 	myUI.updateInfoMap(...myUI.map_start);
 	Object.values(myUI.canvases).forEach(function(uiCanvas){
@@ -34,7 +34,7 @@ function compute_path(){
 		clearInterval(myUI.interval);
 		document.getElementById("compute_btn").children[0].innerHTML = "optimizing... 0%";
 		myUI.step_data.fwd.data = myUI.planner.steps_data;
-	  myUI.step_data.fwd.map = myUI.planner.step_index_map;
+		myUI.step_data.fwd.map = myUI.planner.step_index_map;
 		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
 		myUI.currentCoord = myUI.map_start;
 		// optimize
@@ -50,6 +50,7 @@ function compute_path(){
 			updateSpeedSlider();
 			document.getElementById("compute_btn").children[0].innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
 			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").children[0].innerHTML = "Compute Path", 30000);
+		
 		})
 	}); 
 	

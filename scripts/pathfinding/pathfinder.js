@@ -264,6 +264,13 @@ class GridPathFinder{
 					this.vertexEnabled = true;
 					myUI.toggleVertex(true);
 				}
+				else if(value=="Grid Vertex Float"){
+					this.vertexEnabled = true;
+					myUI.gridPrecision = "float"
+					myUI.toggleVertex(true);
+				
+					
+				}
 				else{
 					this.vertexEnabled = false;
 					myUI.toggleVertex(false);
@@ -285,8 +292,9 @@ class GridPathFinder{
 
 	get infoTables(){
 		return [
-			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Position", "F-Cost", "G-Cost", "H-Cost", "State"]},
-			{id:"ITQueue", displayName: "Queue", headers:["Vertex","Parent","F-Cost","G-Cost","H-Cost"]},
+			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
+			{ id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
+			
 		];
 	}
 
@@ -515,6 +523,11 @@ class GridPathFinder{
 		}
 		console.log("found");
 		console.log(this.path);
+		this.pathLength = this.calculatePathLength(this.path)
+		this.endNumberOfNodes = this.path.length
+		console.log(this.pathLength);
+
+		 
 		/* NEW */
 		this._save_step(true);
 
@@ -530,10 +543,22 @@ class GridPathFinder{
     return 0;
   }
 
-  max_step(){
-    return this.step_index-1 ; // because of dummy step at the end and final step is n-1
-  }
-  
+	max_step(){
+	return this.step_index-1 ; // because of dummy step at the end and final step is n-1
+	}
+	
+	calculatePathLength(path) {
+		
+		var pathLength = 0
+		if (path.length > 1) {
+			for (i = 0; i < path.length-1; i++){
+				pathLength += distanceBetween2Points(path[i], path[i + 1])
+			}
+		}
+		return pathLength.toPrecision(5)
+
+	}
+	
 }
 
 class Node{

@@ -23,7 +23,7 @@ const STATIC_COMMANDS = [
   "EraseAllVertex",
   "DrawEdge",
   "EraseEdge",
-  "EraseAllEdge"
+  "EraseAllEdge",
 ];
 
 const STATIC_DESTS = [
@@ -40,6 +40,8 @@ const STATIC_DESTS = [
   "ITQueue", //info table
   "ITNeighbors",
   "map",
+  "ITStatistics"
+  
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -76,7 +78,9 @@ const statics_to_obj = {
   8: "gCost",
   9: "hCost",
   10: "ITQueue",
-  11: "ITNeighbors"
+  11: "ITNeighbors",
+  12: "map",
+  13: "ITStatistics"
 }
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
@@ -168,7 +172,7 @@ myUI.run_steps = function(num_steps, step_direction){
       }  /* */  
       if(command == STATIC.DrawVertex){
         let color = myUI.canvases[statics_to_obj[dest]].fillColor;
-        myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
+        myUI.nodeCanvas.drawCircle([x,y],dest);//id generated from coord and type
       }
       else if(command == STATIC.EraseVertex){
         myUI.nodeCanvas.eraseCircle([x,y], dest);
@@ -179,7 +183,7 @@ myUI.run_steps = function(num_steps, step_direction){
       else if(command == STATIC.DrawSingleVertex){
         myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
         let color = myUI.canvases[statics_to_obj[dest]].fillColor;
-        myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
+        myUI.nodeCanvas.drawCircle([x,y],dest);//id generated from coord and type
       }
       else if(command == STATIC.DrawEdge){
         let color = myUI.canvases[statics_to_obj[dest]]?.fillColor;

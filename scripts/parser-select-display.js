@@ -166,6 +166,7 @@ myUI.loadScenario = function(){
 
 document.querySelectorAll(".scen_controls").forEach(elem=>{
   elem.addEventListener("change", myUI.loadScenario);
+  //elem.addEventListener("change", myUI.planner.addGoalNode(myUI.map_start));
 })
 
 myUI.displayScen = function(update=false, reset_zero=false){
@@ -196,7 +197,10 @@ myUI.displayScen = function(update=false, reset_zero=false){
   }
   if(reset_zero) document.querySelector('#scen_num').value = 0;
   myUI.map_start_icon.move(myUI.map_start);
+    myUI.map_goal_radius.move(myUI.map_goal);
   myUI.map_goal_icon.move(myUI.map_goal);
+
+  
   console.log("LOS:", CustomLOSChecker(myUI.map_start, myUI.map_goal));
 	try{myUI.updateInfoMap(myUI.map_start);}catch(e){}
 }
@@ -208,11 +212,19 @@ function moveDraggable(xy){
   if(myUI.vertex)
     offset = 0;
 
-  this.elem.style.top = ((xy[0]+offset)*bounds.height / myUI.map_height - this.elem.height/2) + CANVAS_OFFSET + "px";
-  this.elem.style.left =  ((xy[1]+offset)*bounds.width / myUI.map_width - this.elem.width/2) + CANVAS_OFFSET + "px";
+  if (this.elem.height) { //checks if the elem has this property
+    this.elem.style.top = ((xy[0] + offset) * bounds.height / myUI.map_height - this.elem.height / 2) + CANVAS_OFFSET + "px";
+    this.elem.style.left = ((xy[1] + offset) * bounds.width / myUI.map_width - this.elem.width / 2) + CANVAS_OFFSET + "px";
+  }
+  else if (this.elem.scrollHeight) {
+    this.elem.style.top = ((xy[0] + offset) * bounds.height / myUI.map_height - this.elem.scrollHeight / 2) + 11 + "px";
+    this.elem.style.left = ((xy[1] + offset) * bounds.width / myUI.map_width - this.elem.scrollWidth / 2) + CANVAS_OFFSET + "px";
+  
+  }
 }
 
 myUI.map_start_icon.move = moveDraggable;
+myUI.map_goal_radius.move = moveDraggable;
 myUI.map_goal_icon.move = moveDraggable;
 
 /* PLANNER PARSER */
@@ -294,6 +306,18 @@ myUI.toggleVertex = function(enable=true){
       else uiCanvas.setDrawType("vertex");
     }
     myUI.canvases.hover_map.setDrawType("vertex");
+
+    if (myUI.gridPrecision != "float" ) {
+      dragElementGridSnap(myUI.map_start_icon.elem);
+      dragElementGridSnap(myUI.map_goal_icon.elem);
+    }
+
+    else if (myUI.gridPrecision =="float") {
+      dragElementNoSnap(myUI.map_start_icon.elem);
+      dragElementNoSnap(myUI.map_goal_icon.elem);
+      dragElementNoSnap(myUI.map_goal_radius.elem);
+    }
+    
   }
   else{
     myUI.vertex = false;
@@ -339,3 +363,13 @@ myUI.parseNodeMap = function(contents){
     }
   }
 }
+
+
+
+
+function resizeDivWithChildSvg(side) {
+  
+  this.elem.style.width = side +"px"
+  this.elem.getElementsByTagName("svg")[0].setAttribute("viewBox", `0 0 ${side} ${side}`); 
+}
+myUI.map_goal_radius.resize = resizeDivWithChildSvg;

@@ -93,7 +93,18 @@ function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if
 function CustomLOSChecker(src, tgt){
   let grid = myUI.canvases.bg.canvas_cache;                     // obstacle 2d matrix
   if(grid == undefined || grid[0] == undefined) return false;
-
+  if (src[0] == tgt[0] && src[1] == tgt[1]) {
+    if (grid[Math.floor(src[0])][Math.floor(src[1])]) {
+      return {
+        boolean: false
+      }
+    }
+    else {
+      return {
+        boolean: true
+      }
+    }
+  }
   
 
   var src_dynamic = [];
@@ -582,10 +593,14 @@ class SVGCanvas {
     svg.setAttribute('viewBox', `-${CANVAS_OFFSET.slice(0,-2)} -${CANVAS_OFFSET.slice(0,-2)} ${canvas_length.slice(0,-2)} ${canvas_length.slice(0,-2)}`);
     svg.style.zIndex = Number(documentStyle.getPropertyValue('--canvas-z-index')) - drawOrder;
     
+    svg.addEventListener("load", () => {
+      "makeDraggable(evt)"
+    });
+
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY, isDashStroke = false,dest = STATIC.map,){
+  drawLine(start_XY, end_XY,dest = STATIC.map, id=false,isDashStroke = false){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
  
@@ -593,7 +608,7 @@ class SVGCanvas {
     var y1 = this.displayRatio*start_coord.x;
     var x2 = this.displayRatio*end_coord.y;
     var y2 = this.displayRatio*end_coord.x;
-    var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
+    var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
     var line_class = `SVGline_${dest}`;
     var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
     var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, class:line_class, stroke: color,});
@@ -612,26 +627,31 @@ class SVGCanvas {
       }
     }
   }
+  
   eraseAllLines(dest = STATIC.map){
     this.EraseSvgsbyClass(`SVGline_${dest}`);
   }
-  drawCircle(circle_XY, dest = STATIC.map){
+  drawCircle(circle_XY, dest = STATIC.map,id=false, colour = "grey",radius = false, opacityValue = ""){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
-    var r = Math.max(0.25*this.displayRatio, 7.375);
+    var r = radius?radius:Math.max(0.25*this.displayRatio, 7.375);
     var cx = this.displayRatio*circle_coord.y;
     var cy = this.displayRatio*circle_coord.x; 
     
-    var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
+    var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
     var circle_class = `SVGcircle_${dest}`;
-    var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
+
+    var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : colour;
     var drawType = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].drawType : "cell";
-    let config = { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color};
+    var opacity = opacityValue ? opacityValue : "100%";
+    
+    let config = { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color,opacity:opacity};
     if(drawType == "dotted"){
       config.fill = "none";
       config.stroke = color;
       config.strokeDasharray = "6.5,6.5";
       config.r = Math.max(0.2*this.displayRatio, 1)
       config.strokeWidth = 5;
+  
     }
     var cir = this.getSvgNode('circle', config);
     //var toAppend =`<circle cx=${cx} cy=${cy} r=${r} id=${circle_id} stroke-width="2" fill="grey" />`
@@ -779,35 +799,35 @@ function distanceBetween2Points(src,tgt){
 }
 
 function getNodesNearby(mapNodes ,nextCoordToAdd_XY,neighbourSelectionMethod, connectionDistance ){
-var distancesBetweenACoordAndAllOthers =[];
-for (let i = 0; i < mapNodes.length; ++i) {
- 
+  var distancesBetweenACoordAndAllOthers =[];
+  for (let i = 0; i < mapNodes.length; ++i) {
   
-  distancesBetweenACoordAndAllOthers.push([distanceBetween2Points(mapNodes[i].value_XY ,nextCoordToAdd_XY),i]); // could store as before sqrt form
-}
-distancesBetweenACoordAndAllOthers.sort((a,b)=>{
-  return a[0] - b[0]; // sort by distance
-});
+    
+    distancesBetweenACoordAndAllOthers.push([distanceBetween2Points(mapNodes[i].value_XY ,nextCoordToAdd_XY),i]); // could store as before sqrt form
+  }
+  distancesBetweenACoordAndAllOthers.sort((a,b)=>{
+    return a[0] - b[0]; // sort by distance
+  });
 
 
-var indexOfSelectedOtherRandomCoords;
+  var indexOfSelectedOtherRandomCoords;
 
-if(neighbourSelectionMethod == "Top Closest Neighbours"){
-  // checks LOS between the the top X closes neighbours 
-  indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
-    .slice(0, 2)//this.numberOfTopClosestNeighbours)
-    .map(p => p[1]);
-}
-else if(neighbourSelectionMethod == "Top Closest Visible Neighbours"){
-  indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
-    .map(p => p[1]);
-}
-else if(neighbourSelectionMethod == "Closest Neighbours By Radius"){
-  indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
-    .filter(p => p[0] < connectionDistance)
-    .map(p => p[1]);
-}
-return indexOfSelectedOtherRandomCoords;
+  if(neighbourSelectionMethod == "Top Closest Neighbours"){
+    // checks LOS between the the top X closes neighbours 
+    indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+      .slice(0, 2)//this.numberOfTopClosestNeighbours)
+      .map(p => p[1]);
+  }
+  else if(neighbourSelectionMethod == "Top Closest Visible Neighbours"){
+    indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+      .map(p => p[1]);
+  }
+  else if(neighbourSelectionMethod == "Closest Neighbours By Radius"){
+    indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+      .filter(p => p[0] < connectionDistance)
+      .map(p => p[1]);
+  }
+  return indexOfSelectedOtherRandomCoords;
 }
 
 
@@ -821,4 +841,13 @@ for (let i = 0; i < nodesNearby_Index.length; ++i) {
   }
 }
 return selectedParent_index;
+}
+
+
+function incrementValue(incrementNumber)
+{
+    var value = parseInt(document.getElementById('number').value, 10);
+    value = isNaN(value) ? 0 : value;
+    value+=incrementNumber;
+    document.getElementById('number').value = value;
 }

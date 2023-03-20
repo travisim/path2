@@ -3,11 +3,12 @@ var myUI = {}
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [PRM,RRT,A_star,wasm_A_star];
+  myUI.planners = [RRT,A_star,PRM,wasm_A_star];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 
   myUI.vertex = false;
+  myUI.gridPrecision = "";
   
   myUI.canvases = {};
   myUI.buttons = {};
@@ -167,7 +168,9 @@ myUI.initialize = function(){
   ];
   
 	myUI.map_start_icon = {elem: document.getElementById("map_start_icon"), move: false}
-	myUI.map_goal_icon = {elem: document.getElementById("map_goal_icon"), move: false}
+  myUI.map_goal_icon = { elem: document.getElementById("map_goal_icon"), move: false }
+  myUI.map_goal_radius = { elem: document.getElementById("map_goal_radius"), move: false }
+
   
   myUI.animation = {
     running: false,
@@ -206,6 +209,8 @@ myUI.initialize = function(){
       myUI.InfoTables[item.id].setTableHeader(item.headers);
     }
   }
+
+
 
   myUI.InfoMap  = new UIInfoMap();
   myUI.PseudoCode = new UIInfoPseudoCode();

@@ -10,7 +10,12 @@ class PRM extends GridPathFinder{
   static get distance_metrics(){
     return ["Euclidean"];
   }
-
+  get infoTables(){
+		return [
+			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
+			{id:"ITQueue", displayName: "Queue", headers:["Vertex","Parent","F-Cost","G-Cost","H-Cost"]},
+		];
+	}
   static get hoverData(){
     return [
       {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"},
@@ -30,7 +35,7 @@ class PRM extends GridPathFinder{
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:15, description: `Sets radius of closest neighbours to select`},
       {uid: "goal_radius", displayName: "Goal Radius", options: "number",defaultVal:3, description: `Sets radius of goal`},
-      {uid: "round_nodes", displayName: "Round Node Values", options: ["Round to Nearest Integer", "Allow Floats"], description: `Round the nodes`},
+      {uid: "round_nodes", displayName: "Round Node Values", options: ["Allow Floats","Round to Nearest Integer"], description: `Round the nodes`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], defaultVal:"Euclidean", description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
@@ -46,7 +51,7 @@ class PRM extends GridPathFinder{
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
   }
-
+v
   setConfig(uid, value){
 		super.setConfig(uid, value);
     switch(uid){
@@ -389,11 +394,11 @@ class PRM extends GridPathFinder{
     // pushes the starting node onto the queue
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
     console.log(this.current_node);
-    debugger;
+    //;
     
     if(!this.bigMap){
       // for every node that is pushed onto the queue, it should be added to the queue infotable
-      this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [nextNode.value_XY[0]+','+nextNode.value_XY[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
+      this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [nextNode.value_XY[0].toPrecision(5)+','+nextNode.value_XY[1].toPrecision(5), '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
       this._create_action({command: STATIC.DrawVertex, dest: STATIC.QU, nodeCoord: nextNode.value_XY});
       this._save_step(true);
     }
@@ -444,7 +449,7 @@ class PRM extends GridPathFinder{
         this._create_action({command: STATIC.EraseAllRows, dest: STATIC.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
           const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
 
@@ -486,7 +491,7 @@ class PRM extends GridPathFinder{
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
             this._save_step(false);
           }
@@ -496,9 +501,9 @@ class PRM extends GridPathFinder{
         if(closed_node !== undefined && closed_node.f_cost<=f_cost){
           if(!this.bigMap){
             if(this.current_node.parent.self_XY[0] == next_XY[0] && this.current_node.parent.self_XY[1] == next_XY[1])
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
             else
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
           }
           
@@ -529,12 +534,12 @@ class PRM extends GridPathFinder{
           // to find the position to add it to the queue
           let numLess = this.queue.filter(node => node.f_cost < next_node.f_cost).length;
           
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0].toPrecision(5)+','+next_XY[1].toPrecision(5), this.current_node_XY[0].toPrecision(5)+','+this.current_node_XY[1].toPrecision(5), parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
           
           if(open_node===undefined && closed_node===undefined) 
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
           else if(open_node)
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
         }
         this._save_step(false);

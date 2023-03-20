@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-	<!--
+  <!--
 	things to add
 	- light/dark mode
 	- controls: clear, back, start/pause, forward, end, speed
@@ -15,8 +15,8 @@
 	- scenario editor
 	-->
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
     <!--
 		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="styles/design.css" />
 		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="styles/modal.css" />
@@ -26,215 +26,301 @@
       -->
 
     <link rel="stylesheet" href="styles/design.css" />
-		<link rel="stylesheet" href="styles/modal.css" />
-		<link rel="stylesheet" href="styles/map.css" />
-		<link rel="stylesheet" href="styles/info.css" />
-		<link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet">
-		<title>Path Planner</title>
+    <link rel="stylesheet" href="styles/modal.css" />
+    <link rel="stylesheet" href="styles/map.css" />
+    <link rel="stylesheet" href="styles/info.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Arvo&display=swap"
+      rel="stylesheet"
+    />
+    <title>Path Planner</title>
   </head>
 
   <body>
-		<div class="hover_popup" id="tooltip_data">
-			<div class="flex-row" id="hoverCoord"><span id=hover_x>-</span>, <span id=hover_y>-</span></div>
-			<br>
-		</div>
-		<div id="main-title">
-			Path Planner
-		 	<button onclick="darkmode()" >Light/Dark</button>
-		</div>
-		<div id="main" >
-      
-			<div id="info-container" class="container">
-				<div class="sub-container">
-					<div id="info-pane" class="interface overlay">
-          <!--start of html for info map-->
-          <button class="collapsible  ">Info Map</button>
-          <div class="content ">
-            <div id = "infomap" class="grid">
-              
-              <div class ="spacer"></div>
-              
-              <div class ="spacer"></div>
-              
-              <div style = "position: relative;display: flex;
-              justify-content: center;">
-                <div style = "position: absolute; bottom: -5px;"class ="NWSE">-x
+    <div class="hover_popup" id="tooltip_data">
+      <div class="flex-row" id="hoverCoord">
+        <span id="hover_x">-</span>, <span id="hover_y">-</span>
+      </div>
+      <br />
+    </div>
+    <div id="main-title">
+      Path Planner
+      <button onclick="darkmode()">Light/Dark</button>
+    </div>
+    <div id="main">
+      <div id="info-container" class="container">
+        <div class="sub-container">
+          <div id="info-pane" class="interface overlay">
+            <!--start of html for info map-->
+            <button class="collapsible">Info Map</button>
+            <div class="content">
+              <div id="infomap" class="grid">
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+
+                <div
+                  style="
+                    position: relative;
+                    display: flex;
+                    justify-content: center;
+                  "
+                >
+                  <div style="position: absolute; bottom: -5px" class="NWSE">
+                    -x
+                  </div>
                 </div>
-              </div>
-              
-            
-              <div class ="spacer"></div>
-              
-              <div class ="spacer"></div>
-            
-              
-              <div class ="spacer"></div>
-              <div class ="info_neighbors"id="SE"></div>
-              <div class ="info_neighbors"id="S"></div>
-              <div class ="info_neighbors"id="SW"></div>  
-              <div class ="spacer"></div>
-              
-            
-              <div style = "position: relative;display: flex;
-             align-items: center;">
-                <div style = "position: absolute;right:-5px;"class ="NWSE">-y</div>
-              </div>
-              
-              
-              <div class ="info_neighbors"id="E"></div>
-              
-              <div style = "position: relative;display: flex;
-             align-items: center;justify-content: center;">
-                <div style = "position: absolute;" class ="info_currentXY" id="currentXY">item</div>
-              </div>
-              
-              <div class ="info_neighbors"id="W"></div>
-              
-              <div style = "position: relative; display: flex;
-             align-items: center;">
-                <div style = "position: absolute;left:-5px;"class ="NWSE">+y</div>
-              </div>
-              
-            
-              <div class ="spacer"></div>
-              <div class ="info_neighbors"id="NE"></div>
-              <div class ="info_neighbors"id="N"></div>  
-              <div class ="info_neighbors"id="NW"></div>
-              <div class ="spacer"></div>
-               
 
-              <div class ="spacer"></div>
-              
-              <div class ="spacer"></div>
-                
-              <div style = "position: relative;;display: flex;
-              justify-content: center;">
-                <div style = "position: absolute;top:-5px;"class ="NWSE">+x</div>
-              </div>
-              
-              <div class ="spacer" ></div>
+                <div class="spacer"></div>
 
-              <div class ="spacer" ></div>
-              
-              
-              
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+                <div class="info_neighbors" id="SE"></div>
+                <div class="info_neighbors" id="S"></div>
+                <div class="info_neighbors" id="SW"></div>
+                <div class="spacer"></div>
+
+                <div
+                  style="position: relative; display: flex; align-items: center"
+                >
+                  <div style="position: absolute; right: -5px" class="NWSE">
+                    -y
+                  </div>
+                </div>
+
+                <div class="info_neighbors" id="E"></div>
+
+                <div
+                  style="
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <div
+                    style="position: absolute"
+                    class="info_currentXY"
+                    id="currentXY"
+                  >
+                    item
+                  </div>
+                </div>
+
+                <div class="info_neighbors" id="W"></div>
+
+                <div
+                  style="position: relative; display: flex; align-items: center"
+                >
+                  <div style="position: absolute; left: -5px" class="NWSE">
+                    +y
+                  </div>
+                </div>
+
+                <div class="spacer"></div>
+                <div class="info_neighbors" id="NE"></div>
+                <div class="info_neighbors" id="N"></div>
+                <div class="info_neighbors" id="NW"></div>
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+
+                <div
+                  style="
+                    position: relative;
+                    display: flex;
+                    justify-content: center;
+                  "
+                >
+                  <div style="position: absolute; top: -5px" class="NWSE">
+                    +x
+                  </div>
+                </div>
+
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+              </div>
             </div>
-        </div>
 
+            <button class="collapsible">Info Table</button>
+            <div class="content">
+              <div class="tab"></div>
+              <div id="info-tables-dynamic"></div>
+            </div>
 
-        <button class="collapsible ">Info Table</button>
-        <div class="content">
-          <div class="tab">  </div>
-          <div id="info-tables-dynamic" ></div>
-        </div>
-
-        <button class="collapsible ">Info Pseudo Code</button>
-        <div class="content">
-          <div id="pseudo-code-container" >
-            <table id='dynamic-pseudo-code-table'></table>
+            <button class="collapsible">Info Pseudo Code</button>
+            <div class="content">
+              <div id="pseudo-code-container">
+                <table id="dynamic-pseudo-code-table"></table>
+              </div>
+            </div>
           </div>
         </div>
-          
-					</div>
-				</div>
-			</div>
-			
+      </div>
+
       <div id="map-container" class="container">
-				<div class="sub-container">
-					<div class="flex-row">
-						<div class="flex-col empty-outer">
-							<div id="map" class="interface overlay">
-								<div id="canvas_container">
-									<img src="assets/map_start.svg" class="icon draggable unselectable" id="map_start_icon" alt="start">
-									<img src="assets/map_goal.svg" class="icon draggable unselectable" id="map_goal_icon" alt="goal">
-									<div id="arrow-div" class="map_canvas"></div>
-								</div>
-								<div id="left_axes" class="flex-row">
-									<div id="left_axes_markers" class="flex-col unselectable">
-									</div>
-								</div>
-								<div id="top_axes" class="flex-col">
-									<div id="top_axes_markers" class="flex-row unselectable">
-									</div>
-								</div>
-							</div>
-							<div class="flex-row">
-								<div class="flex-row unselectable">
-									<img src="assets/map_start.svg" class="icon" alt="start">
-									Map Start
-								</div>
-								<div class="flex-row unselectable">
-									<img src="assets/map_goal.svg" class="icon" alt="goal">
-									Map Goal
-								</div>
-							</div>
-						</div>
-						<div id="layer-controls">
-							<div class="flex-row">
-								<button id="reset_checkboxes" class="btn" ><b>Hide All</b></button>
-								<button id="select_checkboxes" class="btn" ><b>Select All</b></button>
-							</div>
-  						<div id="canvas_layers">
+        <div class="sub-container">
+          <div class="flex-row">
+            <div class="flex-col empty-outer">
+              <div id="map" class="interface overlay">
+                <div id="canvas_container">
+                  <img
+                    src="assets/map_start.svg"
+                    class="icon draggable unselectable"
+                    id="map_start_icon"
+                    alt="start"
+                  />
+                  <img
+                    src="assets/map_goal.svg"
+                    class="icon draggable unselectable"
+                    id="map_goal_icon"
+                    alt="goal"
+                  />
+                  
+                  <div  style=" top:50px; left:50px; width: 70px;   aspect-ratio: 1 / 1; position: absolute;"id="map_goal_radius"  class=" draggable unselectable ">
+
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="100%"
+                      height= "100%"
+                      viewBox="0 0 70 70">
+                      <circle cx="50%" cy="50%" r="7.375" stroke-width="2"fill="grey" opacity="100%"></circle>
+                    <circle cx="50%" cy="50%" r="49%" stroke="red" stroke-width="2" fill="rgba(255, 255, 255, 0)" stroke-dasharray="5,5" d="M5 40 l215 0" class="dotted"/>
+                  
+                    </svg> 
+                  </div>
+                  
+                  <div id="arrow-div" class="map_canvas"></div>
+                </div>
+                <div id="left_axes" class="flex-row">
+                  <div
+                    id="left_axes_markers"
+                    class="flex-col unselectable"
+                  ></div>
+                </div>
+                <div id="top_axes" class="flex-col">
+                  <div
+                    id="top_axes_markers"
+                    class="flex-row unselectable"
+                  ></div>
+                </div>
               </div>
-              <div id = "checkbox_style"></div>
-						</div>
-					</div>
-					<div class="flex-row">
-						<button id="download_map_btn" class="btn">Download Map</button>
-						<button id="download_scen_btn" class="btn">Download Scen</button>
-					</div>
-				</div>
-			</div>
+              <div class="flex-row">
+                <div class="flex-row unselectable">
+                  <img src="assets/map_start.svg" class="icon" alt="start" />
+                  Map Start
+                </div>
+                <div class="flex-row unselectable">
+                  <img src="assets/map_goal.svg" class="icon" alt="goal" />
+                  Map Goal
+                </div>
+              </div>
+            </div>
+            <div id="layer-controls">
+              <div class="flex-row">
+                <button id="reset_checkboxes" class="btn">
+                  <b>Hide All</b>
+                </button>
+                <button id="select_checkboxes" class="btn">
+                  <b>Select All</b>
+                </button>
+              </div>
+              <div id="canvas_layers"></div>
+              <div id="checkbox_style"></div>
+            </div>
+          </div>
+          <div class="flex-row">
+            <button id="download_map_btn" class="btn">Download Map</button>
+            <button id="download_scen_btn" class="btn">Download Scen</button>
+          </div>
+        </div>
+      </div>
 
-
-			<div id="controls-container" class="container">
-				<div class="sub-container">
-					<div id="controls" class="interface overlay">
-						<button class="collapsible ">Display Controls</button>
-						<div class="content">
-							<div id="display_controls" class="flex-row">
-								<button id="clear_btn" class="btn" alt="Go to start">
-									<img src="assets/clear.svg" class="icon" alt="clear">
-								</button>
-								<button id="back_btn" class="btn" alt="Step back">
-									<img src="assets/back.svg" class="icon" alt="back">
-								</button>
-								<button id="start_pause_btn" class="btn" alt="Play">
-									<div class="grid-overlay">
-										<img src="assets/start.svg" id="start_icon" class="icon overlay hidden" alt="start">  <!-- element with multiple svgs have them hidden by default -->
-										<img src="assets/pause.svg" id="pause_icon" class="icon overlay hidden" alt="pause">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
-									</div>
-								</button>
-								<button id="forward_btn" class="btn" alt="Step forward">
-									<img src="assets/next.svg" class="icon" alt="next">
-								</button>
-								<button id="end_btn" class="btn" alt="Go to end">
-									<img src="assets/end.svg" class="icon" alt="end">
-								</button>
-							</div>
-							<div id="edit_controls" class="flex-row">
-								<button id="direction_btn" class="btn">
-									<div class="grid-overlay">
-										<img src="assets/forward.svg" id="direction_forward_icon" class="icon overlay hidden" alt="forward" ><!-- element with multiple svgs have them hidden by default -->
-										<img src="assets/reverse.svg" id="direction_reverse_icon" class="icon overlay hidden" alt="reverse">  <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
-									</div>
-								</button>
-								<button id="detail_btn" class="btn" style="font-weight: bold;">
-									Coarse Steps
-								</button>
-							</div>
-						</div>
-						<button class="collapsible ">Slider Controls</button>
-						<div id="slider_controls" class="content">
-							<label class="label_centered">Step Frequency (#/s): <span id="animation_speed_label">1.00x</span></label>
-							<div class="flex-row">
-								<span>1.00×</span>
-								<!-- animation speed is now dependent on the number of steps -->
-								<!-- default max is 4×, default state is 1× -->
-								<!-- max speed will complete the animation in 10 seconds -->
-								<input type="range" min="0" max="4000" value="0" id="animation_speed_slider" class="slider">
-								<!-- slider adopts a log-scale: each interval of sliding of equal length will result in a doubling of speed -->
-								<!-- 
+      <div id="controls-container" class="container">
+        <div class="sub-container">
+          <div id="controls" class="interface overlay">
+            <button class="collapsible">Display Controls</button>
+            <div class="content">
+              <div id="display_controls" class="flex-row">
+                <button id="clear_btn" class="btn" alt="Go to start">
+                  <img src="assets/clear.svg" class="icon" alt="clear" />
+                </button>
+                <button id="back_btn" class="btn" alt="Step back">
+                  <img src="assets/back.svg" class="icon" alt="back" />
+                </button>
+                <button id="start_pause_btn" class="btn" alt="Play">
+                  <div class="grid-overlay">
+                    <img
+                      src="assets/start.svg"
+                      id="start_icon"
+                      class="icon overlay hidden"
+                      alt="start"
+                    />
+                    <!-- element with multiple svgs have them hidden by default -->
+                    <img
+                      src="assets/pause.svg"
+                      id="pause_icon"
+                      class="icon overlay hidden"
+                      alt="pause"
+                    />
+                    <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
+                  </div>
+                </button>
+                <button id="forward_btn" class="btn" alt="Step forward">
+                  <img src="assets/next.svg" class="icon" alt="next" />
+                </button>
+                <button id="end_btn" class="btn" alt="Go to end">
+                  <img src="assets/end.svg" class="icon" alt="end" />
+                </button>
+              </div>
+              <div id="edit_controls" class="flex-row">
+                <button id="direction_btn" class="btn">
+                  <div class="grid-overlay">
+                    <img
+                      src="assets/forward.svg"
+                      id="direction_forward_icon"
+                      class="icon overlay hidden"
+                      alt="forward"
+                    /><!-- element with multiple svgs have them hidden by default -->
+                    <img
+                      src="assets/reverse.svg"
+                      id="direction_reverse_icon"
+                      class="icon overlay hidden"
+                      alt="reverse"
+                    />
+                    <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
+                  </div>
+                </button>
+                <button id="detail_btn" class="btn" style="font-weight: bold">
+                  Coarse Steps
+                </button>
+              </div>
+            </div>
+            <button class="collapsible">Slider Controls</button>
+            <div id="slider_controls" class="content">
+              <label class="label_centered"
+                >Step Frequency (#/s):
+                <span id="animation_speed_label">1.00x</span></label
+              >
+              <div class="flex-row">
+                <span>1.00×</span>
+                <!-- animation speed is now dependent on the number of steps -->
+                <!-- default max is 4×, default state is 1× -->
+                <!-- max speed will complete the animation in 10 seconds -->
+                <input
+                  type="range"
+                  min="0"
+                  max="4000"
+                  value="0"
+                  id="animation_speed_slider"
+                  class="slider"
+                />
+                <!-- slider adopts a log-scale: each interval of sliding of equal length will result in a doubling of speed -->
+                <!-- 
 									-2000: 0.25×
 									-1000: 0.5×
 									0: 1×
@@ -255,7 +341,7 @@
 									t = 200/(2^(n/1000)), where t is the time in ms per frame
 									num_steps
 								-->
-								<!--
+                <!--
 									0: 1×
 									1000: 2×
 									2000: 4×
@@ -272,181 +358,332 @@
 									max slider = log2(numsteps(#)/5) * 1000
 
 								-->
-								<span>max</span>
-							</div>
+                <span>max</span>
+              </div>
 
-							<label class="label_centered">Search progress: <span id="search_progress_label">0%</span></label>
-							<div class="flex-row">
-								<span>0%</span>
-								<input type="range" min="-1" id="search_progress_slider" disabled="true" class="slider"> <!-- steps are 0-indexed -->
-								<span>100%</span>
-							</div>
-							<label class="label_centered">States per step: <span id="state_freq_label">20</span></label>
-							<div class="flex-row">
-								<span>20</span>
-								<input type="range" min="20" max="2000" value="20" id="state_freq_slider" class="slider">
-								<span>2000</span>
-							</div>
-						</div>
-						<div class="flex-row">
-							<button id="configLink" class="controlTabLink" onclick="openControlTab(event, 'configTab')">Config</button>
-							<button id="manualLink" class="controlTabLink" onclick="openControlTab(event, 'manualTab')">Manual</button>
-						</div>
-						<div id="configTab" class="controlTabContent">
-							<div class="flex-row">
-								<button id="compute_btn" class="btn" alt="Find path using selected planner">
-									<div class="flex-col">Compute Path</div>
-								</button>
-								<button id="edit_map_btn" class="btn grid-overlay" alt="Switch to editing mode">
-									<img src="assets/edit-map.svg" id="edit_map_icon" class="icon overlay" alt="edit map">
-								</button>
-								<button id="planner_config_btn" class="btn" alt="Choose and customize the algorithm">
-									<div class="flex-col"></div>
-								</button>
-							</div>
-							<div class="select_pane">
-								<label class="scen_label">Scenario Number:</label>
-								<input id="scen_num" class="scen_controls" type="number" min="0">
-								<div class="flex-row">
-									<label class="scen_label">X1:</label>
-									<input id="scen_start_x" class="shrink scen_controls" type="number" min="0">
-									<label class="scen_label">Y1:</label>
-									<input id="scen_start_y" class="shrink scen_controls" type="number" min="0">
-								</div>
-								<div class="flex-row">
-									<label class="scen_label">X2:</label>
-									<input id="scen_goal_x" class="shrink scen_controls" type="number" min="0">
-									<label class="scen_label">Y2:</label>
-									<input id="scen_goal_y" class="shrink scen_controls" type="number" min="0">
-								</div>
-							</div>
-							<div id="file_droparea" class="upload overlay">
-								<form class="my-form">
-									<p>Drag map/scen/pathf file here <a target="_blank" href="https://movingai.com/benchmarks/street/index.html">(source)</a></p>
-									<input type="file" id="fileInput1" class="file_input" accept=".map,.scen,.pathf,.json,.pseudo" multiple>
-									<label class="upload-btn" for="fileInput1">Select files</label>
-								</form>
-							</div>
-						</div>
-						<div id="manualTab" class="controlTabContent">
-							<div class="upload overlay">
-								<form class="my-form">
-									<p>Drag json file here</p>
-									<input type="file" id="fileInput2" class="file_input" accept=".json">
-									<label class="upload-btn" for="fileInput2">Select files</label>
-								</form>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-		</div>
-		<div id="edit_map_modal" class="modal">
-			<div class="modal-content">
-				<div id="edit_map_ctn">
-					<div id="edit_mouse_tip" class="grid-overlay">
-						<img src="assets/pencil-marker-svgrepo-com.svg" id="draw_marker" class="icon overlay" alt="pencil">
-						<img src="assets/eraser-marker-svgrepo-com.svg" id="erase_marker" class="icon overlay" alt="eraser">
-					</div>
-					<canvas id="edit_map" class="map_canvas" height="8" width="8"></canvas>
-				</div>
-				<div id="right_panel">
-					<span id="edit_map_close" class="close">&times;</span>
-					<button id="draw_erase_btn" class="btn grid-overlay">
-						<img src="assets/pencil-svgrepo-com.svg" id="draw_icon" class="icon overlay" alt="draw">
-						<img src="assets/eraser-svgrepo-com.svg" id="erase_icon" class="icon overlay hidden" alt="erase">
-					</button>
-					<div class="flex-row"> 
-						<div class="flex-col" style="display:none">
-							<span class="label_centered">1024</span>
-							<input type="range" min="1" max="1024" value="16" id="map_height_slider" class="slider" orient="vertical">
-							<span class="label_centered">1</span>
-						</div>
-						<label class="label_centered">Map Height: <input id="map_height_label"  class="label_input" value="16"/></label>
-					</div>
-
-				</div>
-				<div id="bottom_panel">
-					<div class="flex-row" style="display:none">
-						<span>1</span>
-						<input type="range" min="1" max="1024" value="16" id="map_width_slider" class="slider">
-						<span>1024</span>
-					</div>
-					<label class="label_centered">Map Width: <input id="map_width_label" class="label_input" value="16"/></label>
-				</div>
-			</div>
-		</div>
-		<div id="planner_config_modal" class="modal">
-			<div class="modal-content">
-				<span id="planner_config_close" class="close">&times;</span>
-				<h2 class="label_centered">Planner Configuration</h2>
-				<p id="planner_label"></p>
-				<label for="planner_select" class="label_centered">Choose planner:</label>
-				<select name="planner_select" size="1" id="planner_select" class="select-dropdown"></select>
-				<div style="overflow: auto;">
-					<table id="planner_config_body"></table>
-				</div>
-			</div>
-		</div>
-		<div id="first_neighbor_modal" class="modal">
-			<div class="modal-content mini">
-				<span id="first_neighbor_close" class="close">&times;</span>
-				<div class="flex-col">
-					<div class="flex-row">
-						<button class="first_neighbor_choice btn">NW</button>
-						<button class="first_neighbor_choice btn">N</button>
-						<button class="first_neighbor_choice btn">NE</button>
-					</div>
-					<div class="flex-row">
-						<button class="first_neighbor_choice btn">W</button>
-						<button class="first_neighbor_choice btn empty"></button>
-						<button class="first_neighbor_choice btn">E</button>
-					</div>
-					<div class="flex-row">
-						<button class="first_neighbor_choice btn">SW</button>
-						<button class="first_neighbor_choice btn">S</button>
-						<button class="first_neighbor_choice btn">SE</button>
-					</div>
-				</div>
-			</div>
-		</div>
-    <div>
-      <style id="darkmode">
-        
-      </style>
+              <label class="label_centered"
+                >Search progress:
+                <span id="search_progress_label">0%</span></label
+              >
+              <div class="flex-row">
+                <span>0%</span>
+                <input
+                  type="range"
+                  min="-1"
+                  id="search_progress_slider"
+                  disabled="true"
+                  class="slider"
+                />
+                <!-- steps are 0-indexed -->
+                <span>100%</span>
+              </div>
+              <label class="label_centered"
+                >States per step: <span id="state_freq_label">20</span></label
+              >
+              <div class="flex-row">
+                <span>20</span>
+                <input
+                  type="range"
+                  min="20"
+                  max="2000"
+                  value="20"
+                  id="state_freq_slider"
+                  class="slider"
+                />
+                <span>2000</span>
+              </div>
+            </div>
+            <div class="flex-row">
+              <button
+                id="configLink"
+                class="controlTabLink"
+                onclick="openControlTab(event, 'configTab')"
+              >
+                Config
+              </button>
+              <button
+                id="manualLink"
+                class="controlTabLink"
+                onclick="openControlTab(event, 'manualTab')"
+              >
+                Manual
+              </button>
+            </div>
+            <div id="configTab" class="controlTabContent">
+              <div class="flex-row">
+                <button
+                  id="compute_btn"
+                  class="btn"
+                  alt="Find path using selected planner"
+                >
+                  <div class="flex-col">Compute Path</div>
+                </button>
+                <button
+                  id="edit_map_btn"
+                  class="btn grid-overlay"
+                  alt="Switch to editing mode"
+                >
+                  <img
+                    src="assets/edit-map.svg"
+                    id="edit_map_icon"
+                    class="icon overlay"
+                    alt="edit map"
+                  />
+                </button>
+                <button
+                  id="planner_config_btn"
+                  class="btn"
+                  alt="Choose and customize the algorithm"
+                >
+                  <div class="flex-col"></div>
+                </button>
+              </div>
+              <div class="select_pane">
+                <div class="flex-row"></div>
+                  <label class="scen_label">Scenario Number:</label>
+                  <input
+                    id="scen_num"
+                    class="scen_controls"
+                    type="number"
+                    min="0"
+                  />
+                </div>
+                <div class=" flex-row"></div>
+                  <label class="scen_label">Increment nodes by:</label>
+                  <input type="text" id="number" value="0"/>
+                  <input type="button" onclick="incrementValue(1)" value="1 " />
+                  <input type="button" onclick="incrementValue(10)" value="10" />
+                  <input type="button" onclick="incrementValue(100)" value="100" />
+                </div>
+                <div class="flex-row">
+                  <label class="scen_label">X1:</label>
+                  <input
+                    id="scen_start_x"
+                    class="shrink scen_controls"
+                    type="number"
+                    min="0"
+                  />
+                  <label class="scen_label">Y1:</label>
+                  <input
+                    id="scen_start_y"
+                    class="shrink scen_controls"
+                    type="number"
+                    min="0"
+                  />
+                </div>
+                <div class="flex-row">
+                  <label class="scen_label">X2:</label>
+                  <input
+                    id="scen_goal_x"
+                    class="shrink scen_controls"
+                    type="number"
+                    min="0"
+                  />
+                  <label class="scen_label">Y2:</label>
+                  <input
+                    id="scen_goal_y"
+                    class="shrink scen_controls"
+                    type="number"
+                    min="0"
+                  />
+                </div>
+              </div>
+              <div id="file_droparea" class="upload overlay">
+                <form class="my-form">
+                  <p>
+                    Drag map/scen/pathf file here
+                    <a
+                      target="_blank"
+                      href="https://movingai.com/benchmarks/street/index.html"
+                      >(source)</a
+                    >
+                  </p>
+                  <input
+                    type="file"
+                    id="fileInput1"
+                    class="file_input"
+                    accept=".map,.scen,.pathf,.json,.pseudo"
+                    multiple
+                  />
+                  <label class="upload-btn" for="fileInput1"
+                    >Select files</label
+                  >
+                </form>
+              </div>
+            </div>
+            <div id="manualTab" class="controlTabContent">
+              <div class="upload overlay">
+                <form class="my-form">
+                  <p>Drag json file here</p>
+                  <input
+                    type="file"
+                    id="fileInput2"
+                    class="file_input"
+                    accept=".json"
+                  />
+                  <label class="upload-btn" for="fileInput2"
+                    >Select files</label
+                  >
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-		<script src="scripts/dependencies/chroma.min.js"></script>
+    <div id="edit_map_modal" class="modal">
+      <div class="modal-content">
+        <div id="edit_map_ctn">
+          <div id="edit_mouse_tip" class="grid-overlay">
+            <img
+              src="assets/pencil-marker-svgrepo-com.svg"
+              id="draw_marker"
+              class="icon overlay"
+              alt="pencil"
+            />
+            <img
+              src="assets/eraser-marker-svgrepo-com.svg"
+              id="erase_marker"
+              class="icon overlay"
+              alt="eraser"
+            />
+          </div>
+          <canvas
+            id="edit_map"
+            class="map_canvas"
+            height="8"
+            width="8"
+          ></canvas>
+        </div>
+        <div id="right_panel">
+          <span id="edit_map_close" class="close">&times;</span>
+          <button id="draw_erase_btn" class="btn grid-overlay">
+            <img
+              src="assets/pencil-svgrepo-com.svg"
+              id="draw_icon"
+              class="icon overlay"
+              alt="draw"
+            />
+            <img
+              src="assets/eraser-svgrepo-com.svg"
+              id="erase_icon"
+              class="icon overlay hidden"
+              alt="erase"
+            />
+          </button>
+          <div class="flex-row">
+            <div class="flex-col" style="display: none">
+              <span class="label_centered">1024</span>
+              <input
+                type="range"
+                min="1"
+                max="1024"
+                value="16"
+                id="map_height_slider"
+                class="slider"
+                orient="vertical"
+              />
+              <span class="label_centered">1</span>
+            </div>
+            <label class="label_centered"
+              >Map Height:
+              <input id="map_height_label" class="label_input" value="16"
+            /></label>
+          </div>
+        </div>
+        <div id="bottom_panel">
+          <div class="flex-row" style="display: none">
+            <span>1</span>
+            <input
+              type="range"
+              min="1"
+              max="1024"
+              value="16"
+              id="map_width_slider"
+              class="slider"
+            />
+            <span>1024</span>
+          </div>
+          <label class="label_centered"
+            >Map Width:
+            <input id="map_width_label" class="label_input" value="16"
+          /></label>
+        </div>
+      </div>
+    </div>
+    <div id="planner_config_modal" class="modal">
+      <div class="modal-content">
+        <span id="planner_config_close" class="close">&times;</span>
+        <h2 class="label_centered">Planner Configuration</h2>
+        <p id="planner_label"></p>
+        <label for="planner_select" class="label_centered"
+          >Choose planner:</label
+        >
+        <select
+          name="planner_select"
+          size="1"
+          id="planner_select"
+          class="select-dropdown"
+        ></select>
+        <div style="overflow: auto">
+          <table id="planner_config_body"></table>
+        </div>
+      </div>
+    </div>
+    <div id="first_neighbor_modal" class="modal">
+      <div class="modal-content mini">
+        <span id="first_neighbor_close" class="close">&times;</span>
+        <div class="flex-col">
+          <div class="flex-row">
+            <button class="first_neighbor_choice btn">NW</button>
+            <button class="first_neighbor_choice btn">N</button>
+            <button class="first_neighbor_choice btn">NE</button>
+          </div>
+          <div class="flex-row">
+            <button class="first_neighbor_choice btn">W</button>
+            <button class="first_neighbor_choice btn empty"></button>
+            <button class="first_neighbor_choice btn">E</button>
+          </div>
+          <div class="flex-row">
+            <button class="first_neighbor_choice btn">SW</button>
+            <button class="first_neighbor_choice btn">S</button>
+            <button class="first_neighbor_choice btn">SE</button>
+          </div>
+		</div>
+      </div>
+    </div>
+    <div>
+      <style id="darkmode"></style>
+    </div>
+    <script src="scripts/dependencies/chroma.min.js"></script>
     <script src="scripts/pathfinding/PRM RRT dependencies.js"></script>
-		<script src="scripts/helper.js"></script>
-		<script src="scripts/pathfinding/pathfinder.js"></script>
+    <script src="scripts/helper.js"></script>
+    <script src="scripts/pathfinding/pathfinder.js"></script>
     <script src="scripts/pathfinding/wasm_A_star.js"></script>
     <script src="scripts/pathfinding/A_star.js"></script>
     <script src="scripts/pathfinding/PRM.js"></script>
     <script src="scripts/pathfinding/RRT.js"></script>
-		<script src="scripts/ui_elements.js"></script>
+    <script src="scripts/ui_elements.js"></script>
     <script src="scripts/infomap.js"></script>
     <script src="scripts/infotable class.js"></script>
     <script src="scripts/infopseudocode class.js"></script>
     <script src="scripts/layers_checklist.js"></script>
-		<script src="scripts/interface.js"></script><!-- creates myUI -->
-		<script src="scripts/hover_config.js"></script>
-		<script src="scripts/hover.js"></script>
-		<script src="scripts/animation.js"></script>
-		<script src="scripts/controls.js"></script>
-		<script src="scripts/step.js"></script>
-		<script src="scripts/upload.js"></script>
+    <script src="scripts/interface.js"></script>
+    <!-- creates myUI -->
+    <script src="scripts/hover_config.js"></script>
+    <script src="scripts/hover.js"></script>
+    <script src="scripts/animation.js"></script>
+    <script src="scripts/controls.js"></script>
+    <script src="scripts/step.js"></script>
+    <script src="scripts/upload.js"></script>
     <script src="scripts/darkmode.js"></script>
-		<script src="scripts/hover.js"></script>
-		<script src="scripts/modal.js"></script>
-		<script src="scripts/parser-select-display.js"></script>
-	  <script src="scripts/planner_config.js"></script>
-		<script src="scripts/download.js"></script>
+    <script src="scripts/hover.js"></script>
+    <script src="scripts/modal.js"></script>
+    <script src="scripts/parser-select-display.js"></script>
+    <script src="scripts/planner_config.js"></script>
+    <script src="scripts/download.js"></script>
     <script src="scripts/default.js"></script>
     <script src="build/A_star.js"></script>
     <script src="build/loadWasm.js"></script>
   </body>
-  
 </html>
-
-

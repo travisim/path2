@@ -109,6 +109,7 @@
 .draggable{
 	position: absolute;
 	z-index: 23;
+  cursor: move;
 }
 
 .arrow{
@@ -236,3 +237,4 @@ h1{
 }
 */
 /*end of layers css*/
+
