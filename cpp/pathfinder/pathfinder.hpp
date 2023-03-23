@@ -50,7 +50,7 @@ namespace pathfinder
 
     neighbors_t neighborsIndex;
 
-    std::pair<int, int> start, goal, currentNodeXY;
+    coord_t start, goal, currentNodeXY;
     path_t path;
 
     int arrowCnt;
@@ -70,7 +70,6 @@ namespace pathfinder
     // STEP STRUCT METHOD
     std::vector<std::unique_ptr<Step>> steps;
     std::unique_ptr<Step> currentStep;
-    int stepItr = 0;
 #endif
 
     // STEP DATA METHOD
@@ -100,11 +99,12 @@ namespace pathfinder
       return actionCache.size() - 1;
     }
 
-    static std::unique_ptr<Action> packAction(const Command &command, int dest = -1, std::pair<int, int> nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, std::pair<int, int> endCoord = {-1, -1})
+    //static std::unique_ptr<Action> packAction(const Command &command, int dest = -1, coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, coord_t endCoord = {-1, -1})
+    static Action packAction(const Command &command, int dest = -1, coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, coord_t endCoord = {-1, -1})
     {
 
 #ifdef STEP_STRUCT_METHOD
-      return std::make_unique<Action>(
+      return Action(
           command,
           (Dest)dest,
           nodeCoord,
@@ -115,6 +115,19 @@ namespace pathfinder
           infoTableRowData,
           cellVal,
           endCoord);
+      /*
+      return std::make_unique<Action>(
+          command,
+          (Dest)dest,
+          nodeCoord,
+          colorIndex,
+          arrowIndex,
+          pseudoCodeRow,
+          infoTableRowIndex,
+          infoTableRowData,
+          cellVal,
+          endCoord);*/
+      
 #else
       std::vector<int> actionCache = {1};
       int bitOffset = 10;
@@ -201,7 +214,7 @@ namespace pathfinder
 #endif
     }
 
-    void initSearch(grid_t &grid, std::pair<int, int> start, std::pair<int, int> goal, neighbors_t &neighborsIndex, bool vertexEnabled, bool bigMap, bool diagonalAllow)
+    void initSearch(grid_t &grid, coord_t start, coord_t goal, neighbors_t &neighborsIndex, bool vertexEnabled, bool bigMap, bool diagonalAllow)
     {
       gridHeight = grid.size();
       gridWidth = grid[0].size();
@@ -267,11 +280,11 @@ namespace pathfinder
       batchInterval = 0;
     }
 
-    bool nodeIsNeighbor(std::pair<int, int> &nextXY, NWSE nextNWSE, std::vector<std::array<int, 2>> &cardinalCoords)
+    bool nodeIsNeighbor(coord_t &nextXY, NWSE nextNWSE, std::vector<std::array<int, 2>> &cardinalCoords)
     {
       if (vertexEnabled)
       {
-        std::pair<int, int> c1, c2;
+        coord_t c1, c2;
         // no diagonal blocking considered
         if (nextXY.first != this->currentNodeXY.first && nextXY.second != this->currentNodeXY.second)
         {
@@ -345,13 +358,15 @@ namespace pathfinder
       return actionCache.size() - 1;
     }
 
-    void createAction(Command command, int dest = -1, std::pair<int, int> nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, std::pair<int, int> endCoord = {-1, -1})
+    void createAction(Command command, int dest = -1, coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, coord_t endCoord = {-1, -1})
     {
-      std::unique_ptr<Action> myAction = GridPathFinder::packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endCoord);
+      //std::unique_ptr<Action> myAction = GridPathFinder::packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endCoord);
+      Action myAction = GridPathFinder::packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endCoord);
 
 #ifdef STEP_STRUCT_METHOD
       // STEP STRUCT METHOD
       currentStep->fwdActions.push_back(std::move(myAction));
+      //currentStep->fwdActions.push_back(myAction);
 #else
       // STEP DATA METHOD
       stepData.insert(stepData.end(), myAction->data.begin(), myAction->data.end());
@@ -385,7 +400,7 @@ namespace pathfinder
       ++stepIndex;
     }
 
-    void handleArrow(std::pair<int, int> nextXY, Node *&newNode, Node *&openNode, Node *&closedNode)
+    void handleArrow(coord_t nextXY, Node *&newNode, Node *&openNode, Node *&closedNode)
     {
       if (!drawArrows)
         return;
@@ -406,7 +421,7 @@ namespace pathfinder
       // END OF ARROW
     }
 
-    void assignCellIndex(std::pair<int, int> xy)
+    void assignCellIndex(coord_t xy)
     {
       // index is the step index for the first expansion of that cell
       int x = xy.first;
@@ -453,12 +468,14 @@ namespace pathfinder
       return true;
     }
 
-    void generateReverseSteps(bool genState, int stateFreq = 0);
+    int maxStep(){
+      return steps.size() - 2;
+    }
+    bool generateReverseSteps(bool genState, int stateFreq);
     bool nextGenSteps(int givenBatchSize);
     std::unordered_map<Dest, std::pair<double, double>> getBounds();
-    Step getFwdStep();
-    Step getRevStep();
-    State getState();
+    Step getStep(int stepNo);
+    State getState(int stepNo);
   };
 }
 #endif

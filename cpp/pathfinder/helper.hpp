@@ -9,15 +9,16 @@
 #include <chrono>
 #include <cstdint>
 
+using coord_t = std::pair<int, int>;
 using row_t = std::vector<uint8_t>;
 using grid_t = std::vector<row_t>;
 using neighbors_t = std::vector<uint8_t>;
-using path_t = std::vector<std::pair<int, int>>;
+using path_t = std::vector<coord_t>;
 
 template <class T>
 class Empty2D{
   std::vector<std::vector<T>> data;
-  std::map<std::pair<int, int>, T> dataHashMap;
+  std::map<coord_t, T> dataHashMap;
   bool allowFloat;
 public:
   Empty2D(){
@@ -29,12 +30,12 @@ public:
       data = std::vector<std::vector<T>>(height, std::vector<T>(width, NULL));
   }
 
-  void set(std::pair<int, int> &xy, T item){
+  void set(coord_t &xy, T item){
     if(allowFloat) dataHashMap[{xy.first, xy.second}] = item;
     else data[xy.first][xy.second] = item;
   }
 
-  T get(std::pair<int, int> &xy){
+  T get(coord_t &xy){
     if(allowFloat) return dataHashMap[{xy.first, xy.second}];
     return data[xy.first][xy.second];
   }
@@ -65,12 +66,26 @@ double roundSF(double n, int sf){
   return roundDP(n, dp);
 }
 
-bool coordIsEqual(const std::pair<int, int> &c1, const std::pair<int, int> &c2){
+bool coordIsEqual(const coord_t &c1, const coord_t &c2){
   return c1.first == c2.first && c1.second == c2.second;
 }
 
-grid_t makeGrid(int height, int width){
-  return grid_t(height, row_t(width, 0));
+bool isArrayEqual(const std::array<int, 4> &e1, const std::array<int, 4> &e2){
+  return e1[0] == e2[0] && e1[1] == e2[1] && e1[2] == e2[2] && e1[3] == e2[3];
+}
+
+grid_t makeGrid(int height, int width, int defVal = 0){
+  return grid_t(height, row_t(width, defVal));
+}
+
+grid_t deepCopyGrid(const grid_t &grid){
+  grid_t ret = makeGrid(grid.size(), grid[0].size());
+  for(int i = 0; i < grid.size(); ++i){
+    for(int j = 0; j < grid[0].size(); ++j){
+      ret[i][j] = grid[i][j];
+    }
+  }
+  return ret;
 }
 
 #endif

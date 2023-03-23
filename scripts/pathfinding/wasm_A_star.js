@@ -1,5 +1,9 @@
 class wasm_A_star extends GridPathFinder{
 
+  static get wasm(){
+    return true;
+  }
+
 	static get display_name(){
 		return "A star (wasm)";
   }
@@ -52,6 +56,10 @@ class wasm_A_star extends GridPathFinder{
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
       {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`});
 		return configs;
+  }
+
+  max_step(){
+    return Module["maxStep"]();
   }
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise") {
@@ -128,6 +136,36 @@ class wasm_A_star extends GridPathFinder{
   }
 
   _finish_searching(){
+    // this uses the struct implementation of steps & actions in c++ wasm
+    console.log(Date.now() - myUI.startTime);
+    Module["printPath"]();/**/
+
+    function* vector_values(vector) {
+      for (let i = 0; i < vector.size(); i++)
+          yield vector.get(i);
+      vector.delete();
+    }
+    
+    console.log("getting cell map now");
+    this.cell_map = new Empty2D(0, 0, 0, Module["getCellMap"]());  // override using emscripten version
+
+    console.log("getting arrow coords now");
+    // since c++ cannot create arrows, we need to do it here
+    // possible to export the javascript create_arrow function, will do so after the c++ A* is finalized
+    let arrows = Module["getArrowCoords"]();
+    for(let i = 0; i < arrows.size(); ++i){
+      let arrow_data = [...vector_values(arrows.get(i))];
+      let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
+      myUI.create_arrow(start, end);
+    }
+    return this._terminate_search();
+  }
+
+  getStep(stepNo){
+    return Module["getStep"](stepNo);
+  }
+
+  _finish_searching_old(){
     console.log(Date.now() - myUI.startTime);
     Module["printPath"]();/**/
 

@@ -11,6 +11,7 @@
 #include <queue>
 
 #include "pathfinder.hpp"
+#include "step.hpp"
 
 #include "node.hpp"
 #include "rbt.hpp"
@@ -66,7 +67,7 @@ private:
     return std::min(dx, dy) * M_SQRT2 + abs(dx - dy);
   }
 
-  std::array<double, 3> calcCost(std::pair<int, int> nextXY)
+  std::array<double, 3> calcCost(coord_t nextXY)
   {
     const int curX = currentNode->coordX, curY = currentNode->coordY;
     const int nextX = nextXY.first, nextY = nextXY.second;
@@ -218,7 +219,7 @@ public:
 
       for (const int i : neighborsIndex)
       {
-        std::pair<int, int> nextXY;
+        coord_t nextXY;
         nextXY.first = currentNodeXY.first + delta[i][0];
         nextXY.second = currentNodeXY.second + delta[i][1];
         // std::cout << "next: " << nextXY.first << ' ' << nextXY.second << ' ' << std::endl;
@@ -279,9 +280,9 @@ public:
         Node* nextNode = new Node(nextXY.first, nextXY.second, currentNode, -1, fCost, gCost, hCost);
         currentNode->addChild(nextNode);
 
-        createAction(SetPixel, CanvasFCost, nextXY, -1, -1, -1, -1, {}, fCost);
-        createAction(SetPixel, CanvasGCost, nextXY, -1, -1, -1, -1, {}, gCost);
-        createAction(SetPixel, CanvasHCost, nextXY, -1, -1, -1, -1, {}, hCost);
+        createAction(SetPixel, CanvasFCost, nextXY, -1, -1, -1, 0, {}, fCost);
+        createAction(SetPixel, CanvasGCost, nextXY, -1, -1, -1, 0, {}, gCost);
+        createAction(SetPixel, CanvasHCost, nextXY, -1, -1, -1, 0, {}, hCost);
 
         int posInQueue = pq.push(nextNode);  //  2nd ownership
 

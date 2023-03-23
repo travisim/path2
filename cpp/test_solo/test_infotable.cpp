@@ -4,7 +4,7 @@
 #include "../pathfinder/infotable.hpp"
 
 int main() {
-    InfoTable table("exampleTable", 3);
+    InfoTable table(3);
     table.setTableHeader({"Column 1", "Column 2", "Column 3"});
     std::cout<<table.insertRowAtIndex(1, {"Value 1", "Value 2", "Value 3"})<<std::endl;
     std::cout<<table.insertRowAtIndex(2, {"Value 4", "Value 5", "Value 6"})<<std::endl;

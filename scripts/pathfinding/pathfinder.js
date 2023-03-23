@@ -4,6 +4,10 @@
 
 class GridPathFinder{
 
+	static get wasm(){
+    return false;
+  }
+
 	static get action_buffer(){return 5}
 
 	static get distance_metrics(){

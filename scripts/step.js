@@ -80,6 +80,11 @@ const statics_to_obj = {
 }
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
+  // wasm
+  if(myUI.planner.constructor.wasm){
+    return myUI.planner.getStep(anim_step);
+  }
+  // end of ++wasm
 	if(step_direction!="fwd") anim_step++;
 	let idx = myUI.step_data[step_direction].map[anim_step];
 	let nxIdx = myUI.step_data[step_direction].map[anim_step+1];
@@ -97,9 +102,45 @@ myUI.run_steps = function(num_steps, step_direction){
     else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
     else return;
 
+    // wasm
+    if(myUI.planner.constructor.wasm){
+      if(step_direction!="fwd") ++myUI.animation.step;
+    }
+    // end of ++wasm
+
     let step = myUI.get_step(myUI.animation.step, step_direction);
 
-    //console.log(step, 'step');
+    // wasm
+    if(myUI.planner.constructor.wasm){
+      if(step_direction!="fwd") --myUI.animation.step;
+      let actions = step_direction == "fwd" ? step["fwdActions"] : step["revActions"];
+      let i = step_direction == "fwd" ? 0 : actions.size() - 1; // reverse iteration for reverse actions
+      while(i >= 0 && i < actions.size()){
+        function* vector_values(vector) {
+          for (let i = 0; i < vector.size(); i++)
+              yield vector.get(i);
+          vector.delete();
+        }
+        let action = actions.get(i);
+        let command = action.command;
+        let dest = action.dest == -1 ? undefined : action.dest;
+        let x = action.nodeCoord.x == -1 ? undefined : action.nodeCoord.x;
+        let y = action.nodeCoord.y == -1 ? undefined : action.nodeCoord.y;
+        let colorIndex = action.colorIndex == -1 ? undefined : action.colorIndex;
+        let arrowIndex = action.arrowIndex == -1 ? undefined : action.arrowIndex;
+        let pseudoCodeRow = action.pseudoCodeRow == -1 ? undefined : action.pseudoCodeRow;
+        let infoTableRowIndex = action.infoTableRowIndex == 0 ? undefined : action.infoTableRowIndex;
+        let infoTableRowData = action.infoTableRowData.size() == 0 ? undefined : [...vector_values(action.infoTableRowData)];
+        let cellVal = action.cellVal == -1 ? undefined : action.cellVal;
+        let endX = action.endCoord.x == -1 ? undefined : action.endCoord.x;
+        let endY = action.endCoord.y == -1 ? undefined : action.endCoord.y;
+
+        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);
+        if(step_direction == "fwd") ++i; else --i;
+      }
+      continue;
+    }
+    // end of ++wasm
     let i=0;
     while(i<step.length){
       // this is implementation specific for compressed actions
@@ -107,104 +148,108 @@ myUI.run_steps = function(num_steps, step_direction){
       while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), true);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
-      try{
-      if(command==STATIC.DSP){
-        myUI.canvases[statics_to_obj[dest]].erase_canvas();
-        if(cellVal===undefined) cellVal = 1;
-        myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
-      }
-      else if(command==STATIC.EC){
-        myUI.canvases[statics_to_obj[dest]].erase_canvas();
-      }
-      else if(command==STATIC.DP || command==STATIC.SP){
-        if(cellVal===undefined) cellVal = 1;
-        myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
-      }
-      else if(command==STATIC.EP){
-          myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y]);
-      }
-      else if(command==STATIC.INC_P){
-          myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc");
-      }
-      else if(command==STATIC.DEC_P){
-          myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec");
-      }
-      else if(command==STATIC.DA){
-        // draw arrow
-        myUI.arrow.elems[arrowIndex].classList.remove("hidden");
-        myUI.arrow.elems[arrowIndex].style.fill = myUI.arrow.colors[colorIndex];
-      }
-      else if(command==STATIC.EA){
-        // erase arrow
-        myUI.arrow.elems[arrowIndex].classList.add("hidden");
-      }
-      // INFOMAP
-      if(dest==STATIC.CR && (command==STATIC.DP || command==STATIC.DSP || command==STATIC.DrawSpecialVertex)){
-        myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
-      }
-      // INFOTABLE 
-      if(command==STATIC.InsertRowAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
-      }
-      if(command==STATIC.EraseAllRows){
-        myUI.InfoTables[statics_to_obj[dest]].removeAllTableRows(); 
-      }
-      else if(command==STATIC.EraseRowAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
-      }
-      else if(command==STATIC.UpdateRowAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
-      }
-      else if(command==STATIC.SetHighlightAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].setHighlightAtIndex(infoTableRowIndex); 
-      }
-      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
-        myUI.PseudoCode.highlightPri(pseudoCodeRow);
-      }  
-      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
-        myUI.PseudoCode.highlightSec(pseudoCodeRow);
-      }  /* */  
-      if(command == STATIC.DrawVertex){
-        let color = myUI.canvases[statics_to_obj[dest]].fillColor;
-        myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
-      }
-      else if(command == STATIC.EraseVertex){
-        myUI.nodeCanvas.eraseCircle([x,y], dest);
-      } 
-      else if(command == STATIC.EraseAllVertex){
-        myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
-      } 
-      else if(command == STATIC.DrawSingleVertex){
-        myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
-        let color = myUI.canvases[statics_to_obj[dest]].fillColor;
-        myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
-      }
-      else if(command == STATIC.DrawEdge){
-        let color = myUI.canvases[statics_to_obj[dest]]?.fillColor;
-        myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest);
-      }
-      else if(command == STATIC.EraseEdge){
-        myUI.edgeCanvas.eraseLine([x,y], [endX,endY], dest);
-        console.log("removing EDGE");
-      }
-      else if(command == STATIC.EraseAllEdge){
-        myUI.edgeCanvas.eraseAllLines(dest);
-      }
-
-      }catch(e){
-        if(dest!=STATIC.PC && command!=STATIC.DA && command!=STATIC.EA){
-          console.log(e);
-          console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
-          debugger;
-        }
-      }
+      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);
       
       i=j;
     }
     if(myUI.map_width<=64 && myUI.map_height<=64 && myUI.currentCoord) 
       myUI.updateInfoMap(myUI.planner.infoMapPlannerMode(),...myUI.currentCoord);
+  }
+}
+
+myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY){
+  try{
+  if(command==STATIC.DSP){
+    myUI.canvases[statics_to_obj[dest]].erase_canvas();
+    if(cellVal===undefined) cellVal = 1;
+    myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
+  }
+  else if(command==STATIC.EC){
+    myUI.canvases[statics_to_obj[dest]].erase_canvas();
+  }
+  else if(command==STATIC.DP || command==STATIC.SP){
+    if(cellVal===undefined) cellVal = 1;
+    myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
+  }
+  else if(command==STATIC.EP){
+      myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y]);
+  }
+  else if(command==STATIC.INC_P){
+      myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc");
+  }
+  else if(command==STATIC.DEC_P){
+      myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec");
+  }
+  else if(command==STATIC.DA){
+    // draw arrow
+    myUI.arrow.elems[arrowIndex].classList.remove("hidden");
+    myUI.arrow.elems[arrowIndex].style.fill = myUI.arrow.colors[colorIndex];
+  }
+  else if(command==STATIC.EA){
+    // erase arrow
+    myUI.arrow.elems[arrowIndex].classList.add("hidden");
+  }
+  // INFOMAP
+  if(dest==STATIC.CR && (command==STATIC.DP || command==STATIC.DSP || command==STATIC.DrawSpecialVertex)){
+    myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
+  }
+  // INFOTABLE 
+  if(command==STATIC.InsertRowAtIndex){
+    myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
+  }
+  if(command==STATIC.EraseAllRows){
+    myUI.InfoTables[statics_to_obj[dest]].removeAllTableRows(); 
+  }
+  else if(command==STATIC.EraseRowAtIndex){
+    myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
+  }
+  else if(command==STATIC.UpdateRowAtIndex){
+    myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
+  }
+  else if(command==STATIC.SetHighlightAtIndex){
+    myUI.InfoTables[statics_to_obj[dest]].setHighlightAtIndex(infoTableRowIndex); 
+  }
+  if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
+    myUI.PseudoCode.highlightPri(pseudoCodeRow);
+  }  
+  if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
+    myUI.PseudoCode.highlightSec(pseudoCodeRow);
+  }  /* */  
+  if(command == STATIC.DrawVertex){
+    let color = myUI.canvases[statics_to_obj[dest]].fillColor;
+    myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
+  }
+  else if(command == STATIC.EraseVertex){
+    myUI.nodeCanvas.eraseCircle([x,y], dest);
+  } 
+  else if(command == STATIC.EraseAllVertex){
+    myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
+  } 
+  else if(command == STATIC.DrawSingleVertex){
+    myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
+    let color = myUI.canvases[statics_to_obj[dest]].fillColor;
+    myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
+  }
+  else if(command == STATIC.DrawEdge){
+    let color = myUI.canvases[statics_to_obj[dest]]?.fillColor;
+    myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest);
+  }
+  else if(command == STATIC.EraseEdge){
+    myUI.edgeCanvas.eraseLine([x,y], [endX,endY], dest);
+    console.log("removing EDGE");
+  }
+  else if(command == STATIC.EraseAllEdge){
+    myUI.edgeCanvas.eraseAllLines(dest);
+  }
+
+  }catch(e){
+    if(dest!=STATIC.PC && command!=STATIC.DA && command!=STATIC.EA){
+      console.log(e);
+      console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
+      debugger;
+    }
   }
 }
 
@@ -235,6 +280,28 @@ myUI.run_combined_step = function(step_direction){
 }
 
 myUI.generateReverseSteps = function({genStates=false}={}){
+  const batchSize=100, batchInterval = 0;
+  const stateFreq = myUI.stateFreq;
+
+  // wasm
+  if(myUI.planner.constructor.wasm){
+    Module["genSteps"](genStates, stateFreq);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
+    });
+
+    function nextGenSteps(batchSize){
+      let finished = Module["nextGenSteps"](batchSize);
+      if(!finished) return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
+      });
+      console.log("finished generating wasm steps!");
+    }
+  }
+  myUI.step_data.fwd.data = myUI.planner.steps_data;
+  myUI.step_data.fwd.map = myUI.planner.step_index_map;
+  myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
+  // end of ++wasm
 	let steps = myUI.step_data.fwd.data,
 		indexMap = myUI.step_data.fwd.map, 
 		combinedMap = myUI.step_data.fwd.combined;
@@ -243,7 +310,6 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   myUI.step_data.bck.map = [];
 	myUI.step_data.bck.combined = [];
   console.log("myUI.stateFreq:",myUI.stateFreq);
-  const stateFreq = myUI.stateFreq;
   if(genStates)  myUI.states = [stateFreq];
 	let stepCnt=0;
 	let revCombinedCnt = 0;
@@ -256,8 +322,6 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   const statusUpdate = setInterval(function(){
     document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
   }, 200);
-
-  const batchSize=100, batchInterval = 0;
 
   return new Promise((resolve, reject) => {
     setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
@@ -290,7 +354,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), true);
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
         let action = [];
         var includeAction = true;

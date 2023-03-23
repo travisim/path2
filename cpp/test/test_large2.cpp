@@ -11,18 +11,23 @@ int main(){
 
   std::cout<<"starting"<<std::endl;
   uint64_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-  bool finished = planner.search(grid, 125, 10, 127, 198, neighborsIndex, false, false, false, pathfinder::Octile, pathfinder::FIFO);
+  //bool finished = planner.search(grid, 125, 10, 127, 198, neighborsIndex, false, false, false, pathfinder::Octile, pathfinder::FIFO);
+  bool finished = planner.search(grid, 125, 10, 130, 130, neighborsIndex, false, false, false, pathfinder::Octile, pathfinder::FIFO);
 
   while(!finished){
     finished = planner.runNextSearch();
   }
-  uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-  std::cout<<"Total time: "<<now - start<<"ms"<<std::endl;
+  uint64_t endSearch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  std::cout<<"Search time: "<<endSearch - start<<"ms"<<std::endl;
   path_t path = planner.path;
 
-  for(long unsigned int i = 0; i < path.size(); ++i){
-    //std::cout<<path[i].first<<','<<path[i].second<<std::endl;
+  finished = planner.generateReverseSteps(true, 100);
+  while(!finished){
+    finished = planner.nextGenSteps(1000);
   }
+
+  uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  std::cout<<"Optimization time: "<<now - endSearch<<"ms"<<std::endl;
 
   return 0;
 }
