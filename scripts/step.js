@@ -116,11 +116,6 @@ myUI.run_steps = function(num_steps, step_direction){
       let actions = step_direction == "fwd" ? step["fwdActions"] : step["revActions"];
       let i = step_direction == "fwd" ? 0 : actions.size() - 1; // reverse iteration for reverse actions
       while(i >= 0 && i < actions.size()){
-        function* vector_values(vector) {
-          for (let i = 0; i < vector.size(); i++)
-              yield vector.get(i);
-          vector.delete();
-        }
         let action = actions.get(i);
         let command = action.command;
         let dest = action.dest == -1 ? undefined : action.dest;
@@ -280,28 +275,52 @@ myUI.run_combined_step = function(step_direction){
 }
 
 myUI.generateReverseSteps = function({genStates=false}={}){
-  const batchSize=100, batchInterval = 0;
+  const batchSize=10000, batchInterval = 0;
   const stateFreq = myUI.stateFreq;
+  
+  console.log("myUI.stateFreq:",myUI.stateFreq);
+  if(genStates)  myUI.states = [stateFreq];
 
   // wasm
   if(myUI.planner.constructor.wasm){
     Module["genSteps"](genStates, stateFreq);
+    let cnt = 0;
+
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
     });
-
+    
     function nextGenSteps(batchSize){
-      let finished = Module["nextGenSteps"](batchSize);
-      if(!finished) return new Promise((resolve, reject) => {
-        setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
-      });
-      console.log("finished generating wasm steps!");
+      let finished;
+      try{
+        document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(cnt++ * batchSize / myUI.planner.max_step() * 100).toPrecision(3)}%`;
+        finished = Module["nextGenSteps"](batchSize);
+        if(!finished) return new Promise((resolve, reject) => {
+          setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
+        });
+        console.log("finished generating wasm steps!");
+        let bounds_cpp = Module["getBounds"]();
+        let bounds = map_to_obj(bounds_cpp);
+        for(let k of Object.keys(bounds)) bounds[k] = [bounds[k].min, bounds[k].max];
+        return finishGenerating(bounds, false);
+      }
+      catch(e){
+        let t = Date.now() - myUI.genStart;
+        let n = Module["getNumStates"]();
+        console.log(t);
+        console.log(e);
+        console.log("Number of states before error: ", n);
+        console.log(n/t);
+        alert("Something went wrong during state generation");
+        return;
+      }
     }
   }
+  // end of ++wasm
   myUI.step_data.fwd.data = myUI.planner.steps_data;
   myUI.step_data.fwd.map = myUI.planner.step_index_map;
   myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
-  // end of ++wasm
+
 	let steps = myUI.step_data.fwd.data,
 		indexMap = myUI.step_data.fwd.map, 
 		combinedMap = myUI.step_data.fwd.combined;
@@ -309,13 +328,12 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   myUI.step_data.bck.data = [];
   myUI.step_data.bck.map = [];
 	myUI.step_data.bck.combined = [];
-  console.log("myUI.stateFreq:",myUI.stateFreq);
-  if(genStates)  myUI.states = [stateFreq];
 	let stepCnt=0;
 	let revCombinedCnt = 0;
 
   //let mem = {canvasCoords:{}, drawSinglePixel:{}, fullCanvas:{}, arrowColor:{}, bounds:{}};
   let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}, edges:{}};
+  myUI.mem = mem;
   Object.values(myUI.canvases).forEach(canvas=>canvas.init_virtual_canvas());
   document.querySelector("#info-tables-dynamic").style.display = "none";
 
@@ -327,22 +345,23 @@ myUI.generateReverseSteps = function({genStates=false}={}){
     setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
   });
 
-  function finishGenerating(){
-    for(const [dest, bounds] of Object.entries(mem.bounds)){
-      if(myUI.canvases[statics_to_obj[dest]].minVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("min", bounds[0]);
-      if(myUI.canvases[statics_to_obj[dest]].maxVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("max", bounds[1]);
+  function finishGenerating(bounds, clearUpdate = true){
+    console.log(bounds);
+    for(const [dest, bound] of Object.entries(bounds)){
+      myUI.canvases[statics_to_obj[dest]].setValueBounds("min", bound[0]);
+      myUI.canvases[statics_to_obj[dest]].setValueBounds("max", bound[1]);
     }
     document.querySelector("#info-tables-dynamic").style.display = "flex";
     myUI.reset_animation();
-    myUI.mem = mem;
-    clearInterval(statusUpdate);
+    if(clearUpdate)
+      clearInterval(statusUpdate);
   }
 
   function nextGenSteps(nxtSize){
     while(nxtSize--){
-      if(stepCnt==indexMap.length) return finishGenerating();
+      if(stepCnt==indexMap.length) return finishGenerating(mem.bounds);
       let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
-      if(isNaN(step[0])) return finishGenerating();
+      if(isNaN(step[0])) return finishGenerating(mem.bounds);
       let i=0;
       myUI.step_data.bck.map.push(myUI.step_data.bck.data.length);
       let curStep = [];
@@ -362,8 +381,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         // saving minmax
         if(cellVal!==undefined && myUI.canvases[statics_to_obj[dest]].valType=="float"){
           mem.bounds[dest] = mem.bounds[dest] || [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
-          if(myUI.canvases[statics_to_obj[dest]].minVal==null) mem.bounds[dest][0] = Math.min(mem.bounds[dest][0], cellVal);
-          if(myUI.canvases[statics_to_obj[dest]].maxVal==null) mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
+          mem.bounds[dest][0] = Math.min(mem.bounds[dest][0], cellVal);
+          mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
         }
 
         if(x!==undefined || command===STATIC.EC){
@@ -623,7 +642,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 
       if(genStates && stepCnt%stateFreq==0){
         if(stepCnt/stateFreq % 100==0) console.log("State", stepCnt/stateFreq);
-        let nextState = {canvas:{}, infotables:{}, vertices:{}, edges:{}};
+        let nextState = {canvases:{}, infotables:{}, vertices:{}, edges:{}};
         // canvas
         for(const canvas of Object.values(mem.activeCanvas)){
           if(canvas===undefined){
@@ -631,7 +650,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             continue;
           }
           if(canvas.valType=="float"){
-            nextState.canvas[canvas.id] = deep_copy_matrix(canvas.virtualCanvas, false, true);
+            nextState.canvases[canvas.id] = deep_copy_matrix(canvas.virtualCanvas, false, true);
           }
           else{
             /*
@@ -639,7 +658,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             else var mat = NBitMatrix.compress_matrix(canvas.virtualCanvas, canvas.maxVal);*/
             //if(canvas.id=="visited") debugger;
             let mat = NBitMatrix.compress_matrix(canvas.virtualCanvas, canvas.maxVal);
-            nextState.canvas[canvas.id] = mat.get_truncated_data();
+            nextState.canvases[canvas.id] = mat.get_truncated_data();
           }
         };
         // arrow
@@ -715,7 +734,7 @@ myUI.jump_to_step = function(target_step){
     draw state to whatever
   run the remaning steps
   */
-  target_step = target_step===undefined ? myUI.animation.step : target_step;
+  target_step = target_step===undefined ? myUI.animation.step : Number(target_step);
   myUI.target_step = target_step;
   let idx = 0;
   for(const table of Object.values(myUI.InfoTables)) table.removeAllTableRows();
@@ -731,21 +750,38 @@ myUI.jump_to_step = function(target_step){
   // if state exists
   if(target_step>=stateFreq){
     idx = Math.floor(target_step/stateFreq);
-    let state = myUI.states[idx];
+    let state = myUI.planner.constructor.wasm ? Module["getState"](target_step) : myUI.states[idx];
+  
     // arrows
-    for(const [arrowId, colorId] of Object.entries(state.arrowColor)){
+    let arrows = myUI.planner.constructor.wasm ? map_to_obj(state.arrowColor) : state.arrowColor ;
+    for(const [arrowId, colorId] of Object.entries(arrows)){
       myUI.arrow.elems[arrowId].classList.remove("hidden");
       myUI.arrow.elems[arrowId].style.fill = myUI.arrow.colors[colorId];
     }
 
     // infotables
-    for(const [tableId, tableData] of Object.entries(state.infotables)){
-      myUI.InfoTables[tableId].removeAllTableRows();
-      myUI.InfoTables[tableId].highlightRow = tableData[0];
-      const rowSize = tableData[1];
-      for(let i=2;i<tableData.length;i+=rowSize){
-        let idx = -myUI.InfoTables[tableId].rows.length-1;
-        myUI.InfoTables[tableId].insertRowAtIndex(idx, tableData.slice(i, i+rowSize));
+    if(myUI.planner.constructor.wasm){
+      for(const [tableDest, tableState] of Object.entries(map_to_obj(state.infotables))){
+        const tableId = statics_to_obj[tableDest];
+        const generator = vector_values(tableState.rows);
+        let nxt = generator.next();
+        while(!nxt.done){
+          let row = [...vector_values(nxt.value)];
+          myUI.InfoTables[tableId].insertRowAtIndex(1, row);
+          nxt = generator.next();
+        }
+        myUI.InfoTables[tableId].setHighlightAtIndex(tableState.highlightedRow);
+      }
+    }
+    else{
+      for(const [tableId, tableData] of Object.entries(state.infotables)){
+        myUI.InfoTables[tableId].removeAllTableRows();
+        const rowSize = tableData[1];
+        for(let i=2;i<tableData.length;i+=rowSize){
+          let idx = -myUI.InfoTables[tableId].rows.length-1;
+          myUI.InfoTables[tableId].insertRowAtIndex(idx, tableData.slice(i, i+rowSize));
+        }
+        myUI.InfoTables[tableId].setHighlightAtIndex(tableData[0]);
       }
     }
     // pseudocode
@@ -758,29 +794,54 @@ myUI.jump_to_step = function(target_step){
     }
 
     // free vertices
-    for(const [dest, vertices] of Object.entries(state.vertices)){
-      if(dest == STATIC.QU) console.log(vertices.length);
-      
-      for(coord of vertices)
+    let vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices ;
+    for(let [dest, coordArray] of Object.entries(vertices)){
+      if(myUI.planner.constructor.wasm) coordArray = [...vector_values(coordArray)];
+      for(coord of coordArray){
+        if(myUI.planner.constructor.wasm) coord = [coord.x, coord.y];
         myUI.nodeCanvas.drawCircle(coord, dest);
-    
+      }
     }
 
     // free edge
-    for(const [dest, edges] of Object.entries(state.edges))
-      for(line of edges)
+    let edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges ;
+    for(const [dest, edgeArray] of Object.entries(edges)){
+      if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
+      for(line of edgeArray){
+        if(myUI.planner.constructor.wasm) line = [line.get(0), line.get(1), line.get(2), line.get(3)];
         myUI.edgeCanvas.drawLine([line[0], line[1]], [line[2], line[3]], dest);
+      }
+    }
     
 
     // canvases
-
-    let canvasesToDraw = Object.entries(state.canvas);
+    let canvases = myUI.planner.constructor.wasm ? map_to_obj(state.canvases) : state.canvases;
+    let canvasesToDraw = Object.entries(canvases);
     function drawNextCanvas(canvasNo){
       if(canvasNo==-1) return -1;
       if(canvasNo==canvasesToDraw.length) return finishJumping();
-      let [id,data] = canvasesToDraw[canvasNo];
+      let [dest,data] = canvasesToDraw[canvasNo];
+      let id = myUI.planner.constructor.wasm ? statics_to_obj[dest] : dest;
       document.getElementById("compute_btn").children[0].innerHTML = `drawing ${id}...`;
-      if(data.constructor==Array) var toDraw = data; // for 2d arrays (floats, etc.)
+      if(myUI.planner.constructor.wasm){
+        if(data.$$.ptrType.name == "canvas*"){
+          let coords = [...vector_values(data.keys())];
+          var toDraw = {};
+          for(let coord of coords){
+            toDraw[coord.x * myUI.canvases[id].data_width + coord.y] = data.get(coord);
+          }
+        }
+        else{
+          var toDraw = [];
+          const gen = vector_values(data);
+          let n = gen.next();
+          while(!n.done){
+            toDraw.push([...vector_values(n.value)]);
+            n = gen.next();
+          }
+        }
+      }
+      else if(data.constructor==Array) var toDraw = data; // for 2d arrays (floats, etc.)
       else var toDraw = NBitMatrix.expand_2_matrix(data);
       return myUI.canvases[id].draw_canvas_recursive(toDraw, canvasNo, target_step);
     }

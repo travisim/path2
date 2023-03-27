@@ -326,6 +326,15 @@ class UICanvas{
   }
 
   draw_canvas_recursive(array_data, canvasNo, target_step){
+    if(array_data.constructor == Object){
+      for(let [coord, val] of Object.entries(array_data)){
+        let x = Math.floor(coord / this.data_width);
+        let y = coord - x * this.data_width;
+        if(this.valType == "float") this.draw_pixel([x,y], false, val);
+       else this.draw_pixel([x,y], false, val, val - 1);
+      }
+      return new Promise((resolve, reject)=>setTimeout(resolve(canvasNo + 1), 0));
+    }
     var canvas = this;
     function draw_line(r){
       const lineRate = 30;

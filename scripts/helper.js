@@ -539,3 +539,26 @@ class NBitMatrix{
 		return new this.constructor.data_arr(arr);
 	}
 }
+
+function* vector_values(vector) {
+	for (let i = 0; i < vector.size(); i++)
+			yield vector.get(i);
+	vector.delete();
+}
+
+function* map_entries(map){
+	for(let i = 0; i < map.size(); ++i){
+		let k = map.keys().get(i);
+		yield [k, map.get(k)];
+	}
+	map.delete();
+}
+
+function map_to_obj(map){
+	let obj = {};
+	for(let i = 0; i < map.size(); ++i){
+		let k = map.keys().get(i);
+		obj[k] = map.get(k);
+	}
+	return obj;
+}

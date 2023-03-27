@@ -72,7 +72,7 @@ private:
     const int curX = currentNode->coordX, curY = currentNode->coordY;
     const int nextX = nextXY.first, nextY = nextXY.second;
     const int goalX = goal.first, goalY = goal.second;
-    const int curG = currentNode->gCost;
+    const double curG = currentNode->gCost;
 
     double gCost, hCost;
     if (chosenCost == Manhattan)
@@ -284,7 +284,7 @@ public:
         createAction(SetPixel, CanvasGCost, nextXY, -1, -1, -1, 0, {}, gCost);
         createAction(SetPixel, CanvasHCost, nextXY, -1, -1, -1, 0, {}, hCost);
 
-        int posInQueue = pq.push(nextNode);  //  2nd ownership
+        int posInQueue = pq.push(nextNode);
 
         if (!bigMap)
         {

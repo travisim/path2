@@ -173,7 +173,7 @@ class A_star extends GridPathFinder{
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
       this.open_list.set(this.current_node_XY, undefined); // remove from open list
 
-      if(this.step_index % 100==0) console.log(`F: ${this.current_node.f_cost.toPrecision(5)}, H: ${this.current_node.h_cost.toPrecision(5)}`);
+      if(this.step_index % 10000==0) console.log(`F: ${this.current_node.f_cost.toPrecision(5)}, H: ${this.current_node.h_cost.toPrecision(5)}`);
       
       /* first check if visited */
       if (this.closed_list.get(this.current_node_XY) && this.closed_list.get(this.current_node_XY).f_cost <= this.current_node.f_cost){

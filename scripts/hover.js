@@ -59,9 +59,9 @@ myUI.handle_map_hover = function(e){
 myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
 
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
-	let [scaled_x, scaled_y] = myUI.scale_coord(e.offsetY, e.offsetX);
-	if(cellIsValid([scaled_x, scaled_y])){
-		myUI.animation.step = stepIdx;
+	let xy = myUI.scale_coord(e.offsetY, e.offsetX);
+	if(cellIsValid(xy)){
+		myUI.animation.step = myUI.planner.cell_map.get(xy);
 		myUI.jump_to_step();
 	}
 });

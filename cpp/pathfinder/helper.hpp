@@ -8,12 +8,32 @@
 #include <map>
 #include <chrono>
 #include <cstdint>
+#include <unordered_map>
 
 using coord_t = std::pair<int, int>;
+using line_t = std::array<int, 4>;
 using row_t = std::vector<uint8_t>;
 using grid_t = std::vector<row_t>;
+using rowf_t = std::vector<double>;
+using gridf_t = std::vector<rowf_t>;
 using neighbors_t = std::vector<uint8_t>;
 using path_t = std::vector<coord_t>;
+using bound_t = std::pair<double, double>;
+
+struct CoordDoubleHash {
+  std::size_t operator()(const std::pair<double, double>& p) const {
+    return std::hash<double>()(p.first) ^ std::hash<double>()(p.second);
+  }
+};
+struct CoordIntHash {
+  std::size_t operator()(const coord_t& p) const {
+    size_t a = std::hash<int>()(p.first);
+    size_t b = std::hash<int>()(p.second);
+    return a >= b ? a * a + a + b : a + b * b;
+  }
+};
+
+using state_canvas_t = std::unordered_map<coord_t, double, CoordIntHash>;
 
 template <class T>
 class Empty2D{
@@ -70,7 +90,7 @@ bool coordIsEqual(const coord_t &c1, const coord_t &c2){
   return c1.first == c2.first && c1.second == c2.second;
 }
 
-bool isArrayEqual(const std::array<int, 4> &e1, const std::array<int, 4> &e2){
+bool isArrayEqual(const line_t &e1, const line_t &e2){
   return e1[0] == e2[0] && e1[1] == e2[1] && e1[2] == e2[2] && e1[3] == e2[3];
 }
 
@@ -78,14 +98,8 @@ grid_t makeGrid(int height, int width, int defVal = 0){
   return grid_t(height, row_t(width, defVal));
 }
 
-grid_t deepCopyGrid(const grid_t &grid){
-  grid_t ret = makeGrid(grid.size(), grid[0].size());
-  for(int i = 0; i < grid.size(); ++i){
-    for(int j = 0; j < grid[0].size(); ++j){
-      ret[i][j] = grid[i][j];
-    }
-  }
-  return ret;
+gridf_t makeGridf(int height, int width, double defVal = 0){
+  return gridf_t(height, rowf_t(width, defVal));
 }
 
 #endif

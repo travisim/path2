@@ -21,15 +21,6 @@ namespace pathfinder
 
   extern int created, destroyed;
 
-#ifndef STEP_STRUCT_METHOD
-  struct Action
-  {
-    std::vector<int> data;
-    std::vector<std::string> infoTableRowData;
-    Action(std::vector<int> data, std::vector<std::string> infoTableRowData) : data(data), infoTableRowData(infoTableRowData) {}
-  };
-#endif
-
   class GridPathFinder
   {
   public:
@@ -64,13 +55,12 @@ namespace pathfinder
 
     // additional stuff that is not in js
     std::vector<std::vector<std::string>> ITRowDataCache;
+    std::vector<double> cellVals;
     std::vector<std::vector<int>> arrowCoords;
 
-#ifdef STEP_STRUCT_METHOD
     // STEP STRUCT METHOD
     std::vector<std::unique_ptr<Step>> steps;
     std::unique_ptr<Step> currentStep;
-#endif
 
     // STEP DATA METHOD
     std::vector<int> actionCache;
@@ -182,14 +172,13 @@ namespace pathfinder
       {
         ++idx;
         actionCache[0] |= (1 << 7);
-        actionCache.push_back(-1); // signalling to increment infotableRowData
-        // ITRowDataCache.push_back(infoTableRowData);
+        actionCache.push_back(-7); // placeholder to maintain consistency with JS version
       }
       if (cellVal != -1)
       {
         ++idx;
         actionCache[0] |= (1 << 8);
-        actionCache.push_back(cellVal << 1);
+        actionCache.push_back(-8); // placeholder to maintain consistency with JS version
       }
       if (endCoord.first != -1 && endCoord.second != -1)
       {
@@ -202,7 +191,7 @@ namespace pathfinder
         // overload the createAction method? idk
       }
 
-      return make_unique<Action>(actionCache, infoTableRowData);
+      return Action{actionCache, infoTableRowData, cellVal};
 #endif
     }
 
@@ -214,7 +203,7 @@ namespace pathfinder
 #endif
     }
 
-    void initSearch(grid_t &grid, coord_t start, coord_t goal, neighbors_t &neighborsIndex, bool vertexEnabled, bool bigMap, bool diagonalAllow)
+    void initSearch(grid_t &grid, coord_t start, coord_t goal, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap)
     {
       gridHeight = grid.size();
       gridWidth = grid[0].size();
@@ -250,6 +239,8 @@ namespace pathfinder
       this->neighborsIndex = neighborsIndex;
       this->vertexEnabled = vertexEnabled;
       this->bigMap = bigMap;
+      if(bigMap) std::cout<<"BIGMAP IS ON\n";
+      else std::cout<<"BIGMAP IS OFF\n";
 
       // clearSteps
       arrowCnt = 0;
@@ -259,7 +250,10 @@ namespace pathfinder
       stepData.clear();
       stepIndexMap.clear();
       combinedIndexMap.clear();
+      steps.clear();
+      states.clear();
       ITRowDataCache.clear();
+      cellVals.clear();
       arrowCoords.clear();
       drawArrows = gridHeight <= 65 && gridWidth <= 65;
 
@@ -369,10 +363,9 @@ namespace pathfinder
       //currentStep->fwdActions.push_back(myAction);
 #else
       // STEP DATA METHOD
-      stepData.insert(stepData.end(), myAction->data.begin(), myAction->data.end());
-      if (infoTableRowData.size() > 0)
-        ITRowDataCache.push_back(myAction->infoTableRowData);
-      delete myAction;
+      stepData.insert(stepData.end(), myAction.data.begin(), myAction.data.end());
+      if(infoTableRowData.size() > 0) ITRowDataCache.push_back(infoTableRowData);
+      if(cellVal != -1) cellVals.push_back(cellVal);
 #endif
     }
 
@@ -469,10 +462,16 @@ namespace pathfinder
     }
 
     int maxStep(){
+#ifdef STEP_STRUCT_METHOD
       return steps.size() - 2;
+#else
+      return stepIndexMap.size() - 2;
+#endif
     }
+#ifdef STEP_STRUCT_METHOD
     bool generateReverseSteps(bool genState, int stateFreq);
     bool nextGenSteps(int givenBatchSize);
+#endif
     std::unordered_map<Dest, std::pair<double, double>> getBounds();
     Step getStep(int stepNo);
     State getState(int stepNo);

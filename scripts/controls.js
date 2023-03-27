@@ -73,7 +73,13 @@ myUI.sliders.search_progress_slider.elem.addEventListener("input",function(){
 
 myUI.sliders.state_freq_slider.elem.addEventListener("input",function(){
 	myUI.stateFreq = Number(this.value);
-	myUI.sliders.state_freq_slider.label.innerHTML = this.value;
+	myUI.sliders.state_freq_slider.label.value = this.value;
+});
+
+myUI.sliders.state_freq_slider.label.addEventListener("input",function(){
+	if(this.value == "") return;
+	myUI.stateFreq = Number(this.value);
+	myUI.sliders.state_freq_slider.elem.value = this.value;
 });
 
 myUI.reset_animation = function(clear_data = false){

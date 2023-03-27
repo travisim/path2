@@ -1,7 +1,7 @@
 class wasm_A_star extends GridPathFinder{
 
   static get wasm(){
-    return true;
+    return false;
   }
 
 	static get display_name(){
@@ -117,7 +117,10 @@ class wasm_A_star extends GridPathFinder{
     let finished;
     try{
       finished = Module["AStarRunNextSearch"](this.batch_size);
-      if(finished) return this._finish_searching();
+      if(finished){
+        if(this.constructor.wasm) return this._finish_searching();
+        return this._finish_searching_old();
+      }
       let planner = this;
       return new Promise((resolve, reject) => {
         setTimeout(() => resolve(planner._run_next_search()), planner.batch_interval);
@@ -130,21 +133,16 @@ class wasm_A_star extends GridPathFinder{
       console.log(e);
       console.log("Number of steps before error: ",n);
       console.log(n/t);
-      return this._finish_searching();
+      alert("Something went wrong during searching");
+      if(this.constructor.wasm) return this._finish_searching();
+      return this._finish_searching_old();
     }
-    
   }
 
   _finish_searching(){
     // this uses the struct implementation of steps & actions in c++ wasm
     console.log(Date.now() - myUI.startTime);
     Module["printPath"]();/**/
-
-    function* vector_values(vector) {
-      for (let i = 0; i < vector.size(); i++)
-          yield vector.get(i);
-      vector.delete();
-    }
     
     console.log("getting cell map now");
     this.cell_map = new Empty2D(0, 0, 0, Module["getCellMap"]());  // override using emscripten version
@@ -169,12 +167,6 @@ class wasm_A_star extends GridPathFinder{
     console.log(Date.now() - myUI.startTime);
     Module["printPath"]();/**/
 
-    function* vector_values(vector) {
-      for (let i = 0; i < vector.size(); i++)
-          yield vector.get(i);
-      vector.delete();
-    }
-    
     // postProcess
     console.log("getting steps now");
     this.steps_data = [...vector_values(Module["getStepData"]())];
@@ -191,8 +183,18 @@ class wasm_A_star extends GridPathFinder{
     let idx = 0;
     
     for(let i = 0; i < rows.size(); ++i){
-      while(this.steps_data[idx] != -1 && idx < this.steps_data.length) idx++;
+      while(this.steps_data[idx] != -7 && idx < this.steps_data.length) idx++;
       this.steps_data[idx] = [...vector_values(rows.get(i))];
+    }
+
+    console.log("getting cellVal now");
+    // since vector<int> doesn't allow for doubles or floats, we need to add the cellVals back to the steps
+    let vals = Module["getCellVals"]();
+    idx = 0;
+    
+    for(let i = 0; i < vals.size(); ++i){
+      while(this.steps_data[idx] != -8 && idx < this.steps_data.length) idx++;
+      this.steps_data[idx] = vals.get(i) * 2;
     }
 
     console.log("getting arrow coords now");
