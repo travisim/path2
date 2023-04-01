@@ -4,6 +4,10 @@
 
 class GridPathFinder{
 
+static get wasm(){
+    return false;
+  }
+
 	static get action_buffer(){return 5}
 
 	static get distance_metrics(){
@@ -129,8 +133,8 @@ class GridPathFinder{
 		nodeCoord,
 		colorIndex,
 		arrowIndex,
-    pseudoCodeRow,
-    infoTableRowIndex,
+		pseudoCodeRow,
+		infoTableRowIndex,
 		infoTableRowData,
 		cellVal,
 		endCoord,
@@ -200,8 +204,9 @@ class GridPathFinder{
 		if(endCoord!==undefined){
 			obj.idx++;
 			obj.actionCache[0] |= 1<<9;
-			//obj.actionCache[obj.idx] = (endCoord[0]*myUI.planner.map_width+endCoord[1])*2;
-			obj.actionCache.push(endCoord); // for floating point coordinates
+			//obj.actionCache.push(endCoord); // for floating point coordinates
+			obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
+			obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates
 		}
 		if(colour!==undefined){
 			obj.idx++;
@@ -224,8 +229,6 @@ class GridPathFinder{
 			obj.actionCache[0] |= 1 << 13;
 			obj.actionCache.push(id);
 		}
-			
-		
 
 		return obj.actionCache;
 	}
@@ -292,7 +295,7 @@ class GridPathFinder{
       {uid: "first_neighbor", displayName: "Starting Node:", options: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"], description: `The first direction to begin neighbour searching. Can be used for breaking ties. N is downwards (+i/+x/-row). W is rightwards (+j/+y/-column).`},//["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
       {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"], description: `The rotating direction to search neighbors. Can be used for breaking ties. Anticlockwise means the rotation from N to W. Clockwise for the opposite rotation.`},
 			{uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
-      {uid: "big_map", displayName: "Big Map Optimization:", options: ["Disabled", "Enabled"], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
+      {uid: "big_map", displayName: "Big Map Optimization:", options: [ "Enabled","Disabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
     ];
 	}
 

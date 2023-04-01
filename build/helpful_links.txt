@@ -1,1 +1,11 @@
 https://github.com/emscripten-core/emscripten/issues/11070
+Ordered_set:
+https://stackoverflow.com/questions/12530106/distance-between-stdset-begin-and-stdset-iterator-in-ologn
+https://www.geeksforgeeks.org/ordered-set-gnu-c-pbds/
+https://codeforces.com/blog/entry/88193
+Linking external C++ library to emscripten:
+https://stackoverflow.com/questions/41626056/web-assembly-using-emscripten-with-c-library
+https://github.com/emscripten-core/emscripten/issues/17937
+https://github.com/emscripten-core/emscripten/issues/18476
+Building of custom red-black tree with order statistics: 
+https://codeforces.com/blog/entry/95575

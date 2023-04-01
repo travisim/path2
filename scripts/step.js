@@ -15,7 +15,7 @@ const STATIC_COMMANDS = [
   "UpdateRowAtIndex", // dest, rowIndex
   "HighlightPseudoCodeRowPri", //highlight Pseudo
   "HighlightPseudoCodeRowSec", //highlight Pseudo
-  "UnhighlightAllPseudoCodeRowSec", // unhighlight Pseudo
+  "UnhighlightPseudoCodeRowSec", // unhighlight Pseudo
   "SetHighlightAtIndex",
   "DrawVertex",
   "DrawSingleVertex",
@@ -29,7 +29,7 @@ const STATIC_COMMANDS = [
   "CreateStaticRow",
   "EditStaticRow"
 
-]
+];
 
 const STATIC_DESTS = [
   "PC", // Pseudo Code
@@ -47,7 +47,6 @@ const STATIC_DESTS = [
   "map",
   "ITStatistics",
   "neighboursRadius"
-  
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -91,6 +90,11 @@ const statics_to_obj = {
 }
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
+  // wasm
+  if(myUI.planner.constructor.wasm){
+    return myUI.planner.getStep(anim_step);
+  }
+  // end of ++wasm
 	if(step_direction!="fwd") anim_step++;
 	let idx = myUI.step_data[step_direction].map[anim_step];
 	let nxIdx = myUI.step_data[step_direction].map[anim_step+1];
@@ -108,9 +112,40 @@ myUI.run_steps = function(num_steps, step_direction){
     else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
     else return;
 
+    // wasm
+    if(myUI.planner.constructor.wasm){
+      if(step_direction!="fwd") ++myUI.animation.step;
+    }
+    // end of ++wasm
+
     let step = myUI.get_step(myUI.animation.step, step_direction);
 
-    //console.log(step, 'step');
+    // wasm
+    if(myUI.planner.constructor.wasm){
+      if(step_direction!="fwd") --myUI.animation.step;
+      let actions = step_direction == "fwd" ? step["fwdActions"] : step["revActions"];
+      let i = step_direction == "fwd" ? 0 : actions.size() - 1; // reverse iteration for reverse actions
+      while(i >= 0 && i < actions.size()){
+        let action = actions.get(i);
+        let command = action.command;
+        let dest = action.dest == -1 ? undefined : action.dest;
+        let x = action.nodeCoord.x == -1 ? undefined : action.nodeCoord.x;
+        let y = action.nodeCoord.y == -1 ? undefined : action.nodeCoord.y;
+        let colorIndex = action.colorIndex == -1 ? undefined : action.colorIndex;
+        let arrowIndex = action.arrowIndex == -1 ? undefined : action.arrowIndex;
+        let pseudoCodeRow = action.pseudoCodeRow == -1 ? undefined : action.pseudoCodeRow;
+        let infoTableRowIndex = action.infoTableRowIndex == 0 ? undefined : action.infoTableRowIndex;
+        let infoTableRowData = action.infoTableRowData.size() == 0 ? undefined : [...vector_values(action.infoTableRowData)];
+        let cellVal = action.cellVal == -1 ? undefined : action.cellVal;
+        let endX = action.endCoord.x == -1 ? undefined : action.endCoord.x;
+        let endY = action.endCoord.y == -1 ? undefined : action.endCoord.y;
+
+        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);
+        if(step_direction == "fwd") ++i; else --i;
+      }
+      continue;
+    }
+    // end of ++wasm
     let i=0;
     while(i<step.length){
       // this is implementation specific for compressed actions
@@ -118,126 +153,128 @@ myUI.run_steps = function(num_steps, step_direction){
       while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id] = GridPathFinder.unpackAction(step.slice(i, j), true);
-      //let radius = parseInt(radius);
-      try{
-      if(command==STATIC.DSP){
-        myUI.canvases[statics_to_obj[dest]].erase_canvas();
-        if(cellVal===undefined) cellVal = 1;
-        myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
-      }
-      else if(command==STATIC.EC){
-        myUI.canvases[statics_to_obj[dest]].erase_canvas();
-      }
-      else if(command==STATIC.DP || command==STATIC.SP){
-        if(cellVal===undefined) cellVal = 1;
-        myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
-      }
-      else if(command==STATIC.EP){
-          myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y]);
-      }
-      else if(command==STATIC.INC_P){
-          myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc");
-      }
-      else if(command==STATIC.DEC_P){
-          myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec");
-      }
-      else if(command==STATIC.DA){
-        // draw arrow
-        myUI.arrow.elems[arrowIndex].classList.remove("hidden");
-        myUI.arrow.elems[arrowIndex].style.fill = myUI.arrow.colors[colorIndex];
-      }
-      else if(command==STATIC.EA){
-        // erase arrow
-        myUI.arrow.elems[arrowIndex].classList.add("hidden");
-      }
-      // INFOMAP
-      if(dest==STATIC.CR && (command==STATIC.DP || command==STATIC.DSP || command==STATIC.DrawSpecialVertex)){
-        myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
-      }
-      // INFOTABLE 
-      if(command==STATIC.InsertRowAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
-      }
-      if(command==STATIC.EraseAllRows){
-        myUI.InfoTables[statics_to_obj[dest]].removeAllTableRows(); 
-      }
-      else if(command==STATIC.EraseRowAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
-      }
-      else if(command==STATIC.UpdateRowAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
-      }
-      else if(command==STATIC.SetHighlightAtIndex){
-        myUI.InfoTables[statics_to_obj[dest]].setHighlightAtIndex(infoTableRowIndex); 
-      }
-      if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
-        myUI.PseudoCode.highlightPri(pseudoCodeRow);
-      }  
-      else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
-        myUI.PseudoCode.highlightSec(pseudoCodeRow);
-      }  
-      else if(dest == STATIC.PC && command == STATIC.UnhighlightAllPseudoCodeRowSec ){
-        myUI.PseudoCode.removeAllHighlightSec();
-      }  
-      else if( command == STATIC.CreateStaticRow ){
-        myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById(id,value);
-      }  
-      else if( command == STATIC.EditStaticRow ){
-        myUI.InfoTables["ITStatistics"].editStaticCellByRowId(id,value);
-      }  
-        
-        
-      else if(command == STATIC.DrawVertex){
-        let colour = myUI.canvases[statics_to_obj[dest]].fillColor;
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
-        myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
-      }
-    
-      else if(command == STATIC.EraseVertex){
-        myUI.nodeCanvas.eraseCircle([x,y], dest);
-      } 
-      else if(command == STATIC.EraseAllVertex){
-        myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
-      } 
-      else if(command == STATIC.DrawSingleVertex){
-        myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
-        let colour = myUI.canvases[statics_to_obj[dest]].fillColor;
-        myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
-      }
-     
-  
-      else if(command == STATIC.DrawEdge){
-        let colour = myUI.canvases[statics_to_obj[dest]]?.fillColor;
-        myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest);
-      }
-      else if(command == STATIC.DrawDottedEdge){
-        let colour = myUI.canvases[statics_to_obj[dest]]?.fillColor;
-        myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest,false,true);
-      }
-      else if(command == STATIC.DrawDottedVertex){
-        myUI.nodeCanvas.drawCircle([x,y],dest,false,colour,radius,false,"dotted");
-      }
-      else if(command == STATIC.EraseEdge){
-        myUI.edgeCanvas.eraseLine([x,y], [endX,endY], dest);
-        console.log("removing EDGE");
-      }
-      else if(command == STATIC.EraseAllEdge){
-        myUI.edgeCanvas.eraseAllLines(dest);
-      }
-
-      }catch(e){
-        if(dest!=STATIC.PC && command!=STATIC.DA && command!=STATIC.EA){
-          console.log(e);
-          console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
-          debugger;
-        }
-      }
+      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id);
       
       i=j;
     }
     if(myUI.map_width<=64 && myUI.map_height<=64 && myUI.currentCoord) 
       myUI.updateInfoMap(myUI.planner.infoMapPlannerMode(),...myUI.currentCoord);
+  }
+}
+
+myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id){
+  try{
+  if(command==STATIC.DSP){
+    myUI.canvases[statics_to_obj[dest]].erase_canvas();
+    if(cellVal===undefined) cellVal = 1;
+    myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
+  }
+  else if(command==STATIC.EC){
+    myUI.canvases[statics_to_obj[dest]].erase_canvas();
+  }
+  else if(command==STATIC.DP || command==STATIC.SP){
+    if(cellVal===undefined) cellVal = 1;
+    myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
+  }
+  else if(command==STATIC.EP){
+      myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y]);
+  }
+  else if(command==STATIC.INC_P){
+      myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc");
+  }
+  else if(command==STATIC.DEC_P){
+      myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec");
+  }
+  else if(command==STATIC.DA){
+    // draw arrow
+    myUI.arrow.elems[arrowIndex].classList.remove("hidden");
+    myUI.arrow.elems[arrowIndex].style.fill = myUI.arrow.colors[colorIndex];
+  }
+  else if(command==STATIC.EA){
+    // erase arrow
+    myUI.arrow.elems[arrowIndex].classList.add("hidden");
+  }
+  // INFOMAP
+  if(dest==STATIC.CR && (command==STATIC.DP || command==STATIC.DSP || command==STATIC.DrawSpecialVertex)){
+    myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
+  }
+  // INFOTABLE 
+  if(command==STATIC.InsertRowAtIndex){
+    myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
+  }
+  if(command==STATIC.EraseAllRows){
+    myUI.InfoTables[statics_to_obj[dest]].removeAllTableRows(); 
+  }
+  else if(command==STATIC.EraseRowAtIndex){
+    myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
+  }
+  else if(command==STATIC.UpdateRowAtIndex){
+    myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
+  }
+  else if(command==STATIC.SetHighlightAtIndex){
+    myUI.InfoTables[statics_to_obj[dest]].setHighlightAtIndex(infoTableRowIndex); 
+  }
+  if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
+    myUI.PseudoCode.highlightPri(pseudoCodeRow);
+  }  
+  if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
+    myUI.PseudoCode.highlightSec(pseudoCodeRow);
+  }  
+  else if(dest == STATIC.PC && command == STATIC.UnhighlightAllPseudoCodeRowSec ){
+    myUI.PseudoCode.removeAllHighlightSec();
+  }  
+  else if( command == STATIC.CreateStaticRow ){
+    myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById(id,value);
+  }  
+  else if( command == STATIC.EditStaticRow ){
+    myUI.InfoTables["ITStatistics"].editStaticCellByRowId(id,value);
+  }  
+    
+    
+  else if(command == STATIC.DrawVertex){
+    let colour = myUI.canvases[statics_to_obj[dest]].fillColor;
+    myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
+  }
+  else if(command == STATIC.DrawDottedVertex){
+      myUI.nodeCanvas.drawCircle([x,y],dest,false,colour,radius,false,"dotted");
+    }
+    
+
+  else if(command == STATIC.EraseVertex){
+    myUI.nodeCanvas.eraseCircle([x,y], dest);
+  } 
+  else if(command == STATIC.EraseAllVertex){
+    myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
+  } 
+  else if(command == STATIC.DrawSingleVertex){
+    myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
+    let colour = myUI.canvases[statics_to_obj[dest]].fillColor;
+    myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
+  }
+  else if(command == STATIC.DrawEdge){
+    let color = myUI.canvases[statics_to_obj[dest]]?.fillColor;
+    myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest);
+  }
+  else if(command == STATIC.DrawDottedEdge){
+    let colour = myUI.canvases[statics_to_obj[dest]]?.fillColor;
+    myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest,false,true);
+  }
+  else if(command == STATIC.EraseEdge){
+    myUI.edgeCanvas.eraseLine([x,y], [endX,endY], dest);
+    console.log("removing EDGE");
+  }
+  else if(command == STATIC.EraseAllEdge){
+    myUI.edgeCanvas.eraseAllLines(dest);
+  }
+
+  }catch(e){
+    if(dest!=STATIC.PC && command!=STATIC.DA && command!=STATIC.EA){
+      console.log(e);
+      console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
+      debugger;
+    }
   }
 }
 
@@ -268,6 +305,52 @@ myUI.run_combined_step = function(step_direction){
 }
 
 myUI.generateReverseSteps = function({genStates=false}={}){
+  const batchSize=10000, batchInterval = 0;
+  const stateFreq = myUI.stateFreq;
+  
+  console.log("myUI.stateFreq:",myUI.stateFreq);
+  if(genStates)  myUI.states = [stateFreq];
+
+  // wasm
+  if(myUI.planner.constructor.wasm){
+    Module["genSteps"](genStates, stateFreq);
+    let cnt = 0;
+
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
+    });
+    
+    function nextGenSteps(batchSize){
+      let finished;
+      try{
+        document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(cnt++ * batchSize / myUI.planner.max_step() * 100).toPrecision(3)}%`;
+        finished = Module["nextGenSteps"](batchSize);
+        if(!finished) return new Promise((resolve, reject) => {
+          setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
+        });
+        console.log("finished generating wasm steps!");
+        let bounds_cpp = Module["getBounds"]();
+        let bounds = map_to_obj(bounds_cpp);
+        for(let k of Object.keys(bounds)) bounds[k] = [bounds[k].min, bounds[k].max];
+        return finishGenerating(bounds, false);
+      }
+      catch(e){
+        let t = Date.now() - myUI.genStart;
+        let n = Module["getNumStates"]();
+        console.log(t);
+        console.log(e);
+        console.log("Number of states before error: ", n);
+        console.log(n/t);
+        alert("Something went wrong during state generation");
+        return;
+      }
+    }
+  }
+  // end of ++wasm
+  myUI.step_data.fwd.data = myUI.planner.steps_data;
+  myUI.step_data.fwd.map = myUI.planner.step_index_map;
+  myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
+
 	let steps = myUI.step_data.fwd.data,
 		indexMap = myUI.step_data.fwd.map, 
 		combinedMap = myUI.step_data.fwd.combined;
@@ -275,14 +358,12 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   myUI.step_data.bck.data = [];
   myUI.step_data.bck.map = [];
 	myUI.step_data.bck.combined = [];
-  console.log("myUI.stateFreq:",myUI.stateFreq);
-  const stateFreq = myUI.stateFreq;
-  if(genStates)  myUI.states = [stateFreq];
 	let stepCnt=0;
 	let revCombinedCnt = 0;
 
   //let mem = {canvasCoords:{}, drawSinglePixel:{}, fullCanvas:{}, arrowColor:{}, bounds:{}};
   let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}, edges:{}};
+  myUI.mem = mem;
   Object.values(myUI.canvases).forEach(canvas=>canvas.init_virtual_canvas());
   document.querySelector("#info-tables-dynamic").style.display = "none";
 
@@ -290,28 +371,27 @@ myUI.generateReverseSteps = function({genStates=false}={}){
     document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
   }, 200);
 
-  const batchSize=100, batchInterval = 0;
-
   return new Promise((resolve, reject) => {
     setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
   });
 
-  function finishGenerating(){
-    for(const [dest, bounds] of Object.entries(mem.bounds)){
-      if(myUI.canvases[statics_to_obj[dest]].minVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("min", bounds[0]);
-      if(myUI.canvases[statics_to_obj[dest]].maxVal==null) myUI.canvases[statics_to_obj[dest]].setValueBounds("max", bounds[1]);
+  function finishGenerating(bounds, clearUpdate = true){
+    console.log(bounds);
+    for(const [dest, bound] of Object.entries(bounds)){
+      myUI.canvases[statics_to_obj[dest]].setValueBounds("min", bound[0]);
+      myUI.canvases[statics_to_obj[dest]].setValueBounds("max", bound[1]);
     }
     document.querySelector("#info-tables-dynamic").style.display = "flex";
     myUI.reset_animation();
-    myUI.mem = mem;
-    clearInterval(statusUpdate);
+    if(clearUpdate)
+      clearInterval(statusUpdate);
   }
 
   function nextGenSteps(nxtSize){
     while(nxtSize--){
-      if(stepCnt==indexMap.length) return finishGenerating();
+      if(stepCnt==indexMap.length) return finishGenerating(mem.bounds);
       let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
-      if(isNaN(step[0])) return finishGenerating();
+      if(isNaN(step[0])) return finishGenerating(mem.bounds);
       let i=0;
       myUI.step_data.bck.map.push(myUI.step_data.bck.data.length);
       let curStep = [];
@@ -323,7 +403,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius] = GridPathFinder.unpackAction(step.slice(i, j), true);
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
         let action = [];
         var includeAction = true;
@@ -331,8 +411,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         // saving minmax
         if(cellVal!==undefined && myUI.canvases[statics_to_obj[dest]].valType=="float"){
           mem.bounds[dest] = mem.bounds[dest] || [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
-          if(myUI.canvases[statics_to_obj[dest]].minVal==null) mem.bounds[dest][0] = Math.min(mem.bounds[dest][0], cellVal);
-          if(myUI.canvases[statics_to_obj[dest]].maxVal==null) mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
+          mem.bounds[dest][0] = Math.min(mem.bounds[dest][0], cellVal);
+          mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
         }
 
         if(x!==undefined || command===STATIC.EC){
@@ -470,10 +550,17 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           delete mem.arrowColor[arrowIndex];
         }
         else if(command==STATIC.InsertRowAtIndex){
-          let prevHighlight = myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
-          action = GridPathFinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
-          if(prevHighlight)
-            Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
+          try{
+            let prevHighlight = myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
+            action = GridPathFinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
+            if(prevHighlight)
+              Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
+          }
+          catch(e){
+            console.log(e);
+            console.log(infoTableRowIndex);
+            debugger;
+          }
         }
         else if(command==STATIC.EraseRowAtIndex){
           let [data, toHighlight] = myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex);
@@ -585,7 +672,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 
       if(genStates && stepCnt%stateFreq==0){
         if(stepCnt/stateFreq % 100==0) console.log("State", stepCnt/stateFreq);
-        let nextState = {canvas:{}, infotables:{}, vertices:{}, edges:{}};
+        let nextState = {canvases:{}, infotables:{}, vertices:{}, edges:{}};
         // canvas
         for(const canvas of Object.values(mem.activeCanvas)){
           if(canvas===undefined){
@@ -593,7 +680,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             continue;
           }
           if(canvas.valType=="float"){
-            nextState.canvas[canvas.id] = deep_copy_matrix(canvas.virtualCanvas, false, true);
+            nextState.canvases[canvas.id] = deep_copy_matrix(canvas.virtualCanvas, false, true);
           }
           else{
             /*
@@ -601,7 +688,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             else var mat = NBitMatrix.compress_matrix(canvas.virtualCanvas, canvas.maxVal);*/
             //if(canvas.id=="visited") debugger;
             let mat = NBitMatrix.compress_matrix(canvas.virtualCanvas, canvas.maxVal);
-            nextState.canvas[canvas.id] = mat.get_truncated_data();
+            nextState.canvases[canvas.id] = mat.get_truncated_data();
           }
         };
         // arrow
@@ -677,7 +764,7 @@ myUI.jump_to_step = function(target_step){
     draw state to whatever
   run the remaning steps
   */
-  target_step = target_step===undefined ? myUI.animation.step : target_step;
+  target_step = target_step===undefined ? myUI.animation.step : Number(target_step);
   myUI.target_step = target_step;
   let idx = 0;
   for(const table of Object.values(myUI.InfoTables)) table.removeAllTableRows();
@@ -693,21 +780,38 @@ myUI.jump_to_step = function(target_step){
   // if state exists
   if(target_step>=stateFreq){
     idx = Math.floor(target_step/stateFreq);
-    let state = myUI.states[idx];
+    let state = myUI.planner.constructor.wasm ? Module["getState"](target_step) : myUI.states[idx];
+  
     // arrows
-    for(const [arrowId, colorId] of Object.entries(state.arrowColor)){
+    let arrows = myUI.planner.constructor.wasm ? map_to_obj(state.arrowColor) : state.arrowColor ;
+    for(const [arrowId, colorId] of Object.entries(arrows)){
       myUI.arrow.elems[arrowId].classList.remove("hidden");
       myUI.arrow.elems[arrowId].style.fill = myUI.arrow.colors[colorId];
     }
 
     // infotables
-    for(const [tableId, tableData] of Object.entries(state.infotables)){
-      myUI.InfoTables[tableId].removeAllTableRows();
-      myUI.InfoTables[tableId].highlightRow = tableData[0];
-      const rowSize = tableData[1];
-      for(let i=2;i<tableData.length;i+=rowSize){
-        let idx = -myUI.InfoTables[tableId].rows.length-1;
-        myUI.InfoTables[tableId].insertRowAtIndex(idx, tableData.slice(i, i+rowSize));
+    if(myUI.planner.constructor.wasm){
+      for(const [tableDest, tableState] of Object.entries(map_to_obj(state.infotables))){
+        const tableId = statics_to_obj[tableDest];
+        const generator = vector_values(tableState.rows);
+        let nxt = generator.next();
+        while(!nxt.done){
+          let row = [...vector_values(nxt.value)];
+          myUI.InfoTables[tableId].insertRowAtIndex(1, row);
+          nxt = generator.next();
+        }
+        myUI.InfoTables[tableId].setHighlightAtIndex(tableState.highlightedRow);
+      }
+    }
+    else{
+      for(const [tableId, tableData] of Object.entries(state.infotables)){
+        myUI.InfoTables[tableId].removeAllTableRows();
+        const rowSize = tableData[1];
+        for(let i=2;i<tableData.length;i+=rowSize){
+          let idx = -myUI.InfoTables[tableId].rows.length-1;
+          myUI.InfoTables[tableId].insertRowAtIndex(idx, tableData.slice(i, i+rowSize));
+        }
+        myUI.InfoTables[tableId].setHighlightAtIndex(tableData[0]);
       }
     }
     // pseudocode
@@ -720,29 +824,54 @@ myUI.jump_to_step = function(target_step){
     }
 
     // free vertices
-    for(const [dest, vertices] of Object.entries(state.vertices)){
-      if(dest == STATIC.QU) console.log(vertices.length);
-      
-      for(coord of vertices)
+    let vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices ;
+    for(let [dest, coordArray] of Object.entries(vertices)){
+      if(myUI.planner.constructor.wasm) coordArray = [...vector_values(coordArray)];
+      for(coord of coordArray){
+        if(myUI.planner.constructor.wasm) coord = [coord.x, coord.y];
         myUI.nodeCanvas.drawCircle(coord, dest);
-    
+      }
     }
 
     // free edge
-    for(const [dest, edges] of Object.entries(state.edges))
-      for(line of edges)
+    let edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges ;
+    for(const [dest, edgeArray] of Object.entries(edges)){
+      if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
+      for(line of edgeArray){
+        if(myUI.planner.constructor.wasm) line = [line.get(0), line.get(1), line.get(2), line.get(3)];
         myUI.edgeCanvas.drawLine([line[0], line[1]], [line[2], line[3]], dest);
+      }
+    }
     
 
     // canvases
-
-    let canvasesToDraw = Object.entries(state.canvas);
+    let canvases = myUI.planner.constructor.wasm ? map_to_obj(state.canvases) : state.canvases;
+    let canvasesToDraw = Object.entries(canvases);
     function drawNextCanvas(canvasNo){
       if(canvasNo==-1) return -1;
       if(canvasNo==canvasesToDraw.length) return finishJumping();
-      let [id,data] = canvasesToDraw[canvasNo];
+      let [dest,data] = canvasesToDraw[canvasNo];
+      let id = myUI.planner.constructor.wasm ? statics_to_obj[dest] : dest;
       document.getElementById("compute_btn").children[0].innerHTML = `drawing ${id}...`;
-      if(data.constructor==Array) var toDraw = data; // for 2d arrays (floats, etc.)
+      if(myUI.planner.constructor.wasm){
+        if(data.$$.ptrType.name == "canvas*"){
+          let coords = [...vector_values(data.keys())];
+          var toDraw = {};
+          for(let coord of coords){
+            toDraw[coord.x * myUI.canvases[id].data_width + coord.y] = data.get(coord);
+          }
+        }
+        else{
+          var toDraw = [];
+          const gen = vector_values(data);
+          let n = gen.next();
+          while(!n.done){
+            toDraw.push([...vector_values(n.value)]);
+            n = gen.next();
+          }
+        }
+      }
+      else if(data.constructor==Array) var toDraw = data; // for 2d arrays (floats, etc.)
       else var toDraw = NBitMatrix.expand_2_matrix(data);
       return myUI.canvases[id].draw_canvas_recursive(toDraw, canvasNo, target_step);
     }

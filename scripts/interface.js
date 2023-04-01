@@ -160,6 +160,7 @@ myUI.initialize = function(){
     myUI.sliders[slider_id].label.parent = myUI.sliders[slider_id];
   });
 
+  myUI.sliders["state_freq_slider"].label.value = myUI.sliders["state_freq_slider"].elem.value;
   myUI.hoverData = [
     {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"},
     {id: "hoverFCost", displayName: "F Cost", type: "canvasCache", canvasId: "fCost"},

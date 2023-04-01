@@ -33,17 +33,13 @@ function compute_path(){
 		myUI.searchDuration = myUI.genStart-myUI.startTime;
 		clearInterval(myUI.interval);
 		document.getElementById("compute_btn").children[0].innerHTML = "optimizing... 0%";
-		myUI.step_data.fwd.data = myUI.planner.steps_data;
-		myUI.step_data.fwd.map = myUI.planner.step_index_map;
-		myUI.step_data.fwd.combined = myUI.planner.combined_index_map;
 		myUI.currentCoord = myUI.map_start;
 		// optimize
 		myUI.generateReverseSteps({genStates: true}).then(_=>{
 			myUI.genDuration = Date.now() - myUI.genStart;
-			console.log("Number of steps: ", myUI.step_data.fwd.map.length);
+			console.log("Number of steps: ", myUI.planner.max_step() + 2);
 			myUI.sliders.search_progress_slider.elem.disabled = false;
-			console.log(myUI.step_data.fwd.map.length - 2, myUI.planner.max_step());
-			myUI.animation.max_step = myUI.step_data.fwd.map.length - 2;
+			myUI.animation.max_step = myUI.planner.max_step();
 			myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
 			myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
 			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;
@@ -78,7 +74,13 @@ myUI.sliders.search_progress_slider.elem.addEventListener("input",function(){
 
 myUI.sliders.state_freq_slider.elem.addEventListener("input",function(){
 	myUI.stateFreq = Number(this.value);
-	myUI.sliders.state_freq_slider.label.innerHTML = this.value;
+	myUI.sliders.state_freq_slider.label.value = this.value;
+});
+
+myUI.sliders.state_freq_slider.label.addEventListener("input",function(){
+	if(this.value == "") return;
+	myUI.stateFreq = Number(this.value);
+	myUI.sliders.state_freq_slider.elem.value = this.value;
 });
 
 myUI.reset_animation = function(clear_data = false){

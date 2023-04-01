@@ -1,9 +1,9 @@
 #include <iostream>
-#include "../algo/A_star.cpp"
+#include "../pathfinder/A_star.hpp"
 #include <string>
 
 int main(){
-  A_star planner;
+  pathfinder::A_star planner;
 
   grid_t grid = {
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},

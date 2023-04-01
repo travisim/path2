@@ -34,7 +34,6 @@ myUI.parseMap = function(map_str_var, file_name){
 myUI.displayMap = function(){
   console.log("Map Arr");
 	console.log(myUI.map_arr);
-  if(myUI.map_width>64 || myUI.map_height>64) alert("Tip: Large maps work better with big map optimization enabled!");
 	myUI.reset_animation();
   
 	myUI.planner.cell_map = undefined;

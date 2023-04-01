@@ -1,5 +1,9 @@
 class wasm_A_star extends GridPathFinder{
 
+  static get wasm(){
+    return false;
+  }
+
 	static get display_name(){
 		return "A star (wasm)";
   }
@@ -50,8 +54,12 @@ class wasm_A_star extends GridPathFinder{
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
-      {uid: "time_ordering", displayName: "Time Ordering:", options: ["LIFO", "FIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`});
+      {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`});
 		return configs;
+  }
+
+  max_step(){
+    return Module["maxStep"]();
   }
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise") {
@@ -75,6 +83,11 @@ class wasm_A_star extends GridPathFinder{
   }
 
   search(start, goal) {
+    this.n = 1;
+    //this._init_search(start, goal); // for batch size and batch interval
+    this.batch_interval = 0;
+    this.batch_size = 2000;
+
     let chosenCost = ["Manhattan",
       "Euclidean",
       "Chebyshev",
@@ -84,22 +97,76 @@ class wasm_A_star extends GridPathFinder{
     let order = ["FIFO", "LIFO"].findIndex(cost=>{
         return cost == this.timeOrder;
       });
-    Module["AStarSearch"](
+    let finished = Module["AStarSearch"](
       this.map.copy_2d(),
       ...start, ...goal,
       this.neighborsIndex,
       this.vertexEnabled, this.diagonal_allow, this.bigMap,
       chosenCost, order
     );
+    //return new Promise((resolve, reject)=>resolve(this._terminate_search()));
+    if(finished) return this._finish_searching();
+
+    let planner = this;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(planner._run_next_search()), planner.batch_interval);
+    });
+  }
+
+  _run_next_search(){
+    let finished;
+    try{
+      finished = Module["AStarRunNextSearch"](this.batch_size);
+      if(finished){
+        if(this.constructor.wasm) return this._finish_searching();
+        return this._finish_searching_old();
+      }
+      let planner = this;
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(planner._run_next_search()), planner.batch_interval);
+      });
+    }
+    catch(e){
+      let t = Date.now() - myUI.startTime;
+      let n = Module["getStepIndex"]();
+      console.log(t);
+      console.log(e);
+      console.log("Number of steps before error: ",n);
+      console.log(n/t);
+      alert("Something went wrong during searching");
+      if(this.constructor.wasm) return this._finish_searching();
+      return this._finish_searching_old();
+    }
+  }
+
+  _finish_searching(){
+    // this uses the struct implementation of steps & actions in c++ wasm
+    console.log(Date.now() - myUI.startTime);
+    Module["printPath"]();/**/
     
+    console.log("getting cell map now");
+    this.cell_map = new Empty2D(0, 0, 0, Module["getCellMap"]());  // override using emscripten version
+
+    console.log("getting arrow coords now");
+    // since c++ cannot create arrows, we need to do it here
+    // possible to export the javascript create_arrow function, will do so after the c++ A* is finalized
+    let arrows = Module["getArrowCoords"]();
+    for(let i = 0; i < arrows.size(); ++i){
+      let arrow_data = [...vector_values(arrows.get(i))];
+      let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
+      myUI.create_arrow(start, end);
+    }
+    return this._terminate_search();
+  }
+
+  getStep(stepNo){
+    return Module["getStep"](stepNo);
+  }
+
+  _finish_searching_old(){
+    console.log(Date.now() - myUI.startTime);
     Module["printPath"]();/**/
 
-    function* vector_values(vector) {
-      for (let i = 0; i < vector.size(); i++)
-          yield vector.get(i);
-      vector.delete();
-    }
-    
     // postProcess
     console.log("getting steps now");
     this.steps_data = [...vector_values(Module["getStepData"]())];
@@ -116,8 +183,18 @@ class wasm_A_star extends GridPathFinder{
     let idx = 0;
     
     for(let i = 0; i < rows.size(); ++i){
-      while(this.steps_data[idx] != -1 && idx < this.steps_data.length) idx++;
+      while(this.steps_data[idx] != -7 && idx < this.steps_data.length) idx++;
       this.steps_data[idx] = [...vector_values(rows.get(i))];
+    }
+
+    console.log("getting cellVal now");
+    // since vector<int> doesn't allow for doubles or floats, we need to add the cellVals back to the steps
+    let vals = Module["getCellVals"]();
+    idx = 0;
+    
+    for(let i = 0; i < vals.size(); ++i){
+      while(this.steps_data[idx] != -8 && idx < this.steps_data.length) idx++;
+      this.steps_data[idx] = vals.get(i) * 2;
     }
 
     console.log("getting arrow coords now");
@@ -129,12 +206,6 @@ class wasm_A_star extends GridPathFinder{
       let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
       myUI.create_arrow(start, end);
     }
-
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(this._terminate_search()), 0);
-    });
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
-    });
+    return this._terminate_search();
   }
 }

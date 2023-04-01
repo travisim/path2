@@ -1,4 +1,4 @@
-#include "algo/helper.hpp"
+#include "pathfinder/helper.hpp"
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
