@@ -21,7 +21,7 @@ class GridPathFinder{
 
 	static unpackAction(action, readable = false){
 		/* NEW */
-		let bitOffset = 10;
+		let bitOffset = 14;
 		let idx = 0;
 		
 		let mask;
@@ -61,7 +61,7 @@ class GridPathFinder{
 			++idx;
 			var infoTableRowData = action[idx];
 		}
-    if(action[0]&(1<<8)){
+		if(action[0]&(1<<8)){
 			++idx;
 			var cellVal = action[idx]/2;
 		}
@@ -75,6 +75,23 @@ class GridPathFinder{
 			var endX = action[idx][0]; // for floating point coordinates
 			var endY = action[idx][1];
 		}
+		if(action[0]&(1<<10)){
+			++idx;
+			var colour = action[idx];
+		}
+		if(action[0]&(1<<11)){
+			++idx;
+			var radius = parseInt(action[idx]); 
+		}
+		if(action[0]&(1<<12)){
+			++idx;
+			var value = action[idx]; 
+		}
+		if(action[0]&(1<<13)){
+			++idx;
+			var id = action[idx]; 
+		}
+	
     
 		if(readable){
 			console.log(`
@@ -88,9 +105,13 @@ class GridPathFinder{
 			infoTableRowData : ${infoTableRowData}
 			cellVal          : ${cellVal}
 			endCoord         : ${endX + ", " + endY}
+			colour           : ${colour}
+			radius           : ${radius}
+			value            : ${value}
+			id               : ${id}
 			`);
 		}
-		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY];/**/
+		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id];/**/
 	}
 
 	static _managePacking(numBits, obj){
@@ -113,6 +134,11 @@ class GridPathFinder{
 		infoTableRowData,
 		cellVal,
 		endCoord,
+		colour,
+		radius,
+		value,
+		id
+		
 	} = {}){
 		/* NEW */
 		/*
@@ -122,7 +148,7 @@ class GridPathFinder{
 		/* 1111111111*/
 		let obj = {};
 		obj.actionCache = [1];
-		obj.bitOffset = 10;
+		obj.bitOffset = 14;
 		obj.idx = 0;
 
 		// command is assumed to exist
@@ -177,12 +203,38 @@ class GridPathFinder{
 			//obj.actionCache[obj.idx] = (endCoord[0]*myUI.planner.map_width+endCoord[1])*2;
 			obj.actionCache.push(endCoord); // for floating point coordinates
 		}
+		if(colour!==undefined){
+			obj.idx++;
+			obj.actionCache[0] |= 1<<10;
+			obj.actionCache.push(colour); 
+			
+		}
+		if (radius !== undefined) {
+			obj.idx++;
+			obj.actionCache[0] |= 1 << 11;
+			obj.actionCache.push(radius);
+		}
+		if (value !== undefined) {
+			obj.idx++;
+			obj.actionCache[0] |= 1 << 12;
+			obj.actionCache.push(value);
+		}
+		if (id !== undefined) {
+			obj.idx++;
+			obj.actionCache[0] |= 1 << 13;
+			obj.actionCache.push(id);
+		}
+			
+		
 
 		return obj.actionCache;
 	}
 
 	get canvases(){
 		return [
+			{
+				id:"neighboursRadius", drawType:"dotted", drawOrder: 4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+			},
 			{
 				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#8F00FF"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
 			},
@@ -210,14 +262,17 @@ class GridPathFinder{
 			{
 				id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			},
+			{
+				id:"map", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+			}
 		];
 	}
 
 	static get hoverData(){
-    return [
-      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"}
-    ];
-  }
+		return [
+		{id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"}
+		];
+	}
 
 	static get checkboxes(){
 		return [
@@ -438,9 +493,14 @@ class GridPathFinder{
 		infoTableRowIndex,
 		infoTableRowData,
 		cellVal,
-		endCoord
+		endCoord,
+		colour,
+		radius,
+		value,
+		id
+		
 	} = {}){
-		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord});
+		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord, colour: colour,radius: radius,value:value,id:id});
 		Array.prototype.push.apply(this.step_cache, this.actionCache);
 		return this.actionCache.length;
 	}

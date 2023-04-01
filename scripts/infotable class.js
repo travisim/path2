@@ -74,7 +74,7 @@ class UIInfoTable{
   setTableActive(){
     this.tableContainer.classList.remove("none");
   }
-  rowGenerator(values){
+  rowGenerator(values,Id){
     //var t = document.createElement('table');
     if(values.length!=this.rowSize)
       return this.wrongRowSizeHandler(values.length);
@@ -85,6 +85,7 @@ class UIInfoTable{
       r.insertCell(i).innerHTML = values[i];
     }
     r.classList.add('infoTableRow'); // rmeoved rowId
+    Id ? r.id = Id :null;
     return r;
   }
 
@@ -243,6 +244,15 @@ class UIInfoTable{
     if(rowIndex+1<=this.highlightRow) ++this.highlightRow; // inserting a row before the highlighted row causes it to shift down by 1
     
     return prevHighlight;
+  }
+
+  createStaticRowWithACellEditableById(id,value0) {
+    var r = this.rowGenerator([value0, "-"], id);
+    this.dynamicTable.append(r);
+  }
+  editStaticCellByRowId(id,value1) {
+    value1 == "++" ? document.getElementById(id).cells[1].innerHTML = parseInt(document.getElementById(id).cells[1].innerHTML) + 1
+                  : document.getElementById(id).cells[1].innerHTML = value1; 
   }
 
 

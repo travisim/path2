@@ -600,7 +600,7 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY,dest = STATIC.map, id=false,isDashStroke = false){
+  drawLine(start_XY, end_XY,dest = STATIC.map, id=false,isDotted = false){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
  
@@ -612,7 +612,7 @@ class SVGCanvas {
     var line_class = `SVGline_${dest}`;
     var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
     var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, class:line_class, stroke: color,});
-    if (isDashStroke) line.style.strokeDasharray = 5;
+    if (isDotted) line.style.strokeDasharray = 5;
     document.getElementById(this.canvas_id).appendChild(line);
   }
   eraseLine(start_XY, end_XY, dest = STATIC.map){
@@ -631,17 +631,17 @@ class SVGCanvas {
   eraseAllLines(dest = STATIC.map){
     this.EraseSvgsbyClass(`SVGline_${dest}`);
   }
-  drawCircle(circle_XY, dest = STATIC.map,id=false, colour = "grey",radius = false, opacityValue = ""){
+  drawCircle(circle_XY, dest = "map",id=false, colour=false,radius = false, opacityValue = false,drawtype = false){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
-    var r = radius?radius:Math.max(0.25*this.displayRatio, 7.375);
+    var r = radius?radius:Math.max(0.25*this.displayRatio, 1);
     var cx = this.displayRatio*circle_coord.y;
     var cy = this.displayRatio*circle_coord.x; 
     
     var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
     var circle_class = `SVGcircle_${dest}`;
 
-    var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : colour;
-    var drawType = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].drawType : "cell";
+    var color = colour ? colour : myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
+    var drawType = drawtype ? drawtype : myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].drawType : "cell";
     var opacity = opacityValue ? opacityValue : "100%";
     
     let config = { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color,opacity:opacity};
@@ -649,8 +649,8 @@ class SVGCanvas {
       config.fill = "none";
       config.stroke = color;
       config.strokeDasharray = "6.5,6.5";
-      config.r = Math.max(0.2*this.displayRatio, 1)
-      config.strokeWidth = 5;
+      config.r = Math.max(radius*this.displayRatio, 0.29*this.displayRatio)
+      config.strokeWidth = 2;
   
     }
     var cir = this.getSvgNode('circle', config);
@@ -684,11 +684,13 @@ class SVGCanvas {
   //myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_1`);
   reset(eraseMap = false){
     if(!document.getElementById(this.canvas_id)) return;
-    if(eraseMap){
+    
       document.getElementById(this.canvas_id).innerHTML = "";
-    }
-    else{
-      let tmp_doc = this.createSvgCanvas("tmp_svg", 0);
+  
+  }
+
+  eraseAllSvgExceptClass(className = "tmp_svg") {
+      let tmp_doc = this.createSvgCanvas(className, 0);
       for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGcircle_${STATIC.map}`))
         tmp_doc.appendChild(el.cloneNode());
       
@@ -700,7 +702,6 @@ class SVGCanvas {
         document.getElementById(this.canvas_id).appendChild(el.cloneNode());
 
       tmp_doc.remove();
-    }
   }
 
   show(){
@@ -798,7 +799,7 @@ function distanceBetween2Points(src,tgt){
   return k;
 }
 
-function getNodesNearby(mapNodes ,nextCoordToAdd_XY,neighbourSelectionMethod, connectionDistance ){
+function getNodesNearby(mapNodes ,nextCoordToAdd_XY,neighbourSelectionMethod, connectionDistance,numberOfTopClosestNeighbours ){
   var distancesBetweenACoordAndAllOthers =[];
   for (let i = 0; i < mapNodes.length; ++i) {
   
@@ -815,11 +816,7 @@ function getNodesNearby(mapNodes ,nextCoordToAdd_XY,neighbourSelectionMethod, co
   if(neighbourSelectionMethod == "Top Closest Neighbours"){
     // checks LOS between the the top X closes neighbours 
     indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
-      .slice(0, 2)//this.numberOfTopClosestNeighbours)
-      .map(p => p[1]);
-  }
-  else if(neighbourSelectionMethod == "Top Closest Visible Neighbours"){
-    indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
+      .slice(0, numberOfTopClosestNeighbours)//this.numberOfTopClosestNeighbours)
       .map(p => p[1]);
   }
   else if(neighbourSelectionMethod == "Closest Neighbours By Radius"){

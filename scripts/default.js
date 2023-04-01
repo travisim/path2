@@ -40,7 +40,7 @@ myUI.runDefault = function(){
 	.......@........`; */
   myUI.parseMap(default_map, `16x16_default.map`);
 
-	let default_scen = `version 1\n0\t16x16_default.map\t16\t16\t0\t0\t2\t2\t-1`;
+	let default_scen = `version 1\n0\t16x16_default.map\t16\t16\t0\t0\t12\t12\t-1`;
 	myUI.parseScenario(default_scen);
   myUI.loadScenario();
   

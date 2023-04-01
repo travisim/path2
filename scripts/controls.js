@@ -90,9 +90,14 @@ myUI.reset_animation = function(clear_data = false){
 		});
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(clear_data);
+		myUI.nodeCanvas.reset(clear_data);
+		myUI.edgeCanvas.reset(clear_data);
+	myUI.arrow.step = -1;
+}
+
+myUI.resetMapAnimations = () => {
 	myUI.nodeCanvas.reset(clear_data);
 	myUI.edgeCanvas.reset(clear_data);
-	myUI.arrow.step = -1;
 }
 
 myUI.buttons.clear_btn.btn.addEventListener("click", myUI.reset_animation);
