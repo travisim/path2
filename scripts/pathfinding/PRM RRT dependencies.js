@@ -526,7 +526,7 @@ class Tree {
 
 
 class MapNode {
-  constructor( parent = null, value_XY,neighbours = null, additionalCoord, additionalEdge, g_cost) { // additionalCoord, additionalEdge used for RRT
+  constructor( parent = null, value_XY,neighbours = null, additionalCoord, additionalEdge, g_cost) { // additionalCoord, additionalEdge used for RRT_star
 
     this.parent = parent;
     this.value_XY = value_XY;
@@ -600,7 +600,7 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY,dest = STATIC.map, id=false,isDotted = false){
+  drawLine(start_XY, end_XY,dest = STATIC.map, id=false,isDotted = false,color = false){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
  
@@ -610,7 +610,7 @@ class SVGCanvas {
     var y2 = this.displayRatio*end_coord.x;
     var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
     var line_class = `SVGline_${dest}`;
-    var color = myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
+    var color = color?color:myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
     var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, class:line_class, stroke: color,});
     if (isDotted) line.style.strokeDasharray = 5;
     document.getElementById(this.canvas_id).appendChild(line);

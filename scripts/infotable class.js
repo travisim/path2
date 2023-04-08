@@ -246,13 +246,14 @@ class UIInfoTable{
     return prevHighlight;
   }
 
-  createStaticRowWithACellEditableById(id,value0) {
-    var r = this.rowGenerator([value0, "-"], id);
+  createStaticRowWithACellEditableById(value0) { // id of cell is value with whitespace stripped
+    var r = this.rowGenerator([value0, "-"], value0.replaceAll(/\s/g,''));
     this.dynamicTable.append(r);
   }
   editStaticCellByRowId(id,value1) {
-    value1 == "++" ? document.getElementById(id).cells[1].innerHTML = parseInt(document.getElementById(id).cells[1].innerHTML) + 1
-                  : document.getElementById(id).cells[1].innerHTML = value1; 
+    value1 == "++"
+      ? document.getElementById(id).cells[1].innerHTML = parseInt(document.getElementById(id).cells[1].innerHTML) + 1
+      : document.getElementById(id).cells[1].innerHTML = value1; 
   }
 
 

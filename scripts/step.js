@@ -46,7 +46,8 @@ const STATIC_DESTS = [
   "ITNeighbors",
   "map",
   "ITStatistics",
-  "neighboursRadius"
+  "neighboursRadius",
+  "intermediaryMapExpansion"
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -86,7 +87,8 @@ const statics_to_obj = {
   11: "ITNeighbors",
   12: "map",
   13: "ITStatistics",
-  14: "neighboursRadius"
+  14: "neighboursRadius",
+  15: "intermediaryMapExpansion"
 }
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
@@ -140,7 +142,7 @@ myUI.run_steps = function(num_steps, step_direction){
         let endX = action.endCoord.x == -1 ? undefined : action.endCoord.x;
         let endY = action.endCoord.y == -1 ? undefined : action.endCoord.y;
 
-        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);
+        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id);
         if(step_direction == "fwd") ++i; else --i;
       }
       continue;
@@ -150,12 +152,12 @@ myUI.run_steps = function(num_steps, step_direction){
     while(i<step.length){
       // this is implementation specific for compressed actions
       let j=i+1;
-      while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))
+      while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))//rightmost bit is one is start of action
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), false);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
-      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id);
+      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id); 
       
       i=j;
     }
@@ -254,8 +256,7 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
     myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
   }
   else if(command == STATIC.DrawEdge){
-    let color = myUI.canvases[statics_to_obj[dest]]?.fillColor;
-    myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest);
+    myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest,false,false,colour);
   }
   else if(command == STATIC.DrawDottedEdge){
     let colour = myUI.canvases[statics_to_obj[dest]]?.fillColor;

@@ -3,7 +3,7 @@ var myUI = {}
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [RRT,A_star,PRM,wasm_A_star];
+  myUI.planners = [RRT_star,A_star,PRM,wasm_A_star];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 
@@ -208,6 +208,8 @@ myUI.initialize = function(){
       myUI.InfoTables[item.id] = new UIInfoTable(item.displayName, item.headers.length);
       myUI.InfoTables[item.id].setTableActive();
       myUI.InfoTables[item.id].setTableHeader(item.headers);
+      if(item.fixedContentOfFirstRowOfHeaders) item.fixedContentOfFirstRowOfHeaders.forEach(value => myUI.InfoTables[item.id].createStaticRowWithACellEditableById(value.replace(/ /g,''),value));
+      console.log("gs")
     }
   }
 
@@ -216,8 +218,8 @@ myUI.initialize = function(){
   myUI.InfoMap  = new UIInfoMap();
   myUI.PseudoCode = new UIInfoPseudoCode();
   //myUI.pseudoCodeRawForAstar = 'def astar(map, start_vertex, goal_vertex): \nlist = OpenList() \npath = [ ] \n#Initialise h-cost for all \nfor vertex in map.vertices(): \n    vertex.set_h_cost(goal_vertex)  \n    vertex.g_cost = ∞  \n    vertex.visited = False \n  # Assign 0 g-cost to start_vertex  \n start_vertex.g_cost = 0 \n list.add(start_vertex) \n while list.not_empty(): \n  current_vertex = list.remove() \n  # Skip if visited: a cheaper path  \n  # was already found \n    if current_vertex.visited: \n      continue \n   # Trace back and return the path if at the goal \n   if current_vertex is goal_vertex : \n     while current_vertex is not None: \n      path.push(current_vertex) \n      current_vertex = current_vertex.parent \n     return path # exit the function \n  # Add all free, neighboring vertices which \n   # are cheaper, into the list  \n  for vertex in get_free_neighbors(map, current_vertex):  \n      # f or h-costs are not checked bcos obstacles \n     # affects the optimal path cost from the g-cost \n     tentative_g = calc_g_cost(vertex, current_vertex)  \n     if tentative_g < vertex.g_cost: \n       vertex.g_cost = tentative_g  \n      vertex.parent = current_vertex  \n      list.add(vertex) \nreturn path';
-  myUI.pseudoCodeRawForAstarRRT ="T ← InitializeTree();\nT ← InsertNode(∅, Zinit , T ); \nfor i = 1 to i = N do \n  Zrand ← Sample(i);\n  Znearest ←Nearest(T,Zrand); \n  (Xnew,Unew,Tnew) ← Steer(Znearest,Zrand);\n  if ObstacleFree(Xnew) then \n    Znear ←Near(T, Znew,|V|);\n    Zmin ← ChooseParent(Znear, Znearest, Znew, Xnew);\n    T ←InsertNode(Zmin, Znew, T);\n    T ←ReWire(T, Znear, Zmin, Znew); \nreturn T;"
-  myUI.PseudoCode.rowGenerator(myUI.pseudoCodeRawForAstarRRT);
+  myUI.pseudoCodeRawForAstarRRT_star ="T ← InitializeTree();\nT ← InsertNode(∅, Zinit , T ); \nfor i = 1 to i = N do \n  Zrand ← Sample(i);\n  Znearest ←Nearest(T,Zrand); \n  (Xnew,Unew,Tnew) ← Steer(Znearest,Zrand);\n  if ObstacleFree(Xnew) then \n    Znear ←Near(T, Znew,|V|);\n    Zmin ← ChooseParent(Znear, Znearest, Znew, Xnew);\n    T ←InsertNode(Zmin, Znew, T);\n    T ←ReWire(T, Znear, Zmin, Znew); \nreturn T;"
+  myUI.PseudoCode.rowGenerator(myUI.pseudoCodeRawForAstarRRT_star);
 
   myUI.tmp = {}; // DO NOT DELETE
 }

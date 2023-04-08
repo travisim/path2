@@ -172,7 +172,6 @@ static get wasm(){
 		if(nodeCoord!==undefined){
 			obj.idx++;
 			obj.actionCache[0] |= 1<<3;
-			//obj.actionCache[obj.idx] = (nodeCoord[0]*myUI.planner.map_width+nodeCoord[1])*2;
 			obj.actionCache.push(nodeCoord[0] * 2); // for floating point coordinates
 			obj.actionCache.push(nodeCoord[1] * 2); // for floating point coordinates
 		}
@@ -204,9 +203,9 @@ static get wasm(){
 		if(endCoord!==undefined){
 			obj.idx++;
 			obj.actionCache[0] |= 1<<9;
-			//obj.actionCache.push(endCoord); // for floating point coordinates
-			obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
-			obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates
+			obj.actionCache.push(endCoord); // for floating point coordinates
+			//obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
+			//obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates not working for now
 		}
 		if(colour!==undefined){
 			obj.idx++;

@@ -92,14 +92,13 @@ myUI.reset_animation = function(clear_data = false){
 		});
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(clear_data);
-		myUI.nodeCanvas.reset(clear_data);
-		myUI.edgeCanvas.reset(clear_data);
+		
 	myUI.arrow.step = -1;
 }
 
 myUI.resetMapAnimations = () => {
-	myUI.nodeCanvas.reset(clear_data);
-	myUI.edgeCanvas.reset(clear_data);
+	myUI.nodeCanvas.reset();
+	myUI.edgeCanvas.reset();
 }
 
 myUI.buttons.clear_btn.btn.addEventListener("click", myUI.reset_animation);
@@ -145,6 +144,7 @@ myUI.jump_to_end = function(){
 	myUI.stop_animation(change_svg = true);
 	myUI.jump_to_step(myUI.animation.max_step);
 }
+
 myUI.buttons.end_btn.btn.addEventListener("click", myUI.jump_to_end);
 
 

@@ -64,7 +64,7 @@ myUI.handle_map_hover = function(e){
 }
 
 
-if(myUI.planner.constructor.display_name != "RRT" )myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
+if(myUI.gridPrecision == "float"  )myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
 
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let xy = myUI.scale_coord(e.offsetY, e.offsetX);
@@ -161,7 +161,7 @@ function dragElementGridSnap(elmnt) {
   }
 }
 
-function dragElementNoSnap(elmnt) {
+function dragElementNoSnap(elmnt,slaveElmnt) {
 	var dx = 0, dy = 0, x1 = 0, y1 = 0;
 	const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
  	const e_num = 1e-3;
@@ -197,6 +197,15 @@ function elementDrag(e) {
 	if (elmnt.offsetLeft - dx >= -elmnt.clientWidth / 2 + CANVAS_OFFSET && elmnt.offsetLeft - dx <= bounds.width - elmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
 		elmnt.style.left = (elmnt.offsetLeft - dx) + "px";
 	}
+	if (slaveElmnt) {
+		if (slaveElmnt.offsetTop - dy >= -slaveElmnt.clientHeight / 2 + CANVAS_OFFSET && slaveElmnt.offsetTop - dy <= bounds.height - slaveElmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
+		    slaveElmnt.style.top = (slaveElmnt.offsetTop - dy) + "px";
+		}
+		if (slaveElmnt.offsetLeft - dx >= -slaveElmnt.clientWidth / 2 + CANVAS_OFFSET && slaveElmnt.offsetLeft - dx <= bounds.width - slaveElmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
+			slaveElmnt.style.left = (slaveElmnt.offsetLeft - dx) + "px";
+		}
+		
+	}
 }
 
   function closeDragElement() {
@@ -210,10 +219,10 @@ function elementDrag(e) {
 	x = Math.max(CANVAS_OFFSET, Math.min(bounds.height - e_num + CANVAS_OFFSET, x));
 	let [scaled_x, scaled_y] = myUI.scale_coord(x,y);
 	if(elmnt.id=="map_start_icon"){
-			myUI.map_start = [scaled_x, scaled_y];
+		myUI.map_start = [scaled_x, scaled_y];
 
 		}   
-	else if(elmnt.id=="map_goal_radius") {
+	else if(elmnt.id=="map_goal_icon") {
 		myUI.map_goal = [scaled_x, scaled_y];
 		
 	}

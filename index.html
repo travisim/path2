@@ -47,6 +47,7 @@
       Path Planner
       <button onclick="darkmode()">Light/Dark</button>
     </div>
+    <div id="dark-overlay" style="display: none;"></div>
     <div id="main">
       <div id="info-container" class="container">
         <div class="sub-container">
@@ -181,7 +182,7 @@
                     alt="goal"
                   />
                   
-                  <div  style=" top:50px; left:50px; width: 70px;   aspect-ratio: 1 / 1; position: absolute;"id="map_goal_radius"  class=" draggable unselectable ">
+                  <div  style=" top:50px; left:50px; width: 70px;   aspect-ratio: 1 / 1; position: absolute;"id="map_goal_radius"  class=" unselectable ">
 
                     <svg 
                       xmlns="http://www.w3.org/2000/svg" 
@@ -236,6 +237,9 @@
           <div class="flex-row">
             <button id="download_map_btn" class="btn">Download Map</button>
             <button id="download_scen_btn" class="btn">Download Scen</button>
+          </div>
+          <div class="flex-row">
+            status of code(basically a shows a gives a description based on the pseudo code on what the map is doing)
           </div>
         </div>
       </div>
@@ -455,6 +459,16 @@
                   <input type="button" onclick="incrementValue(10)" value="10" />
                   <input type="button" onclick="incrementValue(100)" value="100" />
                 </div>
+                <div class=" flex-row">
+                  Map Configurations
+                  <br>
+                  <select id="map_config">
+                    <option value="Lshape">L-shape</option>
+                    <option value="none">none</option>
+                    <option value="concave">concave</option>
+                    <option value="narrowPassage">narrowPassage</option>
+                  </select>
+                </div>
                 <div class="flex-row">
                   <label class="scen_label">X1:</label>
                   <input
@@ -530,6 +544,24 @@
           </div>
         </div>
       </div>
+      
+      <div id="bottom-bar">
+        <a id="trigger-about">About</a>
+        <a id="trigger-team">Team</a>
+        <a id="trigger-terms">Terms of use</a>
+        <a id="trigger-privacy">Privacy Policy</a>
+      </div>
+      <!--
+      <div id="about" class="overlays" style="">
+        <h4 style="background-color: rgb(167, 212, 30);" data-darkreader-inline-bgcolor="">About</h4><span class="close-overlay">✕</span>
+        <div class="overlayContent">
+        <p>hello there</p>
+        
+        </div>
+      </div>
+    -->
+
+
     </div>
     <div id="edit_map_modal" class="modal">
       <div class="modal-content">
