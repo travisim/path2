@@ -23,7 +23,12 @@ const STATIC_COMMANDS = [
   "EraseAllVertex",
   "DrawEdge",
   "EraseEdge",
-  "EraseAllEdge"
+  "EraseAllEdge",
+  "DrawDottedEdge",
+  "DrawDottedVertex",
+  "CreateStaticRow",
+  "EditStaticRow"
+
 ];
 
 const STATIC_DESTS = [
@@ -40,6 +45,9 @@ const STATIC_DESTS = [
   "ITQueue", //info table
   "ITNeighbors",
   "map",
+  "ITStatistics",
+  "neighboursRadius",
+  "intermediaryMapExpansion"
 ];
 
 // IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
@@ -76,7 +84,11 @@ const statics_to_obj = {
   8: "gCost",
   9: "hCost",
   10: "ITQueue",
-  11: "ITNeighbors"
+  11: "ITNeighbors",
+  12: "map",
+  13: "ITStatistics",
+  14: "neighboursRadius",
+  15: "intermediaryMapExpansion"
 }
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
@@ -130,7 +142,7 @@ myUI.run_steps = function(num_steps, step_direction){
         let endX = action.endCoord.x == -1 ? undefined : action.endCoord.x;
         let endY = action.endCoord.y == -1 ? undefined : action.endCoord.y;
 
-        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);
+        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id);
         if(step_direction == "fwd") ++i; else --i;
       }
       continue;
@@ -140,12 +152,12 @@ myUI.run_steps = function(num_steps, step_direction){
     while(i<step.length){
       // this is implementation specific for compressed actions
       let j=i+1;
-      while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))
+      while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))//rightmost bit is one is start of action
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), false);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
-      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);
+      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id); 
       
       i=j;
     }
@@ -154,7 +166,7 @@ myUI.run_steps = function(num_steps, step_direction){
   }
 }
 
-myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY){
+myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id){
   try{
   if(command==STATIC.DSP){
     myUI.canvases[statics_to_obj[dest]].erase_canvas();
@@ -211,11 +223,27 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   }  
   if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
     myUI.PseudoCode.highlightSec(pseudoCodeRow);
-  }  /* */  
-  if(command == STATIC.DrawVertex){
-    let color = myUI.canvases[statics_to_obj[dest]].fillColor;
-    myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
+  }  
+  else if(dest == STATIC.PC && command == STATIC.UnhighlightAllPseudoCodeRowSec ){
+    myUI.PseudoCode.removeAllHighlightSec();
+  }  
+  else if( command == STATIC.CreateStaticRow ){
+    myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById(id,value);
+  }  
+  else if( command == STATIC.EditStaticRow ){
+    myUI.InfoTables["ITStatistics"].editStaticCellByRowId(id,value);
+  }  
+    
+    
+  else if(command == STATIC.DrawVertex){
+    let colour = myUI.canvases[statics_to_obj[dest]].fillColor;
+    myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
   }
+  else if(command == STATIC.DrawDottedVertex){
+      myUI.nodeCanvas.drawCircle([x,y],dest,false,colour,radius,false,"dotted");
+    }
+    
+
   else if(command == STATIC.EraseVertex){
     myUI.nodeCanvas.eraseCircle([x,y], dest);
   } 
@@ -224,12 +252,15 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   } 
   else if(command == STATIC.DrawSingleVertex){
     myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
-    let color = myUI.canvases[statics_to_obj[dest]].fillColor;
-    myUI.nodeCanvas.drawCircle([x,y],dest,color);//id generated from coord and type
+    let colour = myUI.canvases[statics_to_obj[dest]].fillColor;
+    myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
   }
   else if(command == STATIC.DrawEdge){
-    let color = myUI.canvases[statics_to_obj[dest]]?.fillColor;
-    myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest);
+    myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest,false,false,colour);
+  }
+  else if(command == STATIC.DrawDottedEdge){
+    let colour = myUI.canvases[statics_to_obj[dest]]?.fillColor;
+    myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest,false,true);
   }
   else if(command == STATIC.EraseEdge){
     myUI.edgeCanvas.eraseLine([x,y], [endX,endY], dest);
@@ -377,7 +408,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY] = GridPathFinder.unpackAction(step.slice(i, j), false);
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
         let action = [];
         var includeAction = true;

@@ -4,7 +4,7 @@
 
 class GridPathFinder{
 
-	static get wasm(){
+static get wasm(){
     return false;
   }
 
@@ -25,7 +25,7 @@ class GridPathFinder{
 
 	static unpackAction(action, readable = false){
 		/* NEW */
-		let bitOffset = 10;
+		let bitOffset = 14;
 		let idx = 0;
 		
 		let mask;
@@ -65,7 +65,7 @@ class GridPathFinder{
 			++idx;
 			var infoTableRowData = action[idx];
 		}
-    if(action[0]&(1<<8)){
+		if(action[0]&(1<<8)){
 			++idx;
 			var cellVal = action[idx]/2;
 		}
@@ -79,6 +79,23 @@ class GridPathFinder{
 			var endX = action[idx][0]; // for floating point coordinates
 			var endY = action[idx][1];
 		}
+		if(action[0]&(1<<10)){
+			++idx;
+			var colour = action[idx];
+		}
+		if(action[0]&(1<<11)){
+			++idx;
+			var radius = parseInt(action[idx]); 
+		}
+		if(action[0]&(1<<12)){
+			++idx;
+			var value = action[idx]; 
+		}
+		if(action[0]&(1<<13)){
+			++idx;
+			var id = action[idx]; 
+		}
+	
     
 		if(readable){
 			console.log(`
@@ -92,9 +109,13 @@ class GridPathFinder{
 			infoTableRowData : ${infoTableRowData}
 			cellVal          : ${cellVal}
 			endCoord         : ${endX + ", " + endY}
+			colour           : ${colour}
+			radius           : ${radius}
+			value            : ${value}
+			id               : ${id}
 			`);
 		}
-		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY];/**/
+		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id];/**/
 	}
 
 	static _managePacking(numBits, obj){
@@ -112,11 +133,16 @@ class GridPathFinder{
 		nodeCoord,
 		colorIndex,
 		arrowIndex,
-    pseudoCodeRow,
-    infoTableRowIndex,
+		pseudoCodeRow,
+		infoTableRowIndex,
 		infoTableRowData,
 		cellVal,
 		endCoord,
+		colour,
+		radius,
+		value,
+		id
+		
 	} = {}){
 		/* NEW */
 		/*
@@ -126,7 +152,7 @@ class GridPathFinder{
 		/* 1111111111*/
 		let obj = {};
 		obj.actionCache = [1];
-		obj.bitOffset = 10;
+		obj.bitOffset = 14;
 		obj.idx = 0;
 
 		// command is assumed to exist
@@ -146,7 +172,6 @@ class GridPathFinder{
 		if(nodeCoord!==undefined){
 			obj.idx++;
 			obj.actionCache[0] |= 1<<3;
-			//obj.actionCache[obj.idx] = (nodeCoord[0]*myUI.planner.map_width+nodeCoord[1])*2;
 			obj.actionCache.push(nodeCoord[0] * 2); // for floating point coordinates
 			obj.actionCache.push(nodeCoord[1] * 2); // for floating point coordinates
 		}
@@ -178,9 +203,30 @@ class GridPathFinder{
 		if(endCoord!==undefined){
 			obj.idx++;
 			obj.actionCache[0] |= 1<<9;
-			//obj.actionCache[obj.idx] = (endCoord[0]*myUI.planner.map_width+endCoord[1])*2;
-			obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
-			obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates
+			obj.actionCache.push(endCoord); // for floating point coordinates
+			//obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
+			//obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates not working for now
+		}
+		if(colour!==undefined){
+			obj.idx++;
+			obj.actionCache[0] |= 1<<10;
+			obj.actionCache.push(colour); 
+			
+		}
+		if (radius !== undefined) {
+			obj.idx++;
+			obj.actionCache[0] |= 1 << 11;
+			obj.actionCache.push(radius);
+		}
+		if (value !== undefined) {
+			obj.idx++;
+			obj.actionCache[0] |= 1 << 12;
+			obj.actionCache.push(value);
+		}
+		if (id !== undefined) {
+			obj.idx++;
+			obj.actionCache[0] |= 1 << 13;
+			obj.actionCache.push(id);
 		}
 
 		return obj.actionCache;
@@ -188,6 +234,9 @@ class GridPathFinder{
 
 	get canvases(){
 		return [
+			{
+				id:"neighboursRadius", drawType:"dotted", drawOrder: 4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+			},
 			{
 				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#8F00FF"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
 			},
@@ -215,14 +264,17 @@ class GridPathFinder{
 			{
 				id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			},
+			{
+				id:"map", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+			}
 		];
 	}
 
 	static get hoverData(){
-    return [
-      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"}
-    ];
-  }
+		return [
+		{id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"}
+		];
+	}
 
 	static get checkboxes(){
 		return [
@@ -242,7 +294,7 @@ class GridPathFinder{
       {uid: "first_neighbor", displayName: "Starting Node:", options: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"], description: `The first direction to begin neighbour searching. Can be used for breaking ties. N is downwards (+i/+x/-row). W is rightwards (+j/+y/-column).`},//["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
       {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"], description: `The rotating direction to search neighbors. Can be used for breaking ties. Anticlockwise means the rotation from N to W. Clockwise for the opposite rotation.`},
 			{uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
-      {uid: "big_map", displayName: "Big Map Optimization:", options: ["Disabled", "Enabled", "Disabled"], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
+      {uid: "big_map", displayName: "Big Map Optimization:", options: [ "Enabled","Disabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
     ];
 	}
 
@@ -269,6 +321,13 @@ class GridPathFinder{
 					this.vertexEnabled = true;
 					myUI.toggleVertex(true);
 				}
+				else if(value=="Grid Vertex Float"){
+					this.vertexEnabled = true;
+					myUI.gridPrecision = "float"
+					myUI.toggleVertex(true);
+				
+					
+				}
 				else{
 					this.vertexEnabled = false;
 					myUI.toggleVertex(false);
@@ -290,8 +349,9 @@ class GridPathFinder{
 
 	get infoTables(){
 		return [
-			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Position", "F-Cost", "G-Cost", "H-Cost", "State"]},
-			{id:"ITQueue", displayName: "Queue", headers:["Vertex","Parent","F-Cost","G-Cost","H-Cost"]},
+			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
+			{ id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
+			
 		];
 	}
 
@@ -435,9 +495,14 @@ class GridPathFinder{
 		infoTableRowIndex,
 		infoTableRowData,
 		cellVal,
-		endCoord
+		endCoord,
+		colour,
+		radius,
+		value,
+		id
+		
 	} = {}){
-		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord});
+		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord, colour: colour,radius: radius,value:value,id:id});
 		Array.prototype.push.apply(this.step_cache, this.actionCache);
 		return this.actionCache.length;
 	}
@@ -520,6 +585,11 @@ class GridPathFinder{
 		}
 		console.log("found");
 		console.log(this.path);
+		this.pathLength = this.calculatePathLength(this.path)
+		this.endNumberOfNodes = this.path.length
+		console.log(this.pathLength);
+
+		 
 		/* NEW */
 		this._save_step(true);
 
@@ -535,10 +605,22 @@ class GridPathFinder{
     return 0;
   }
 
-  max_step(){
-    return this.step_index-1 ; // because of dummy step at the end and final step is n-1
-  }
-  
+	max_step(){
+	return this.step_index-1 ; // because of dummy step at the end and final step is n-1
+	}
+	
+	calculatePathLength(path) {
+		
+		var pathLength = 0
+		if (path.length > 1) {
+			for (i = 0; i < path.length-1; i++){
+				pathLength += distanceBetween2Points(path[i], path[i + 1])
+			}
+		}
+		return pathLength.toPrecision(5)
+
+	}
+	
 }
 
 class Node{

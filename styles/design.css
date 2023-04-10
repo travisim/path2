@@ -6,7 +6,7 @@ body {
   border: 0;
   padding: 0;
   font-family: sans-serif;
-  background-color: #d1cfe2;
+  background-color: black;
   background-size: cover;
 }
 
@@ -23,7 +23,9 @@ body {
 
 #main {
   width: 100%;
-  min-width: 1500px;
+  min-width: 1700px;
+  max-width: 2000px;
+  max-height: 900px;
   height: 1500px;
   height: 90%;
   display: flex;
@@ -32,18 +34,20 @@ body {
   flex-direction: row;
   margin-left: auto;
   margin-right: auto;
-  /*white-space: nowrap;*/ /* this does the trick */
+  white-space: nowrap; /* this does the trick */
   overflow: hidden; /* this prevents the grey divs from overflowing */
-  background-color: #d1cfe2;
+  background-color: black;
 }
 
 #map-container {
   min-width: 650px;
+ 
 }
 
 #info-container {
   min-width: 395px;
   max-width: 395px;
+
 }
 .container {
   display: inline-block;
@@ -54,6 +58,8 @@ body {
   border: 3px solid black;
   margin: 2px;
   overflow: hidden;
+  border-radius: 20px;
+   background-color: #d1cfe2;
 }
 
 .thin-container {
@@ -319,4 +325,57 @@ body {
   margin: 0;
   border: 0;
   padding: 0;
+}
+
+
+#bottom-bar {
+    padding: 12px 30px;
+    background: #000;
+    color: #fff;
+    font-size: 14px;
+    text-align: right;
+    line-height: normal;
+}
+#bottom-bar a {
+    padding-left: 15px;
+    cursor: pointer;
+}
+
+element.style {
+    display: block;
+}
+#team {
+    height: 650px;
+    width: 650px;
+    margin-left: -325px;
+    margin-top: -295px;
+}
+<style>
+.overlays {
+    background-image: initial;
+    background-color: rgb(34, 36, 38);
+}
+.overlays {
+  display: block;
+    background: #eee;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 9503;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+
+#dark-overlay {
+    display: none;
+    background: rgba(0,0,0,.7);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9502;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }

@@ -1,12 +1,21 @@
-class RRT extends GridPathFinder{
+class RRT_star extends GridPathFinder{
 
 	static get display_name(){
-		return "RRT";
+		return "RRT*";
   }
   infoMapPlannerMode(){
-    return "RRT";
+    return "RRT_star";
   }
   
+  get infoTables(){
+    return [
+    
+      {id: "ITStatistics", displayName: "Statistics", headers: ["Indicator ", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
+			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
+      {id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
+      
+		];
+	}
   static get distance_metrics(){
     return ["Euclidean"];
   }
@@ -23,14 +32,15 @@ class RRT extends GridPathFinder{
   get configs(){
 		let configs = [];
 		configs.push(
-      {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new RRT map`},
+      {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new RRT* map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
-      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 35, description: `Sets number of random points`},
-      {uid: "neighbour_selection_method", displayName: "Closest Neighbours By Radius", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 15, description: `Sets number of random points`},
+      {uid: "neighbour_selection_method", displayName: "neighbours selection method", options: ["Closest Neighbours By Radius"],defaultVal:"Closest Neighbours By Radius", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:3, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:3, description: `Sets radius of closest neighbours to select`},
-      {uid: "goal_radius", displayName: "Goal Radius", options: "number",defaultVal:3, description: `Sets radius of goal`},
-      {uid: "round_nodes", displayName: "Round Node Values", options: ["Round to Nearest Integer", "Allow Floats"], description: `Round the nodes`},
+      {uid: "max_distance_between_nodes", displayName: "Max Distance Between Nodes", options: "number",defaultVal:5, description: `Sets maximum distance between 2 nodes`},
+      {uid: "goal_radius", displayName: "Goal Radius", options: "number", defaultVal: 3, description: `Sets radius of goal` },
+      {uid: "round_nodes", displayName: "Round Node Values", options: ["Allow Floats","Round to Nearest Integer", ], description: `Round the nodes`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], defaultVal:"Euclidean", description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
@@ -108,14 +118,14 @@ l        }
         break;
       case "goal_radius":
         this.goalRadius = value;
+      case "max_distance_between_nodes":
+        this.pointsXawayFromSource = value;
 
     }
   }
 
   
   calc_cost(successor){
-
-
     function euclidean(c1, c2){
       return Math.hypot(c1[0]-c2[0], c1[1]-c2[1]);
     }
@@ -134,15 +144,23 @@ l        }
   }
 
   postProcess(){
-    this.setConfig("mapType", "Grid Vertex");
+    this.setConfig("mapType", "Grid Vertex Float");
   }
 
-  generateNewMap(start = [0,0], goal=[13,13]){
+  
+
+  generateNewMap(start = [0, 0], goal = [13, 13]) {
+    
+    this.prevGoalCoord = [];
+    this.prevGoalCoordConnectedto = [];
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
 
     this.exports = {coords:[],neighbours:[],edges:[]};
  
     //clears SVG canvas
+
+      
+    
     if(document.getElementById("node")){
       document.getElementById("node").innerHTML = "";
     }
@@ -152,32 +170,165 @@ l        }
 
     this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);
-    var rand = mulberry32(seed[0]);
+    this.rand = mulberry32(seed[0]);
     this.choosenCoordsNodes = [];
     var edgeAccumalator = [];
     this.choosenCoordsNodes.push(new MapNode(null,start,[],null,null,0));//last 2 parameters are  additionalCoord, additionalEdge) 
-    this.pointsXawayFromSource = 2;
-    myUI.nodeCanvas.drawCircle(start);
+    
+   // myUI.nodeCanvas.drawCircle(start);
+   
+    // this._create_action({ command: STATIC.DrawDottedEdge, dest: STATIC.intermediaryMapExpansion, nodeCoord: [2,2], endCoord: [8,8] });
+    this._create_action({ command: STATIC.CreateStaticRow, dest: STATIC.ITStatistics, id: "NumberOfNodes", value: "Number Of Nodes" });
+    this._create_action({ command: STATIC.CreateStaticRow, dest: STATIC.ITStatistics, id: "PathDistance", value: "Path Distance" });
+    this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "NumberOfNodes", value: "0" });
+    this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "PathDistance",value:"∞"});
+    this._create_action({ command: STATIC.DrawVertex, dest: STATIC.map, nodeCoord: start });
+    this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 1 });
+  
+    this._save_step(true);
+    
    
     //var testrandom = [[10,3],[4,20],[15,2]]
     
     for (let i = 0; i < this.sampleSize; ++i) {
-        var randomCoord_XY = [rand()*myUI.map_height, rand()*myUI.map_width]; //need seed
+        var randomCoord_XY = [this.rand()*myUI.map_height, this.rand()*myUI.map_width]; //need seed
        // var randomCoord_XY = testrandom[i];
-        var nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(this.choosenCoordsNodes,randomCoord_XY)
+        this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: 2});
+        this._create_action({ command: STATIC.DrawDottedVertex, dest: STATIC.intermediaryMapExpansion, nodeCoord: randomCoord_XY,colour:"rgb(0, 204, 255)" });
+        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 3});
+        this._save_step(true);
+        
+        var nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(this.choosenCoordsNodes, randomCoord_XY)
+       
+        
+        
+        this._create_action({ command: STATIC.DrawSingleVertex, dest: STATIC.CR, nodeCoord: this.choosenCoordsNodes[nearestNode_Index].value_XY});
+        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 4});
+        this._create_action({ command: STATIC.DrawDottedEdge, dest: STATIC.intermediaryMapExpansion, nodeCoord: this.choosenCoordsNodes[nearestNode_Index].value_XY, endCoord: randomCoord_XY });
+        this._save_step(true);
+        //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY, randomCoord_XY, dest);
+        var nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(this.choosenCoordsNodes[nearestNode_Index].value_XY,randomCoord_XY,this.pointsXawayFromSource);
+        this._create_action({ command: STATIC.DrawDottedVertex, dest: STATIC.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY });
+        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 5});
+        this._save_step(true)
+      
+        if (CustomLOSChecker(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY).boolean){ // checks if new randomm coord is on a non-obstacle coord and if path from parent to node has LOS
+          //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY,nextCoordToAdd_XY);
+          //myUI.nodeCanvas.drawCircle(nextCoordToAdd_XY);
+         
+          //if(this.choosenCoordsNodes.length == 1) myUI.edgeCanvas.drawLine(start,nextCoordToAdd_XY);;
+          //myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,true);
+         // myUI.nodeCanvas.drawCircle(randomCoord_XY);
+
+          var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, nextCoordToAdd_XY, this.neighbourSelectionMethod, this.connectionDistance,this.numberOfTopClosestNeighbours); 
+          nodesNearby_Index.forEach(element => {
+            this._create_action({ command: STATIC.DrawVertex, dest: STATIC.NB, nodeCoord: this.choosenCoordsNodes[element].value_XY }); 
+          });
+          this._create_action({ command: STATIC.DrawVertex, dest: STATIC.map, nodeCoord: nextCoordToAdd_XY });
+          this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "NumberOfNodes",value:"++"});
+          this._create_action({command: STATIC.DrawDottedVertex, dest: STATIC.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,radius: this.connectionDistance.toString()});
+          this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: 6});
+          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 7});
+          this._save_step(true);
+
+          var selectedParent_Index = determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index,this.choosenCoordsNodes);
+         // myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[selectedParent_Index].value_XY, nextCoordToAdd_XY);
+
+          this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.CR, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, colour:"pink"});
+          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 8});
+          this._save_step(true);
+          this._create_action({ command: STATIC.DrawEdge, dest: STATIC.map, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, endCoord: nextCoordToAdd_XY });
+          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 9});
+          this._save_step(true);
+          this.insertNodeToTree(selectedParent_Index, nextCoordToAdd_XY, [selectedParent_Index], randomCoord_XY, [nextCoordToAdd_XY, randomCoord_XY]);
+          this.rewireTree(this.choosenCoordsNodes.length - 1, nodesNearby_Index)
+          
+          this._create_action({ command: STATIC.UnhighlightAllPseudoCodeRowSec, dest: STATIC.PC });
+          this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: 2});
+          
+          
+          
+          this._create_action({ command: STATIC.EraseAllVertex, dest: STATIC.NB });
+          this._create_action({ command: STATIC.EraseAllVertex, dest: STATIC.intermediaryMapExpansion });
+          this._create_action({command: STATIC.EraseAllEdge, dest: STATIC.intermediaryMapExpansion});
+          this._save_step(true);
+          //parent, value_XY,neighbours, additionalCoord, additionalEdge, g_cost) parent left as null here as it is not used in search()
+          //g cost calculated within in insertNodeToTree()
+      } 
+        else { // if no LOS
+          
+          this._create_action({ command: STATIC.EraseAllVertex, dest: STATIC.NB });
+          this._create_action({ command: STATIC.EraseAllVertex, dest: STATIC.intermediaryMapExpansion });
+          this._create_action({command: STATIC.EraseAllEdge, dest: STATIC.intermediaryMapExpansion});
+          this._save_step(true);
+      }
+      
+      
+
+    }
+
+   
+    
+    
+    
+    for(let i = 0; i < this.choosenCoordsNodes.length; ++i){
+      this.exports.coords.push(this.choosenCoordsNodes[i].value_XY);
+      this.exports.neighbours.push(this.choosenCoordsNodes[i].neighbours);
+    }
+    for(let i = 0; i < edgeAccumalator.length; ++i){
+      this.exports.edges.push([edgeAccumalator[i][0],edgeAccumalator[i][1]]);
+    }
+    
+    
+    
+    
+    this.addGoalNode(myUI.map_goal);
+    //download("RRT_star Map.json", JSON.stringify(this.exports));
+    this._create_action({ command: STATIC.UnhighlightAllPseudoCodeRowSec, dest: STATIC.PC });
+    this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 9 });
+    
+    
+    this._save_step(true);
+  }
+
+
+ 
+  growMapByNodes(numberOfNodes=1) {
+    
+   
+  this.sampleSize+=numberOfNodes
+    
+    var edgeAccumalator = [];
+    
+
+    
+   
+    //var testrandom = [[10,3],[4,20],[15,2]]
+    
+    for (let i = 0; i < numberOfNodes; ++i) {
+        var randomCoord_XY = [this.rand()*myUI.map_height, this.rand()*myUI.map_width]; //recycles seed used in generate map
+       // var randomCoord_XY = testrandom[i];
+        
+        var nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(this.choosenCoordsNodes, randomCoord_XY)
+        
         var nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(this.choosenCoordsNodes[nearestNode_Index].value_XY,randomCoord_XY,this.pointsXawayFromSource);
       
       
         if (CustomLOSChecker(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY).boolean){ // checks if new randomm coord is on a non-obstacle coord and if path from parent to node has LOS
-          //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY,nextCoordToAdd_XY);
+         
+         
+          if (document.getElementById("randomCoordLine")){ myUI.edgeCanvas.EraseSvgById("randomCoordLine") }
+           if( document.getElementById("randomCoord") ){myUI.nodeCanvas.EraseSvgById("randomCoord")}
+         
+          myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY);
           myUI.nodeCanvas.drawCircle(nextCoordToAdd_XY);
-          if(this.choosenCoordsNodes.length == 1) myUI.edgeCanvas.drawLine(start,nextCoordToAdd_XY);;
-          //myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,true);
-         // myUI.nodeCanvas.drawCircle(randomCoord_XY);
+          //if(this.choosenCoordsNodes.length == 1) myUI.edgeCanvas.drawLine(start,nextCoordToAdd_XY);;
+          myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,STATIC.map,"randomCoordLine",true);
+          myUI.nodeCanvas.drawCircle(randomCoord_XY,STATIC.map,"randomCoord","purple");
 
           var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, nextCoordToAdd_XY,this.neighbourSelectionMethod,this.connectionDistance); 
           var selectedParent_Index = determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index,this.choosenCoordsNodes);
-          myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[selectedParent_Index].value_XY,nextCoordToAdd_XY);
+          //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[selectedParent_Index].value_XY,nextCoordToAdd_XY);
           this.insertNodeToTree(selectedParent_Index,nextCoordToAdd_XY,[selectedParent_Index],randomCoord_XY,[nextCoordToAdd_XY,randomCoord_XY]);
           this.rewireTree(this.choosenCoordsNodes.length-1, nodesNearby_Index)
           //parent, value_XY,neighbours, additionalCoord, additionalEdge, g_cost) parent left as null here as it is not used in search()
@@ -200,19 +351,19 @@ l        }
     
     
     
-    this.addStartGoalNode("goal",goal);
+    this.addGoalNode(myUI.map_goal);
    // this.addStartGoalNode("start",start);
-    download("RRT Map.json", JSON.stringify(this.exports));
-
+    //download("RRT_star Map.json", JSON.stringify(this.exports));
+  
    
   }
-
 
 
   insertNodeToTree(parent_Index,current_XY,neighbours_IndexArray,additionalCoord_XY, additionalEdge_XYXY){ //parent, value_XY,neighbours, additionalCoord, additionalEdge, g_cost)
     if (CustomLOSChecker(this.choosenCoordsNodes[parent_Index].value_XY, current_XY).boolean){
       var g_cost = this.choosenCoordsNodes[parent_Index].g_cost+distanceBetween2Points(current_XY,this.choosenCoordsNodes[parent_Index].value_XY);
       //add neighbours for parents
+      
       this.choosenCoordsNodes[parent_Index].neighbours.push(this.choosenCoordsNodes.length);
       this.choosenCoordsNodes.push(new MapNode(parent_Index,current_XY,neighbours_IndexArray,additionalCoord_XY,additionalEdge_XYXY,g_cost));
     }
@@ -247,125 +398,117 @@ l        }
             this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours.splice(j, 1); // removes nearby node as a neighbour of (nearby node parent)
           }
         }
+          this._create_action({command: STATIC.EraseEdge, dest: STATIC.map, nodeCoord: this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY });
+          this._create_action({command: STATIC.DrawEdge, dest: STATIC.map, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colour:"red" });
+          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 10});
+          this._save_step(true);
         console.log("rewire",this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY)
-        myUI.edgeCanvas.eraseLine(this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, STATIC.map);
-        myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[currentNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY);
+       // myUI.edgeCanvas.eraseLine(this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, STATIC.map);
+        //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[currentNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY);
       }
     }
   }
+  
 
+  addGoalNode( coord_XY = [4, 1]) {
+    if (CustomLOSChecker(coord_XY, coord_XY).boolean == false) return alert(`Goal is on an obstacle`);
 
-  addStartGoalNode(isStartOrGoal = "start",coord_XY = [4,1]){
-
-    if (isStartOrGoal == "start" && this.prevStartCoord){
-      prevCoord = this.prevStartCoord
-      prevCoordConnectedto = this.prevCoordStartConnectedTo
+    
+    
+    /*
+    if (this.prevGoalCoordConnectedto.length == 2) {
+     myUI.edgeCanvas.eraseLine(this.prevGoalCoordConnectedto,this.prevGoalCoord);
     }
-    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
-      prevCoord = this.prevGoalCoord
-      prevCoordConnectedto = this.prevCoordGoalConnectedTo
-    }
-    else {
-      var prevCoord;
-    }
+*/
 
 
-     if(prevCoord){
-      myUI.edgeCanvas.eraseLine(prevCoord, prevCoordConnectedto);
-      myUI.nodeCanvas.eraseCircle(prevCoord);
+
+  
+    var radiusInPixels = Math.max(myUI.canvases.bg.canvas.clientWidth,myUI.canvases.bg.canvas.clientHeight)/Math.max(myUI.map_width, myUI.map_height)*this.goalRadius
+    myUI.map_goal_radius.resize(2 * radiusInPixels);
+    myUI.map_goal_radius.move(coord_XY);
+
+
+    var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, coord_XY, "Closest Neighbours By Radius", this.goalRadius); 
+    if (nodesNearby_Index == false) {
+      this.prevGoalCoord = [0];
+      this.prevGoalCoordConnectedto = [0]; 
+      //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes","infinite");
+      this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "PathDistance",value:"∞"});
+      return;
     } 
-   
+    var selectedVertexIndex = this.getNeighbourIndexThatResultsInShortestPath(coord_XY, nodesNearby_Index).index;
+    var selectedVertexCost = this.getNeighbourIndexThatResultsInShortestPath(coord_XY, nodesNearby_Index).cost;
+    //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes", selectedVertexCost);
+    this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "NumberOfNodes", value: "++" });
+    this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "PathDistance",value:selectedVertexCost.toPrecision(5)});
 
-
-    if (isStartOrGoal == "start" && this.prevStartCoord){
-      this.prevStartCoord = coord_XY;
   
-    }
-    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
-      this.prevGoalCoord = coord_XY;
-     
-    }
-
-   
-
-    
-    myUI.nodeCanvas.drawCircle(coord_XY);
-
-    var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCoordNodes, 
- 
-    for (let i = 0; i < this.choosenCoordsNodes.length; ++i) {
-        distancesBetweenACoordAndAllOthers.push( [Math.hypot(coord_XY[0] - this.choosenCoordsNodes[i].value_XY[0], coord_XY[1]  - this.choosenCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
-    }
-    
-    distancesBetweenACoordAndAllOthers.sort((a,b)=>{
-      return a[0] - b[0]; // sort by first index/sort by distances shortest at start
-    });
-
-
-    let indexOfSelectedRandomCoords;
-    indexOfSelectedRandomCoords = distancesBetweenACoordAndAllOthers // same as code for   if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours"")
-      .map(p => p[1]);
-  
-    var selectedVertexIndex;
-    let cnt = 0;
-    coordLoop: for (let j = 0; j < indexOfSelectedRandomCoords.length; ++j) {
-      let jdx = indexOfSelectedRandomCoords[j];
-      if(i == jdx) continue; 
-      
-      //below currently takes the first vertex that passes LOS
-      var LOS = CustomLOSChecker(coord_XY, this.choosenCoordsNodes[jdx].value_XY);
-      if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
-        ++cnt;
-        // bidirectional
-      
-        selectedVertexIndex = jdx
-
-        
-      } 
-      if(cnt >= 1) break coordLoop;
-    }
     const selected_XY = this.choosenCoordsNodes[selectedVertexIndex].value_XY;
     var selectedIndexForStartEndVertex = this.choosenCoordsNodes.length // determined before push to array below
 
     this.exports.coords.push(coord_XY);
     this.exports.neighbours.push(new Array());
     this.choosenCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
-    this.exports.edges.push([coord_XY,selected_XY]);
-    myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
+    this.exports.edges.push([coord_XY, selected_XY]);
+    this._create_action({ command: STATIC.DrawEdge, dest: STATIC.map, nodeCoord: coord_XY, endCoord: selected_XY });
+    //myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
     if(!this.choosenCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.choosenCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
     if(!this.exports.neighbours[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbours[selectedVertexIndex].push(selectedIndexForStartEndVertex);
     if(!this.choosenCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.choosenCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
     if(!this.exports.neighbours[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbours[selectedIndexForStartEndVertex].push(selectedVertexIndex);
 
-    if (isStartOrGoal == "start"){
-      console.log("Start:", this.choosenCoordsNodes[selectedIndexForStartEndVertex]);
-    }
-    else{
-      console.log("Goal:", this.choosenCoordsNodes[selectedIndexForStartEndVertex]);
-    }
-
-    if (isStartOrGoal == "start" && this.prevStartCoord){
-      this.prevStartCoordConnectedto = selected_XY;
-    }
-    else if (isStartOrGoal == "goal" && this.prevGoalCoord){
-      this.prevGoalCoordConnectedto = selected_XY;
-    }
-  }
+   
+    console.log("Goal:", this.choosenCoordsNodes[selectedIndexForStartEndVertex]);
     
+    
+
+    this.prevGoalCoordConnectedto = selected_XY;
+    this.prevGoalCoord = coord_XY;
+
+
+
     
    
+
+    
+  }
+    
+  getNeighbourIndexThatResultsInShortestPath(coord_XY, nodesNearby_Index){ // rewires neighbouring nodes within radius of current node to current node as parent if it results in a lower g cost
+
+    var lowestConnection_g_cost = 9999999//a huge cost
+    var lowestConnection_g_cost_index;
+    for (let i = 0; i < nodesNearby_Index.length; ++i) {
+      var nodeNearby_index  = nodesNearby_Index[i];
+      var newConnection_g_cost = distanceBetween2Points(coord_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY) + this.choosenCoordsNodes[nodeNearby_index].g_cost
+      var LOS = CustomLOSChecker(coord_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY).boolean;
+      if (lowestConnection_g_cost > newConnection_g_cost && LOS) { // yes connect to 
+        lowestConnection_g_cost = newConnection_g_cost;
+        lowestConnection_g_cost_index = nodeNearby_index;
+      }
+    }
+    return {
+      index: lowestConnection_g_cost_index,
+      cost: lowestConnection_g_cost,
+    }
+  }
+
   
 
 
   search(start, goal) {
-    if(!this.choosenCoordsNodes) this.generateNewMap(start, goal);
+    
+
+    
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
+    
 		this.closed_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
 		this.open_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
 
     console.log("starting");
+    this.generateNewMap(start, goal);
    
     // starting node
     var nextNode = this.choosenCoordsNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // PRM Node
@@ -377,11 +520,11 @@ l        }
     // pushes the starting node onto the queue
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
     console.log(this.current_node);
-    debugger;
+   
     
     if(!this.bigMap){
       // for every node that is pushed onto the queue, it should be added to the queue infotable
-      this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [nextNode.value_XY[0]+','+nextNode.value_XY[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
+      this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [nextNode.value_XY[0].toPrecision(5)+','+nextNode.value_XY[1].toPrecision(5), '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
       this._create_action({command: STATIC.DrawVertex, dest: STATIC.QU, nodeCoord: nextNode.value_XY});
       this._save_step(true);
     }
@@ -432,7 +575,7 @@ l        }
         this._create_action({command: STATIC.EraseAllRows, dest: STATIC.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
           const XY = this.choosenCoordsNodes[this.current_node.neighbours[i]].value_XY;
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
 
@@ -446,7 +589,7 @@ l        }
         this._create_action({command: STATIC.EraseVertex, dest: STATIC.QU, nodeCoord: this.current_node_XY}); // erase vertex in queue
 
         //this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: this.current_node_XY});
+        this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: this.current_node_XY, pseudoCodeRow:0.2});
         this._create_action({command: STATIC.EraseAllEdge, dest: STATIC.DT});
 
         this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 12});
@@ -468,14 +611,14 @@ l        }
         let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
         
         this._create_action({command: STATIC.EraseAllEdge, dest: STATIC.DT});
-        this._create_action({command: STATIC.DrawEdge, dest: STATIC.DT, nodeCoord: next_XY, endCoord: this.current_node_XY});
+        this._create_action({command: STATIC.DrawEdge, dest: STATIC.DT, nodeCoord: next_XY, endCoord: this.current_node_XY,pseudoCodeRow:0.2});
         
         let next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, null, this.choosenCoordsNodes[idx].neighbours);
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
-            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY,pseudoCodeRow:0.2});
             this._save_step(false);
           }
           continue; // do not add to queue if open list already has a lower cost node
@@ -484,10 +627,10 @@ l        }
         if(closed_node !== undefined && closed_node.f_cost<=f_cost){
           if(!this.bigMap){
             if(this.current_node.parent.self_XY[0] == next_XY[0] && this.current_node.parent.self_XY[1] == next_XY[1])
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
             else
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
-            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY,pseudoCodeRow:0.2});
           }
           
           /* no longer required as closed list functions as visited */
@@ -499,10 +642,10 @@ l        }
           this._save_step(false);
           continue; // do not add to queue if closed list already has a lower cost node
         }
-
-        this._create_action({command: STATIC.SP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
-        this._create_action({command: STATIC.SP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
-        this._create_action({command: STATIC.SP, dest: STATIC.HCanvas, nodeCoord: next_XY, cellVal: h_cost});
+//commented away next 3 lines for RRT_star
+        //this._create_action({command: STATIC.SP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
+       // this._create_action({command: STATIC.SP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
+        //this._create_action({command: STATIC.SP, dest: STATIC.HCanvas, nodeCoord: next_XY, cellVal: h_cost});
         
         // since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
         // see https://www.geeksforgeeks.org/a-search-algorithm/
@@ -517,13 +660,13 @@ l        }
           // to find the position to add it to the queue
           let numLess = this.queue.filter(node => node.f_cost < next_node.f_cost).length;
           
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0].toPrecision(5)+','+next_XY[1].toPrecision(5), this.current_node_XY[0].toPrecision(5)+','+this.current_node_XY[1].toPrecision(5), parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
           
           if(open_node===undefined && closed_node===undefined) 
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
           else if(open_node)
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
-            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
+            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY,pseudoCodeRow:0.2});
         }
         this._save_step(false);
 
@@ -532,7 +675,12 @@ l        }
         else this.queue.unshift(next_node); // LIFO
         this.open_list.set(next_XY, next_node);  // add to open list
 
-        if(this._found_goal(next_node, "free_vertex")) return this._terminate_search();
+         if (this._found_goal(next_node, "free_vertex")) {
+           
+          
+           return this._terminate_search();
+           
+        } 
       }
 
 

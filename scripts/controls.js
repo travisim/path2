@@ -15,7 +15,7 @@ function compute_path(){
 	myUI.reset_animation(true);
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
-  if(!myUI.map_start) return alert("no scene loaded!");
+	if(!myUI.map_start) return alert("no scene loaded!");
 	myUI.planner.add_map(myUI.map_arr);
 	myUI.updateInfoMap(...myUI.map_start);
 	Object.values(myUI.canvases).forEach(function(uiCanvas){
@@ -46,6 +46,7 @@ function compute_path(){
 			updateSpeedSlider();
 			document.getElementById("compute_btn").children[0].innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
 			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").children[0].innerHTML = "Compute Path", 30000);
+		
 		})
 	}); 
 	
@@ -91,9 +92,13 @@ myUI.reset_animation = function(clear_data = false){
 		});
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(clear_data);
-	myUI.nodeCanvas.reset(clear_data);
-	myUI.edgeCanvas.reset(clear_data);
+		
 	myUI.arrow.step = -1;
+}
+
+myUI.resetMapAnimations = () => {
+	myUI.nodeCanvas.reset();
+	myUI.edgeCanvas.reset();
 }
 
 myUI.buttons.clear_btn.btn.addEventListener("click", myUI.reset_animation);
@@ -139,6 +144,7 @@ myUI.jump_to_end = function(){
 	myUI.stop_animation(change_svg = true);
 	myUI.jump_to_step(myUI.animation.max_step);
 }
+
 myUI.buttons.end_btn.btn.addEventListener("click", myUI.jump_to_end);
 
 

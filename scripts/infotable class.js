@@ -9,6 +9,7 @@ class UIInfoTable{
     this.highlightedRows = this.tableContainer.getElementsByClassName('highlighting');
     this.dynamicTable = this.tableContainer.querySelector('.dynamic_table_container');
     this.rowSize = rowSize;
+    this.tableIdentifier = tableIdentifier;
     
     //querySelector returns 1 element but getElementsByClassName returns array of elements
   }
@@ -36,15 +37,17 @@ class UIInfoTable{
 
     let tableHead = document.createElement("table");
     tableHead.classList.add("table_header");
+    tableHead.style.cssText += 'border-collapse:collapse;';
 
-    let tableScroll = document.createElement("div");
-    tableScroll.classList.add("info_Table_Scroll");
-
-    let tableContent = document.createElement("table");
-    tableContent.classList.add("dynamic_table_container");
     
-    tableScroll.appendChild(tableContent);
-    infoBody.append(tableHead, tableScroll);
+    let tableContent = document.createElement("tbody");
+    tableContent.classList.add("dynamic_table_container");
+  
+        
+    
+    tableHead.appendChild(tableContent);
+    infoBody.append(tableHead);
+
     div.append(toggler, infoBody);
     document.getElementById("info-tables-dynamic").append(div);
 
@@ -55,19 +58,23 @@ class UIInfoTable{
   
   setTableHeader(headers){
     var header = this.tableHeader[0].createTHead();
+    
     var row = header.insertRow(0);
     for (let i = 0; i < headers.length; i++){
       var temp = row.insertCell(i)
       temp.className = 'tableHeaderRow'; 
       temp.innerHTML = headers[i];
+      temp.style.cssText += 'position: sticky;top: 0px; background-color: rgb(188,186,201);overflow: auto;min-width: 30px;';
     }
+
+
     // insert an extra column for the scrollbar
-    row.insertCell(headers.length);
+    //row.insertCell(headers.length);
   }
   setTableActive(){
     this.tableContainer.classList.remove("none");
   }
-  rowGenerator(values){
+  rowGenerator(values,Id){
     //var t = document.createElement('table');
     if(values.length!=this.rowSize)
       return this.wrongRowSizeHandler(values.length);
@@ -78,6 +85,7 @@ class UIInfoTable{
       r.insertCell(i).innerHTML = values[i];
     }
     r.classList.add('infoTableRow'); // rmeoved rowId
+    Id ? r.id = Id :null;
     return r;
   }
 
@@ -205,7 +213,8 @@ class UIInfoTable{
   }
   
   insertRowAtIndex(rowIndex,values){
-    let toHighlight = (rowIndex>0);
+    
+    let toHighlight = (rowIndex > 0);
     rowIndex = Math.abs(rowIndex)-1;
     //add row at index 0 if there is no other rows
     if(this.rows.length == 0 || rowIndex == 0 ){
@@ -229,11 +238,24 @@ class UIInfoTable{
       //r.style.outline = "2px solid red";//highlight latest table added
       this.rows[rowIndex-1].after(r); //highlight latest table added  
     }
+    
     if(toHighlight) return this.setHighlightAtIndex(rowIndex+1);
     let prevHighlight = this.highlightRow;
     if(rowIndex+1<=this.highlightRow) ++this.highlightRow; // inserting a row before the highlighted row causes it to shift down by 1
+    
     return prevHighlight;
   }
+
+  createStaticRowWithACellEditableById(value0) { // id of cell is value with whitespace stripped
+    var r = this.rowGenerator([value0, "-"], value0.replaceAll(/\s/g,''));
+    this.dynamicTable.append(r);
+  }
+  editStaticCellByRowId(id,value1) {
+    value1 == "++"
+      ? document.getElementById(id).cells[1].innerHTML = parseInt(document.getElementById(id).cells[1].innerHTML) + 1
+      : document.getElementById(id).cells[1].innerHTML = value1; 
+  }
+
 
   eraseRowAtIndex(rowIndex){
     rowIndex = Math.abs(rowIndex)-1;
