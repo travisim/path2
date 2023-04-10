@@ -56,25 +56,3 @@ function decodeString(ptr) {
   while (bytes[strlen] != 0) strlen++;
   return new TextDecoder("utf8").decode(bytes.slice(0, strlen));
 }
-
-function test(){
-  let chosenCost = ["Manhattan",
-    "Euclidean",
-    "Chebyshev",
-    "Octile"].findIndex(cost=>{
-      return cost == myUI.planner.distance_metric;
-    });
-  let order = ["FIFO", "LIFO"].findIndex(cost=>{
-      return cost == myUI.planner.timeOrder;
-    });
-  let grid = encodeGrid(myUI.map_arr, 1);
-  let arr = encodeArray(myUI.planner.neighborsIndex, 1);
-  myWasm.AStarSearch(
-    grid, myUI.map_height, myUI.map_width,
-    ...myUI.map_start, ...myUI.map_goal,
-    arr, myUI.planner.neighborsIndex.length,
-    myUI.planner.vertexEnabled, myUI.planner.diagonal_allow, myUI.planner.bigMap,
-    chosenCost, order
-  );
-  myWasm.printPath();
-}

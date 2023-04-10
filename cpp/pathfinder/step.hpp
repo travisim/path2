@@ -15,6 +15,7 @@ namespace pathfinder
     this->genStates = genStates;
     this->stateFreq = stateFreq;
     stepCnt = 0;
+    std::cout<<"Generating steps in wasm!\n";
     return false;
   }
 
@@ -24,8 +25,12 @@ namespace pathfinder
       givenBatchSize = batchSize; // use fwd step generation size
     while (givenBatchSize--)
     {
-      if (stepCnt >= steps.size())
+      if (stepCnt >= steps.size()){
+        std::cout<<"Finished generating steps in wasm!\n";
+        std::cout<<"Number of revActions: "<<revActionCnt<<std::endl;
+        std::cout<<"Number of states: "<<states.size()<<std::endl;
         return true;
+      }
       // for(int i = 0; i < steps[stepCnt]->fwdActions.size(); ++i){
       // Action fwd = *steps[stepCnt]->fwdActions[i].get();// get the underlying pointer and deference it
       for (auto &fwd : steps[stepCnt]->fwdActions)
@@ -43,8 +48,10 @@ namespace pathfinder
         double cellVal = fwd.cellVal;
         int endX = fwd.endCoord.first;
         int endY = fwd.endCoord.second;
-
+        
+        #ifdef CANVAS_GRID
         const int defaultVal = 0; // change this in the future, tag this to the dest
+        #endif
 
         if (cellVal != -1)
         { // && myUI.canvases[statics_to_obj[dest]].valType=="float"
@@ -99,7 +106,11 @@ namespace pathfinder
           sim.activeCanvas[dest][x][y] = cellVal;
 #else
           sim.activeCanvas[dest].clear();
+          #ifdef BIT_SHIFT_COORD
+          sim.activeCanvas[dest][coord2uint32(x, y)] = cellVal;
+          #else
           sim.activeCanvas[dest][{x, y}] = cellVal;
+          #endif
 #endif
         }
         else if (command == SetPixel)
@@ -111,10 +122,17 @@ namespace pathfinder
           // update
           sim.activeCanvas[dest][x][y] = cellVal;
 #else
+          #ifdef BIT_SHIFT_COORD
+          // reverse
+          steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][coord2uint32(x, y)]));
+          // update
+          sim.activeCanvas[dest][coord2uint32(x, y)] = cellVal;
+          #else
           // reverse
           steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][{x, y}]));
           // update
           sim.activeCanvas[dest][{x, y}] = cellVal;
+          #endif
 #endif
         }
         else if (command == DrawPixel)
@@ -125,14 +143,22 @@ namespace pathfinder
 #ifdef CANVAS_GRID
           if (sim.activeCanvas[dest][x][y] == defaultVal)
 #else
+          #ifdef BIT_SHIFT_COORD
+          if (sim.activeCanvas[dest].find(coord2uint32(x, y)) == sim.activeCanvas[dest].end())
+          #else
           if (sim.activeCanvas[dest].find({x, y}) == sim.activeCanvas[dest].end())
+          #endif
 #endif
             steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(ErasePixel, dest, {x, y}));
             // update
 #ifdef CANVAS_GRID
           sim.activeCanvas[dest][x][y] = cellVal;
 #else
+          #ifdef BIT_SHIFT_COORD
+          sim.activeCanvas[dest][coord2uint32(x, y)] = cellVal;
+          #else
           sim.activeCanvas[dest][{x, y}] = cellVal;
+          #endif
 #endif
         }
         else if (command == ErasePixel)
@@ -142,8 +168,14 @@ namespace pathfinder
           steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(DrawPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][x][y]));
           sim.activeCanvas[dest][x][y] = defaultVal;
 #else
+          #ifdef BIT_SHIFT_COORD
+          uint32_t conv = coord2uint32(x, y);
+          steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(DrawPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][conv]));
+          sim.activeCanvas[dest].erase(conv);
+          #else
           steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(DrawPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][{x, y}]));
           sim.activeCanvas[dest].erase({x, y});
+          #endif
 #endif
         }
         else if (command == EraseCanvas)
@@ -165,7 +197,11 @@ namespace pathfinder
 #else
           for (auto it : sim.activeCanvas[dest])
           {
+            #ifdef BIT_SHIFT_COORD
+            steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, uint322coord(it.first), -1, -1, -1, -1, {}, it.second));
+            #else
             steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, it.first, -1, -1, -1, -1, {}, it.second));
+            #endif
           }
           sim.activeCanvas[dest].clear();
 #endif
@@ -176,7 +212,11 @@ namespace pathfinder
 #ifdef CANVAS_GRID
           sim.activeCanvas[dest][x][y]++;
 #else
+          #ifdef BIT_SHIFT_COORD
+          sim.activeCanvas[dest][coord2uint32(x, y)]++;
+          #else
           sim.activeCanvas[dest][{x, y}]++;
+          #endif
 #endif
         }
         else if (command == DecrementPixel)
@@ -185,7 +225,11 @@ namespace pathfinder
 #ifdef CANVAS_GRID
           sim.activeCanvas[dest][x][y]--;
 #else
+          #ifdef BIT_SHIFT_COORD
+          sim.activeCanvas[dest][coord2uint32(x, y)]--;
+          #else
           sim.activeCanvas[dest][{x, y}]--;
+          #endif
 #endif
         }
         else if (command == DrawArrow)
@@ -315,50 +359,76 @@ namespace pathfinder
           sim.edges[dest].clear();
         }
       }
-
-      stepCnt++;
-
+      
+      revActionCnt += steps[stepCnt++]->revActions.size();
+      if(!genStates){
+        if(stepCnt % 100000 == 0) std::cout << "Step " << stepCnt << std::endl;
+        continue;
+      }
       if (stepCnt % stateFreq == 0)
       {
         int stateNum = stepCnt / stateFreq;
         if (stateNum % 100 == 0)
           std::cout << "State " << stateNum << std::endl;
-        if (!genStates)
-          continue;
         std::unique_ptr<State> nextState = std::make_unique<State>();
 
         // canvas
-        for (const auto p : sim.activeCanvas)
+        #ifdef VECTOR_METHOD
+        int mx = 0;
+        for (const auto &p : sim.activeCanvas)
+          mx = std::max(mx, (int)p.first);
+        nextState->canvases.resize(mx + 1);
+        #endif
+        for (const auto &p : sim.activeCanvas)
         {
           nextState->canvases[p.first] = p.second;
         }
 
         // arrow
-        // this copies the unodered_map<int, int> src: https://www.geeksforgeeks.org/unordered_map-operator-in-c-stl-2/
+        // this copies the unodered_map<int, uint8_t> src: https://www.geeksforgeeks.org/unordered_map-operator-in-c-stl-2/
         nextState->arrowColor = sim.arrowColor;
 
+        
         // infotables
+        #ifdef VECTOR_METHOD
+        mx = 0;
+        for (const auto &p : sim.activeTable)
+           mx = std::max(mx, (int)p.first);
+        nextState->infotables.resize(mx + 1);
+        #endif
         for (auto &p : sim.activeTable)
         {
-          p.second->getState(nextState->infotables[p.first]);
+          p.second->getCurrentState(nextState->infotables[p.first]);
         }
 
         nextState->pseudoCodeRowPri = sim.pseudoCodeRowPri;
         nextState->pseudoCodeRowSec = sim.pseudoCodeRowSec;
-
-        for (const auto p : sim.vertices)
+        
+        #ifdef VECTOR_METHOD
+        mx = 0;
+        for (const auto &p : sim.vertices)
+          mx = std::max(mx, (int)p.first);
+        nextState->vertices.resize(mx + 1);
+        #endif
+        for (const auto &p : sim.vertices)
         {
-          Dest d = p.first;
-          for (const auto v : p.second)
+          const Dest &d = p.first;
+          for (const auto &v : p.second)
           {
             nextState->vertices[d].push_back(v);
           }
         }
 
-        for (const auto p : sim.edges)
+        #ifdef VECTOR_METHOD
+        mx = 0;
+        for (const auto &p : sim.edges)
+          mx = std::max(mx, (int)p.first);
+        nextState->edges.resize(mx + 1);
+        #endif
+        for (const auto &p : sim.edges)
         {
           Dest d = p.first;
-          for (const auto e : p.second)
+          for (const auto &e : p.second)
           {
             nextState->edges[d].push_back(e);
           }
@@ -377,9 +447,16 @@ namespace pathfinder
 
   State GridPathFinder::getState(int stepNo)
   {
-    if (stepNo < stateFreq)
+    int stateNo = (stepNo + 1) / stateFreq;
+    std::cout<<"Getting state "<<stateNo<<" from wasm!\n";
+    std::cout<<"Size of state = ";
+    if (stepNo < stateFreq){
+      std::cout<<0<<std::endl;
       return State{false};
-    return State(*states[(stepNo + 1) / stateFreq - 1].get());
+    }
+    State s = *states[stateNo - 1].get();
+    std::cout<<sizeof(s)<<std::endl;
+    return s;
   }
 }
 

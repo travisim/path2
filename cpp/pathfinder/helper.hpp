@@ -1,7 +1,3 @@
-#ifndef HELPER_HPP
-#define HELPER_HPP
-#define USE_MATH_DEFINES
-
 #include <vector>
 #include <iostream>
 #include <utility>
@@ -9,6 +5,15 @@
 #include <chrono>
 #include <cstdint>
 #include <unordered_map>
+
+#ifndef HELPER_HPP
+#define HELPER_HPP
+#define USE_MATH_DEFINES
+
+#define STEP_STRUCT_METHOD
+#define VECTOR_METHOD
+#define BIT_SHIFT_COORD
+//#define CANVAS_GRID
 
 using coord_t = std::pair<int, int>;
 using line_t = std::array<int, 4>;
@@ -19,6 +24,8 @@ using gridf_t = std::vector<rowf_t>;
 using neighbors_t = std::vector<uint8_t>;
 using path_t = std::vector<coord_t>;
 using bound_t = std::pair<double, double>;
+
+const double THRESH = 1e-8;
 
 struct CoordDoubleHash {
   std::size_t operator()(const std::pair<double, double>& p) const {
@@ -33,7 +40,13 @@ struct CoordIntHash {
   }
 };
 
+#ifdef BIT_SHIFT_COORD
+// change coord_t to number: (uint64_t)(x) << 32 | (uint64_t)(y) -> uint64_t
+using state_canvas_t = std::unordered_map<uint32_t, double>;
+#else
 using state_canvas_t = std::unordered_map<coord_t, double, CoordIntHash>;
+#endif
+
 
 template <class T>
 class Empty2D{
@@ -100,6 +113,13 @@ grid_t makeGrid(int height, int width, int defVal = 0){
 
 gridf_t makeGridf(int height, int width, double defVal = 0){
   return gridf_t(height, rowf_t(width, defVal));
+}
+
+uint32_t coord2uint32(coord_t c){ return ((uint32_t)(c.first) << 16) | (uint32_t)(c.second); }
+uint32_t coord2uint32(uint32_t x, uint32_t y){ return ((x) << 16) | (y); }
+
+coord_t uint322coord(uint32_t c){
+  return {c>>16, c & ((1 << 16) - 1)};
 }
 
 #endif

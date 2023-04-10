@@ -5,12 +5,10 @@
 #include <memory>
 
 #include "infotable.hpp"
+#include "helper.hpp"
 
 #ifndef ENUMS_HPP
 #define ENUMS_HPP
-
-//#define STEP_STRUCT_METHOD
-//#define CANVAS_GRID
 
 namespace pathfinder
 {
@@ -191,7 +189,19 @@ namespace pathfinder
     /* std::unordered_map<Dest, state_canvas_t> canvases;
     std::unordered_map<Dest, InfoTableState> infotables;
     std::unordered_map<Dest, std::vector<coord_t>> vertices;
-    std::unordered_map<Dest, std::vector<line_t>> edges; */
+    std::unordered_map<Dest, std::vector<line_t>> edges; 
+    std::unordered_map<Dest, uint8_t> arrowColor;*/
+    
+#ifdef VECTOR_METHOD
+    std::vector<state_canvas_t> canvases;
+    
+    // std::unordered_map<int, InfoTableState> infotables;
+    // std::unordered_map<int, std::vector<coord_t>> vertices;
+    // std::unordered_map<int, std::vector<line_t>> edges;
+    std::vector<InfoTableState> infotables;
+    std::vector<std::vector<coord_t>> vertices;
+    std::vector<std::vector<line_t>> edges;
+#else
 #ifdef CANVAS_GRID
     std::unordered_map<int, gridf_t> canvases;
 #else
@@ -200,7 +210,8 @@ namespace pathfinder
     std::unordered_map<int, InfoTableState> infotables;
     std::unordered_map<int, std::vector<coord_t>> vertices;
     std::unordered_map<int, std::vector<line_t>> edges;
-    std::unordered_map<int, int> arrowColor;
+#endif
+    std::unordered_map<int, uint8_t> arrowColor;
     int pseudoCodeRowPri;
     int pseudoCodeRowSec;
   };
@@ -216,9 +227,9 @@ namespace pathfinder
 #endif
     std::unordered_map<Dest, std::unique_ptr<InfoTable>> activeTable;
     std::unordered_map<Dest, coord_t> singlePixelCanvas;
-    std::unordered_map<int, int> arrowColor;
+    std::unordered_map<int, uint8_t> arrowColor;
     // std::unordered_map<Dest, std::pair<double, double>> bounds;
-    std::unordered_map<int, std::pair<double, double>> bounds;
+    std::unordered_map<int, bound_t> bounds;
 
     std::unordered_map<Dest,
                        std::unordered_set<

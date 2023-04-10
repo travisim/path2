@@ -1,7 +1,10 @@
 #define _USE_MATH_DEFINES
 
-// #include <emscripten.h>
+#ifndef PURE_CPP
+#include <emscripten/bind.h>
+#endif
 #include <iostream>
+#include <assert.h>
 #include <utility>
 #include <cmath>     // M_SQRT2
 #include <algorithm> // max, min
@@ -12,6 +15,7 @@
 
 #include "pathfinder.hpp"
 #include "step.hpp"
+#include "conversion.cpp"
 
 #include "node.hpp"
 #include "rbt.hpp"
@@ -24,7 +28,7 @@ namespace pathfinder{
 class PriorityQueue
 {
 public:
-  PriorityQueue(timeOrder order = FIFO, double THRESH = 1e-8, bool hOptimized = false) : order(order), THRESH(THRESH), hOptimized(hOptimized), data(THRESH, hOptimized, order) {}
+  PriorityQueue(timeOrder order = FIFO, bool hOptimized = false) : data(hOptimized, order) {}
   bool empty() { return data.empty(); }
   int push(Node* n)
   {
@@ -39,13 +43,13 @@ public:
   {
     return data.minimumVal();
   }
+  int size(){
+    return data.size();
+  }
   void clear() { data.clear(); }
 
 private:
   RedBlackTree data;
-  timeOrder order;
-  double THRESH;
-  bool hOptimized;
 };
 
 class A_star : public GridPathFinder
@@ -90,8 +94,9 @@ private:
       gCost = curG + chebyshev(curX, curY, nextX, nextY);
       hCost = chebyshev(nextX, nextY, goalX, goalY);
     }
-    else if (chosenCost == Octile)
+    else// if (chosenCost == Octile)
     {
+      assert(chosenCost == Octile);
       gCost = curG + octile(curX, curY, nextX, nextY);
       hCost = octile(nextX, nextY, goalX, goalY);
     }
@@ -101,12 +106,29 @@ public:
   Empty2D<Node*> openList, closedList;
   A_star() {}
 
-  bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap, costType chosenCost, timeOrder order)
+#ifndef PURE_CPP
+  bool wrapperSearch(
+    emscripten::val gridArr,  // grid
+    int startX, int startY, int goalX, int goalY,  // start and end coordinates
+    emscripten::val neighborsIndexArr,
+    bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized,
+    int chosenCostInt, int orderInt // implicit type conversion (?)
+  ){
+    pathfinder::costType chosenCost = (pathfinder::costType)chosenCostInt;
+    pathfinder::timeOrder order = (pathfinder::timeOrder)orderInt;
+    grid_t grid = js2DtoVect2D(gridArr);
+    std::vector<uint8_t> neighborsIndex = js1DtoVect1D(neighborsIndexArr);
+    
+    return search(grid, startX, startY, goalX, goalY, neighborsIndex, vertexEnabled, diagonalAllow, bigMap, hOptimized, chosenCost, order);
+  }
+  #endif
+
+  bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order)
   {
     initSearch(grid, {startX, startY}, {goalX, goalY}, neighborsIndex, vertexEnabled, diagonalAllow, bigMap);
     this->chosenCost = chosenCost;
     this->order = order;
-    pq = PriorityQueue(order, 1e-8, false);
+    pq = PriorityQueue(order, hOptimized);
     closedList = Empty2D<Node*>(gridHeight, gridWidth);
     openList = Empty2D<Node*>(gridHeight, gridWidth);
     openList.clear();
@@ -142,30 +164,35 @@ public:
 
     currentNode = nullptr;
 
-    // there exists a Node object which can only be referenced by the ptr in pq;
     // return runNextSearch();
     return false;
   }
 
   bool runNextSearch(int givenBatchSize = -1)
   {
+    //std::cout<<"starting runNextSearch! Step Index: "<<stepIndex<<std::endl;
     if (givenBatchSize == -1)
       givenBatchSize = batchSize;
     int num = givenBatchSize;
     while (num--)
     {
+      //std::cout<<num<<' '<<stepIndex<<std::endl;
       if (pq.empty())
         return terminateSearch(false);
-
+      //std::cout<<"Size before: "<<pq.size()<<' ';
       currentNode = pq.top();
       pq.pop();
+      //std::cout<<"Size after: "<<pq.size()<<std::endl;
       currentNodeXY = {currentNode->coordX, currentNode->coordY};
       openList.set(currentNodeXY, nullptr);
       if (stepIndex % 10000 == 0)
         std::cout << "F: " << std::setprecision(5) << currentNode->fCost << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
+      
+      //std::cout<<currentNode->fCost<<' '<<*closedList.get(currentNodeXY);
 
       if (closedList.get(currentNodeXY) != nullptr && closedList.get(currentNodeXY)->fCost <= currentNode->fCost)
         continue;
+      //std::cout<<"visiting new node!\n";
 
       closedList.set(currentNodeXY, currentNode);
 
@@ -230,6 +257,7 @@ public:
             createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Out of Bounds"});
           continue;
         }
+        //std::cout<<"node is in bounds\n";
         if (!bigMap)
         {
           createAction(DrawSinglePixel, CanvasFocused, nextXY);
@@ -242,14 +270,12 @@ public:
             createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Obstacle"});
             saveStep(false);
           }
-          // std::cout<<"obs"<<std::endl;
           continue;
         }
+        //std::cout<<"node is not obs\n";
 
         std::array<double, 3> trip = calcCost(nextXY);
         const double fCost = trip[0], gCost = trip[1], hCost = trip[2];
-
-        // std::cout<<fCost<<std::endl;
 
         Node* openNode = openList.get(nextXY);
         if (openNode != NULL && openNode->fCost <= fCost)
@@ -261,6 +287,7 @@ public:
           }
           continue;
         }
+        //std::cout<<"node has lower fCost\n";
 
         Node* closedNode = closedList.get(nextXY);
         if (closedNode != NULL && closedNode->fCost <= fCost)
@@ -276,6 +303,8 @@ public:
           saveStep(false);
           continue;
         }
+
+        //std::cout<<"node not visited before\n";
 
         Node* nextNode = new Node(nextXY.first, nextXY.second, currentNode, -1, fCost, gCost, hCost);
         currentNode->addChild(nextNode);
@@ -306,9 +335,33 @@ public:
         openList.set(nextXY, nextNode);
       }
     }
+    //std::cout<<"runNextSearch done! Step Index: "<<stepIndex<<std::endl;
     // return runNextSearch();
     return false;
   }
+
+  void insertNode(){
+    int k = 2;
+    std::cout<<"Inserting "<<k<<" nodes\n";
+    while(k--){
+      Node* n = new Node(-1, -1, nullptr, -1, -1, -1, -1);
+      rootNode->addChild(n);
+      pq.push(n);
+    }
+  }
+
+  void eraseNode(){
+    int k = 2;
+    std::cout<<"Erasing "<<k<<" nodes\n";
+    while(k--)
+      pq.pop();
+  }
+
+  int pqSize(){
+    std::cout<<"Num nodes: "<<pq.size()<<std::endl;
+    return pq.size();
+  }
+
 };
 
 }

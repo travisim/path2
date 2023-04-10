@@ -1,4 +1,5 @@
-#include "pathfinder/helper.hpp"
+#include "helper.hpp"
+#ifndef PURE_CPP
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
@@ -19,6 +20,8 @@ grid_t js2DtoVect2D(const emscripten::val &js2D){
   }
   return grid;
 }
+
+#endif
 
 void vectDigitPrint(std::vector<uint8_t> v){
   unsigned char* s = (unsigned char*)malloc(v.size() * 2 + 1);

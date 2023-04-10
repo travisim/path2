@@ -562,3 +562,11 @@ function map_to_obj(map){
 	}
 	return obj;
 }
+
+function vec_to_obj(vec){
+	let obj = {};
+	for(let i = 0; i < vec.size(); ++i){
+		obj[i] = vec.get(i);
+	}
+	return obj;
+}

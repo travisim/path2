@@ -169,7 +169,7 @@ public:
         std::cout << "\nEND OF PEEK\n\n";
     }
 
-    void getState(InfoTableState &its){
+    void getCurrentState(InfoTableState &its){
         its = {rowSize, highlightRow, rows};
     }
 

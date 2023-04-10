@@ -3,89 +3,11 @@
 #define STBI_ASSERT(x)
 
 #include "pathfinder/A_star.hpp"
-#include "conversion.cpp"
 
 pathfinder::A_star planner;
 path_t path;
 
 int main() { return 0; }
-
-bool AStarSearch(
-  emscripten::val gridArr,  // grid
-  int startX, int startY, int goalX, int goalY,  // start and end coordinates
-  emscripten::val neighborsIndexArr,
-  bool vertexEnabled, bool diagonalAllow, bool bigMap,
-  int chosenCostInt, int orderInt // implicit type conversion (?)
-){
-  pathfinder::costType chosenCost = (pathfinder::costType)chosenCostInt;
-  pathfinder::timeOrder order = (pathfinder::timeOrder)orderInt;
-  grid_t grid = js2DtoVect2D(gridArr);
-  std::vector<uint8_t> neighborsIndex = js1DtoVect1D(neighborsIndexArr);
-  
-  bool finished = planner.search(grid, startX, startY, goalX, goalY, neighborsIndex, vertexEnabled, diagonalAllow, bigMap, chosenCost, order);
-  //bool finished = planner.search(grid, 125, 10, 127, 198, neighborsIndex, false, false, false, Octile, FIFO);
-  return finished;
-}
-
-bool AStarRunNextSearch(int batchSize = -1){
-  return planner.runNextSearch(batchSize);
-}
-
-int getStepIndex(){
-  return planner.stepIndex;
-}
-
-int getNumStates(){
-  return planner.states.size();
-}
-
-std::vector<int> getStepData(){ return planner.stepData; }
-std::vector<int> getStepIndexMap(){ return planner.stepIndexMap; }
-std::vector<int> getCombinedIndexMap(){ return planner.combinedIndexMap; }
-std::vector<std::vector<int>> getCellMap(){ return planner.cellMap; }
-std::vector<std::vector<std::string>> getITRowDataCache(){ return planner.ITRowDataCache; }
-std::vector<double> getCellVals(){ return planner.cellVals; }
-std::vector<std::vector<int>> getArrowCoords(){ return planner.arrowCoords; }
-
-std::unordered_map<int, bound_t> getBounds(){
-  return planner.sim.bounds;
-}
-
-int maxStep(){
-  return planner.maxStep();
-}
-
-bool genSteps(bool genState, int stateFreq){
-  #ifdef STEP_STRUCT_METHOD
-  return planner.generateReverseSteps(genState, stateFreq);
-  #else
-  return true;
-  #endif
-}
-
-bool nextGenSteps(int batchSize){
-  #ifdef STEP_STRUCT_METHOD
-  return planner.nextGenSteps(batchSize);
-  #else
-  return true;
-  #endif
-}
-
-pathfinder::Step getStep(int stepNo){
-  #ifdef STEP_STRUCT_METHOD
-  return planner.getStep(stepNo);
-  #else
-  return pathfinder::Step{};
-  #endif
-}
-
-pathfinder::State getState(int stepNo){
-  #ifdef STEP_STRUCT_METHOD
-  return planner.getState(stepNo);
-  #else
-  return pathfinder::State{false};
-  #endif
-}
 
 // LEGACY DUE TO INSTANTIATESTREAMING
 void printPath(){
@@ -140,24 +62,38 @@ namespace custom{
 }
 
 EMSCRIPTEN_BINDINGS(myModule) {
-  
-  emscripten::function("AStarSearch", &AStarSearch);
-  emscripten::function("AStarRunNextSearch", &AStarRunNextSearch);
-  emscripten::function("getStepIndex", &getStepIndex);
-  emscripten::function("getNumStates", &getNumStates);
-  emscripten::function("getStepData", &getStepData);
-  emscripten::function("getStepIndexMap", &getStepIndexMap);
-  emscripten::function("getCombinedIndexMap", &getCombinedIndexMap);
-  emscripten::function("getCellMap", &getCellMap);
-  emscripten::function("getITRowDataCache", &getITRowDataCache);
-  emscripten::function("getCellVals", &getCellVals);
-  emscripten::function("getArrowCoords", &getArrowCoords);
-  emscripten::function("maxStep", &maxStep);
-  emscripten::function("genSteps", &genSteps);
-  emscripten::function("nextGenSteps", &nextGenSteps);
-  emscripten::function("getStep", &getStep);
-  emscripten::function("getState", &getState);
-  emscripten::function("getBounds", &getBounds);
+
+  emscripten::class_<pathfinder::GridPathFinder>("GridPathFinder")
+    .constructor<>()
+    .property("stepIndex", &pathfinder::GridPathFinder::stepIndex)
+    .property("stepData", &pathfinder::GridPathFinder::stepData)
+    .property("stepIndexMap", &pathfinder::GridPathFinder::stepIndexMap)
+    .property("combinedIndexMap", &pathfinder::GridPathFinder::combinedIndexMap)
+    .property("cellMap", &pathfinder::GridPathFinder::cellMap)
+    .property("ITRowDataCache", &pathfinder::GridPathFinder::ITRowDataCache)
+    .property("cellVals", &pathfinder::GridPathFinder::cellVals)
+    .property("arrowCoords", &pathfinder::GridPathFinder::arrowCoords)
+    .function("maxStep", &pathfinder::GridPathFinder::maxStep)
+#ifdef STEP_STRUCT_METHOD
+    .function("generateReverseSteps", &pathfinder::GridPathFinder::generateReverseSteps)
+    .function("nextGenSteps", &pathfinder::GridPathFinder::nextGenSteps)
+    .function("getBounds", &pathfinder::GridPathFinder::getBounds) // step generation
+    .function("getStep", &pathfinder::GridPathFinder::getStep)
+    .function("getState", &pathfinder::GridPathFinder::getState)
+    .function("getNumStates", &pathfinder::GridPathFinder::getNumStates)
+#endif
+    ;
+
+
+  emscripten::class_<pathfinder::A_star, emscripten::base<pathfinder::GridPathFinder>>("AStarPlanner")
+    .constructor<>()
+    .function("wrapperSearch", &pathfinder::A_star::wrapperSearch)
+    .function("search", &pathfinder::A_star::search)
+    .function("runNextSearch", &pathfinder::A_star::runNextSearch)
+    .function("insertNode", &pathfinder::A_star::insertNode)
+    .function("eraseNode", &pathfinder::A_star::eraseNode)
+    .function("pqSize", &pathfinder::A_star::pqSize)
+    ;
 
   emscripten::function("printPath", &printPath);
   emscripten::register_vector<int>("vectorInt");
@@ -213,25 +149,47 @@ EMSCRIPTEN_BINDINGS(myModule) {
   emscripten::register_vector<double>("vectorDouble");
   emscripten::register_vector<rowf_t>("vectorVectorDouble");
 #else
+  #ifdef VECTOR_METHOD
+  emscripten::register_vector<state_canvas_t>("canvases");
+  #else
   custom::register_unordered_map<int, state_canvas_t>("canvases");
+  #endif
+  #ifdef BIT_SHIFT_COORD
+  custom::register_unordered_map<uint32_t, double>("canvas");
+  emscripten::register_vector<uint32_t>("coords");
+  #else
   custom::register_unordered_map<coord_t, double, CoordIntHash>("canvas");
 #endif
+#endif
 
+  #ifdef VECTOR_METHOD
+  emscripten::register_vector<InfoTableState>("infotables");
+  #else
   custom::register_unordered_map<int, InfoTableState>("infotables");
+  #endif
   emscripten::class_<InfoTableState>("InfoTableState")
     .constructor<>()
     .property("rowSize", &InfoTableState::rowSize)
     .property("highlightedRow", &InfoTableState::highlightedRow)
     .property("rows", &InfoTableState::rows); //vectorVectorString
 
+  #ifdef VECTOR_METHOD
+  emscripten::register_vector<std::vector<coord_t>>("vertices");
+  #else
   custom::register_unordered_map<int, std::vector<coord_t>>("vertices");
+  #endif
   emscripten::register_vector<coord_t>("vectorCoord");
 
+  #ifdef VECTOR_METHOD
+  emscripten::register_vector<std::vector<line_t>>("edges");
+  #else
   custom::register_unordered_map<int, std::vector<line_t>>("edges");
+  #endif
   emscripten::register_vector<line_t>("vectorEdge");
   custom::register_array<int, 4>("line_t");
 
   custom::register_unordered_map<int, int>("rows");
+  custom::register_unordered_map<int, uint8_t>("arrowColor");
   // end of state property bindings
 
   // bounds

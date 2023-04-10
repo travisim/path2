@@ -63,7 +63,6 @@ namespace pathfinder
 
     RBTNode *root, *tNil;
     bool hOptimized = true;
-    double THRESH = 1e-8;
     timeOrder order;
 
     bool less(const Node* n1, const Node* n2) const
@@ -524,7 +523,7 @@ namespace pathfinder
     }
 
   public:
-    RedBlackTree(double THRESH = 1e-8, bool hOptimized = true, timeOrder order = FIFO) : THRESH(THRESH), hOptimized(hOptimized), order(order)
+    RedBlackTree(bool hOptimized = true, timeOrder order = FIFO) : hOptimized(hOptimized), order(order)
     {
 
       tNil = new RBTNode();
@@ -653,6 +652,10 @@ namespace pathfinder
     {
       delete this->root;
       this->root = tNil;
+    }
+
+    int size(){
+      return this->root->size;
     }
 
     bool empty()

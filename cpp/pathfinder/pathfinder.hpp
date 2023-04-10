@@ -47,6 +47,7 @@ namespace pathfinder
     int arrowCnt;
     int stepIndex;
     int lastStepIndex;
+    int fwdActionCnt;
 
     std::vector<std::vector<int>> cellMap;
 
@@ -206,7 +207,9 @@ namespace pathfinder
     void initSearch(grid_t &grid, coord_t start, coord_t goal, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap)
     {
       gridHeight = grid.size();
+      std::cout<<gridHeight<<std::endl;
       gridWidth = grid[0].size();
+      std::cout<<gridHeight<<' '<<gridWidth<<std::endl;
       this->grid = grid;
       this->start = start; // in array form [x,y]  [0,0] is top left  [512,512] is bottom right
       this->goal = goal;
@@ -250,16 +253,17 @@ namespace pathfinder
       stepData.clear();
       stepIndexMap.clear();
       combinedIndexMap.clear();
-      steps.clear();
-      states.clear();
       ITRowDataCache.clear();
       cellVals.clear();
       arrowCoords.clear();
       drawArrows = gridHeight <= 65 && gridWidth <= 65;
+      fwdActionCnt = 0;
 
 #ifdef STEP_STRUCT_METHOD
       steps.clear();
+      states.clear();
       currentStep = std::make_unique<Step>();
+      revActionCnt = 0;
 #endif
 
       // generate empty 2d array
@@ -356,6 +360,7 @@ namespace pathfinder
     {
       //std::unique_ptr<Action> myAction = GridPathFinder::packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endCoord);
       Action myAction = GridPathFinder::packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endCoord);
+      fwdActionCnt++;
 
 #ifdef STEP_STRUCT_METHOD
       // STEP STRUCT METHOD
@@ -454,6 +459,7 @@ namespace pathfinder
       }
 #ifdef STEP_STRUCT_METHOD
       std::cout << "Num steps: " << steps.size() << std::endl;
+      std::cout << "Num actions: " << fwdActionCnt << std::endl;
 #else
       std::cout << "StepData: " << stepData.size() << ", StepIndexMap: " << stepIndexMap.size() << ", CombinedIndexMap: " << combinedIndexMap.size() << std::endl;
 #endif
@@ -469,10 +475,16 @@ namespace pathfinder
 #endif
     }
 #ifdef STEP_STRUCT_METHOD
+    int revActionCnt;
     bool generateReverseSteps(bool genState, int stateFreq);
     bool nextGenSteps(int givenBatchSize);
+    std::unordered_map<int, bound_t> getBounds(){
+      return sim.bounds;
+    }
+    int getNumStates(){
+      return states.size();
+    }
 #endif
-    std::unordered_map<Dest, std::pair<double, double>> getBounds();
     Step getStep(int stepNo);
     State getState(int stepNo);
   };
