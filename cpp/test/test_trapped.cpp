@@ -11,7 +11,7 @@ pathfinder::A_star planner;
 
 int main(){
 
-  grid_t grid = parseMap("trapped_1024.map");
+  grid_t grid = parseMap("trapped_256.map");
   neighbors_t neighborsIndex = {0, 1, 2, 3, 4, 5, 6, 7};
 
   std::cout<<"starting"<<std::endl;
@@ -26,7 +26,7 @@ int main(){
   std::cout<<"Search time: "<<endSearch - start<<"ms"<<std::endl;
   path_t path = planner.path;
 
-  finished = planner.generateReverseSteps(false, 500);
+  finished = planner.generateReverseSteps(true, 2000);
   while(!finished){
     finished = planner.nextGenSteps(10000);
   }

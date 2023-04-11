@@ -76,8 +76,8 @@ static get wasm(){
 			var endX = Math.floor(coord/myUI.planner.map_width);
 			var endY = coord - endX * myUI.planner.map_width;
 			*/
-			var endX = action[idx][0]; // for floating point coordinates
-			var endY = action[idx][1];
+			var endX = action[idx] / 2; // for floating point coordinates
+			var endY = action[++idx] / 2;
 		}
 		if(action[0]&(1<<10)){
 			++idx;
@@ -157,12 +157,12 @@ static get wasm(){
 
 		// command is assumed to exist
 		this._managePacking(myUI.planner.static_bit_len, obj);
+		console.assert(typeof command == "number", "command should be integer");
 		obj.actionCache[obj.idx] += bit_shift(command, obj.bitOffset - myUI.planner.static_bit_len);
 		if(dest!==undefined){
 			this._managePacking(myUI.planner.static_bit_len, obj);
 			obj.actionCache[0] |= 1<<1; 
 			obj.actionCache[obj.idx] += bit_shift(dest, obj.bitOffset - myUI.planner.static_bit_len);
-  		
 		}
 		if(colorIndex!==undefined){
 			this._managePacking(myUI.planner.color_bit_len, obj);
@@ -203,9 +203,8 @@ static get wasm(){
 		if(endCoord!==undefined){
 			obj.idx++;
 			obj.actionCache[0] |= 1<<9;
-			obj.actionCache.push(endCoord); // for floating point coordinates
-			//obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
-			//obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates not working for now
+			obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
+			obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates not working for now
 		}
 		if(colour!==undefined){
 			obj.idx++;
@@ -265,7 +264,7 @@ static get wasm(){
 				id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			},
 			{
-				id:"map", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"FreeMap", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			}
 		];
 	}
@@ -294,7 +293,7 @@ static get wasm(){
       {uid: "first_neighbor", displayName: "Starting Node:", options: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"], description: `The first direction to begin neighbour searching. Can be used for breaking ties. N is downwards (+i/+x/-row). W is rightwards (+j/+y/-column).`},//["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
       {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"], description: `The rotating direction to search neighbors. Can be used for breaking ties. Anticlockwise means the rotation from N to W. Clockwise for the opposite rotation.`},
 			{uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
-      {uid: "big_map", displayName: "Big Map Optimization:", options: [ "Enabled","Disabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
+      {uid: "big_map", displayName: "Big Map Optimization:", options: ["Disabled","Enabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
     ];
 	}
 

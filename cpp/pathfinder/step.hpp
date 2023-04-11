@@ -51,6 +51,7 @@ namespace pathfinder
         
         #ifdef CANVAS_GRID
         const int defaultVal = 0; // change this in the future, tag this to the dest
+        int xy = x * gridWidth + y;
         #endif
 
         if (cellVal != -1)
@@ -70,7 +71,7 @@ namespace pathfinder
         {
           if (sim.activeCanvas.find(dest) == sim.activeCanvas.end())
 #ifdef CANVAS_GRID
-            sim.activeCanvas[dest] = makeGridf(gridHeight, gridWidth);
+            sim.activeCanvas[dest] = makeFlatGridf(gridHeight, gridWidth, defaultVal);
 #else
             sim.activeCanvas[dest] = state_canvas_t();
 #endif
@@ -102,8 +103,8 @@ namespace pathfinder
           sim.singlePixelCanvas[dest] = {x, y};
 // erase canvas and draw the pixel
 #ifdef CANVAS_GRID
-          sim.activeCanvas[dest] = makeGridf(gridHeight, gridWidth);
-          sim.activeCanvas[dest][x][y] = cellVal;
+          sim.activeCanvas[dest] = makeFlatGridf(gridHeight, gridWidth, defaultVal);
+          sim.activeCanvas[dest][xy] = cellVal;
 #else
           sim.activeCanvas[dest].clear();
           #ifdef BIT_SHIFT_COORD
@@ -118,9 +119,9 @@ namespace pathfinder
 
 #ifdef CANVAS_GRID
           // reverse
-          steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][x][y]));
+          steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][xy]));
           // update
-          sim.activeCanvas[dest][x][y] = cellVal;
+          sim.activeCanvas[dest][xy] = cellVal;
 #else
           #ifdef BIT_SHIFT_COORD
           // reverse
@@ -141,7 +142,7 @@ namespace pathfinder
             cellVal = 1;
             // reverse
 #ifdef CANVAS_GRID
-          if (sim.activeCanvas[dest][x][y] == defaultVal)
+          if (sim.activeCanvas[dest][xy] == defaultVal)
 #else
           #ifdef BIT_SHIFT_COORD
           if (sim.activeCanvas[dest].find(coord2uint32(x, y)) == sim.activeCanvas[dest].end())
@@ -152,7 +153,7 @@ namespace pathfinder
             steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(ErasePixel, dest, {x, y}));
             // update
 #ifdef CANVAS_GRID
-          sim.activeCanvas[dest][x][y] = cellVal;
+          sim.activeCanvas[dest][xy] = cellVal;
 #else
           #ifdef BIT_SHIFT_COORD
           sim.activeCanvas[dest][coord2uint32(x, y)] = cellVal;
@@ -165,8 +166,8 @@ namespace pathfinder
         {
 // reverse
 #ifdef CANVAS_GRID
-          steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(DrawPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][x][y]));
-          sim.activeCanvas[dest][x][y] = defaultVal;
+          steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(DrawPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][xy]));
+          sim.activeCanvas[dest][xy] = defaultVal;
 #else
           #ifdef BIT_SHIFT_COORD
           uint32_t conv = coord2uint32(x, y);
@@ -181,21 +182,15 @@ namespace pathfinder
         else if (command == EraseCanvas)
         {
 #ifdef CANVAS_GRID
-          const int h = sim.activeCanvas[dest].size();
-          const int w = sim.activeCanvas[dest][0].size();
-          for (int i = 0; i < h; ++i)
-          {
-            for (int j = 0; j < w; ++j)
-            {
-              if (sim.activeCanvas[dest][i][j] != defaultVal)
-              {
-                steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, {i, j}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][i][j]));
-              }
-            }
+          for(int i = 0; i < sim.activeCanvas[dest].size(); ++i){
+            if(sim.activeCanvas[dest][i] == defaultVal) continue;
+            int x = i / gridWidth;
+            int y = i - (x * gridWidth);
+            steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][i]));
           }
-          sim.activeCanvas[dest] = makeGridf(h, w);
+          sim.activeCanvas[dest] = makeFlatGridf(gridHeight, gridWidth, defaultVal);
 #else
-          for (auto it : sim.activeCanvas[dest])
+          for (auto &it : sim.activeCanvas[dest])
           {
             #ifdef BIT_SHIFT_COORD
             steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(SetPixel, dest, uint322coord(it.first), -1, -1, -1, -1, {}, it.second));
@@ -210,7 +205,7 @@ namespace pathfinder
         {
           steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(DecrementPixel, dest, {x, y}));
 #ifdef CANVAS_GRID
-          sim.activeCanvas[dest][x][y]++;
+          sim.activeCanvas[dest][xy]++;
 #else
           #ifdef BIT_SHIFT_COORD
           sim.activeCanvas[dest][coord2uint32(x, y)]++;
@@ -223,7 +218,7 @@ namespace pathfinder
         {
           steps[stepCnt]->revActions.push_back(GridPathFinder::packAction(IncrementPixel, dest, {x, y}));
 #ifdef CANVAS_GRID
-          sim.activeCanvas[dest][x][y]--;
+          sim.activeCanvas[dest][xy]--;
 #else
           #ifdef BIT_SHIFT_COORD
           sim.activeCanvas[dest][coord2uint32(x, y)]--;

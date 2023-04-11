@@ -13,7 +13,7 @@
 #define STEP_STRUCT_METHOD
 #define VECTOR_METHOD
 #define BIT_SHIFT_COORD
-//#define CANVAS_GRID
+#define CANVAS_GRID
 
 using coord_t = std::pair<int, int>;
 using line_t = std::array<int, 4>;
@@ -40,6 +40,7 @@ struct CoordIntHash {
   }
 };
 
+// combine everything into uint32_t (10bits per coord dim, 12 btis for Dest)
 #ifdef BIT_SHIFT_COORD
 // change coord_t to number: (uint64_t)(x) << 32 | (uint64_t)(y) -> uint64_t
 using state_canvas_t = std::unordered_map<uint32_t, double>;
@@ -113,6 +114,10 @@ grid_t makeGrid(int height, int width, int defVal = 0){
 
 gridf_t makeGridf(int height, int width, double defVal = 0){
   return gridf_t(height, rowf_t(width, defVal));
+}
+
+rowf_t makeFlatGridf(int height, int width, double defVal = 0){
+  return rowf_t(height * width, defVal);
 }
 
 uint32_t coord2uint32(coord_t c){ return ((uint32_t)(c.first) << 16) | (uint32_t)(c.second); }

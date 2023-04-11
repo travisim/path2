@@ -16,6 +16,7 @@ const STATIC_COMMANDS = [
   "HighlightPseudoCodeRowPri", //highlight Pseudo
   "HighlightPseudoCodeRowSec", //highlight Pseudo
   "UnhighlightPseudoCodeRowSec", // unhighlight Pseudo
+  "UnhighlightAllPseudoCodeRowSec",
   "SetHighlightAtIndex",
   "DrawVertex",
   "DrawSingleVertex",
@@ -44,7 +45,7 @@ const STATIC_DESTS = [
   "HCanvas",
   "ITQueue", //info table
   "ITNeighbors",
-  "map",
+  "FreeMap",
   "ITStatistics",
   "neighboursRadius",
   "intermediaryMapExpansion"
@@ -85,7 +86,7 @@ const statics_to_obj = {
   9: "hCost",
   10: "ITQueue",
   11: "ITNeighbors",
-  12: "map",
+  12: "FreeMap",
   13: "ITStatistics",
   14: "neighboursRadius",
   15: "intermediaryMapExpansion"
@@ -142,7 +143,7 @@ myUI.run_steps = function(num_steps, step_direction){
         let endX = action.endCoord.x == -1 ? undefined : action.endCoord.x;
         let endY = action.endCoord.y == -1 ? undefined : action.endCoord.y;
 
-        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id);
+        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);//,colour,radius,value,id);
         if(step_direction == "fwd") ++i; else --i;
       }
       continue;
@@ -897,8 +898,16 @@ myUI.jump_to_step = function(target_step){
           var toDraw = [];
           const gen = vector_values(data);
           let n = gen.next();
+          let counter = 0;
+          let tmp = [];
           while(!n.done){
-            toDraw.push([...vector_values(n.value)]);
+            counter++;
+            tmp.push(n.value);
+            if(counter == myUI.map_width){
+              counter = 0;
+              toDraw.push(tmp);
+              tmp = [];
+            }
             n = gen.next();
           }
         }

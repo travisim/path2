@@ -189,6 +189,7 @@ function ones(bit_len){
 }
 
 function bit_shift(data, num_bits){
+	console.assert(typeof data == "number", "cannot bit shift non-numbers");
 	return Math.floor(Math.pow(2, num_bits)*data);
 }
 

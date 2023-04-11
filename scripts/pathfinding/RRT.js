@@ -182,7 +182,7 @@ l        }
     this._create_action({ command: STATIC.CreateStaticRow, dest: STATIC.ITStatistics, id: "PathDistance", value: "Path Distance" });
     this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "NumberOfNodes", value: "0" });
     this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "PathDistance",value:"∞"});
-    this._create_action({ command: STATIC.DrawVertex, dest: STATIC.map, nodeCoord: start });
+    this._create_action({ command: STATIC.DrawVertex, dest: STATIC.FreeMap, nodeCoord: start });
     this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 1 });
   
     this._save_step(true);
@@ -224,7 +224,7 @@ l        }
           nodesNearby_Index.forEach(element => {
             this._create_action({ command: STATIC.DrawVertex, dest: STATIC.NB, nodeCoord: this.choosenCoordsNodes[element].value_XY }); 
           });
-          this._create_action({ command: STATIC.DrawVertex, dest: STATIC.map, nodeCoord: nextCoordToAdd_XY });
+          this._create_action({ command: STATIC.DrawVertex, dest: STATIC.FreeMap, nodeCoord: nextCoordToAdd_XY });
           this._create_action({ command: STATIC.EditStaticRow, dest: STATIC.ITStatistics, id: "NumberOfNodes",value:"++"});
           this._create_action({command: STATIC.DrawDottedVertex, dest: STATIC.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,radius: this.connectionDistance.toString()});
           this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: 6});
@@ -237,7 +237,7 @@ l        }
           this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.CR, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, colour:"pink"});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 8});
           this._save_step(true);
-          this._create_action({ command: STATIC.DrawEdge, dest: STATIC.map, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, endCoord: nextCoordToAdd_XY });
+          this._create_action({ command: STATIC.DrawEdge, dest: STATIC.FreeMap, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, endCoord: nextCoordToAdd_XY });
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 9});
           this._save_step(true);
           this.insertNodeToTree(selectedParent_Index, nextCoordToAdd_XY, [selectedParent_Index], randomCoord_XY, [nextCoordToAdd_XY, randomCoord_XY]);
@@ -323,8 +323,8 @@ l        }
           myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY);
           myUI.nodeCanvas.drawCircle(nextCoordToAdd_XY);
           //if(this.choosenCoordsNodes.length == 1) myUI.edgeCanvas.drawLine(start,nextCoordToAdd_XY);;
-          myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,STATIC.map,"randomCoordLine",true);
-          myUI.nodeCanvas.drawCircle(randomCoord_XY,STATIC.map,"randomCoord","purple");
+          myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,STATIC.FreeMap,"randomCoordLine",true);
+          myUI.nodeCanvas.drawCircle(randomCoord_XY,STATIC.FreeMap,"randomCoord","purple");
 
           var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, nextCoordToAdd_XY,this.neighbourSelectionMethod,this.connectionDistance); 
           var selectedParent_Index = determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index,this.choosenCoordsNodes);
@@ -398,12 +398,12 @@ l        }
             this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours.splice(j, 1); // removes nearby node as a neighbour of (nearby node parent)
           }
         }
-          this._create_action({command: STATIC.EraseEdge, dest: STATIC.map, nodeCoord: this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY });
-          this._create_action({command: STATIC.DrawEdge, dest: STATIC.map, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colour:"red" });
+          this._create_action({command: STATIC.EraseEdge, dest: STATIC.FreeMap, nodeCoord: this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY });
+          this._create_action({command: STATIC.DrawEdge, dest: STATIC.FreeMap, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colour:"red" });
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 10});
           this._save_step(true);
         console.log("rewire",this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY)
-       // myUI.edgeCanvas.eraseLine(this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, STATIC.map);
+       // myUI.edgeCanvas.eraseLine(this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, STATIC.FreeMap);
         //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[currentNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY);
       }
     }
@@ -451,7 +451,7 @@ l        }
     this.exports.neighbours.push(new Array());
     this.choosenCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
     this.exports.edges.push([coord_XY, selected_XY]);
-    this._create_action({ command: STATIC.DrawEdge, dest: STATIC.map, nodeCoord: coord_XY, endCoord: selected_XY });
+    this._create_action({ command: STATIC.DrawEdge, dest: STATIC.FreeMap, nodeCoord: coord_XY, endCoord: selected_XY });
     //myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
     if(!this.choosenCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.choosenCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);

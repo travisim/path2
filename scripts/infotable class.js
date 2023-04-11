@@ -251,9 +251,15 @@ class UIInfoTable{
     this.dynamicTable.append(r);
   }
   editStaticCellByRowId(id,value1) {
+    try{
     value1 == "++"
       ? document.getElementById(id).cells[1].innerHTML = parseInt(document.getElementById(id).cells[1].innerHTML) + 1
       : document.getElementById(id).cells[1].innerHTML = value1; 
+    }
+    catch(e){
+      console.error("CANNOT FIND ID OF: ", id);
+      debugger;
+    }
   }
 
 

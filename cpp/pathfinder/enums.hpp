@@ -193,8 +193,11 @@ namespace pathfinder
     std::unordered_map<Dest, uint8_t> arrowColor;*/
     
 #ifdef VECTOR_METHOD
+#ifdef CANVAS_GRID
+    std::vector<rowf_t> canvases;
+#else
     std::vector<state_canvas_t> canvases;
-    
+#endif
     // std::unordered_map<int, InfoTableState> infotables;
     // std::unordered_map<int, std::vector<coord_t>> vertices;
     // std::unordered_map<int, std::vector<line_t>> edges;
@@ -203,7 +206,7 @@ namespace pathfinder
     std::vector<std::vector<line_t>> edges;
 #else
 #ifdef CANVAS_GRID
-    std::unordered_map<int, gridf_t> canvases;
+    std::unordered_map<int, rowf_t> canvases;
 #else
     std::unordered_map<int, state_canvas_t> canvases;
 #endif
@@ -221,7 +224,7 @@ namespace pathfinder
     // RuntimeSimulation keeps an active record of the current state of all items (canvases, infotables, single pixel values, arrows shown, bounds for values on canvas to track min and max values, vertices, edges)
 
 #ifdef CANVAS_GRID
-    std::unordered_map<Dest, gridf_t> activeCanvas;
+    std::unordered_map<Dest, rowf_t> activeCanvas;
 #else
     std::unordered_map<Dest, state_canvas_t> activeCanvas;
 #endif

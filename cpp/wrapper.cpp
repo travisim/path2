@@ -145,9 +145,11 @@ EMSCRIPTEN_BINDINGS(myModule) {
   
   // state properties bindings
 #ifdef CANVAS_GRID
-  custom::register_unordered_map<int, gridf_t>("canvases");
-  emscripten::register_vector<double>("vectorDouble");
-  emscripten::register_vector<rowf_t>("vectorVectorDouble");
+  #ifdef VECTOR_METHOD
+  emscripten::register_vector<rowf_t>("canvases");
+  #else
+  custom::register_unordered_map<int, rowf_t>("canvases");
+  #endif
 #else
   #ifdef VECTOR_METHOD
   emscripten::register_vector<state_canvas_t>("canvases");
