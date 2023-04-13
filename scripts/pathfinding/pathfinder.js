@@ -100,7 +100,7 @@ static get wasm(){
 		if(readable){
 			console.log(`
 			Command          : ${STATIC_COMMANDS[command]}
-			Dest             : ${statics_to_obj[dest]}
+			Dest             : ${myUI.planner.destsToId[dest]}
 			x,y              : ${x + ", " + y}
 			colorIndex       : ${colorIndex}
 			arrowIndex       : ${arrowIndex}
@@ -234,37 +234,28 @@ static get wasm(){
 	get canvases(){
 		return [
 			{
-				id:"neighboursRadius", drawType:"dotted", drawOrder: 4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+				id:"neighboursRadius", drawType:"dotted", drawOrder: 4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null
 			},
 			{
-				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#8F00FF"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#8F00FF"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
 			},
 			{
-				id:"expanded", drawType:"cell", drawOrder: 2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+				id:"expanded", drawType:"cell", drawOrder: 2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
 			},
 			{
-				id:"path", drawType:"cell", drawOrder: 5, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+				id:"path", drawType:"cell", drawOrder: 5, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
 			},
 			{
-				id:"neighbors", drawType:"cell", drawOrder: 6, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"neighbors", drawType:"cell", drawOrder: 6, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			},
 			{
-				id:"queue", drawType:"cell", drawOrder: 7, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"queue", drawType:"cell", drawOrder: 7, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			},
 			{
-				id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, minVal: 1, maxVal: 8, infoMapBorder: true, infoMapValue: null,
+				id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 8, infoMapBorder: true, infoMapValue: null,
 			},
 			{
-				id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "F",
-			},
-			{
-				id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "G",
-			},
-			{
-				id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
-			},
-			{
-				id:"FreeMap", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"FreeMap", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			}
 		];
 	}
@@ -284,6 +275,29 @@ static get wasm(){
 	constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise"){
 		this.init_neighbors(num_neighbors, first_neighbor, search_direction);
 		this.diagonal_allow = diagonal_allow;
+	}
+	
+	generateDests(){
+		let idx = 0;
+
+		this.dests = {};
+		this.destsToId = [];
+
+		this.dests.pseudoCode = idx++;
+		this.destsToId.push("pseudocode");
+		
+		if(this.canvases) for(const canvas of this.canvases){
+			this.dests[canvas.id] = idx++;
+			this.destsToId.push(canvas.id);
+		}
+		if(this.infoTables) for(const infoTable of this.infoTables){
+			this.dests[infoTable.id] = idx++;
+			this.destsToId.push(infoTable.id);
+		}
+		
+		STATIC.max_val = Math.max(STATIC.max_val, idx-1);
+
+		return idx;
 	}
 
 	get configs(){
@@ -350,7 +364,6 @@ static get wasm(){
 		return [
 			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
 			{ id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
-			
 		];
 	}
 
@@ -502,6 +515,7 @@ static get wasm(){
 		
 	} = {}){
 		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord, colour: colour,radius: radius,value:value,id:id});
+		if(this.step_index == 0) console.log(this.actionCache, command, dest);
 		Array.prototype.push.apply(this.step_cache, this.actionCache);
 		return this.actionCache.length;
 	}
@@ -531,15 +545,15 @@ static get wasm(){
     if (!this.draw_arrows) return;
     // ARROW
     if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-      //this._create_action(STATIC.EA, open_node.arrow_index);
-      this._create_action({command: STATIC.EA, arrowIndex: open_node.arrow_index});
+      //this._create_action(STATIC.EraseArrow, open_node.arrow_index);
+      this._create_action({command: STATIC.EraseArrow, arrowIndex: open_node.arrow_index});
     }
     if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-      //this._create_action(STATIC.EA, closed_node.arrow_index);
-      this._create_action({command: STATIC.EA, arrowIndex: closed_node.arrow_index});
+      //this._create_action(STATIC.EraseArrow, closed_node.arrow_index);
+      this._create_action({command: STATIC.EraseArrow, arrowIndex: closed_node.arrow_index});
     }
     new_node.arrow_index = myUI.create_arrow(next_XY, this.current_node_XY); // node is reference typed so properties can be modified after adding to queue or open list
-    this._create_action({command: STATIC.DA, arrowIndex: new_node.arrow_index, colorIndex: 0});
+    this._create_action({command: STATIC.DrawArrow, arrowIndex: new_node.arrow_index, colorIndex: 0});
     // END OF ARROW
   }
 
@@ -566,18 +580,18 @@ static get wasm(){
 		while (node != null) {
 			this.path.unshift(node.self_XY);
 			/* OLD *//*
-			this._create_action(STATIC.DP, STATIC.PA, node.self_XY);
-			this._create_action(STATIC.DA, node.arrow_index, 1);
+			this._create_action(STATIC.DrawPixel, this.dests.path, node.self_XY);
+			this._create_action(STATIC.DrawArrow, node.arrow_index, 1);
 			/* NEW */
 			if(draw_mode == "free_vertex"){
-				this._create_action({command: STATIC.DrawVertex, dest: STATIC.PA, nodeCoord: node.self_XY});
+				this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: node.self_XY});
 				if(prevNode){
-					this._create_action({command: STATIC.DrawEdge, dest: STATIC.PA, nodeCoord: node.self_XY, endCoord: prevNode.self_XY});
+					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: prevNode.self_XY});
 				}
 			}
-			else this._create_action({command: STATIC.DP, dest: STATIC.PA, nodeCoord: node.self_XY});
+			else this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
 			if(! (node.arrow_index === null))
-				this._create_action({command: STATIC.DA, arrowIndex: node.arrow_index, colorIndex: 1});
+				this._create_action({command: STATIC.DrawArrow, arrowIndex: node.arrow_index, colorIndex: 1});
 			
 			prevNode = node;
 			node = node.parent;

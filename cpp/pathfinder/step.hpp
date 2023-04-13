@@ -55,7 +55,7 @@ namespace pathfinder
         #endif
 
         if (cellVal != -1)
-        { // && myUI.canvases[statics_to_obj[dest]].valType=="float"
+        { // && myUI.canvases[myUI.planner.destsToId[dest]].valType=="float"
           if (sim.bounds.find(dest) == sim.bounds.end())
           {
             sim.bounds[dest] = {std::numeric_limits<double>::max(), std::numeric_limits<double>::min()};

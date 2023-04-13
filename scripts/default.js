@@ -308,6 +308,7 @@ myUI.runDefault = function(){
 		myUI.planner.randomCoordsNodes.push(new MapNode(null, coord, []));
 	}
 
+	console.log(myUI.planner);
 	myUI.planner.randomCoordsNodes.forEach(node=>{
 		myUI.nodeCanvas.drawCircle(node.value_XY);
 	});

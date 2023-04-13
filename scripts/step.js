@@ -1,14 +1,14 @@
 const STATIC_COMMANDS = [
   /* rest of the items are dynamics commands/identifiers */
-  "DSP",
-  "SP",
-  "EC", // erase canvas
-  "DP", // draw pixel
-  "EP", // erase pixel
-  "INC_P", // increment pixel
-  "DEC_P", // increment pixel
-  "DA", // draw arrow (arrow index) [colour index]
-  "EA" , // erase arrow (arrow index)
+  "DrawSinglePixel",
+  "SetPixelValue",
+  "EraseCanvas", // erase canvas
+  "DrawPixel", // draw pixel
+  "ErasePixel", // erase pixel
+  "IncrementPixel", // increment pixel
+  "DecrementPixel", // increment pixel
+  "DrawArrow", // draw arrow (arrow index) [colour index]
+  "EraseArrow" , // erase arrow (arrow index)
   "InsertRowAtIndex", // dest, rowIndex
   "EraseRowAtIndex", // dest, rowIndex
   "EraseAllRows", // dest, rowIndex
@@ -32,37 +32,12 @@ const STATIC_COMMANDS = [
 
 ];
 
-const STATIC_DESTS = [
-  "PC", // Pseudo Code
-  "QU", // queue
-  "VI", // visited
-  "CR", // current
-  "NB", // neighbors
-  "PA", // path
-  "DT",
-  "FCanvas",
-  "GCanvas",
-  "HCanvas",
-  "ITQueue", //info table
-  "ITNeighbors",
-  "FreeMap",
-  "ITStatistics",
-  "neighboursRadius",
-  "intermediaryMapExpansion"
-];
-
-// IMPT, ENSURE THAT COMMANDS AND DEST DO NOT CONFLICT
-
 var STATIC = {
-  max_val: Math.max(STATIC_COMMANDS.length-1, STATIC_DESTS.length-1)
+  max_val: STATIC_COMMANDS.length-1
 };
 STATIC_COMMANDS.forEach(function(value, i){
   STATIC[value] = i;
 });
-STATIC_DESTS.forEach(function(value, i){
-  STATIC[value] = i;
-});
-console.log(STATIC);
 /*
 Actions
 - `dc`, draw canvas
@@ -73,24 +48,6 @@ Actions
 - `ie`, infopane erase
 
 */
-const statics_to_obj = {
-  0: "pseudocode",
-  1: "queue",
-  2: "visited",
-  3: "expanded",
-  4: "neighbors",
-  5: "path",
-  6: "focused",
-  7: "fCost",
-  8: "gCost",
-  9: "hCost",
-  10: "ITQueue",
-  11: "ITNeighbors",
-  12: "FreeMap",
-  13: "ITStatistics",
-  14: "neighboursRadius",
-  15: "intermediaryMapExpansion"
-}
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
   // wasm
@@ -169,63 +126,63 @@ myUI.run_steps = function(num_steps, step_direction){
 
 myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id){
   try{
-  if(command==STATIC.DSP){
-    myUI.canvases[statics_to_obj[dest]].erase_canvas();
+  if(command==STATIC.DrawSinglePixel){
+    myUI.canvases[myUI.planner.destsToId[dest]].erase_canvas();
     if(cellVal===undefined) cellVal = 1;
-    myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
+    myUI.canvases[myUI.planner.destsToId[dest]].draw_pixel([x,y], false, cellVal);
   }
-  else if(command==STATIC.EC){
-    myUI.canvases[statics_to_obj[dest]].erase_canvas();
+  else if(command==STATIC.EraseCanvas){
+    myUI.canvases[myUI.planner.destsToId[dest]].erase_canvas();
   }
-  else if(command==STATIC.DP || command==STATIC.SP){
+  else if(command==STATIC.DrawPixel || command==STATIC.SetPixelValue){
     if(cellVal===undefined) cellVal = 1;
-    myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], false, cellVal);
+    myUI.canvases[myUI.planner.destsToId[dest]].draw_pixel([x,y], false, cellVal);
   }
-  else if(command==STATIC.EP){
-      myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y]);
+  else if(command==STATIC.ErasePixel){
+      myUI.canvases[myUI.planner.destsToId[dest]].erase_pixel([x,y]);
   }
-  else if(command==STATIC.INC_P){
-      myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc");
+  else if(command==STATIC.IncrementPixel){
+      myUI.canvases[myUI.planner.destsToId[dest]].change_pixel([x,y], "inc");
   }
-  else if(command==STATIC.DEC_P){
-      myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec");
+  else if(command==STATIC.DecrementPixel){
+      myUI.canvases[myUI.planner.destsToId[dest]].change_pixel([x,y], "dec");
   }
-  else if(command==STATIC.DA){
+  else if(command==STATIC.DrawArrow){
     // draw arrow
     myUI.arrow.elems[arrowIndex].classList.remove("hidden");
     myUI.arrow.elems[arrowIndex].style.fill = myUI.arrow.colors[colorIndex];
   }
-  else if(command==STATIC.EA){
+  else if(command==STATIC.EraseArrow){
     // erase arrow
     myUI.arrow.elems[arrowIndex].classList.add("hidden");
   }
   // INFOMAP
-  if(dest==STATIC.CR && (command==STATIC.DP || command==STATIC.DSP || command==STATIC.DrawSpecialVertex)){
+  if(dest==myUI.planner.dests.expanded && (command==STATIC.DrawPixel || command==STATIC.DrawSinglePixel || command==STATIC.DrawSpecialVertex)){
     myUI.currentCoord = [x,y]; // record current when updated for infomap purposes
   }
   // INFOTABLE 
   if(command==STATIC.InsertRowAtIndex){
-    myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
+    myUI.InfoTables[myUI.planner.destsToId[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
   }
   if(command==STATIC.EraseAllRows){
-    myUI.InfoTables[statics_to_obj[dest]].removeAllTableRows(); 
+    myUI.InfoTables[myUI.planner.destsToId[dest]].removeAllTableRows(); 
   }
   else if(command==STATIC.EraseRowAtIndex){
-    myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex); 
+    myUI.InfoTables[myUI.planner.destsToId[dest]].eraseRowAtIndex(infoTableRowIndex); 
   }
   else if(command==STATIC.UpdateRowAtIndex){
-    myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
+    myUI.InfoTables[myUI.planner.destsToId[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
   }
   else if(command==STATIC.SetHighlightAtIndex){
-    myUI.InfoTables[statics_to_obj[dest]].setHighlightAtIndex(infoTableRowIndex); 
+    myUI.InfoTables[myUI.planner.destsToId[dest]].setHighlightAtIndex(infoTableRowIndex); 
   }
-  if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
+  if(command == STATIC.HighlightPseudoCodeRowPri ){
     myUI.PseudoCode.highlightPri(pseudoCodeRow);
   }  
-  if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
+  if(command == STATIC.HighlightPseudoCodeRowSec ){
     myUI.PseudoCode.highlightSec(pseudoCodeRow);
   }  
-  else if(dest == STATIC.PC && command == STATIC.UnhighlightAllPseudoCodeRowSec ){
+  else if(command == STATIC.UnhighlightAllPseudoCodeRowSec ){
     myUI.PseudoCode.removeAllHighlightSec();
   }  
   else if( command == STATIC.CreateStaticRow ){
@@ -237,7 +194,7 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
     
     
   else if(command == STATIC.DrawVertex){
-    let colour = myUI.canvases[statics_to_obj[dest]].fillColor;
+    let colour = myUI.canvases[myUI.planner.destsToId[dest]].fillColor;
     myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
   }
   else if(command == STATIC.DrawDottedVertex){
@@ -253,14 +210,14 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   } 
   else if(command == STATIC.DrawSingleVertex){
     myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${dest}`);
-    let colour = myUI.canvases[statics_to_obj[dest]].fillColor;
+    let colour = myUI.canvases[myUI.planner.destsToId[dest]].fillColor;
     myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
   }
   else if(command == STATIC.DrawEdge){
     myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest,false,false,colour);
   }
   else if(command == STATIC.DrawDottedEdge){
-    let colour = myUI.canvases[statics_to_obj[dest]]?.fillColor;
+    let colour = myUI.canvases[myUI.planner.destsToId[dest]]?.fillColor;
     myUI.edgeCanvas.drawLine([x,y], [endX,endY], dest,false,true);
   }
   else if(command == STATIC.EraseEdge){
@@ -272,7 +229,7 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   }
 
   }catch(e){
-    if(dest!=STATIC.PC && command!=STATIC.DA && command!=STATIC.EA){
+    if(dest!=myUI.planner.dests.pseudocode && command!=STATIC.DrawArrow && command!=STATIC.EraseArrow){
       console.log(e);
       console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
       debugger;
@@ -384,8 +341,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   function finishGenerating(bounds, clearUpdate = true){
     console.log(bounds);
     for(const [dest, bound] of Object.entries(bounds)){
-      myUI.canvases[statics_to_obj[dest]].setValueBounds("min", bound[0]);
-      myUI.canvases[statics_to_obj[dest]].setValueBounds("max", bound[1]);
+      myUI.canvases[myUI.planner.destsToId[dest]].setValueBounds("min", bound[0]);
+      myUI.canvases[myUI.planner.destsToId[dest]].setValueBounds("max", bound[1]);
     }
     document.querySelector("#info-tables-dynamic").style.display = "flex";
     myUI.reset_animation();
@@ -409,58 +366,58 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius] = GridPathFinder.unpackAction(step.slice(i, j), false);
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius] = GridPathFinder.unpackAction(step.slice(i, j),  false);
 
         let action = [];
         var includeAction = true;
 
         // saving minmax
-        if(cellVal!==undefined && myUI.canvases[statics_to_obj[dest]].valType=="float"){
+        if(cellVal!==undefined && myUI.canvases[myUI.planner.destsToId[dest]].valType=="float"){
           mem.bounds[dest] = mem.bounds[dest] || [Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY];
           mem.bounds[dest][0] = Math.min(mem.bounds[dest][0], cellVal);
           mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
         }
 
-        if(x!==undefined || command===STATIC.EC){
+        if(x!==undefined || command===STATIC.EraseCanvas){
           if(!mem.activeCanvas.hasOwnProperty(dest))
-            mem.activeCanvas[statics_to_obj[dest]] = myUI.canvases[statics_to_obj[dest]];
+            mem.activeCanvas[myUI.planner.destsToId[dest]] = myUI.canvases[myUI.planner.destsToId[dest]];
         }
         else if(infoTableRowIndex!==undefined){
           if(!mem.activeTable.hasOwnProperty(dest))
-            mem.activeTable[statics_to_obj[dest]] = myUI.InfoTables[statics_to_obj[dest]];
+            mem.activeTable[myUI.planner.destsToId[dest]] = myUI.InfoTables[myUI.planner.destsToId[dest]];
         }
 
         // checking command type
-        if(command==STATIC.DSP){
+        if(command==STATIC.DrawSinglePixel){
           try{
-            if(mem.drawSinglePixel[dest]!==undefined) action = GridPathFinder.packAction({command: STATIC.DSP, dest: dest, nodeCoord: mem.drawSinglePixel[dest], cellVal: 1});
-            else action = GridPathFinder.packAction({command: STATIC.EC, dest: dest});
+            if(mem.drawSinglePixel[dest]!==undefined) action = GridPathFinder.packAction({command: STATIC.DrawSinglePixel, dest: dest, nodeCoord: mem.drawSinglePixel[dest], cellVal: 1});
+            else action = GridPathFinder.packAction({command: STATIC.EraseCanvas, dest: dest});
             mem.drawSinglePixel[dest] = [x,y];
-            myUI.canvases[statics_to_obj[dest]].erase_canvas(true);
-            myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
+            myUI.canvases[myUI.planner.destsToId[dest]].erase_canvas(true);
+            myUI.canvases[myUI.planner.destsToId[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
           } catch(e){
-            console.log(statics_to_obj[dest]);
+            console.log(myUI.planner.destsToId[dest]);
             debugger;
           }
           
         }
-        else if(command==STATIC.SP){
+        else if(command==STATIC.SetPixelValue){
           try{
             /*
-            mem.fullCanvas[dest] = mem.fullCanvas[dest] || deep_copy_matrix(myUI.canvases[statics_to_obj[dest]].canvas_cache);
-            action = GridPathFinder.packAction({command: STATIC.SP, dest: dest, nodeCoord: [x,y], cellVal: mem.fullCanvas[dest][x][y]});
+            mem.fullCanvas[dest] = mem.fullCanvas[dest] || deep_copy_matrix(myUI.canvases[myUI.planner.destsToId[dest]].canvas_cache);
+            action = GridPathFinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [x,y], cellVal: mem.fullCanvas[dest][x][y]});
             mem.fullCanvas[dest][x][y] = cellVal;
             
             /* virtualCanvas version */
-            action = GridPathFinder.packAction({command: STATIC.SP, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[statics_to_obj[dest]].virtualCanvas[x][y]});
-            myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
+            action = GridPathFinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[myUI.planner.destsToId[dest]].virtualCanvas[x][y]});
+            myUI.canvases[myUI.planner.destsToId[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
             /**/
           }
           catch(e){
-            console.log(statics_to_obj[dest]);
+            console.log(myUI.planner.destsToId[dest]);
           }
         }/* */
-        else if(command==STATIC.DP){
+        else if(command==STATIC.DrawPixel){
           if(cellVal===undefined) cellVal = 1;
           /*
           mem.canvasCoords[dest] = mem.canvasCoords[dest] || [];
@@ -468,23 +425,23 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             if(coord!==undefined && coord[0]==x && coord[1]==y)
               includeAction = false;
           if(includeAction){
-            action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y], cellVal: cellVal});
+            action = GridPathFinder.packAction({command: STATIC.ErasePixel, dest: dest, nodeCoord: [x,y], cellVal: cellVal});
             mem.canvasCoords[dest].push([x,y]);
           }
           /* virtualCanvas version */
           try{
-            if(myUI.canvases[statics_to_obj[dest]].virtualCanvas[x][y]==myUI.canvases[statics_to_obj[dest]].defaultVal)
-              action = GridPathFinder.packAction({command: STATIC.EP, dest: dest, nodeCoord: [x,y]});
-            myUI.canvases[statics_to_obj[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
+            if(myUI.canvases[myUI.planner.destsToId[dest]].virtualCanvas[x][y]==myUI.canvases[myUI.planner.destsToId[dest]].defaultVal)
+              action = GridPathFinder.packAction({command: STATIC.ErasePixel, dest: dest, nodeCoord: [x,y]});
+            myUI.canvases[myUI.planner.destsToId[dest]].draw_pixel([x,y], true, cellVal, cellVal-1, false);
           } catch(e){
-            console.log(statics_to_obj[dest]);
+            console.log(myUI.planner.destsToId[dest]);
             debugger;
           }
           /**/
         }
-        else if(command==STATIC.EP){
+        else if(command==STATIC.ErasePixel){
           /*
-          action = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [x,y], cellVal: 1});
+          action = GridPathFinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: [x,y], cellVal: 1});
           if(!(dest in mem.canvasCoords)) mem.canvasCoords[dest] = [];
           let i;
           for(i=0;i<mem.canvasCoords[dest].length;++i){
@@ -495,8 +452,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           delete mem.canvasCoords[dest][i];
           /* virtualCanvas version */
           try{
-            action = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[statics_to_obj[dest]].virtualCanvas[x][y]});
-            myUI.canvases[statics_to_obj[dest]].erase_pixel([x,y], true, false);
+            action = GridPathFinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[myUI.planner.destsToId[dest]].virtualCanvas[x][y]});
+            myUI.canvases[myUI.planner.destsToId[dest]].erase_pixel([x,y], true, false);
           }
           catch(e){
             console.log(e);
@@ -504,29 +461,29 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           }
           /**/
         }
-        else if(command==STATIC.EC){
+        else if(command==STATIC.EraseCanvas){
           action = [];
           /*
           if(!(dest in mem.canvasCoords)) mem.canvasCoords[dest] = [];
           mem.canvasCoords[dest].forEach(nodeCoord=>{
-            let subAction = GridPathFinder.packAction({command: STATIC.DP, dest: dest, nodeCoord: nodeCoord});
+            let subAction = GridPathFinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: nodeCoord});
             Array.prototype.push.apply(action, subAction);
           });
           mem.canvasCoords[dest] = [];
           /* virtualCanvas version */
           try{
-            let height = myUI.canvases[statics_to_obj[dest]].virtualCanvas.length;
-            let width = myUI.canvases[statics_to_obj[dest]].virtualCanvas[0].length;
-            let canvasDefaultVal = myUI.canvases[statics_to_obj[dest]].defaultVal;
+            let height = myUI.canvases[myUI.planner.destsToId[dest]].virtualCanvas.length;
+            let width = myUI.canvases[myUI.planner.destsToId[dest]].virtualCanvas[0].length;
+            let canvasDefaultVal = myUI.canvases[myUI.planner.destsToId[dest]].defaultVal;
             for(let i=0;i<height;++i){
               for(let j=0;j<width;++j){
-                if(myUI.canvases[statics_to_obj[dest]].virtualCanvas[i][j]!=canvasDefaultVal){
-                  let subAction = GridPathFinder.packAction({command: STATIC.SP, dest: dest, nodeCoord: [i,j], cellVal: myUI.canvases[statics_to_obj[dest]].virtualCanvas[i][j]});
+                if(myUI.canvases[myUI.planner.destsToId[dest]].virtualCanvas[i][j]!=canvasDefaultVal){
+                  let subAction = GridPathFinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [i,j], cellVal: myUI.canvases[myUI.planner.destsToId[dest]].virtualCanvas[i][j]});
                   Array.prototype.push.apply(action, subAction);
                 }
               }
             }
-            myUI.canvases[statics_to_obj[dest]].erase_canvas(true);
+            myUI.canvases[myUI.planner.destsToId[dest]].erase_canvas(true);
           }
           catch(e){
             console.log(e);
@@ -534,30 +491,30 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           }
           /**/
         }
-        else if(command==STATIC.INC_P){
-          action = GridPathFinder.packAction({command: STATIC.DEC_P, dest: dest, nodeCoord: [x,y]});
-          myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "inc", true);
+        else if(command==STATIC.IncrementPixel){
+          action = GridPathFinder.packAction({command: STATIC.DecrementPixel, dest: dest, nodeCoord: [x,y]});
+          myUI.canvases[myUI.planner.destsToId[dest]].change_pixel([x,y], "inc", true);
         }
-        else if(command==STATIC.DEC_P){
-          action = GridPathFinder.packAction({command: STATIC.INC_P, dest: dest, nodeCoord: [x,y]});
-          myUI.canvases[statics_to_obj[dest]].change_pixel([x,y], "dec", true);
+        else if(command==STATIC.DecrementPixel){
+          action = GridPathFinder.packAction({command: STATIC.IncrementPixel, dest: dest, nodeCoord: [x,y]});
+          myUI.canvases[myUI.planner.destsToId[dest]].change_pixel([x,y], "dec", true);
         }
-        else if(command==STATIC.DA){
+        else if(command==STATIC.DrawArrow){
           if(arrowIndex in mem.arrowColor){
-            action = GridPathFinder.packAction({command: STATIC.DA, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
+            action = GridPathFinder.packAction({command: STATIC.DrawArrow, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
           }
           else
-            action = GridPathFinder.packAction({command: STATIC.EA, arrowIndex: arrowIndex});
+            action = GridPathFinder.packAction({command: STATIC.EraseArrow, arrowIndex: arrowIndex});
           colorIndex = colorIndex || 0;
           mem.arrowColor[arrowIndex] = colorIndex;
         }
-        else if(command==STATIC.EA){
-          action = GridPathFinder.packAction({command: STATIC.DA, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
+        else if(command==STATIC.EraseArrow){
+          action = GridPathFinder.packAction({command: STATIC.DrawArrow, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
           delete mem.arrowColor[arrowIndex];
         }
         else if(command==STATIC.InsertRowAtIndex){
           try{
-            let prevHighlight = myUI.InfoTables[statics_to_obj[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
+            let prevHighlight = myUI.InfoTables[myUI.planner.destsToId[dest]].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
             action = GridPathFinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
             if(prevHighlight)
               Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
@@ -569,36 +526,36 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           }
         }
         else if(command==STATIC.EraseRowAtIndex){
-          let [data, toHighlight] = myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(infoTableRowIndex);
+          let [data, toHighlight] = myUI.InfoTables[myUI.planner.destsToId[dest]].eraseRowAtIndex(infoTableRowIndex);
           action = GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight?infoTableRowIndex:infoTableRowIndex*-1, infoTableRowData: data});
         }
         else if(command==STATIC.EraseAllRows){
           // IT SHOULD WORK, UNTESTED
           action = [];
-          while (!myUI.InfoTables[statics_to_obj[dest]].empty()){
-            let [data, toHighlight] = myUI.InfoTables[statics_to_obj[dest]].eraseRowAtIndex(1); 
+          while (!myUI.InfoTables[myUI.planner.destsToId[dest]].empty()){
+            let [data, toHighlight] = myUI.InfoTables[myUI.planner.destsToId[dest]].eraseRowAtIndex(1); 
             Array.prototype.unshift.apply(action, GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight ? 1 : -1, infoTableRowData: data}));
           }
         }
         else if(command==STATIC.UpdateRowAtIndex){
-          let [data, prevHighlight] = myUI.InfoTables[statics_to_obj[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
+          let [data, prevHighlight] = myUI.InfoTables[myUI.planner.destsToId[dest]].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
           action = GridPathFinder.packAction({command: STATIC.UpdateRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex, infoTableRowData: data});
           if(prevHighlight)
             Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
         }
         else if(command==STATIC.SetHighlightAtIndex){
-          let prevHighlight = myUI.InfoTables[statics_to_obj[dest]].setHighlightAtIndex(infoTableRowIndex); 
+          let prevHighlight = myUI.InfoTables[myUI.planner.destsToId[dest]].setHighlightAtIndex(infoTableRowIndex); 
           action = GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight});
         }
-        else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowPri ){
+        else if(command == STATIC.HighlightPseudoCodeRowPri ){
           if(mem.pseudoCodeRowPri===undefined) mem.pseudoCodeRowPri = -1;
           // -1 resets all pseudocoderows
-          action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: mem.pseudoCodeRowPri});
+          action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowPri, dest: dest, pseudoCodeRow: mem.pseudoCodeRowPri});
           mem.pseudoCodeRowPri = pseudoCodeRow;
         }  
-        else if(dest == STATIC.PC && command == STATIC.HighlightPseudoCodeRowSec ){
-          if(mem.pseudoCodeRowSec!==undefined) action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: mem.pseudoCodeRowSec});
-          else action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: STATIC.PC, pseudoCodeRow: -1});
+        else if(command == STATIC.HighlightPseudoCodeRowSec ){
+          if(mem.pseudoCodeRowSec!==undefined) action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: dest, pseudoCodeRow: mem.pseudoCodeRowSec});
+          else action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: dest, pseudoCodeRow: -1});
           mem.pseudoCodeRowSec = pseudoCodeRow;
         }
         else if(command == STATIC.DrawVertex){
@@ -804,7 +761,7 @@ myUI.jump_to_step = function(target_step){
       else
         var infotables = map_to_obj(state.infotables);
       for(const [tableDest, tableState] of Object.entries(infotables)){
-        const tableId = statics_to_obj[tableDest];
+        const tableId = myUI.planner.destsToId[tableDest];
         const generator = vector_values(tableState.rows);
         let nxt = generator.next();
         while(!nxt.done){
@@ -881,7 +838,7 @@ myUI.jump_to_step = function(target_step){
       if(canvasNo==-1) return -1;
       if(canvasNo==canvasesToDraw.length) return finishJumping();
       let [dest,data] = canvasesToDraw[canvasNo];
-      let id = myUI.planner.constructor.wasm ? statics_to_obj[dest] : dest;
+      let id = myUI.planner.constructor.wasm ? myUI.planner.destsToId[dest] : dest;
       document.getElementById("compute_btn").children[0].innerHTML = `drawing ${id}...`;
       if(myUI.planner.constructor.wasm){
         if(data.$$.ptrType.name == "canvas*"){

@@ -610,7 +610,7 @@ class SVGCanvas {
     var y2 = this.displayRatio*end_coord.x;
     var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
     var line_class = `SVGline_${dest}`;
-    var color = color?color:myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
+    var color = color?color:myUI.canvases[myUI.planner.destsToId[dest]] ? myUI.canvases[myUI.planner.destsToId[dest]].fillColor : "grey";
     var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, class:line_class, stroke: color,});
     if (isDotted) line.style.strokeDasharray = 5;
     document.getElementById(this.canvas_id).appendChild(line);
@@ -640,8 +640,8 @@ class SVGCanvas {
     var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
     var circle_class = `SVGcircle_${dest}`;
 
-    var color = colour ? colour : myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].fillColor : "grey";
-    var drawType = drawtype ? drawtype : myUI.canvases[statics_to_obj[dest]] ? myUI.canvases[statics_to_obj[dest]].drawType : "cell";
+    var color = colour ? colour : myUI.canvases[myUI.planner.destsToId[dest]] ? myUI.canvases[myUI.planner.destsToId[dest]].fillColor : "grey";
+    var drawType = drawtype ? drawtype : myUI.canvases[myUI.planner.destsToId[dest]] ? myUI.canvases[myUI.planner.destsToId[dest]].drawType : "cell";
     var opacity = opacityValue ? opacityValue : "100%";
     
     let config = { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color,opacity:opacity};

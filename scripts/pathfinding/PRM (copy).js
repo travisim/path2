@@ -277,8 +277,8 @@ class PRM extends GridPathFinder{
     
     if(!this.bigMap){
       // for every node that is pushed onto the queue, it should be added to the queue infotable
-      this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1, infoTableRowData: [nextNode.value_XY[0]+','+nextNode.value_XY[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
-      this._create_action({command: STATIC.DrawVertex, dest: STATIC.QU, nodeCoord: nextNode.value_XY});
+      this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1, infoTableRowData: [nextNode.value_XY[0]+','+nextNode.value_XY[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
+      this._create_action({command: STATIC.DrawVertex, dest: this.dests.queue, nodeCoord: nextNode.value_XY});
       this._save_step(true);
     }
     this.open_list.set(this.current_node.self_XY, this.current_node); 
@@ -328,30 +328,30 @@ class PRM extends GridPathFinder{
       this.open_list.set(this.current_node_XY, undefined); // remove from open list
 
       //this.visited.increment(this.current_node_XY); // marks current node XY as visited
-      this._create_action({command: STATIC.DrawVertex, dest: STATIC.VI, nodeCoord: this.current_node_XY});
+      this._create_action({command: STATIC.DrawVertex, dest: this.dests.visited, nodeCoord: this.current_node_XY});
       
       if(!this.bigMap){
-        this._create_action({command: STATIC.EraseAllRows, dest: STATIC.ITNeighbors});
+        this._create_action({command: STATIC.EraseAllRows, dest: this.dests.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
           const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , XY + ', ' + XY, "?", "?", "?", "?"]})
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: ["-" , XY + ', ' + XY, "?", "?", "?", "?"]})
         }
-        this._create_action({command: STATIC.EraseRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: 1});
+        this._create_action({command: STATIC.EraseRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1});
 
-        //this._create_action({command: STATIC.EC, dest: STATIC.NB});// erase all neighbours
-        this._create_action({command: STATIC.EraseAllVertex, dest: STATIC.NB});
+        //this._create_action({command: STATIC.EraseCanvas, dest: this.dests.neighbors});// erase all neighbours
+        this._create_action({command: STATIC.EraseAllVertex, dest: this.dests.neighbors});
 
-        //this._create_action({command: STATIC.DSP, dest: STATIC.CR, nodeCoord: this.current_node_XY}); //draw current
-        this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.CR, nodeCoord: this.current_node_XY});
+        //this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.expanded, nodeCoord: this.current_node_XY}); //draw current
+        this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.expanded, nodeCoord: this.current_node_XY});
 
-        //this._create_action({command: STATIC.EP, dest: STATIC.QU, nodeCoord: this.current_node_XY}); // erase vertex in queue
-        this._create_action({command: STATIC.EraseVertex, dest: STATIC.QU, nodeCoord: this.current_node_XY}); // erase vertex in queue
+        //this._create_action({command: STATIC.ErasePixel, dest: this.dests.queue, nodeCoord: this.current_node_XY}); // erase vertex in queue
+        this._create_action({command: STATIC.EraseVertex, dest: this.dests.queue, nodeCoord: this.current_node_XY}); // erase vertex in queue
 
-        //this._create_action({command: STATIC.DSP, dest: STATIC.DT, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.EraseAllEdge, dest: STATIC.DT});
+        //this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.focused, nodeCoord: this.current_node_XY});
+        this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.focused, nodeCoord: this.current_node_XY});
+        this._create_action({command: STATIC.EraseAllEdge, dest: this.dests.focused});
 
-        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 12});
+        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 12});
       }//add
       this._save_step(true);
 
@@ -369,15 +369,15 @@ class PRM extends GridPathFinder{
 
         let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
         
-        this._create_action({command: STATIC.EraseAllEdge, dest: STATIC.DT});
-        this._create_action({command: STATIC.DrawEdge, dest: STATIC.DT, nodeCoord: next_XY, endCoord: this.current_node_XY});
+        this._create_action({command: STATIC.EraseAllEdge, dest: this.dests.focused});
+        this._create_action({command: STATIC.DrawEdge, dest: this.dests.focused, nodeCoord: next_XY, endCoord: this.current_node_XY});
         
         let next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, null, this.randomCoordsNodes[idx].neighbours);
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
-            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+            this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.focused, nodeCoord: next_XY});
             this._save_step(false);
           }
           continue; // do not add to queue if open list already has a lower cost node
@@ -386,10 +386,10 @@ class PRM extends GridPathFinder{
         if(closed_node !== undefined && closed_node.f_cost<=f_cost){
           if(!this.bigMap){
             if(this.current_node.parent.self_XY[0] == next_XY[0] && this.current_node.parent.self_XY[1] == next_XY[1])
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
             else
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
-            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+            this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.focused, nodeCoord: next_XY});
           }
           
           /* no longer required as closed list functions as visited */
@@ -397,35 +397,35 @@ class PRM extends GridPathFinder{
           //this.visited.increment(next_XY); 
 
           // increment after visiting a node on the closed list
-          /*this._create_action({command: STATIC.INC_P, dest: STATIC.VI, nodeCoord: next_XY});*///add on
+          /*this._create_action({command: STATIC.IncrementPixel, dest: this.dests.visited, nodeCoord: next_XY});*///add on
           this._save_step(false);
           continue; // do not add to queue if closed list already has a lower cost node
         }
 
-        this._create_action({command: STATIC.SP, dest: STATIC.FCanvas, nodeCoord: next_XY, cellVal: f_cost});
-        this._create_action({command: STATIC.SP, dest: STATIC.GCanvas, nodeCoord: next_XY, cellVal: g_cost});
-        this._create_action({command: STATIC.SP, dest: STATIC.HCanvas, nodeCoord: next_XY, cellVal: h_cost});
+        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
+        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
+        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
         
         // since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
         // see https://www.geeksforgeeks.org/a-search-algorithm/
         
         if(!this.bigMap){
-          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: STATIC.PC, pseudoCodeRow: 32});
+          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 32});
       
-          this._create_action({command: STATIC.DrawVertex, dest: STATIC.QU, nodeCoord: next_XY});
-          this._create_action({command: STATIC.DrawVertex, dest: STATIC.NB, nodeCoord: next_XY}); //add on
+          this._create_action({command: STATIC.DrawVertex, dest: this.dests.queue, nodeCoord: next_XY});
+          this._create_action({command: STATIC.DrawVertex, dest: this.dests.neighbors, nodeCoord: next_XY}); //add on
 
           // counts the number of nodes that have a lower F-Cost than the new node
           // to find the position to add it to the queue
           let numLess = this.queue.filter(node => node.f_cost < next_node.f_cost).length;
           
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: STATIC.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
           
           if(open_node===undefined && closed_node===undefined) 
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
           else if(open_node)
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: STATIC.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
-            this._create_action({command: STATIC.DrawSingleVertex, dest: STATIC.DT, nodeCoord: next_XY});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`-`, `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
+            this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.focused, nodeCoord: next_XY});
         }
         this._save_step(false);
 
