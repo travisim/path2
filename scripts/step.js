@@ -198,8 +198,8 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
     myUI.nodeCanvas.drawCircle([x,y],dest,false,false,radius);//id generated from coord and type
   }
   else if(command == STATIC.DrawDottedVertex){
-      myUI.nodeCanvas.drawCircle([x,y],dest,false,colour,radius,false,"dotted");
-    }
+    myUI.nodeCanvas.drawCircle([x,y],dest,false,colour,radius,false,"dotted");
+  }
     
 
   else if(command == STATIC.EraseVertex){

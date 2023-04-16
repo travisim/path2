@@ -6,6 +6,14 @@ class RRT_star extends GridPathFinder{
   infoMapPlannerMode(){
     return "RRT_star";
   }
+
+  static get indexOfCollapsiblesToExpand() {
+    return [ 1, 2, 3, 4];
+  }
+  static get pseudoCode() {
+    return "T ← InitializeTree();\nT ← InsertNode(∅, Zinit , T ); \nfor i = 1 to i = N do \n  Zrand ← Sample(i);\n  Znearest ←Nearest(T,Zrand); \n  (Xnew,Unew,Tnew) ← Steer(Znearest,Zrand);\n  if ObstacleFree(Xnew) then \n    Znear ←Near(T, Znew,|V|);\n    Zmin ← ChooseParent(Znear, Znearest, Znew, Xnew);\n    T ←InsertNode(Zmin, Znew, T);\n    T ←ReWire(T, Znear, Zmin, Znew); \nreturn T;"
+  }
+  
   
   get infoTables(){
     return [
@@ -203,7 +211,7 @@ l        }
     this._create_action({ command: this.dests.expandedeateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
     this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "0" });
     this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"∞"});
-    this._create_action({ command: STATIC.DrawVertex, dest: STATIC.FreeMap, nodeCoord: start });
+    this._create_action({ command: STATIC.DrawVertex, dest: STATIC.networkGraph, nodeCoord: start });
     this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 1 });
   
     this._save_step(true);
@@ -245,7 +253,7 @@ l        }
           nodesNearby_Index.forEach(element => {
             this._create_action({ command: STATIC.DrawVertex, dest: this.dests.neighbors, nodeCoord: this.choosenCoordsNodes[element].value_XY }); 
           });
-          this._create_action({ command: STATIC.DrawVertex, dest: STATIC.FreeMap, nodeCoord: nextCoordToAdd_XY });
+          this._create_action({ command: STATIC.DrawVertex, dest: STATIC.networkGraph, nodeCoord: nextCoordToAdd_XY });
           this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes",value:"++"});
           this._create_action({command: STATIC.DrawDottedVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,radius: this.connectionDistance.toString()});
           this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 6});
@@ -258,7 +266,7 @@ l        }
           this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.expanded, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, colour:"pink"});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 8});
           this._save_step(true);
-          this._create_action({ command: STATIC.DrawEdge, dest: STATIC.FreeMap, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, endCoord: nextCoordToAdd_XY });
+          this._create_action({ command: STATIC.DrawEdge, dest: STATIC.networkGraph, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, endCoord: nextCoordToAdd_XY });
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 9});
           this._save_step(true);
           this.insertNodeToTree(selectedParent_Index, nextCoordToAdd_XY, [selectedParent_Index], randomCoord_XY, [nextCoordToAdd_XY, randomCoord_XY]);
@@ -344,8 +352,8 @@ l        }
           myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY);
           myUI.nodeCanvas.drawCircle(nextCoordToAdd_XY);
           //if(this.choosenCoordsNodes.length == 1) myUI.edgeCanvas.drawLine(start,nextCoordToAdd_XY);;
-          myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,STATIC.FreeMap,"randomCoordLine",true);
-          myUI.nodeCanvas.drawCircle(randomCoord_XY,STATIC.FreeMap,"randomCoord","purple");
+          myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,STATIC.networkGraph,"randomCoordLine",true);
+          myUI.nodeCanvas.drawCircle(randomCoord_XY,STATIC.networkGraph,"randomCoord","purple");
 
           var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, nextCoordToAdd_XY,this.neighbourSelectionMethod,this.connectionDistance); 
           var selectedParent_Index = determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index,this.choosenCoordsNodes);
@@ -419,12 +427,12 @@ l        }
             this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours.splice(j, 1); // removes nearby node as a neighbour of (nearby node parent)
           }
         }
-          this._create_action({command: STATIC.EraseEdge, dest: STATIC.FreeMap, nodeCoord: this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY });
-          this._create_action({command: STATIC.DrawEdge, dest: STATIC.FreeMap, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colour:"red" });
+          this._create_action({command: STATIC.EraseEdge, dest: STATIC.networkGraph, nodeCoord: this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY });
+          this._create_action({command: STATIC.DrawEdge, dest: STATIC.networkGraph, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colour:"red" });
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 10});
           this._save_step(true);
         console.log("rewire",this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY)
-       // myUI.edgeCanvas.eraseLine(this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, STATIC.FreeMap);
+       // myUI.edgeCanvas.eraseLine(this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, STATIC.networkGraph);
         //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[currentNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY);
       }
     }
@@ -472,7 +480,7 @@ l        }
     this.exports.neighbours.push(new Array());
     this.choosenCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
     this.exports.edges.push([coord_XY, selected_XY]);
-    this._create_action({ command: STATIC.DrawEdge, dest: STATIC.FreeMap, nodeCoord: coord_XY, endCoord: selected_XY });
+    this._create_action({ command: STATIC.DrawEdge, dest: STATIC.networkGraph, nodeCoord: coord_XY, endCoord: selected_XY });
     //myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
     if(!this.choosenCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.choosenCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);

@@ -102,7 +102,12 @@ myUI.initialize = function(){
 	[ 
 		["edit_map_modal", "edit_map_close"],
 		["planner_config_modal", "planner_config_close"],
-    ["first_neighbor_modal", "first_neighbor_close"]
+    ["first_neighbor_modal", "first_neighbor_close"],
+    ["about_modal", "about_close"],
+    ["team_modal", "team_close"],
+    ["terms_modal", "terms_close"],
+    ["privacy_modal", "privacy_close"],
+
 	].forEach(item=>{
 		myUI.modals[item[0].slice(0, -6)] = {
 			elem: document.getElementById(item[0]),
@@ -139,7 +144,11 @@ myUI.initialize = function(){
     ["edit_map_btn"],
     ["stop_edit_btn"],
 		["planner_config_btn"],
-    ["first_neighbor_btn"]
+    ["first_neighbor_btn"],
+    ["about_button"],
+    ["team_button"],
+    ["terms_button"],
+    ["privacy_button"]
   ].forEach(item=>{
     let btn_id = item[0];
     let svg_ids = item[1] ? item[1] : undefined;
@@ -218,11 +227,11 @@ myUI.initialize = function(){
 
   myUI.InfoMap  = new UIInfoMap();
   myUI.PseudoCode = new UIInfoPseudoCode();
-  //myUI.pseudoCodeRawForAstar = 'def astar(map, start_vertex, goal_vertex): \nlist = OpenList() \npath = [ ] \n#Initialise h-cost for all \nfor vertex in map.vertices(): \n    vertex.set_h_cost(goal_vertex)  \n    vertex.g_cost = ∞  \n    vertex.visited = False \n  # Assign 0 g-cost to start_vertex  \n start_vertex.g_cost = 0 \n list.add(start_vertex) \n while list.not_empty(): \n  current_vertex = list.remove() \n  # Skip if visited: a cheaper path  \n  # was already found \n    if current_vertex.visited: \n      continue \n   # Trace back and return the path if at the goal \n   if current_vertex is goal_vertex : \n     while current_vertex is not None: \n      path.push(current_vertex) \n      current_vertex = current_vertex.parent \n     return path # exit the function \n  # Add all free, neighboring vertices which \n   # are cheaper, into the list  \n  for vertex in get_free_neighbors(map, current_vertex):  \n      # f or h-costs are not checked bcos obstacles \n     # affects the optimal path cost from the g-cost \n     tentative_g = calc_g_cost(vertex, current_vertex)  \n     if tentative_g < vertex.g_cost: \n       vertex.g_cost = tentative_g  \n      vertex.parent = current_vertex  \n      list.add(vertex) \nreturn path';
-  myUI.pseudoCodeRawForAstarRRT_star ="T ← InitializeTree();\nT ← InsertNode(∅, Zinit , T ); \nfor i = 1 to i = N do \n  Zrand ← Sample(i);\n  Znearest ←Nearest(T,Zrand); \n  (Xnew,Unew,Tnew) ← Steer(Znearest,Zrand);\n  if ObstacleFree(Xnew) then \n    Znear ←Near(T, Znew,|V|);\n    Zmin ← ChooseParent(Znear, Znearest, Znew, Xnew);\n    T ←InsertNode(Zmin, Znew, T);\n    T ←ReWire(T, Znear, Zmin, Znew); \nreturn T;"
-  myUI.PseudoCode.rowGenerator(myUI.pseudoCodeRawForAstarRRT_star);
+ 
 
   myUI.tmp = {}; // DO NOT DELETE
+
+ 
 }
 
 myUI.initialize();

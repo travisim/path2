@@ -6,6 +6,11 @@ class PRM extends GridPathFinder{
   infoMapPlannerMode(){
     return "PRM";
   }
+
+
+  static get indexOfCollapsiblesToExpand() {
+    return [1, 2, 3, 4];
+  }
   
   static get distance_metrics(){
     return ["Euclidean"];
@@ -64,6 +69,7 @@ class PRM extends GridPathFinder{
     this.vertexEnabled = true;
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
+    
   }
 v
   setConfig(uid, value){

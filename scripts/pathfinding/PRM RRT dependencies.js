@@ -554,7 +554,7 @@ class SVGCanvas {
   constructor(canvas_id, drawOrder) {
     this.canvas_id = canvas_id;
     this.createSvgCanvas(this.canvas_id, drawOrder);
-  
+    this.isGrid = true
    // this.reset(this.canvas_id);
   }
 
@@ -600,7 +600,7 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY,dest = STATIC.FreeMap, id=false,isDotted = false,color = false){
+  drawLine(start_XY, end_XY,dest = STATIC.networkGraph, id=false,isDotted = false,color = false){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
  
@@ -615,7 +615,7 @@ class SVGCanvas {
     if (isDotted) line.style.strokeDasharray = 5;
     document.getElementById(this.canvas_id).appendChild(line);
   }
-  eraseLine(start_XY, end_XY, dest = STATIC.FreeMap){
+  eraseLine(start_XY, end_XY, dest = STATIC.networkGraph){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
     var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
@@ -628,7 +628,7 @@ class SVGCanvas {
     }
   }
   
-  eraseAllLines(dest = STATIC.FreeMap){
+  eraseAllLines(dest = STATIC.networkGraph){
     this.EraseSvgsbyClass(`SVGline_${dest}`);
   }
   drawCircle(circle_XY, dest = "map",id=false, colour=false,radius = false, opacityValue = false,drawtype = false){
@@ -636,7 +636,7 @@ class SVGCanvas {
     var r = radius?radius:Math.max(0.25*this.displayRatio, 1);
     var cx = this.displayRatio*circle_coord.y;
     var cy = this.displayRatio*circle_coord.x; 
-    
+    console.log("DP",this.displayRatio)
     var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
     var circle_class = `SVGcircle_${dest}`;
 
@@ -659,7 +659,7 @@ class SVGCanvas {
   }
 
 
-  eraseCircle(circle_XY, dest = STATIC.FreeMap){
+  eraseCircle(circle_XY, dest = STATIC.networkGraph){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
     var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
     try{this.EraseSvgById(circle_id);}catch{
@@ -691,10 +691,10 @@ class SVGCanvas {
 
   eraseAllSvgExceptClass(className = "tmp_svg") {
       let tmp_doc = this.createSvgCanvas(className, 0);
-      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGcircle_${STATIC.FreeMap}`))
+      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGcircle_${STATIC.networkGraph}`))
         tmp_doc.appendChild(el.cloneNode());
       
-      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGline_${STATIC.FreeMap}`))
+      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGline_${STATIC.networkGraph}`))
         tmp_doc.appendChild(el.cloneNode());
       
       document.getElementById(this.canvas_id).innerHTML = "";

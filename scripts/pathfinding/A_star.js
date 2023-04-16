@@ -6,6 +6,13 @@ class A_star extends GridPathFinder{
   infoMapPlannerMode(){
     return "A_star";
   }
+  static get indexOfCollapsiblesToExpand() {
+    return [0,1, 2, 3, 4];
+  }
+
+   static get pseudoCode() {
+    return 'def astar(map, start_vertex, goal_vertex): \nlist = OpenList() \npath = [ ] \n#Initialise h-cost for all \nfor vertex in map.vertices(): \n    vertex.set_h_cost(goal_vertex)  \n    vertex.g_cost = ∞  \n    vertex.visited = False \n  # Assign 0 g-cost to start_vertex  \n start_vertex.g_cost = 0 \n list.add(start_vertex) \n while list.not_empty(): \n  current_vertex = list.remove() \n  # Skip if visited: a cheaper path  \n  # was already found \n    if current_vertex.visited: \n      continue \n   # Trace back and return the path if at the goal \n   if current_vertex is goal_vertex : \n     while current_vertex is not None: \n      path.push(current_vertex) \n      current_vertex = current_vertex.parent \n     return path # exit the function \n  # Add all free, neighboring vertices which \n   # are cheaper, into the list  \n  for vertex in get_free_neighbors(map, current_vertex):  \n      # f or h-costs are not checked bcos obstacles \n     # affects the optimal path cost from the g-cost \n     tentative_g = calc_g_cost(vertex, current_vertex)  \n     if tentative_g < vertex.g_cost: \n       vertex.g_cost = tentative_g  \n      vertex.parent = current_vertex  \n      list.add(vertex) \nreturn path';
+  }
   
   static get distance_metrics(){
     return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
@@ -52,6 +59,8 @@ class A_star extends GridPathFinder{
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbor, search_direction);
     this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
+  
+    
   }
 
   setConfig(uid, value){

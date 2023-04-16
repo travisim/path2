@@ -273,7 +273,10 @@ myUI.loadPlanner = function(create_planner = true) {
   myUI.initHover(myUI.planner.constructor.hoverData);
   if(myUI.planner.bigMap) document.getElementById("info-container").classList.add("none");
   else document.getElementById("info-container").classList.remove("none");
-  if(myUI.planner.postProcess) myUI.planner.postProcess();
+  if (myUI.planner.postProcess) myUI.planner.postProcess();
+  
+  expandSelectedIndex(myUI.planner.constructor.indexOfCollapsiblesToExpand);
+  if(myUI.planner.constructor.pseudoCode)myUI.PseudoCode.rowGenerator(myUI.planner.constructor.pseudoCode)
 }
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
