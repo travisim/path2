@@ -142,8 +142,8 @@
 	overflow: hidden;
 	height: auto;/*calc(var(--canvas-remaining) + var(--canvas-length));*/
 	flex-grow: 2;
-  width:180px;
- right: 0px;
+	width: 176px;
+	right: 0px;
 }
 
 /*start of layers css*/

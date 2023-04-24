@@ -1,11 +1,11 @@
 function appendCheckbox(id,checked = false, label,subLabel = null,toggleType){
-if (checked == true){
-  var checked_value = "checked"; 
-}
-else{
-  document.getElementById(id.slice(5)).classList.add("hidden");
-  var checked_value = "";
-}
+  if (checked == true){
+    var checked_value = "checked"; 
+  }
+  else{
+    document.getElementById(id.slice(5)).classList.add("hidden");
+    var checked_value = "";
+  }
   const div = document.createElement("div");
   div.innerHTML = `
   <input type="checkbox" id=${id} name=${id} class="layers" ${checked_value}>
@@ -33,9 +33,12 @@ else{
   myUI.checkbox.canvas.push(document.getElementById(id));
 
   if(toggleType=="multi"){
-    document.getElementById(id).addEventListener("click", function(e){
-      if(this.checked) document.getElementById(id.slice(5)).classList.remove("hidden");
-      else document.getElementById(id.slice(5)).classList.add("hidden");
+    document.getElementById(id).addEventListener("click", function (e) {
+   
+        if (this.checked) document.getElementById(id.slice(5)).classList.remove("hidden");
+        else document.getElementById(id.slice(5)).classList.add("hidden");
+      toggleHideSVGCircleByClassIdentifier(id.slice(5))
+      toggleHideSVGLineByClassIdentifier(id.slice(5))
     });
   }
   else if(toggleType=="single"){

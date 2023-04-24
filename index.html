@@ -157,6 +157,7 @@
             <div class="content">
               <div id="pseudo-code-container">
                 <table id="dynamic-pseudo-code-table"></table>
+              <div id = "pseudoCodeReference" style = "font-size:8px; color: rgba(0, 0, 0, 0.5);"> </div>
               </div>
             </div>
           </div>
@@ -239,7 +240,7 @@
             <button id="download_scen_btn" class="btn">Download Scen</button>
           </div>
           <div class="flex-row">
-            <!--status of code(basically a shows a gives a description based on the pseudo code on what the map is doing)-->
+            <!-- bugs goal, layers, load bar-->
           </div>
         </div>
       </div>
@@ -451,6 +452,7 @@
                     type="number"
                     min="0"
                   />
+                  
                 </div>
                 <div class=" flex-row"></div>
                   <label class="scen_label">Increment nodes by:</label>
@@ -810,6 +812,7 @@
     <script src="scripts/download.js"></script>
     <script src="scripts/default.js"></script>
     <script src="build/A_star.js"></script>
+    <script src="scripts/preloadMap.js"></script>
     <script src="build/loadWasm.js"></script>
   </body>
 </html>

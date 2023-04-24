@@ -11,7 +11,8 @@ class UIInfoPseudoCode{
     this.highlightedRowsPri = document.getElementById("pseudo-code-container").getElementsByClassName('highlightingPri');
   }
   
-  rowGenerator(pseudoCodeTxtFileContent){
+  rowGenerator(pseudoCodeTxtFileContent) {
+    document.getElementById("dynamic-pseudo-code-table").innerHTML = "";
    var pseudoCodeArrayByline = pseudoCodeTxtFileContent.split("\n");
     //var t = document.createElement('table');
   
@@ -38,7 +39,9 @@ class UIInfoPseudoCode{
    
     }  
   }
-  
+  reference(reference) {
+    document.getElementById("pseudoCodeReference").innerHTML= reference;
+  }
   
  	highlightPri(rowNo){
   	for (let i = 0; i < this.highlightedRowsPri.length; i++) { 

@@ -206,7 +206,7 @@ myUI.displayScen = function(update=false, reset_zero=false){
 
 function moveDraggable(xy){
   const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
-	let bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
+	let bounds = myUI.canvases.bg.canvas.getBoundingClientRect();
   let offset = 0.5;
   if(myUI.vertex)
     offset = 0;
@@ -275,8 +275,12 @@ myUI.loadPlanner = function(create_planner = true) {
   else document.getElementById("info-container").classList.remove("none");
   if (myUI.planner.postProcess) myUI.planner.postProcess();
   
+  // should change to a more unified one i future 
+  if (myUI.planner.constructor.pseudoCode.code) myUI.PseudoCode.rowGenerator(myUI.planner.constructor.pseudoCode.code)
+  if (myUI.planner.constructor.pseudoCode.reference) myUI.PseudoCode.reference(myUI.planner.constructor.pseudoCode.reference)
   expandSelectedIndex(myUI.planner.constructor.indexOfCollapsiblesToExpand);
-  if(myUI.planner.constructor.pseudoCode)myUI.PseudoCode.rowGenerator(myUI.planner.constructor.pseudoCode)
+  document.getElementById("map_goal_radius").style.display = myUI.planner.constructor.addGoalRadius == 1?"block":"none"
+  
 }
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);

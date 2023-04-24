@@ -1,9 +1,9 @@
-var myUI = {}
+var myUI = {};
 
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [A_star, wasm_A_star, RRT_star,PRM];
+  myUI.planners = [PRM,RRT_star,A_star, wasm_A_star];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 
@@ -75,8 +75,8 @@ myUI.initialize = function(){
   myUI.map_height = myUI.canvases.bg.canvas.height;
   myUI.map_width = myUI.canvases.bg.canvas.width;
 
-  myUI.nodeCanvas = new SVGCanvas("node", -3);
-  myUI.edgeCanvas = new SVGCanvas("edge", -2);
+  myUI.nodeCanvas = new SVGCanvas("node_SVG", -3);
+  myUI.edgeCanvas = new SVGCanvas("edge_SVG", -2);
 
  //initialise info
   

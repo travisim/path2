@@ -98,7 +98,8 @@ class UICanvas{
     this.canvas_cache = this.matrixConstructor();
   }
 
-  hide(){
+  hide() {
+  
     this.canvas.classList.add("hidden");
   }
 
