@@ -42,7 +42,7 @@ function compute_path(){
 			myUI.animation.max_step = myUI.planner.max_step();
 			myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
 			myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
-			myUI.sliders.animation_speed_slider.elem.value = myUI.sliders.animation_speed_slider.elem.max;
+			myUI.sliders.animation_speed_slider.elem.value = (myUI.sliders.animation_speed_slider.elem.max)/2;
 			updateSpeedSlider();
 			document.getElementById("compute_btn").children[0].innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
 			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").children[0].innerHTML = "Compute Path", 30000);

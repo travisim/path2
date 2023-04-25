@@ -53,7 +53,7 @@
         <div class="sub-container">
           <div id="info-pane" class="interface overlay">
             <!--start of html for info map-->
-            <button class="collapsible">Info Map</button>
+            <button class="collapsible">Map</button>
             <div class="content">
               <div id="infomap" class="grid">
                 <div class="spacer"></div>
@@ -147,16 +147,17 @@
               </div>
             </div>
 
-            <button class="collapsible">Info Table</button>
+            <button class="collapsible">Table</button>
             <div class="content">
               <div class="tab"></div>
               <div id="info-tables-dynamic"></div>
             </div>
 
-            <button class="collapsible">Info Pseudo Code</button>
+            <button class="collapsible">Pseudo Code</button>
             <div class="content">
               <div id="pseudo-code-container">
                 <table id="dynamic-pseudo-code-table"></table>
+              <div id = "pseudoCodeReference" style = "font-size:8px; color: rgba(0, 0, 0, 0.5);"> </div>
               </div>
             </div>
           </div>
@@ -239,7 +240,7 @@
             <button id="download_scen_btn" class="btn">Download Scen</button>
           </div>
           <div class="flex-row">
-            status of code(basically a shows a gives a description based on the pseudo code on what the map is doing)
+            <!-- bugs goal, layers, load bar-->
           </div>
         </div>
       </div>
@@ -418,7 +419,7 @@
                   class="btn"
                   alt="Find path using selected planner"
                 >
-                  <div class="flex-col">Compute Path</div>
+                  <div class="flex-col label_centered">Compute Path</div>
                 </button>
                 <button
                   id="edit_map_btn"
@@ -449,6 +450,7 @@
                     type="number"
                     min="0"
                   />
+                  
                 </div>
                 <div class=" flex-row"></div>
                   <label class="scen_label">Increment nodes by:</label>
@@ -543,12 +545,12 @@
         </div>
       </div>
       
-      <div id="bottom-bar">
+      <footer id="bottom-bar">
         <a id="trigger-about">About</a>
         <a id="trigger-team">Team</a>
         <a id="trigger-terms">Terms of use</a>
         <a id="trigger-privacy">Privacy Policy</a>
-      </div>
+      </footer>
       <!--
       <div id="about" class="overlays" style="">
         <h4 style="background-color: rgb(167, 212, 30);" data-darkreader-inline-bgcolor="">About</h4><span class="close-overlay">✕</span>
@@ -562,7 +564,15 @@
 
     </div>
     <div id="edit_map_modal" class="modal">
+      
       <div class="modal-content">
+        <div class="row">
+          <div class="modal-bar" >
+             <div class="label_centered title">Edit & Resize map</div>
+            <span id="edit_map_close" class="close">&times;</span>
+           
+          </div>
+        </div>
         <div id="edit_map_ctn">
           <div id="edit_mouse_tip" class="grid-overlay">
             <img
@@ -586,21 +596,8 @@
           ></canvas>
         </div>
         <div id="right_panel">
-          <span id="edit_map_close" class="close">&times;</span>
-          <button id="draw_erase_btn" class="btn grid-overlay">
-            <img
-              src="assets/pencil-svgrepo-com.svg"
-              id="draw_icon"
-              class="icon overlay"
-              alt="draw"
-            />
-            <img
-              src="assets/eraser-svgrepo-com.svg"
-              id="erase_icon"
-              class="icon overlay hidden"
-              alt="erase"
-            />
-          </button>
+          
+         
           <div class="flex-row">
             <div class="flex-col" style="display: none">
               <span class="label_centered">1024</span>
@@ -615,12 +612,26 @@
               />
               <span class="label_centered">1</span>
             </div>
-            <label class="label_centered"
-              >Map Height:
+            <label class="label_centered">
+              Map Height:
               <input id="map_height_label" class="label_input" value="16"
             /></label>
           </div>
         </div>
+         <button id="draw_erase_btn" class="btn grid-overlay">
+            <img
+              src="assets/pencil-svgrepo-com.svg"
+              id="draw_icon"
+              class="icon overlay"
+              alt="draw"
+            />
+            <img
+              src="assets/eraser-svgrepo-com.svg"
+              id="erase_icon"
+              class="icon overlay hidden"
+              alt="erase"
+            />
+          </button>
         <div id="bottom_panel">
           <div class="flex-row" style="display: none">
             <span>1</span>
@@ -634,18 +645,25 @@
             />
             <span>1024</span>
           </div>
-          <label class="label_centered"
-            >Map Width:
+          <label class="label_centered" style="top:3px">
+            Map Width:
             <input id="map_width_label" class="label_input" value="16"
           /></label>
         </div>
       </div>
     </div>
     <div id="planner_config_modal" class="modal">
-      <div class="modal-content">
-        <span id="planner_config_close" class="close">&times;</span>
-        <h2 class="label_centered">Planner Configuration</h2>
-        <p id="planner_label"></p>
+      <div class="modal-content ">
+        <div class="row">
+          <div class="modal-bar" >
+            <div class="label_centered title">Planner Configuration</div>
+            <span id="planner_config_close" class="close">&times;</span>
+           
+          </div>
+        </div>
+        
+        
+        
         <label for="planner_select" class="label_centered"
           >Choose planner:</label
         >
@@ -682,6 +700,84 @@
 		</div>
       </div>
     </div>
+
+    <div id="about_modal" class="modal">
+      <div class="modal-content ">
+        <div class="row">
+          <div class="modal-bar" >
+             <div class="label_centered title">About</div>
+             <span id="about_close" class="close">&times;</span>
+           
+          </div>
+        </div>
+        <div >
+          <p>Visual Path Planners was conceptualised by Lai Yan Kai as a tool to help his students better understand data structures and algorithms, by allowing them to learn the basics on their own and at their own pace.</p><p>Visual Path Planners is not designed to work well on small touch screens (e.g., smartphones) from the outset due to the need to cater for many complex algorithm visualizations that require lots of pixels and click-and-drag gestures for interaction. The minimum screen resolution for a respectable user experience is 1024x768 and only the landing page is relatively mobile-friendly. However, we are currently experimenting with a mobile (lite) version of Visual Path Planners </p><p>Visual Path Planners is an ongoing project and more complex visualizations are still being developed.</p><p>We intend to have  Visual Path Planners translated into three main languages: English, Chinese, and Indonesian. Currently, we also intend to have written public notes about Visual Path Planners in various languages:</p>
+     
+        </div>
+      </div>
+     </div>
+
+    <div id="team_modal" class="modal">
+      <div class="modal-content ">
+        <div class="row">
+          <div class="modal-bar" >
+             <div class="label_centered title">Team</div>
+             <span id="team_close" class="close">&times;</span>
+           
+          </div>
+          
+        </div>
+        <div >
+              <p>
+              <strong><span style="line-height: 150%;">Project Leader &amp; Advisor </span></strong><br>
+              Lai Yan Kai, Graduate Student, Department of Electrical and Computer Engineering, National University of Singapore (NUS)<br>
+              </p>
+              <p>
+              <strong><span style="line-height: 150%;">Undergraduate Student Researchers </span></strong>
+              <br>
+              Chong Tze Zhao, <!--<a href="https://roticv.rantx.com/" target="_blank">-->Travis Sim</a>
+              </p>
+
+
+        </div>
+      </div>
+    </div>
+
+       <div id="terms_modal" class="modal">
+      <div class="modal-content ">
+        <div class="row">
+          <div class="modal-bar" >
+             <div class="label_centered title">Terms</div>
+            <span id="terms_close" class="close">&times;</span>
+           
+          </div>
+          
+        </div>
+        <div>
+          <p>Visual Path Planners is free of charge for Computer Science community on earth. If you like Visual Path Planners, the only "payment" that we ask of you is for you to <b>tell the existence of Visual Path Planners to other Computer Science students/instructors</b> that you know =) via Facebook/Twitter/Instagram/TikTok posts, course webpages, blog reviews, emails, etc.</p> <p>If you are a <b>student/instructor</b>, you are allowed to use this website directly for your classes. If you take screen shots (videos) from this website, you can use the screen shots (videos) elsewhere as long as you cite the URL of this website and/or list of publications below as reference. However, you are <b>NOT</b> allowed to download Visual Path Planners (client-side) files and <b>host it</b> on your own website as it is <b>plagiarism</b>. As of now, we do <b>NOT</b> allow other people to fork this project and create variants of Visual Path Planners. Using the offline copy of (client-side) Visual Path Planners for your personal usage is fine.</p> <p>Note that Visual Path Planners's Web Assembly component is by nature has heavy server-side component and there is no easy way to run the server-side scripts and databases locally. </p> <p><strong><span style="line-height: 200%;">List of Publications</span></strong></p> <p>This work has been presented briefly at xxx. You can click <a href="xxx.pdf" target="_blank">this link</a> to read our  paper about this system  <p><strong><span style="line-height: 200%;">Bug Reports or Request for New Features</span></strong></p> <p>Visual Path Planners is not a finished project. We are still actively improving Visual Path Planners. If you are using Visual Path Planners and spot a bug in any of our visualization page/online quiz tool or if you want to request for new features, please submit a issue at the github repository. </p>
+        </div>
+      </div>
+    </div>
+
+
+       <div id="privacy_modal" class="modal">
+      <div class="modal-content ">
+        <div class="row">
+          <div class="modal-bar" >
+            <div class="label_centered title">Privacy</div>
+            <span id="privacy_close" class="close">&times;</span>
+
+          </div>
+         
+        </div>
+         <div>
+            <p><b>Version 1.0 (Updated xxx).</b></p><p>Disclosure to all visitors: We currently use Google Analytics to get an overview understanding of our site visitors. We now give option for user to Accept or Reject this tracker.</p>
+        </div>
+      </div>
+    </div>
+
+
+
     <div>
       <style id="darkmode"></style>
     </div>
@@ -714,6 +810,7 @@
     <script src="scripts/download.js"></script>
     <script src="scripts/default.js"></script>
     <script src="build/A_star.js"></script>
+    <script src="scripts/preloadMap.js"></script>
     <script src="build/loadWasm.js"></script>
   </body>
 </html>

@@ -1,7 +1,6 @@
 //------------------------------------------------------------pathfinder
 
 // grid, graph, directed_graph, RRP
-
 class GridPathFinder{
 
 static get wasm(){
@@ -233,9 +232,7 @@ static get wasm(){
 
 	get canvases(){
 		return [
-			{
-				id:"neighboursRadius", drawType:"dotted", drawOrder: 4, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null
-			},
+			
 			{
 				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#8F00FF"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
 			},
@@ -254,9 +251,7 @@ static get wasm(){
 			{
 				id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 8, infoMapBorder: true, infoMapValue: null,
 			},
-			{
-				id:"FreeMap", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
-			}
+			
 		];
 	}
 

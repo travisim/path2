@@ -98,7 +98,8 @@ class UICanvas{
     this.canvas_cache = this.matrixConstructor();
   }
 
-  hide(){
+  hide() {
+  
     this.canvas.classList.add("hidden");
   }
 
@@ -577,10 +578,23 @@ if (CP && CP.lineTo) {
 
 var coll = document.getElementsByClassName("collapsible");
 
+const toggleCollapsible = () => {
+  this.classList.toggle("active_Section");
+  var content = this.nextElementSibling;
+  
+  if (content.style.maxHeight){
+    content.style.maxHeight = null;
+  } 
+  else {
+    content.style.maxHeight = content.scrollHeight + "px";
+  } 
+}
 for (var i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function() {
     this.classList.toggle("active_Section");
-    var content = this.nextElementSibling;
+    console.log(this, "this");
+    
+    const content = this.nextElementSibling;
     
     if (content.style.maxHeight){
       content.style.maxHeight = null;
@@ -591,6 +605,47 @@ for (var i = 0; i < coll.length; i++) {
     
   });
 }
+
+const collapseAllCollapsible =  () => {
+  for (var i = 0; i < coll.length; i++) {
+  const content = coll[i].nextElementSibling;
+   if(coll[i].classList.contains("active_Section"))coll[i].classList.remove("active_Section")
+    content.style.maxHeight = null;
+  
+    
+  }
+  
+}
+const expandAllCollapsible =  () => {
+  for (var i = 0; i < coll.length; i++) {
+  const content = coll[i].nextElementSibling;
+   if(coll[i].classList.contains("active_Section"))coll[i].classList.remove("active_Section")
+    content.style.maxHeight = content.scrollHeight + "px";
+  
+    
+  }
+  
+}
+const expandSelectedIndex = (x) => {
+  collapseAllCollapsible();
+  for (var i = 0; i < x.length; i++) {
+    coll[x[i]].click();
+  }
+}
+
+
+/*
+const collapsible = {
+  infoPane: document.getElementById("info-pane").getElementsByClassName("collapsible"),
+  controls: document.getElementById("controls").getElementsByClassName("collapsible"),
+  clearAll: () => {
+    this.infoPane.each()
+    this.controls.each()
+    }
+
+  }
+
+*/
 /*
 for (var i = 0; i < coll.length; i++) {
   coll[i].nextElementSibling.style.height = "0px";

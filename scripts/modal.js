@@ -125,3 +125,101 @@ class EditState{
     this._child = child;
   }
 }
+
+
+
+// start of about modal
+myUI.modals.about.show = function(){
+  show_modal(myUI.modals.about.elem);
+  document.addEventListener("keydown", modal_await_keypress);
+
+  
+}
+
+// When the user clicks on the button, open the modal
+document.getElementById("trigger-about").addEventListener("click", myUI.modals.about.show);
+
+myUI.modals.about.close = function(){
+	
+ 
+  document.removeEventListener("keydown", modal_await_keypress);
+  hide_modal(myUI.modals.about.elem);
+}
+myUI.modals.about.close_btn.addEventListener("click", myUI.modals.about.close);
+
+window.addEventListener("click", event=>{
+	if (event.target == myUI.modals.about.elem)
+		myUI.modals.about.close();
+});
+
+//teams
+myUI.modals.team.show = function(){
+  show_modal(myUI.modals.team.elem);
+  document.addEventListener("keydown", modal_await_keypress);
+
+  
+}
+
+// When the user clicks on the button, open the modal
+document.getElementById("trigger-team").addEventListener("click", myUI.modals.team.show);
+
+myUI.modals.team.close = function(){
+	
+ 
+  document.removeEventListener("keydown", modal_await_keypress);
+  hide_modal(myUI.modals.team.elem);
+}
+myUI.modals.team.close_btn.addEventListener("click", myUI.modals.team.close);
+
+window.addEventListener("click", event=>{
+	if (event.target == myUI.modals.team.elem)
+		myUI.modals.team.close();
+});
+
+
+//terms
+myUI.modals.terms.show = function(){
+  show_modal(myUI.modals.terms.elem);
+  document.addEventListener("keydown", modal_await_keypress);
+
+  
+}
+
+// When the user clicks on the button, open the modal
+document.getElementById("trigger-terms").addEventListener("click", myUI.modals.terms.show);
+
+myUI.modals.terms.close = function(){
+	
+ 
+  document.removeEventListener("keydown", modal_await_keypress);
+  hide_modal(myUI.modals.terms.elem);
+}
+myUI.modals.terms.close_btn.addEventListener("click", myUI.modals.terms.close);
+
+window.addEventListener("click", event=>{
+	if (event.target == myUI.modals.terms.elem)
+		myUI.modals.terms.close();
+});
+//privacy
+myUI.modals.privacy.show = function(){
+  show_modal(myUI.modals.privacy.elem);
+  document.addEventListener("keydown", modal_await_keypress);
+
+  
+}
+
+// When the user clicks on the button, open the modal
+document.getElementById("trigger-privacy").addEventListener("click", myUI.modals.privacy.show);
+
+myUI.modals.privacy.close = function(){
+	
+ 
+  document.removeEventListener("keydown", modal_await_keypress);
+  hide_modal(myUI.modals.privacy.elem);
+}
+myUI.modals.privacy.close_btn.addEventListener("click", myUI.modals.privacy.close);
+
+window.addEventListener("click", event=>{
+	if (event.target == myUI.modals.privacy.elem)
+		myUI.modals.privacy.close();
+});

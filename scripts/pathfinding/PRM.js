@@ -6,6 +6,26 @@ class PRM extends GridPathFinder{
   infoMapPlannerMode(){
     return "PRM";
   }
+
+
+  static get indexOfCollapsiblesToExpand() {
+    return [1, 2, 3, 4];
+  }
+  static get pseudoCode() {
+    return {
+      code: "N ← ∅;\nE ← ∅; \nloop \n  c ← a randomly chosen free configuration;\n  Nc ← a set of candidate neighbours of c chosen from N; \n  N ← N U {C} ;\n  forall n ∈ Nc in order of increasing D(c,n) do \n    if (!same_connceted_component(c,n)) and LOS(c,n) then\n      N ← N U {[c,n]};\n      update R's connected components;\n add goal/start node to map",
+      reference: "L. E. Kavraki, P. Svestka, J. . -C. Latombe and M. H. Overmars, \"Probabilistic roadmaps for path planning in high-dimensional configuration spaces,\" in IEEE Transactions on Robotics and Automation, vol. 12, no. 4, pp. 566-580, Aug. 1996, doi: 10.1109/70.508439."
+    }
+  }
+
+   get infoTables(){
+    return [
+      {id: "ITStatistics", displayName: "Statistics", headers: ["Indicator ", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
+			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
+      {id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
+      
+		];
+	}
   
   static get distance_metrics(){
     return ["Euclidean"];
@@ -22,15 +42,18 @@ class PRM extends GridPathFinder{
 
   get canvases(){
     let canvases = super.canvases.concat([
-			{
-				id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "F",
-			},
-			{
-				id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "G",
-			},
-			{
-				id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
-			},
+			// {
+			// 	id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "F",
+			// },
+			// {
+			// 	id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "G",
+			// },
+			// {
+			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
+			// },
+      {
+				id:"networkGraph", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+			}
     ])
     if(this.bigMap){
       canvases = canvases.filter(conf => conf.bigMap);
@@ -42,7 +65,7 @@ class PRM extends GridPathFinder{
 		let configs = [];
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
-      {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
+      {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "sinatra", description: `Sets seed for randomness of random points`},
       {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 35, description: `Sets number of random points`},
       {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours", "Top Closest Visible Neighbours", "Closest Neighbours By Radius"],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
@@ -64,8 +87,9 @@ class PRM extends GridPathFinder{
     this.vertexEnabled = true;
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
+    
   }
-v
+
   setConfig(uid, value){
 		super.setConfig(uid, value);
     switch(uid){
@@ -163,40 +187,53 @@ v
     this.exports = {coords:[],neighbours:[],edges:[]};
    
     //clears SVG canvas
-    if(document.getElementById("node")){
-      document.getElementById("node").innerHTML = "";
-    }
-    if(document.getElementById("edge")){
-      document.getElementById("edge").innerHTML = "";
-    }
+    myUI.nodeCanvas.reset()
+    myUI.edgeCanvas.reset()
 
     this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
     this.randomCoordsNodes = []
   
+
+
+    this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "Number Of Nodes" });
+    this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
+    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "0" });
+    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"∞"});
+    this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: start });
+    this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 4 });
+  
+
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
-      var randomCoord_XY = [rand()*(myUI.map_arr.length/*this.map_height*/), rand()*(myUI.map_arr[0].length/*this.map_width*/)] //need seed
-      if(this.roundNodes) randomCoord_XY = randomCoord_XY.map(Math.round);
       
-      if(this.randomCoordsNodes.length != 0){
+      var randomCoord_XY = [rand()*(myUI.map_arr.length/*this.map_height*/), rand()*(myUI.map_arr[0].length/*this.map_width*/)] //need seed
+      
+     // if (this.roundNodes) randomCoord_XY = randomCoord_XY.map(Math.round);
+  
+      if (CustomLOSChecker(randomCoord_XY, randomCoord_XY).boolean == false) {
+        continue
+      }
+      
+      if (this.randomCoordsNodes.length != 0) {
         for (let j = 0; j < this.randomCoordsNodes.length; ++j) {
-          if(this.randomCoordsNodes[j].value_XY[0] == randomCoord_XY[0] && this.randomCoordsNodes[j].value_XY[1] == randomCoord_XY[1]){//dont add random coord that is already added into list of random coord
+          if (this.randomCoordsNodes[j].value_XY[0] == randomCoord_XY[0] && this.randomCoordsNodes[j].value_XY[1] == randomCoord_XY[1]) {//dont add random coord that is already added into list of random coord
             --i;
             continue nextCoord;
           }
         }
       }
-     // this.exports.coords.push(randomCoord_XY);
-      this.randomCoordsNodes.push(new MapNode(null,randomCoord_XY,[]));
+      // this.exports.coords.push(randomCoord_XY);
+      
+      this.randomCoordsNodes.push(new MapNode(null, randomCoord_XY, []));
+      //this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: randomCoord_XY });
+      this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: randomCoord_XY });
     }
-
+    this._save_step(true);
     
     
-    this.randomCoordsNodes.forEach(node=>{
-      myUI.nodeCanvas.drawCircle(node.value_XY);
-    });
+   
     
     
     //var otherRandomCoordsDistance = empty2D(randomCoordsNodes.length,randomCoordsNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
@@ -240,7 +277,7 @@ v
       coordLoop: for (let j = 0; j < indexOfSelectedOtherRandomCoords.length; ++j) {
         let jdx = indexOfSelectedOtherRandomCoords[j];
         if(i == jdx) continue;
-        console.log(currentCoord, otherRandomCoords[jdx])
+        
         var LOS = CustomLOSChecker(currentCoord, otherRandomCoords[jdx]).boolean;
         
         if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
@@ -258,15 +295,19 @@ v
             } 
           }
           edgeAccumalator.push(temp)//from,to
+          
         } 
         if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours" && cnt >= this.numberOfTopClosestNeighbours) break coordLoop;
       }
     }
+  
     
+    this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 9 });
+  
     for (let i = 0; i < edgeAccumalator.length; ++i) {
-      myUI.edgeCanvas.drawLine(edgeAccumalator[i][0],edgeAccumalator[i][1]);
+      this._create_action({ command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: edgeAccumalator[i][0], endCoord: edgeAccumalator[i][1] });
     }
-
+    this._save_step(true);
 
     for(let i = 0; i < this.randomCoordsNodes.length; ++i){
       this.exports.coords.push(this.randomCoordsNodes[i].value_XY);
@@ -277,14 +318,17 @@ v
     }
     
     this.addStartGoalNode("goal",goal);
-    this.addStartGoalNode("start",start);
-    download("PRM Map.json", JSON.stringify(this.exports));
+    this.addStartGoalNode("start", start);
+        
+    this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 10 });
+     this._save_step(true);
+    //download("PRM Map.json", JSON.stringify(this.exports));
   }
 
 
 
   addStartGoalNode(isStartOrGoal = "start",coord_XY = [4,1]){
-
+    if (CustomLOSChecker(coord_XY, coord_XY).boolean == false) return alert(`start/Goal is on an obstacle`);
     if (isStartOrGoal == "start" && this.prevStartCoord){
       prevCoord = this.prevStartCoord
       prevCoordConnectedto = this.prevCoordStartConnectedTo
@@ -315,7 +359,7 @@ v
     }
 
     
-    myUI.nodeCanvas.drawCircle(coord_XY);
+    //myUI.nodeCanvas.drawCircle(coord_XY);
 
 
 
@@ -342,7 +386,7 @@ v
       //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
 
       //below currently takes the first vertex that passes LOS
-      var LOS = CustomLOSChecker(coord_XY, this.randomCoordsNodes[jdx].value_XY);
+      var LOS = CustomLOSChecker(coord_XY, this.randomCoordsNodes[jdx].value_XY).boolean;
       if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
         ++cnt;
         // bidirectional
@@ -363,8 +407,12 @@ v
     this.exports.neighbours.push(new Array());
     this.randomCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
     this.exports.edges.push([coord_XY,selected_XY]);
-    myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
+    //myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
 
+    this._create_action({ command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: coord_XY, endCoord: selected_XY });
+    this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: coord_XY });
+    
+   
     if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
     if(!this.exports.neighbours[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbours[selectedVertexIndex].push(selectedIndexForStartEndVertex);
     if(!this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
@@ -390,12 +438,12 @@ v
   
 
   search(start, goal) {
-    if(!this.randomCoordsNodes) this.generateNewMap(start, goal);
     // this method finds the path using the prescribed map, start & goal coordinates
     this._init_search(start, goal);
+    
 		this.closed_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
 		this.open_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
-
+    this.generateNewMap(start, goal);
     console.log("starting");
    
     // starting node
@@ -531,9 +579,9 @@ v
           continue; // do not add to queue if closed list already has a lower cost node
         }
 
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
         
         // since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
         // see https://www.geeksforgeeks.org/a-search-algorithm/

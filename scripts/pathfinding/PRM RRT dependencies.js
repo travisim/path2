@@ -554,7 +554,7 @@ class SVGCanvas {
   constructor(canvas_id, drawOrder) {
     this.canvas_id = canvas_id;
     this.createSvgCanvas(this.canvas_id, drawOrder);
-  
+    this.isGrid = true
    // this.reset(this.canvas_id);
   }
 
@@ -600,27 +600,28 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY,dest = STATIC.FreeMap, id=false,isDotted = false,color = false){
+  drawLine(start_XY, end_XY,destId = "networkGraph", id=false,isDotted = false,color = false){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
  
     var x1 = this.displayRatio*start_coord.y;
     var y1 = this.displayRatio*start_coord.x;
     var x2 = this.displayRatio*end_coord.y;
-    var y2 = this.displayRatio*end_coord.x;
-    var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
-    var line_class = `SVGline_${dest}`;
-    var color = color?color:myUI.canvases[myUI.planner.destsToId[dest]] ? myUI.canvases[myUI.planner.destsToId[dest]].fillColor : "grey";
-    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:2, class:line_class, stroke: color,});
+    var y2 = this.displayRatio * end_coord.x;
+    var strokeWidth = Math.max(0.05*this.displayRatio, 1)
+    var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
+    var line_class = `SVGline_${destId}`;
+    var color = color?color:myUI.canvases[destId] ? myUI.canvases[destId].fillColor : "grey";
+    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:strokeWidth, class:line_class, stroke: color,});
     if (isDotted) line.style.strokeDasharray = 5;
     document.getElementById(this.canvas_id).appendChild(line);
   }
-  eraseLine(start_XY, end_XY, dest = STATIC.FreeMap){
+  eraseLine(start_XY, end_XY, destId){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
-    var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${dest}`;
+    var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
     try{this.EraseSvgById(line_id);}catch{
-      line_id = `SVGline_${end_coord.x}_${end_coord.y}_${start_coord.x}_${start_coord.y}_${dest}`;
+      line_id = `SVGline_${end_coord.x}_${end_coord.y}_${start_coord.x}_${start_coord.y}_${destId}`;
       try{this.EraseSvgById(line_id);}catch{
         alert("LINE DOES NOT EXIST");
         debugger;
@@ -628,20 +629,20 @@ class SVGCanvas {
     }
   }
   
-  eraseAllLines(dest = STATIC.FreeMap){
-    this.EraseSvgsbyClass(`SVGline_${dest}`);
+  eraseAllLines(destId){
+    this.EraseSvgsbyClass(`SVGline_${destId}`);
   }
-  drawCircle(circle_XY, dest = "map",id=false, colour=false,radius = false, opacityValue = false,drawtype = false){
+  drawCircle(circle_XY, destId = "networkGraph",id=false, colour=false,radius = false, opacityValue = false,drawtype = false){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
-    var r = radius?radius:Math.max(0.25*this.displayRatio, 1);
+    var r = radius?radius:Math.max(0.25*this.displayRatio, 4);
     var cx = this.displayRatio*circle_coord.y;
     var cy = this.displayRatio*circle_coord.x; 
-    
-    var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
-    var circle_class = `SVGcircle_${dest}`;
+    console.log("DP",this.displayRatio)
+    var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}`;
+    var circle_class = `SVGcircle_${destId}`;
 
-    var color = colour ? colour : myUI.canvases[myUI.planner.destsToId[dest]] ? myUI.canvases[myUI.planner.destsToId[dest]].fillColor : "grey";
-    var drawType = drawtype ? drawtype : myUI.canvases[myUI.planner.destsToId[dest]] ? myUI.canvases[myUI.planner.destsToId[dest]].drawType : "cell";
+    var color = colour ? colour : myUI.canvases[destId] ? myUI.canvases[destId].fillColor : "grey";
+    var drawType = drawtype ? drawtype : myUI.canvases[destId] ? myUI.canvases[destId].drawType : "cell";
     var opacity = opacityValue ? opacityValue : "100%";
     
     let config = { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color,opacity:opacity};
@@ -659,9 +660,9 @@ class SVGCanvas {
   }
 
 
-  eraseCircle(circle_XY, dest = STATIC.FreeMap){
+  eraseCircle(circle_XY, destId){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
-    var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${dest}`;
+    var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}`;
     try{this.EraseSvgById(circle_id);}catch{
       alert("CIRCLE DOES NOT EXIST");
       debugger;
@@ -691,10 +692,10 @@ class SVGCanvas {
 
   eraseAllSvgExceptClass(className = "tmp_svg") {
       let tmp_doc = this.createSvgCanvas(className, 0);
-      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGcircle_${STATIC.FreeMap}`))
+      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGcircle_${STATIC.networkGraph}`))
         tmp_doc.appendChild(el.cloneNode());
       
-      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGline_${STATIC.FreeMap}`))
+      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGline_${STATIC.networkGraph}`))
         tmp_doc.appendChild(el.cloneNode());
       
       document.getElementById(this.canvas_id).innerHTML = "";
@@ -712,6 +713,31 @@ class SVGCanvas {
     document.getElementById(this.canvas_id).classList.add("none");
   }
 }
+
+function toggleHideSVGCircleByClassIdentifier(className){
+  var divsToHide = document.getElementsByClassName(`SVGcircle_${className}`); //divsToHide is an array
+  for (var i = 0; i < divsToHide.length; i++) {
+    if (divsToHide[i].style.display == "none") {
+      divsToHide[i].style.display = "block";
+    }
+    else {
+      divsToHide[i].style.display = "none";
+    }
+  }
+}
+function toggleHideSVGLineByClassIdentifier(className){
+  var divsToHide = document.getElementsByClassName(`SVGline_${className}`); //divsToHide is an array
+  for (var i = 0; i < divsToHide.length; i++) {
+    if (divsToHide[i].style.display == "none") {
+      divsToHide[i].style.display = "block";
+    }
+    else {
+      divsToHide[i].style.display = "none";
+    }
+  }
+}
+
+
 
 
 function isArraysEqual(arr1, arr2)
