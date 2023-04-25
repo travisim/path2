@@ -3,7 +3,7 @@
 #include <vector>
 
 auto comp = [](Node* n1, Node* n2){
-  return n1->fCost > n2->fCost;
+  return n1->fCost() > n2->fCost();
 };
 
 
@@ -20,7 +20,7 @@ int main(){
   pq.push(c);
   pq.push(d);
   while(!pq.empty()){
-    std::cout<<pq.top()->fCost<<std::endl;
+    std::cout<<pq.top()->fCost()<<std::endl;
     pq.pop();
   }
 }

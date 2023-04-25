@@ -95,10 +95,26 @@ myUI.run_steps = function(num_steps, step_direction){
         let arrowIndex = action.arrowIndex == -1 ? undefined : action.arrowIndex;
         let pseudoCodeRow = action.pseudoCodeRow == -1 ? undefined : action.pseudoCodeRow;
         let infoTableRowIndex = action.infoTableRowIndex == 0 ? undefined : action.infoTableRowIndex;
-        let infoTableRowData = action.infoTableRowData.size() == 0 ? undefined : [...vector_values(action.infoTableRowData)];
+        let infoTableRowData =  action.infoTableRowData === undefined || action.infoTableRowData.size() == 0 ? undefined : [...vector_values(action.infoTableRowData)];
         let cellVal = action.cellVal == -1 ? undefined : action.cellVal;
-        let endX = action.endCoord.x == -1 ? undefined : action.endCoord.x;
-        let endY = action.endCoord.y == -1 ? undefined : action.endCoord.y;
+        let endX = action.endCoord === undefined || action.endCoord.x == -1 ? undefined : action.endCoord.x;
+        let endY = action.endCoord === undefined || action.endCoord.y == -1 ? undefined : action.endCoord.y;
+
+        let debug = false;
+        if(debug){
+          console.log(`
+          Command          : ${STATIC_COMMANDS[command]}
+          Dest             : ${myUI.planner.destsToId[dest]}
+          x,y              : ${x + ", " + y}
+          colorIndex       : ${colorIndex}
+          arrowIndex       : ${arrowIndex}
+          pseudoCodeRow    : ${pseudoCodeRow}
+          infoTableRowIndex: ${infoTableRowIndex}
+          infoTableRowData : ${infoTableRowData}
+          cellVal          : ${cellVal}
+          endCoord         : ${endX + ", " + endY}
+          `);
+        }
 
         myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);//,colour,radius,value,id);
         if(step_direction == "fwd") ++i; else --i;
@@ -229,11 +245,9 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   }
 
   }catch(e){
-    if(dest!=myUI.planner.dests.pseudocode && command!=STATIC.DrawArrow && command!=STATIC.EraseArrow){
-      console.log(e);
-      console.log(STATIC_COMMANDS[command], STATIC_DESTS[dest], "failed");
-      debugger;
-    }
+    console.log(e);
+    console.log(STATIC_COMMANDS[command], myUI.planner.destsToId[dest], "failed");
+    debugger;
   }
 }
 
@@ -745,7 +759,7 @@ myUI.jump_to_step = function(target_step){
     idx = Math.floor(target_step/stateFreq);
     //let state = myUI.planner.constructor.wasm ? Module["getState"](target_step) : myUI.states[idx];
     let state = myUI.planner.constructor.wasm ? myUI.planner.cppPlanner.getState(target_step) : myUI.states[idx];
-    const VEC = true, BIT_SHIFT_COORD = true; // preprocessor substitute for JS
+    const VEC = false, BIT_SHIFT_COORD = true; // preprocessor substitute for JS
   
     // arrows
     let arrows = myUI.planner.constructor.wasm ? map_to_obj(state.arrowColor) : state.arrowColor ;
@@ -834,6 +848,10 @@ myUI.jump_to_step = function(target_step){
       var canvases = myUI.planner.constructor.wasm ? map_to_obj(state.canvases) : state.canvases;
     }
     let canvasesToDraw = Object.entries(canvases);
+    // if(myUI.planner.constructor.wasm) canvasesToDraw = canvasesToDraw.map(item =>{
+    //   item[0] = myUI.planner.destsToId[item[0]];
+    //   return item;
+    // });
     function drawNextCanvas(canvasNo){
       if(canvasNo==-1) return -1;
       if(canvasNo==canvasesToDraw.length) return finishJumping();
@@ -852,20 +870,19 @@ myUI.jump_to_step = function(target_step){
           }
         }
         else{
-          var toDraw = [];
-          const gen = vector_values(data);
-          let n = gen.next();
-          let counter = 0;
-          let tmp = [];
-          while(!n.done){
-            counter++;
-            tmp.push(n.value);
-            if(counter == myUI.map_width){
-              counter = 0;
-              toDraw.push(tmp);
-              tmp = [];
+          var toDraw = empty2D(myUI.canvases[id].data_height, myUI.canvases[id].data_width, myUI.canvases[id].defaultVal);
+          let prev = NaN;
+          let idx = -1;
+          for(let curr of [...vector_values(data)]){
+            if(isNaN(prev)){
+              idx = curr;
             }
-            n = gen.next();
+            else if(!isNaN(curr)){
+              let x = Math.floor(idx / myUI.canvases[id].data_width);
+              let y = idx++ - x * myUI.canvases[id].data_width;
+              toDraw[x][y] = curr;
+            }
+            prev = curr;
           }
         }
       }

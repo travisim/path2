@@ -4,36 +4,7 @@
 
 #include "pathfinder/A_star.hpp"
 
-pathfinder::A_star planner;
-path_t path;
-
 int main() { return 0; }
-
-// LEGACY DUE TO INSTANTIATESTREAMING
-void printPath(){
-  int sz = planner.path.size() * (sizeof(int) * 2 + 2);
-  unsigned char *s = (unsigned char*)malloc(sz);
-  int i = 0;
-  for(auto p : path){
-    for(char c : std::to_string(p.first)) s[i++] = c;
-    s[i++] = ' ';
-    for(char c : std::to_string(p.second)) s[i++] = c;
-    s[i++] = '\n';
-  }
-  s[i] = 0;
-  std::cout<<s;
-  free(s);
-}
-
-// LEGACY DUE TO INSTANTIATESTREAMING
-void *wasmmalloc(size_t n){
-  return malloc(n);
-}
-
-// LEGACY DUE TO INSTANTIATESTREAMING
-void wasmfree(void *ptr){
-  free(ptr);
-}
 
 namespace custom{
   template<typename K, typename V, typename H = std::hash<K>>
@@ -63,39 +34,73 @@ namespace custom{
 
 EMSCRIPTEN_BINDINGS(myModule) {
 
-  emscripten::class_<pathfinder::GridPathFinder>("GridPathFinder")
+  /* -------------START OF ACTION------------- */
+  emscripten::class_<pathfinder::GridPathFinder<pathfinder::Action>>("GridPathFinder")
     .constructor<>()
-    .property("stepIndex", &pathfinder::GridPathFinder::stepIndex)
-    .property("stepData", &pathfinder::GridPathFinder::stepData)
-    .property("stepIndexMap", &pathfinder::GridPathFinder::stepIndexMap)
-    .property("combinedIndexMap", &pathfinder::GridPathFinder::combinedIndexMap)
-    .property("cellMap", &pathfinder::GridPathFinder::cellMap)
-    .property("ITRowDataCache", &pathfinder::GridPathFinder::ITRowDataCache)
-    .property("cellVals", &pathfinder::GridPathFinder::cellVals)
-    .property("arrowCoords", &pathfinder::GridPathFinder::arrowCoords)
-    .function("maxStep", &pathfinder::GridPathFinder::maxStep)
+    .property("stepIndex", &pathfinder::GridPathFinder<pathfinder::Action>::stepIndex)
+    .property("stepData", &pathfinder::GridPathFinder<pathfinder::Action>::stepData)
+    .property("stepIndexMap", &pathfinder::GridPathFinder<pathfinder::Action>::stepIndexMap)
+    .property("combinedIndexMap", &pathfinder::GridPathFinder<pathfinder::Action>::combinedIndexMap)
+    .property("cellMap", &pathfinder::GridPathFinder<pathfinder::Action>::cellMap)
+    .property("ITRowDataCache", &pathfinder::GridPathFinder<pathfinder::Action>::ITRowDataCache)
+    .property("cellVals", &pathfinder::GridPathFinder<pathfinder::Action>::cellVals)
+    .property("arrowCoords", &pathfinder::GridPathFinder<pathfinder::Action>::arrowCoords)
+    .function("maxStep", &pathfinder::GridPathFinder<pathfinder::Action>::maxStep)
 #ifdef STEP_STRUCT_METHOD
-    .function("generateReverseSteps", &pathfinder::GridPathFinder::generateReverseSteps)
-    .function("nextGenSteps", &pathfinder::GridPathFinder::nextGenSteps)
-    .function("getBounds", &pathfinder::GridPathFinder::getBounds) // step generation
-    .function("getStep", &pathfinder::GridPathFinder::getStep)
-    .function("getState", &pathfinder::GridPathFinder::getState)
-    .function("getNumStates", &pathfinder::GridPathFinder::getNumStates)
+    .function("generateReverseSteps", &pathfinder::GridPathFinder<pathfinder::Action>::generateReverseSteps)
+    .function("nextGenSteps", &pathfinder::GridPathFinder<pathfinder::Action>::nextGenSteps)
+    .function("getBounds", &pathfinder::GridPathFinder<pathfinder::Action>::getBounds) // step generation
+    .function("getStep", &pathfinder::GridPathFinder<pathfinder::Action>::getStep)
+    .function("getState", &pathfinder::GridPathFinder<pathfinder::Action>::getState)
+    .function("getNumStates", &pathfinder::GridPathFinder<pathfinder::Action>::getNumStates)
 #endif
     ;
-
-
-  emscripten::class_<pathfinder::A_star, emscripten::base<pathfinder::GridPathFinder>>("AStarPlanner")
+  
+  emscripten::class_<pathfinder::A_star<pathfinder::Action>, emscripten::base<pathfinder::GridPathFinder<pathfinder::Action>>>("AStarPlanner")
     .constructor<>()
-    .function("wrapperSearch", &pathfinder::A_star::wrapperSearch)
-    .function("search", &pathfinder::A_star::search)
-    .function("runNextSearch", &pathfinder::A_star::runNextSearch)
-    .function("insertNode", &pathfinder::A_star::insertNode)
-    .function("eraseNode", &pathfinder::A_star::eraseNode)
-    .function("pqSize", &pathfinder::A_star::pqSize)
+    .function("wrapperSearch", &pathfinder::A_star<pathfinder::Action>::wrapperSearch)
+    .function("search", &pathfinder::A_star<pathfinder::Action>::search)
+    .function("runNextSearch", &pathfinder::A_star<pathfinder::Action>::runNextSearch)
+    .function("insertNode", &pathfinder::A_star<pathfinder::Action>::insertNode)
+    .function("eraseNode", &pathfinder::A_star<pathfinder::Action>::eraseNode)
+    .function("pqSize", &pathfinder::A_star<pathfinder::Action>::pqSize)
     ;
+  /* -------------END OF ACTION------------- */
 
-  emscripten::function("printPath", &printPath);
+  /* -------------START OF BASEACTION------------- */
+  emscripten::class_<pathfinder::GridPathFinder<pathfinder::BaseAction>>("BaseGridPathFinder")
+    .constructor<>()
+    .property("stepIndex", &pathfinder::GridPathFinder<pathfinder::BaseAction>::stepIndex)
+    .property("stepData", &pathfinder::GridPathFinder<pathfinder::BaseAction>::stepData)
+    .property("stepIndexMap", &pathfinder::GridPathFinder<pathfinder::BaseAction>::stepIndexMap)
+    .property("combinedIndexMap", &pathfinder::GridPathFinder<pathfinder::BaseAction>::combinedIndexMap)
+    .property("cellMap", &pathfinder::GridPathFinder<pathfinder::BaseAction>::cellMap)
+    .property("ITRowDataCache", &pathfinder::GridPathFinder<pathfinder::BaseAction>::ITRowDataCache)
+    .property("cellVals", &pathfinder::GridPathFinder<pathfinder::BaseAction>::cellVals)
+    .property("arrowCoords", &pathfinder::GridPathFinder<pathfinder::BaseAction>::arrowCoords)
+    .function("maxStep", &pathfinder::GridPathFinder<pathfinder::BaseAction>::maxStep)
+#ifdef STEP_STRUCT_METHOD
+    .function("generateReverseSteps", &pathfinder::GridPathFinder<pathfinder::BaseAction>::generateReverseSteps)
+    .function("nextGenSteps", &pathfinder::GridPathFinder<pathfinder::BaseAction>::nextGenSteps)
+    .function("getBounds", &pathfinder::GridPathFinder<pathfinder::BaseAction>::getBounds) // step generation
+    .function("getStep", &pathfinder::GridPathFinder<pathfinder::BaseAction>::getStep)
+    .function("getState", &pathfinder::GridPathFinder<pathfinder::BaseAction>::getState)
+    .function("getNumStates", &pathfinder::GridPathFinder<pathfinder::BaseAction>::getNumStates)
+#endif
+    ;
+  
+  emscripten::class_<pathfinder::A_star<pathfinder::BaseAction>, emscripten::base<pathfinder::GridPathFinder<pathfinder::BaseAction>>>("BaseAStarPlanner")
+    .constructor<>()
+    .function("wrapperSearch", &pathfinder::A_star<pathfinder::BaseAction>::wrapperSearch)
+    .function("search", &pathfinder::A_star<pathfinder::BaseAction>::search)
+    .function("runNextSearch", &pathfinder::A_star<pathfinder::BaseAction>::runNextSearch)
+    .function("insertNode", &pathfinder::A_star<pathfinder::BaseAction>::insertNode)
+    .function("eraseNode", &pathfinder::A_star<pathfinder::BaseAction>::eraseNode)
+    .function("pqSize", &pathfinder::A_star<pathfinder::BaseAction>::pqSize)
+    ;
+  /* -------------END OF BASEACTION------------- */
+  
+
   emscripten::register_vector<int>("vectorInt");
   emscripten::register_vector<std::vector<int>>("vectorVectorInt");
   emscripten::register_vector<std::string>("vectorString");
@@ -116,19 +121,35 @@ EMSCRIPTEN_BINDINGS(myModule) {
     .property("cellVal", &pathfinder::Action::cellVal)
     .property("endCoord", &pathfinder::Action::endCoord)
     ;
+
+  emscripten::class_<pathfinder::BaseAction>("BaseAction")
+    .constructor<>()
+    .property("command", &pathfinder::BaseAction::command)
+    .property("dest", &pathfinder::BaseAction::dest)
+    .property("nodeCoord", &pathfinder::BaseAction::nodeCoord)
+    .property("cellVal", &pathfinder::BaseAction::cellVal)
+    ;
 #endif
   emscripten::class_<coord_t>("coord_t")
     .constructor<>()
     .property("x", &coord_t::first)
     .property("y", &coord_t::second)
     ;
-  emscripten::register_vector<pathfinder::Action>("vectorAction");
 
-  emscripten::class_<pathfinder::Step>("Step")
+  emscripten::register_vector<pathfinder::Action>("vectorAction");
+  emscripten::class_<pathfinder::Step<pathfinder::Action>>("Step")
     .constructor<>()
-    .property("fwdActions", &pathfinder::Step::fwdActions)
-    .property("revActions", &pathfinder::Step::revActions)
-    .property("combined", &pathfinder::Step::combined)
+    .property("fwdActions", &pathfinder::Step<pathfinder::Action>::fwdActions)
+    .property("revActions", &pathfinder::Step<pathfinder::Action>::revActions)
+    .property("combined", &pathfinder::Step<pathfinder::Action>::combined)
+    ;
+
+  emscripten::register_vector<pathfinder::BaseAction>("vectorBaseAction");
+  emscripten::class_<pathfinder::Step<pathfinder::BaseAction>>("BaseStep")
+    .constructor<>()
+    .property("fwdActions", &pathfinder::Step<pathfinder::BaseAction>::fwdActions)
+    .property("revActions", &pathfinder::Step<pathfinder::BaseAction>::revActions)
+    .property("combined", &pathfinder::Step<pathfinder::BaseAction>::combined)
     ;
 
   emscripten::class_<pathfinder::State>("State")

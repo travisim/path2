@@ -1,29 +1,42 @@
+#define PURE_CPP
+
 #include <iostream>
 #include "../pathfinder/A_star.hpp"
 #include "large_map.cpp"
 #include <string>
 
+#include "../nadeau.hpp"
+
+pathfinder::A_star planner;
+
 int main(){
-  pathfinder::A_star planner;
 
   grid_t grid = getMap256Bowl();
-  neighbors_t neighborsIndex = {0, 7, 6, 5, 4, 3, 2, 1};
+  neighbors_t neighborsIndex = {0, 1, 2, 3, 4, 5, 6, 7};
 
-  for(int i = 0; i < 3 * 2; ++i){
-    std::cout<<"starting"<<std::endl;
-    path_t path = planner.search(grid, 125, 10, 127, 198, neighborsIndex, false, false, false, Octile, FIFO);
+  std::cout<<"starting"<<std::endl;
+  uint64_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  bool finished = planner.search(grid, 125, 10, 127, 198, neighborsIndex, false, false, true, true, pathfinder::Octile, pathfinder::FIFO);
+  //bool finished = planner.search(grid, 125, 10, 130, 130, neighborsIndex, false, false, true, false, pathfinder::Octile, pathfinder::FIFO);
 
-    for(long unsigned int i = 0; i < path.size(); ++i){
-      std::cout<<path[i].first<<','<<path[i].second<<std::endl;
-    }
-    std::cout<<planner.stepData.size()<<' '<<planner.stepIndexMap.size()<<' '<<planner.combinedIndexMap.size()<<std::endl;
-    for(int i = 0; i < 10; ++i){
-      std::cout<<planner.stepData[i]<<' ';
-    }
-    std::cout<<std::endl;
-    std::string s;
-    std::cin>>s;
+  while(!finished){
+    finished = planner.runNextSearch();
   }
+  std::cout<<getCurrentRSS()<<std::endl;
+  uint64_t endSearch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  std::cout<<"Search time: "<<endSearch - start<<"ms"<<std::endl;
+  path_t path = planner.path;
+
+  finished = planner.generateReverseSteps(true, 500);
+  while(!finished){
+    finished = planner.nextGenSteps(10000);
+  }
+  std::cout<<getCurrentRSS()<<std::endl;
+
+
+  uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+  std::cout<<"Optimization time: "<<now - endSearch<<"ms"<<std::endl;
+  
 
   return 0;
 }

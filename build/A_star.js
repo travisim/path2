@@ -2350,22 +2350,6 @@ function __embind_register_float(rawType, name, size) {
 
 Module["__embind_register_float"] = __embind_register_float;
 
-function __embind_register_function(name, argCount, rawArgTypesAddr, signature, rawInvoker, fn) {
- var argTypes = heap32VectorToArray(argCount, rawArgTypesAddr);
- name = readLatin1String(name);
- rawInvoker = embind__requireFunction(signature, rawInvoker);
- exposePublicSymbol(name, function() {
-  throwUnboundTypeError("Cannot call " + name + " due to unbound types", argTypes);
- }, argCount - 1);
- whenDependentTypesAreResolved([], argTypes, function(argTypes) {
-  var invokerArgsArray = [ argTypes[0], null ].concat(argTypes.slice(1));
-  replacePublicSymbol(name, craftInvokerFunction(name, invokerArgsArray, null, rawInvoker, fn), argCount - 1);
-  return [];
- });
-}
-
-Module["__embind_register_function"] = __embind_register_function;
-
 function integerReadValueFromPointer(name, shift, signed) {
  switch (shift) {
  case 0:
@@ -5743,7 +5727,6 @@ var wasmImports = {
  "_embind_register_class_property": __embind_register_class_property,
  "_embind_register_emval": __embind_register_emval,
  "_embind_register_float": __embind_register_float,
- "_embind_register_function": __embind_register_function,
  "_embind_register_integer": __embind_register_integer,
  "_embind_register_memory_view": __embind_register_memory_view,
  "_embind_register_std_string": __embind_register_std_string,

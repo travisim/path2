@@ -381,20 +381,18 @@
                 <!-- steps are 0-indexed -->
                 <span>100%</span>
               </div>
-              <label class="label_centered"
-                >States per step: <span id="state_freq_label">20</span></label
-              >
+              <label class="label_centered">Steps per checkpoint: <input id="state_freq_label" value="20"/></label>
               <div class="flex-row">
                 <span>20</span>
                 <input
                   type="range"
                   min="20"
-                  max="2000"
+                  max="10000"
                   value="20"
                   id="state_freq_slider"
                   class="slider"
                 />
-                <span>2000</span>
+                <span>10000</span>
               </div>
             </div>
             <div class="flex-row">

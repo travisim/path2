@@ -5,7 +5,7 @@
 #include "../parseMap.hpp"
 #include <string>
 
-#include "../mem.hpp"
+#include "../nadeau.hpp"
 
 pathfinder::A_star planner;
 
@@ -21,7 +21,8 @@ int main(){
   while(!finished){
     finished = planner.runNextSearch();
   }
-  print_pages();
+  std::cout<<getCurrentRSS()<<std::endl;
+
   uint64_t endSearch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
   std::cout<<"Search time: "<<endSearch - start<<"ms"<<std::endl;
   path_t path = planner.path;
@@ -30,7 +31,7 @@ int main(){
   while(!finished){
     finished = planner.nextGenSteps(10000);
   }
-  print_pages();
+  std::cout<<getCurrentRSS()<<std::endl;
 
   uint64_t now = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
   std::cout<<"Optimization time: "<<now - endSearch<<"ms"<<std::endl;

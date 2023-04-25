@@ -41,11 +41,11 @@ int main(){
   // Find the order/position of n1 in the set
   std::cout<<"\nPrinting fCost & hCost now"<<std::endl;
   for(auto it : mySet){
-    std::cout<<it->fCost<<' '<<it->hCost<<' '<<it->timeCreatedns<<std::endl;
+    std::cout<<it->fCost()<<' '<<it->hCost<<' '<<it->timeCreatedus<<std::endl;
   }
   
   size_t order = mySet.order_of_key(ptrs[i]);
-  std::cout<<"index: "<<i<<", fCost: "<<ptrs[i]->fCost<<", hCost: "<<ptrs[i]->hCost<<", timeCreatedns: "<<ptrs[i]->timeCreatedns<<std::endl;
+  std::cout<<"index: "<<i<<", fCost: "<<ptrs[i]->fCost()<<", hCost: "<<ptrs[i]->hCost<<", timeCreatedus: "<<ptrs[i]->timeCreatedus<<std::endl;
 
   std::cout << "n1 is at position " << order << " in the set" << std::endl;
 
@@ -56,11 +56,11 @@ int main(){
   // Find the order/position of n1 in the set
   std::cout<<"\nPrinting fCost & hCost now"<<std::endl;
   for(auto it : mySet){
-    std::cout<<it->fCost<<' '<<it->hCost<<' '<<it->timeCreatedns<<std::endl;
+    std::cout<<it->fCost()<<' '<<it->hCost<<' '<<it->timeCreatedus<<std::endl;
   }
   
   order = mySet.order_of_key(ptrs[i]);
-  std::cout<<"index: "<<i<<", fCost: "<<ptrs[i]->fCost<<", hCost: "<<ptrs[i]->hCost<<", timeCreatedns: "<<ptrs[i]->timeCreatedns<<std::endl;
+  std::cout<<"index: "<<i<<", fCost: "<<ptrs[i]->fCost()<<", hCost: "<<ptrs[i]->hCost<<", timeCreatedus: "<<ptrs[i]->timeCreatedus<<std::endl;
 
   std::cout << "n1 is at position " << order << " in the set" << std::endl;
 

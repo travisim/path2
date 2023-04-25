@@ -331,7 +331,7 @@ class UICanvas{
         let x = Math.floor(coord / this.data_width);
         let y = coord - x * this.data_width;
         if(this.valType == "float") this.draw_pixel([x,y], false, val);
-       else this.draw_pixel([x,y], false, val, val - 1);
+      else this.draw_pixel([x,y], false, val, val - 1);
       }
       return new Promise((resolve, reject)=>setTimeout(resolve(canvasNo + 1), 0));
     }

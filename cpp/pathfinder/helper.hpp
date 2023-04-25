@@ -2,8 +2,8 @@
 #include <iostream>
 #include <utility>
 #include <map>
+#include <cmath>     // M_SQRT2
 #include <chrono>
-#include <cstdint>
 #include <unordered_map>
 
 #ifndef HELPER_HPP
@@ -11,9 +11,12 @@
 #define USE_MATH_DEFINES
 
 #define STEP_STRUCT_METHOD
-#define VECTOR_METHOD
+//#define VECTOR_METHOD
 #define BIT_SHIFT_COORD
 #define CANVAS_GRID
+#define CANVAS_COMPRESSED
+
+bool runOnce = true;
 
 using coord_t = std::pair<int, int>;
 using line_t = std::array<int, 4>;

@@ -177,9 +177,9 @@ class Empty2D{
 	}
 }
 
-function empty2D(rows, cols){
+function empty2D(rows, cols, def = undefined){
 	var array = [];
-	while(rows--) array.push(new Array(cols));
+	while(rows--) array.push(new Array(cols).fill(def));
 	return array;
 }
 
@@ -564,10 +564,10 @@ function map_to_obj(map){
 	return obj;
 }
 
-function vec_to_obj(vec){
-	let obj = {};
+function vec_to_arr(vec){
+	let arr = [];
 	for(let i = 0; i < vec.size(); ++i){
-		obj[i] = vec.get(i);
+		arr.push(vec.get(i));
 	}
-	return obj;
+	return arr;
 }
