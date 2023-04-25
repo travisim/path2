@@ -280,7 +280,7 @@ myUI.run_combined_step = function(step_direction){
 }
 
 myUI.generateReverseSteps = function({genStates=false}={}){
-  const batchSize=10000, batchInterval = 0;
+  const batchSize = Math.min(20000, myUI.planner.max_step() * 0.5), batchInterval = 0;
   const stateFreq = myUI.stateFreq;
   
   console.log("myUI.stateFreq:",myUI.stateFreq);
@@ -316,8 +316,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         let t = Date.now() - myUI.genStart;
         //let n = Module["getNumStates"]();
         let n = myUI.planner.cppPlanner.getNumStates();
-        console.log(t);
         console.log(e);
+        console.log(t);
         console.log("Number of states before error: ", n);
         console.log(n/t);
         alert("Something went wrong during state generation");
@@ -356,7 +356,9 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 
   function finishGenerating(bounds, clearUpdate = true){
     console.log(bounds);
+    console.log(myUI.planner.destsToId);
     for(const [dest, bound] of Object.entries(bounds)){
+      console.log(dest);
       myUI.canvases[myUI.planner.destsToId[dest]].setValueBounds("min", bound[0]);
       myUI.canvases[myUI.planner.destsToId[dest]].setValueBounds("max", bound[1]);
     }
@@ -659,7 +661,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             continue;
           }
           if(canvas.valType=="float"){
-            nextState.canvases[canvas.id] = deep_copy_matrix(canvas.virtualCanvas, false, true);
+            nextState.canvases[canvas.id] = flatten_matrix(canvas.virtualCanvas, canvas.defaultVal);
           }
           else{
             /*
@@ -761,7 +763,6 @@ myUI.jump_to_step = function(target_step){
     idx = Math.floor(target_step/stateFreq);
     //let state = myUI.planner.constructor.wasm ? Module["getState"](target_step) : myUI.states[idx];
     let state = myUI.planner.constructor.wasm ? myUI.planner.cppPlanner.getState(target_step) : myUI.states[idx];
-    const VEC = false, BIT_SHIFT_COORD = true; // preprocessor substitute for JS
   
     // arrows
     let arrows = myUI.planner.constructor.wasm ? map_to_obj(state.arrowColor) : state.arrowColor ;
@@ -772,10 +773,7 @@ myUI.jump_to_step = function(target_step){
 
     // infotables
     if(myUI.planner.constructor.wasm){
-      if(VEC)
-        var infotables = Object.fromEntries(Object.entries(vec_to_obj(state.infotables)).filter(([key, value]) => value.rows.size() > 0));
-      else
-        var infotables = map_to_obj(state.infotables);
+      var infotables = map_to_obj(state.infotables);
       for(const [tableDest, tableState] of Object.entries(infotables)){
         const tableId = myUI.planner.destsToId[tableDest];
         const generator = vector_values(tableState.rows);
@@ -809,13 +807,7 @@ myUI.jump_to_step = function(target_step){
     }
 
     // free vertices
-    if(VEC){
-      var vertices = myUI.planner.constructor.wasm ? vec_to_obj(state.vertices) : state.vertices ;
-      vertices = myUI.planner.constructor.wasm ? Object.fromEntries(Object.entries(vertices).filter(([key, value]) => value.size() > 0)) : vertices;
-    }
-    else{
-      var vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices;
-    }
+    var vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices;
     for(let [dest, coordArray] of Object.entries(vertices)){
       if(myUI.planner.constructor.wasm) coordArray = [...vector_values(coordArray)];
       for(coord of coordArray){
@@ -825,13 +817,7 @@ myUI.jump_to_step = function(target_step){
     }
 
     // free edge
-    if(VEC){
-      var edges = myUI.planner.constructor.wasm ? vec_to_obj(state.edges) : state.edges ;
-      edges = myUI.planner.constructor.wasm ? Object.fromEntries(Object.entries(edges).filter(([key, value]) => value.size() > 0)) : edges;
-    }
-    else{
-      var edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges ;
-    }
+    var edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges;
     for(const [dest, edgeArray] of Object.entries(edges)){
       if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
       for(line of edgeArray){
@@ -842,55 +828,27 @@ myUI.jump_to_step = function(target_step){
     
 
     // canvases
-    if(VEC){
-      var canvases = myUI.planner.constructor.wasm ? vec_to_obj(state.canvases) : state.canvases;
-      canvases = myUI.planner.constructor.wasm ? Object.fromEntries(Object.entries(canvases).filter(([key, value]) => value.size() > 0)) : canvases;
-    }
-    else{
-      var canvases = myUI.planner.constructor.wasm ? map_to_obj(state.canvases) : state.canvases;
-    }
+    var canvases = myUI.planner.constructor.wasm ? map_to_obj(state.canvases) : state.canvases;
     let canvasesToDraw = Object.entries(canvases);
-    // if(myUI.planner.constructor.wasm) canvasesToDraw = canvasesToDraw.map(item =>{
-    //   item[0] = myUI.planner.destsToId[item[0]];
-    //   return item;
-    // });
+    if(myUI.planner.constructor.wasm) canvasesToDraw = canvasesToDraw.map(item =>{
+      item[0] = myUI.planner.destsToId[item[0]];
+      return item;
+    });
     function drawNextCanvas(canvasNo){
       if(canvasNo==-1) return -1;
       if(canvasNo==canvasesToDraw.length) return finishJumping();
-      let [dest,data] = canvasesToDraw[canvasNo];
-      let id = myUI.planner.constructor.wasm ? myUI.planner.destsToId[dest] : dest;
-      document.getElementById("compute_btn").children[0].innerHTML = `drawing ${id}...`;
-      if(myUI.planner.constructor.wasm){
-        if(data.$$.ptrType.name == "canvas*"){
-          let coords = [...vector_values(data.keys())];
-          var toDraw = {};
-          for(let coord of coords){
-            let val = data.get(coord); 
-            if(BIT_SHIFT_COORD)
-              coord = {x: coord>>16, y: coord & ones(16)};
-            toDraw[coord.x * myUI.canvases[id].data_width + coord.y] = val;
-          }
-        }
-        else{
-          var toDraw = empty2D(myUI.canvases[id].data_height, myUI.canvases[id].data_width, myUI.canvases[id].defaultVal);
-          let prev = NaN;
-          let idx = -1;
-          for(let curr of [...vector_values(data)]){
-            if(isNaN(prev)){
-              idx = curr;
-            }
-            else if(!isNaN(curr)){
-              let x = Math.floor(idx / myUI.canvases[id].data_width);
-              let y = idx++ - x * myUI.canvases[id].data_width;
-              toDraw[x][y] = curr;
-            }
-            prev = curr;
-          }
-        }
+      let [id,data] = canvasesToDraw[canvasNo];
+      if(canvasNo == myUI.fCostNo + 1){
+        console.log(`Finished drawing fCost map of size ${myUI.canvases[id].data_height} x ${myUI.canvases[id].data_width}, time taken = ${Date.now() - myUI.fCostStart}`)
       }
-      else if(data.constructor==Array) var toDraw = data; // for 2d arrays (floats, etc.)
-      else var toDraw = NBitMatrix.expand_2_matrix(data);
-      return myUI.canvases[id].draw_canvas_recursive(toDraw, canvasNo, target_step);
+      if(id == "fCost"){
+        console.log(data);
+        myUI.fCostStart = Date.now();
+        myUI.fCostNo = canvasNo;
+      }
+      document.getElementById("compute_btn").children[0].innerHTML = `drawing ${id}...`;
+      if(data?.$$?.ptrType?.name == "vectorDouble*") data = [...vector_values(data)];
+      return myUI.canvases[id].draw_canvas_recursive(data, canvasNo, target_step);
     }
     
     let arr = Array(canvasesToDraw.length+1).fill(null);

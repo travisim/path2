@@ -82,7 +82,7 @@ class wasm_A_star extends GridPathFinder{
     this.n = 1;
     //this._init_search(start, goal); // for batch size and batch interval
     this.batch_interval = 0;
-    this.batch_size = 2000;
+    this.batch_size = this.bigMap ? 10000 : 200
 
     let chosenCost = ["Manhattan",
       "Euclidean",

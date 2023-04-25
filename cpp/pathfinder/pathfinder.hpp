@@ -66,13 +66,6 @@ namespace pathfinder
     std::vector<std::unique_ptr<Step<Action_t>>> steps;
     std::unique_ptr<Step<Action_t>> currentStep;
 
-    // STEP DATA METHOD
-    std::vector<int> actionCache;
-    std::vector<int> stepCache;
-    std::vector<int> stepData;
-    std::vector<int> stepIndexMap;
-    std::vector<int> combinedIndexMap;
-
     // FOR STATE GENERATION
     RuntimeSimulation sim;
     bool genStates;
@@ -95,8 +88,6 @@ namespace pathfinder
 
     Action_t packAction(const Command &command, int dest = -1, coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, coord_t endCoord = {-1, -1})
     {
-
-#ifdef STEP_STRUCT_METHOD
       Action_t ret;
       ret.command = command;
       ret.dest = (Dest)dest;
@@ -111,90 +102,13 @@ namespace pathfinder
         ret.endCoord = endCoord;
       }
       return ret;
-
-#else
-      std::vector<int> actionCache = {1};
-      int bitOffset = 10;
-      int idx = 0;
-      const int STATICBITLEN = 5;
-      const int COLORBITLEN = 1;
-
-      // command is assumed to exist
-      idx = managePacking(STATICBITLEN, bitOffset, actionCache);
-      actionCache[idx] += (command << (bitOffset - STATICBITLEN));
-      if (dest != -1)
-      {
-        idx = managePacking(STATICBITLEN, bitOffset, actionCache);
-        actionCache[0] |= (1 << 1);
-        actionCache[idx] += (dest << (bitOffset - STATICBITLEN));
-      }
-      if (colorIndex != -1)
-      {
-        idx = managePacking(COLORBITLEN, bitOffset, actionCache);
-        actionCache[0] |= (1 << 2);
-        actionCache[idx] += (colorIndex << (bitOffset - COLORBITLEN));
-      }
-      if (nodeCoord.first != -1 && nodeCoord.second != -1)
-      {
-        ++idx;
-        actionCache[0] |= (1 << 3);
-        actionCache.push_back(nodeCoord.first << 1);
-        ++idx;
-        actionCache.push_back(nodeCoord.second << 1);
-        // will add floating point implementation eventually
-        // see endCoord for more details
-      }
-      if (arrowIndex != -1)
-      {
-        ++idx;
-        actionCache[0] |= (1 << 4);
-        actionCache.push_back(arrowIndex << 1);
-      }
-      if (pseudoCodeRow != -1)
-      {
-        ++idx;
-        actionCache[0] |= (1 << 5);
-        actionCache.push_back(pseudoCodeRow << 1);
-      }
-      if (infoTableRowIndex != -1)
-      {
-        ++idx;
-        actionCache[0] |= (1 << 6);
-        actionCache.push_back(infoTableRowIndex << 1);
-      }
-      if (infoTableRowData.size() > 0)
-      {
-        ++idx;
-        actionCache[0] |= (1 << 7);
-        actionCache.push_back(-7); // placeholder to maintain consistency with JS version
-      }
-      if (cellVal != -1)
-      {
-        ++idx;
-        actionCache[0] |= (1 << 8);
-        actionCache.push_back(-8); // placeholder to maintain consistency with JS version
-      }
-      if (endCoord.first != -1 && endCoord.second != -1)
-      {
-        ++idx;
-        actionCache[0] |= (1 << 9);
-        actionCache.push_back(endCoord.first << 1);
-        ++idx;
-        actionCache.push_back(endCoord.second << 1);
-        // will add floating point implementation eventually
-        // overload the createAction method? idk
-      }
-
-      return Action{actionCache, infoTableRowData, cellVal};
-#endif
     }
 
     ~GridPathFinder()
     {
       std::cout << "deleting GridPathFinder\n";
-#ifdef STEP_STRUCT_METHOD
       steps.clear();
-#endif
+
     }
 
     void initSearch(grid_t &grid, coord_t start, coord_t goal, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap)
@@ -241,22 +155,15 @@ namespace pathfinder
       arrowCnt = 0;
       stepIndex = -1;
       lastStepIndex = 0;
-      stepCache.clear();
-      stepData.clear();
-      stepIndexMap.clear();
-      combinedIndexMap.clear();
-      ITRowDataCache.clear();
       cellVals.clear();
       arrowCoords.clear();
       drawArrows = gridHeight <= 65 && gridWidth <= 65;
       fwdActionCnt = 0;
 
-#ifdef STEP_STRUCT_METHOD
       steps.clear();
       states.clear();
       currentStep = std::make_unique<Step<Action_t>>();
       revActionCnt = 0;
-#endif
 
       // generate empty 2d array
       cellMap = std::vector<std::vector<int>>(gridHeight, std::vector<int>(gridWidth, -1));
@@ -337,31 +244,13 @@ namespace pathfinder
       return true;
     }
 
-    int manageAction(int numBits)
-    {
-      bitOffset += numBits;
-      if (bitOffset > 31)
-      {
-        actionCache.push_back(0);
-        bitOffset = 1 + numBits;
-      }
-      return actionCache.size() - 1;
-    }
-
     void createAction(Command command, int dest = -1, coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, coord_t endCoord = {-1, -1})
     {
       
       fwdActionCnt++;
       Action_t myAction = packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endCoord);
-#ifdef STEP_STRUCT_METHOD
       // STEP STRUCT METHOD
       currentStep->fwdActions.push_back(myAction);
-#else
-      // STEP DATA METHOD
-      stepData.insert(stepData.end(), myAction.data.begin(), myAction.data.end());
-      if(infoTableRowData.size() > 0) ITRowDataCache.push_back(infoTableRowData);
-      if(cellVal != -1) cellVals.push_back(cellVal);
-#endif
       
     }
 
@@ -369,23 +258,10 @@ namespace pathfinder
     {
       if (combined)
       {
-#ifdef STEP_STRUCT_METHOD
         currentStep->combined = true;
-#else
-        int n = stepIndexMap.size() - combinedIndexMap.size();
-        while (n > 0)
-        {
-          combinedIndexMap.push_back(n--);
-        }
-#endif
       }
-#ifdef STEP_STRUCT_METHOD
       steps.push_back(std::move(currentStep));
       currentStep = std::make_unique<Step<Action_t>>();
-#else
-      stepIndexMap.push_back(lastStepIndex);
-      lastStepIndex = stepData.size();
-#endif
       ++stepIndex;
     }
 
@@ -448,12 +324,8 @@ namespace pathfinder
       {
         // std::cout<<"Unable to find goal at "<<goal.first<<' '<<goal.second<<std::endl;
       }
-#ifdef STEP_STRUCT_METHOD
       std::cout << "Num steps: " << steps.size() << std::endl;
       std::cout << "Num actions: " << fwdActionCnt << std::endl;
-#else
-      std::cout << "StepData: " << stepData.size() << ", StepIndexMap: " << stepIndexMap.size() << ", CombinedIndexMap: " << combinedIndexMap.size() << std::endl;
-#endif
       std::cout<<getCurrentRSS()<<std::endl;
       std::cout<<"Num nodes: "<<Node::count<<std::endl;
       delete rootNode;
@@ -461,13 +333,9 @@ namespace pathfinder
     }
 
     int maxStep(){
-#ifdef STEP_STRUCT_METHOD
       return steps.size() - 2;
-#else
-      return stepIndexMap.size() - 2;
-#endif
     }
-#ifdef STEP_STRUCT_METHOD
+
     int revActionCnt;
     bool generateReverseSteps(bool genState, int stateFreq);
     bool nextGenSteps(int givenBatchSize);
@@ -477,7 +345,6 @@ namespace pathfinder
     int getNumStates(){
       return states.size();
     }
-#endif
     Step<Action_t> getStep(int stepNo);
     State getState(int stepNo);
   };

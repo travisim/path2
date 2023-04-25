@@ -38,22 +38,18 @@ EMSCRIPTEN_BINDINGS(myModule) {
   emscripten::class_<pathfinder::GridPathFinder<pathfinder::Action>>("GridPathFinder")
     .constructor<>()
     .property("stepIndex", &pathfinder::GridPathFinder<pathfinder::Action>::stepIndex)
-    .property("stepData", &pathfinder::GridPathFinder<pathfinder::Action>::stepData)
-    .property("stepIndexMap", &pathfinder::GridPathFinder<pathfinder::Action>::stepIndexMap)
-    .property("combinedIndexMap", &pathfinder::GridPathFinder<pathfinder::Action>::combinedIndexMap)
     .property("cellMap", &pathfinder::GridPathFinder<pathfinder::Action>::cellMap)
     .property("ITRowDataCache", &pathfinder::GridPathFinder<pathfinder::Action>::ITRowDataCache)
     .property("cellVals", &pathfinder::GridPathFinder<pathfinder::Action>::cellVals)
     .property("arrowCoords", &pathfinder::GridPathFinder<pathfinder::Action>::arrowCoords)
     .function("maxStep", &pathfinder::GridPathFinder<pathfinder::Action>::maxStep)
-#ifdef STEP_STRUCT_METHOD
+  
     .function("generateReverseSteps", &pathfinder::GridPathFinder<pathfinder::Action>::generateReverseSteps)
     .function("nextGenSteps", &pathfinder::GridPathFinder<pathfinder::Action>::nextGenSteps)
     .function("getBounds", &pathfinder::GridPathFinder<pathfinder::Action>::getBounds) // step generation
     .function("getStep", &pathfinder::GridPathFinder<pathfinder::Action>::getStep)
     .function("getState", &pathfinder::GridPathFinder<pathfinder::Action>::getState)
     .function("getNumStates", &pathfinder::GridPathFinder<pathfinder::Action>::getNumStates)
-#endif
     ;
   
   emscripten::class_<pathfinder::A_star<pathfinder::Action>, emscripten::base<pathfinder::GridPathFinder<pathfinder::Action>>>("AStarPlanner")
@@ -71,22 +67,19 @@ EMSCRIPTEN_BINDINGS(myModule) {
   emscripten::class_<pathfinder::GridPathFinder<pathfinder::BaseAction>>("BaseGridPathFinder")
     .constructor<>()
     .property("stepIndex", &pathfinder::GridPathFinder<pathfinder::BaseAction>::stepIndex)
-    .property("stepData", &pathfinder::GridPathFinder<pathfinder::BaseAction>::stepData)
-    .property("stepIndexMap", &pathfinder::GridPathFinder<pathfinder::BaseAction>::stepIndexMap)
-    .property("combinedIndexMap", &pathfinder::GridPathFinder<pathfinder::BaseAction>::combinedIndexMap)
     .property("cellMap", &pathfinder::GridPathFinder<pathfinder::BaseAction>::cellMap)
     .property("ITRowDataCache", &pathfinder::GridPathFinder<pathfinder::BaseAction>::ITRowDataCache)
     .property("cellVals", &pathfinder::GridPathFinder<pathfinder::BaseAction>::cellVals)
     .property("arrowCoords", &pathfinder::GridPathFinder<pathfinder::BaseAction>::arrowCoords)
     .function("maxStep", &pathfinder::GridPathFinder<pathfinder::BaseAction>::maxStep)
-#ifdef STEP_STRUCT_METHOD
+
     .function("generateReverseSteps", &pathfinder::GridPathFinder<pathfinder::BaseAction>::generateReverseSteps)
     .function("nextGenSteps", &pathfinder::GridPathFinder<pathfinder::BaseAction>::nextGenSteps)
     .function("getBounds", &pathfinder::GridPathFinder<pathfinder::BaseAction>::getBounds) // step generation
     .function("getStep", &pathfinder::GridPathFinder<pathfinder::BaseAction>::getStep)
     .function("getState", &pathfinder::GridPathFinder<pathfinder::BaseAction>::getState)
     .function("getNumStates", &pathfinder::GridPathFinder<pathfinder::BaseAction>::getNumStates)
-#endif
+
     ;
   
   emscripten::class_<pathfinder::A_star<pathfinder::BaseAction>, emscripten::base<pathfinder::GridPathFinder<pathfinder::BaseAction>>>("BaseAStarPlanner")
@@ -107,7 +100,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
   emscripten::register_vector<std::vector<std::string>>("vectorVectorString");
   emscripten::register_vector<double>("vectorDouble");
   
-#ifdef STEP_STRUCT_METHOD
+
   emscripten::class_<pathfinder::Action>("Action")
     .constructor<>()
     .property("command", &pathfinder::Action::command)
@@ -129,7 +122,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
     .property("nodeCoord", &pathfinder::BaseAction::nodeCoord)
     .property("cellVal", &pathfinder::BaseAction::cellVal)
     ;
-#endif
+
   emscripten::class_<coord_t>("coord_t")
     .constructor<>()
     .property("x", &coord_t::first)
@@ -165,49 +158,19 @@ EMSCRIPTEN_BINDINGS(myModule) {
     ;
   
   // state properties bindings
-#ifdef CANVAS_GRID
-  #ifdef VECTOR_METHOD
-  emscripten::register_vector<rowf_t>("canvases");
-  #else
   custom::register_unordered_map<int, rowf_t>("canvases");
-  #endif
-#else
-  #ifdef VECTOR_METHOD
-  emscripten::register_vector<state_canvas_t>("canvases");
-  #else
-  custom::register_unordered_map<int, state_canvas_t>("canvases");
-  #endif
-  #ifdef BIT_SHIFT_COORD
-  custom::register_unordered_map<uint32_t, double>("canvas");
-  emscripten::register_vector<uint32_t>("coords");
-  #else
-  custom::register_unordered_map<coord_t, double, CoordIntHash>("canvas");
-#endif
-#endif
 
-  #ifdef VECTOR_METHOD
-  emscripten::register_vector<InfoTableState>("infotables");
-  #else
   custom::register_unordered_map<int, InfoTableState>("infotables");
-  #endif
   emscripten::class_<InfoTableState>("InfoTableState")
     .constructor<>()
     .property("rowSize", &InfoTableState::rowSize)
     .property("highlightedRow", &InfoTableState::highlightedRow)
     .property("rows", &InfoTableState::rows); //vectorVectorString
 
-  #ifdef VECTOR_METHOD
-  emscripten::register_vector<std::vector<coord_t>>("vertices");
-  #else
   custom::register_unordered_map<int, std::vector<coord_t>>("vertices");
-  #endif
   emscripten::register_vector<coord_t>("vectorCoord");
 
-  #ifdef VECTOR_METHOD
-  emscripten::register_vector<std::vector<line_t>>("edges");
-  #else
   custom::register_unordered_map<int, std::vector<line_t>>("edges");
-  #endif
   emscripten::register_vector<line_t>("vectorEdge");
   custom::register_array<int, 4>("line_t");
 

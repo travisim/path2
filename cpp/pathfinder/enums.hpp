@@ -57,14 +57,12 @@ namespace pathfinder
   enum Dest
   {
     Pseudocode,
-    NeighboursRadius,
     CanvasFocused,
     CanvasExpanded,
     CanvasPath,
     CanvasNeighbors,
     CanvasQueue,
     CanvasVisited,
-    FreeMap,
     CanvasFCost,
     CanvasGCost,
     CanvasHCost,
@@ -107,14 +105,12 @@ namespace pathfinder
     {
 #define INSERT_ELEMENT(p) myStrings[p] = #p
       INSERT_ELEMENT(Pseudocode),
-      INSERT_ELEMENT(NeighboursRadius),
       INSERT_ELEMENT(CanvasFocused),
       INSERT_ELEMENT(CanvasExpanded),
       INSERT_ELEMENT(CanvasPath),
       INSERT_ELEMENT(CanvasNeighbors),
       INSERT_ELEMENT(CanvasQueue),
       INSERT_ELEMENT(CanvasVisited),
-      INSERT_ELEMENT(FreeMap),
       INSERT_ELEMENT(CanvasFCost),
       INSERT_ELEMENT(CanvasGCost),
       INSERT_ELEMENT(CanvasHCost),
@@ -139,7 +135,6 @@ namespace pathfinder
     LIFO
   };
 
-#ifdef STEP_STRUCT_METHOD
 
   struct BaseAction
   {
@@ -204,15 +199,6 @@ namespace pathfinder
     os<<"endCoord         : "<<a.endCoord.first<<' '<<a.endCoord.second<<std::endl;
     return os;
   }
-#else
-
-  struct Action{
-    std::vector<int> data;
-    std::vector<std::string> infoTableRowData;
-    double cellVal;
-  };
-
-#endif
 
   // struct BigMapStep
   // {
@@ -289,28 +275,12 @@ namespace pathfinder
     std::unordered_map<Dest, std::vector<line_t>> edges; 
     std::unordered_map<Dest, uint8_t> arrowColor;*/
     
-#ifdef VECTOR_METHOD
-#ifdef CANVAS_GRID
-    std::vector<rowf_t> canvases;
-#else
-    std::vector<state_canvas_t> canvases;
-#endif
-    // std::unordered_map<int, InfoTableState> infotables;
-    // std::unordered_map<int, std::vector<coord_t>> vertices;
-    // std::unordered_map<int, std::vector<line_t>> edges;
-    std::vector<InfoTableState> infotables;
-    std::vector<std::vector<coord_t>> vertices;
-    std::vector<std::vector<line_t>> edges;
-#else
-#ifdef CANVAS_GRID
+
     std::unordered_map<int, rowf_t> canvases;
-#else
-    std::unordered_map<int, state_canvas_t> canvases;
-#endif
     std::unordered_map<int, InfoTableState> infotables;
     std::unordered_map<int, std::vector<coord_t>> vertices;
     std::unordered_map<int, std::vector<line_t>> edges;
-#endif
+
     std::unordered_map<int, uint8_t> arrowColor;
     int pseudoCodeRowPri;
     int pseudoCodeRowSec;
@@ -320,11 +290,7 @@ namespace pathfinder
   {
     // RuntimeSimulation keeps an active record of the current state of all items (canvases, infotables, single pixel values, arrows shown, bounds for values on canvas to track min and max values, vertices, edges)
 
-#ifdef CANVAS_GRID
     std::unordered_map<Dest, rowf_t> activeCanvas;
-#else
-    std::unordered_map<Dest, state_canvas_t> activeCanvas;
-#endif
     std::unordered_map<Dest, std::unique_ptr<InfoTable>> activeTable;
     std::unordered_map<Dest, coord_t> singlePixelCanvas;
     std::unordered_map<int, uint8_t> arrowColor;

@@ -10,10 +10,6 @@
 #define HELPER_HPP
 #define USE_MATH_DEFINES
 
-#define STEP_STRUCT_METHOD
-//#define VECTOR_METHOD
-#define BIT_SHIFT_COORD
-#define CANVAS_GRID
 #define CANVAS_COMPRESSED
 
 bool runOnce = true;
@@ -43,13 +39,7 @@ struct CoordIntHash {
   }
 };
 
-// combine everything into uint32_t (10bits per coord dim, 12 btis for Dest)
-#ifdef BIT_SHIFT_COORD
-// change coord_t to number: (uint64_t)(x) << 32 | (uint64_t)(y) -> uint64_t
-using state_canvas_t = std::unordered_map<uint32_t, double>;
-#else
 using state_canvas_t = std::unordered_map<coord_t, double, CoordIntHash>;
-#endif
 
 
 template <class T>
