@@ -57,18 +57,17 @@ namespace pathfinder
   enum Dest
   {
     Pseudocode,
+    CanvasFocused,
+    CanvasExpanded,
+    CanvasPath,
+    CanvasNeighbors,
     CanvasQueue,
     CanvasVisited,
-    CanvasExpanded,
-    CanvasNeigbors,
-    CanvasPath,
-    CanvasFocused,
     CanvasFCost,
     CanvasGCost,
     CanvasHCost,
-    ITQueue,
     ITNeighbors,
-    map
+    ITQueue,
   };
 
   std::ostream &operator<<(std::ostream &out, const Command value)
@@ -106,18 +105,17 @@ namespace pathfinder
     {
 #define INSERT_ELEMENT(p) myStrings[p] = #p
       INSERT_ELEMENT(Pseudocode),
-          INSERT_ELEMENT(CanvasQueue),
-          INSERT_ELEMENT(CanvasVisited),
-          INSERT_ELEMENT(CanvasExpanded),
-          INSERT_ELEMENT(CanvasNeigbors),
-          INSERT_ELEMENT(CanvasPath),
-          INSERT_ELEMENT(CanvasFocused),
-          INSERT_ELEMENT(CanvasFCost),
-          INSERT_ELEMENT(CanvasGCost),
-          INSERT_ELEMENT(CanvasHCost),
-          INSERT_ELEMENT(ITQueue),
-          INSERT_ELEMENT(ITNeighbors),
-          INSERT_ELEMENT(map);
+      INSERT_ELEMENT(CanvasFocused),
+      INSERT_ELEMENT(CanvasExpanded),
+      INSERT_ELEMENT(CanvasPath),
+      INSERT_ELEMENT(CanvasNeighbors),
+      INSERT_ELEMENT(CanvasQueue),
+      INSERT_ELEMENT(CanvasVisited),
+      INSERT_ELEMENT(CanvasFCost),
+      INSERT_ELEMENT(CanvasGCost),
+      INSERT_ELEMENT(CanvasHCost),
+      INSERT_ELEMENT(ITNeighbors),
+      INSERT_ELEMENT(ITQueue);
 #undef INSERT_ELEMENT
     }
     return out << myStrings[value];
@@ -137,18 +135,40 @@ namespace pathfinder
     LIFO
   };
 
-#ifdef STEP_STRUCT_METHOD
+
+  struct BaseAction
+  {
+    // Command command;
+    int8_t command; // for binding
+    // Dest dest;
+    int8_t dest; // for binding
+    coord_t nodeCoord;
+    double cellVal;
+    BaseAction() {}
+    BaseAction(Command command, Dest dest, coord_t nodeCoord,
+           double cellVal)
+        : command(command), dest(dest), nodeCoord(nodeCoord), cellVal(cellVal) {}
+    friend std::ostream &operator<<(std::ostream &os, const BaseAction &a);
+  };
+
+  std::ostream &operator<<(std::ostream &os, const BaseAction &a){
+    os<<"Command:         : "<<(Command)a.command<<std::endl;
+    os<<"Dest:            : "<<(Dest)a.dest<<std::endl;
+    os<<"x,y              : "<<a.nodeCoord.first<<' '<<a.nodeCoord.second<<std::endl;
+    os<<"cellVal          : "<<a.cellVal<<std::endl;
+    return os;
+  }
 
   struct Action
   {
     // Command command;
-    int command; // for binding
+    int8_t command; // for binding
     // Dest dest;
-    int dest; // for binding
+    int8_t dest; // for binding
     coord_t nodeCoord;
-    int colorIndex;
+    int8_t colorIndex;
     int arrowIndex;
-    int pseudoCodeRow;
+    int8_t pseudoCodeRow;
     int infoTableRowIndex;
     std::vector<std::string> infoTableRowData;
     double cellVal;
@@ -159,32 +179,95 @@ namespace pathfinder
            double cellVal, coord_t endCoord)
         : command(command), dest(dest), nodeCoord(nodeCoord), colorIndex(colorIndex), arrowIndex(arrowIndex), pseudoCodeRow(pseudoCodeRow), infoTableRowIndex(infoTableRowIndex),
           infoTableRowData(infoTableRowData), cellVal(cellVal), endCoord(endCoord) {}
-  };
-#else
-
-  struct Action{
-    std::vector<int> data;
-    std::vector<std::string> infoTableRowData;
-    double cellVal;
+    friend std::ostream &operator<<(std::ostream &os, const Action &a);
   };
 
-#endif
+  std::ostream &operator<<(std::ostream &os, const Action &a){
+    os<<"Command:         : "<<(Command)a.command<<std::endl;
+    os<<"Dest:            : "<<(Dest)a.dest<<std::endl;
+    os<<"x,y              : "<<a.nodeCoord.first<<' '<<a.nodeCoord.second<<std::endl;
+    os<<"colorIndex       : "<<a.colorIndex<<std::endl;
+    os<<"arrowIndex       : "<<a.arrowIndex<<std::endl;
+    os<<"pseudoCodeRow    : "<<a.pseudoCodeRow<<std::endl;
+    os<<"infoTableRowIndex: "<<a.infoTableRowIndex<<std::endl;
+    os<<"infoTableRowData : [";
+    for(const std::string &s : a.infoTableRowData){
+      os<<s<<' ';
+    }
+    os<<"]\n";
+    os<<"cellVal          : "<<a.cellVal<<std::endl;
+    os<<"endCoord         : "<<a.endCoord.first<<' '<<a.endCoord.second<<std::endl;
+    return os;
+  }
 
+  // struct BigMapStep
+  // {
+  //   // can accept both regular actions and big-map actions
+  //   std::vector<BigMapAction> fwdActions = {};
+  //   std::vector<BigMapAction> revActions = {};
+  //   bool combined = false;
+  //   void addReverseAction(BigMapAction revAction){
+  //     revActions.push_back(revAction);
+  //   }
+
+  //   friend std::ostream &operator<<(std::ostream &os, const BigMapStep &s);
+  // };
+
+  // std::ostream &operator<<(std::ostream &os, const BigMapStep &s){
+  //   os<<"\n-----------------------------FWD-----------------------------\n";
+  //   for(const auto &a : s.fwdActions){
+  //     os<<a<<std::endl;
+  //   }
+  //   // os<<"rev:\n";
+  //   // for(const Action &a : s.revActions){
+  //   //   os<<a<<std::endl;
+  //   // }
+  //   return os;
+  // }
+
+  template <typename Action_t>
   struct Step
   {
-    // std::vector<std::unique_ptr<Action>> fwdActions = {};
-    // std::vector<std::unique_ptr<Action>> revActions = {};
-
-    std::vector<Action> fwdActions = {};
-    std::vector<Action> revActions = {};
+    // can accept both regular actions and big-map actions
+    std::vector<Action_t> fwdActions = {};
+    std::vector<Action_t> revActions = {};
     bool combined = false;
+    void addReverseAction(Action_t revAction){
+      revActions.push_back(revAction);
+    }
+
+    friend std::ostream &operator<<(std::ostream &os, const Step<Action_t> &s);
   };
+  
+  std::ostream &operator<<(std::ostream &os, const Step<BaseAction> &s){
+    os<<"\n-----------------------------FWD-----------------------------\n";
+    for(const auto &a : s.fwdActions){
+      os<<a<<std::endl;
+    }
+    // os<<"rev:\n";
+    // for(const Action &a : s.revActions){
+    //   os<<a<<std::endl;
+    // }
+    return os;
+  }
+
+  std::ostream &operator<<(std::ostream &os, const Step<Action> &s){
+    os<<"\n-----------------------------FWD-----------------------------\n";
+    for(const auto &a : s.fwdActions){
+      os<<a<<std::endl;
+    }
+    // os<<"rev:\n";
+    // for(const Action &a : s.revActions){
+    //   os<<a<<std::endl;
+    // }
+    return os;
+  }
 
   struct State
   {
     // int is used in favour of Dest because
     // implicit type conversion works 
-    // and there is no need to bind the enum Dest to emscripten (see wrapper.h)
+    // and there is no need to bind the enum Dest to emscripten (see wrapper.cpp)
     bool valid = true;
     /* std::unordered_map<Dest, state_canvas_t> canvases;
     std::unordered_map<Dest, InfoTableState> infotables;
@@ -192,28 +275,12 @@ namespace pathfinder
     std::unordered_map<Dest, std::vector<line_t>> edges; 
     std::unordered_map<Dest, uint8_t> arrowColor;*/
     
-#ifdef VECTOR_METHOD
-#ifdef CANVAS_GRID
-    std::vector<rowf_t> canvases;
-#else
-    std::vector<state_canvas_t> canvases;
-#endif
-    // std::unordered_map<int, InfoTableState> infotables;
-    // std::unordered_map<int, std::vector<coord_t>> vertices;
-    // std::unordered_map<int, std::vector<line_t>> edges;
-    std::vector<InfoTableState> infotables;
-    std::vector<std::vector<coord_t>> vertices;
-    std::vector<std::vector<line_t>> edges;
-#else
-#ifdef CANVAS_GRID
+
     std::unordered_map<int, rowf_t> canvases;
-#else
-    std::unordered_map<int, state_canvas_t> canvases;
-#endif
     std::unordered_map<int, InfoTableState> infotables;
     std::unordered_map<int, std::vector<coord_t>> vertices;
     std::unordered_map<int, std::vector<line_t>> edges;
-#endif
+
     std::unordered_map<int, uint8_t> arrowColor;
     int pseudoCodeRowPri;
     int pseudoCodeRowSec;
@@ -223,11 +290,7 @@ namespace pathfinder
   {
     // RuntimeSimulation keeps an active record of the current state of all items (canvases, infotables, single pixel values, arrows shown, bounds for values on canvas to track min and max values, vertices, edges)
 
-#ifdef CANVAS_GRID
     std::unordered_map<Dest, rowf_t> activeCanvas;
-#else
-    std::unordered_map<Dest, state_canvas_t> activeCanvas;
-#endif
     std::unordered_map<Dest, std::unique_ptr<InfoTable>> activeTable;
     std::unordered_map<Dest, coord_t> singlePixelCanvas;
     std::unordered_map<int, uint8_t> arrowColor;

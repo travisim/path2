@@ -193,11 +193,9 @@ class UICanvas{
     if(this.valType=="float"){
       let r = (val-this.minVal)/(this.maxVal-this.minVal);
       var color = chroma.scale("Spectral")(1-r).hex();
-      //this.set_color(color);
     }
     else if(color_index!=-1)
       var color = this.colors[color_index];
-      //this.set_color_index(color_index);
     return color;
   }
 
@@ -226,6 +224,14 @@ class UICanvas{
           this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
       }
     }
+  }
+
+  draw_pixel_override(xy, val = 1){
+    if(val == this.defaultVal) return;
+    let [x,y] = xy;
+    this.canvas_cache[x][y] = val;
+    this.set_color(this.calc_color(val, val - 1));
+    this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
   }
 
   erase_pixel(xy, virtual=false, save_in_cache=true){
@@ -327,55 +333,59 @@ class UICanvas{
     }
   }
 
-  draw_canvas_recursive(array_data, canvasNo, target_step){
-    if(array_data.constructor == Object){
-      for(let [coord, val] of Object.entries(array_data)){
-        let x = Math.floor(coord / this.data_width);
-        let y = coord - x * this.data_width;
-        if(this.valType == "float") this.draw_pixel([x,y], false, val);
-       else this.draw_pixel([x,y], false, val, val - 1);
-      }
-      return new Promise((resolve, reject)=>setTimeout(resolve(canvasNo + 1), 0));
-    }
+  
+  draw_canvas_recursive(toDraw, canvasNo, target_step){
     var canvas = this;
-    function draw_line(r){
-      const lineRate = 30;
-      for(let i=r;i<r+lineRate;++i){
-        if(target_step!=myUI.target_step) return -1;
-        if(i==array_data.length) return canvasNo+1;
-        let p1 = 0, p2 = 0;
-        while(p1<array_data[i].length && p2<canvas.data_width){
-          if(typeof array_data[i][p1] == "string" && array_data[i][p1].slice(-1)=="x"){
-            let len = Number(array_data[i][p1].slice(0, -1));
-            ++p1;
-            if(array_data[i][p1]!==canvas.defaultVal){
-              if(canvas.valType=="float") for(let q=p2;q<p2+len;++q) canvas.draw_pixel([i,q], false,  array_data[i][p1]);
-              else{
-                let val = Math.min(canvas.maxVal, Math.max(array_data[i][p1], canvas.minVal));
-                for(let q=p2;q<p2+len;++q) canvas.draw_pixel([i,q], false, val, val-1);
-              }
-            }
-            p2 += len-1;
+    // first way: array with NaN as delimiters
+    // simplest approach -> use a number to keep track then iteratively increase the index
+    if(toDraw.constructor != NBitMatrix.data_arr){
+      var arrayData = toDraw;
+      var prev = NaN;
+      var idx = 0;
+    }
+    // second way: NBitMatrix
+    // simplest approach -> NBitMatrix to 2D Array then manually draw
+    else if(toDraw.constructor == NBitMatrix.data_arr){
+      var arrayData = NBitMatrix.expand_2_matrix(toDraw);
+    }
+    // third way?: nx where n is the number of following continguous cells -> uses 2D Array
+    function draw_next_batch(start){
+      if(target_step!=myUI.target_step) return -1;
+      const batchSize = 1000;
+      let end = start + batchSize;
+      if(toDraw.constructor != NBitMatrix.data_arr){
+        while(start < arrayData.length){
+          let curr = arrayData[start];
+          if(isNaN(prev)){
+            idx = curr;
           }
-          else{
-            if(canvas.valType=="float") canvas.draw_pixel([i,p2], false, array_data[i][p1]);
-            else if(array_data[i][p1]!=canvas.defaultVal){
-              let val = Math.min(canvas.maxVal, Math.max(array_data[i][p1], canvas.minVal));
-              canvas.draw_pixel([i,p2], false, val, val-1);
-            }
+          else if(!isNaN(curr)){
+            let x = Math.floor(idx / canvas.data_width);
+            let y = idx++ - x * canvas.data_width;
+            canvas.draw_pixel_override([x,y], curr);
           }
-          ++p2;
-          ++p1;
+          prev = curr;
+          start++;
+          if(start >= end) break;
         }
+        if(start >= arrayData.length) return canvasNo + 1;
       }
+      else if(toDraw.constructor == NBitMatrix.data_arr){
+        while(start < end && start < arrayData.length * arrayData[0].length){
+          let x = Math.floor(start / arrayData[0].length);
+          let y = start++ - x * arrayData[0].length;
+          canvas.draw_pixel_override([x, y], arrayData[x][y]);
+        }
+        if(start >= arrayData.length * arrayData[0].length) return canvasNo + 1;
+      }
+
       return new Promise((resolve, _) => {
         //resolve(draw_line(r+20));
-        setTimeout(() => resolve(draw_line(r+lineRate)), 0);
+        setTimeout(() => resolve(draw_next_batch(end)), 0);
       });
     }
-
     return new Promise((resolve, _) => {
-      resolve(draw_line(0));
+      resolve(draw_next_batch(0));
     });
   }
 

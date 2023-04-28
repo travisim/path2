@@ -56,7 +56,29 @@ function deep_copy_matrix(mat, flip_bit=false, compress=false){
   return res;
 }
 
-
+function flatten_matrix(mat, defaultVal = null){
+	let res = [];
+	for(let i = 0; i < mat.length; ++i){
+		for(let j = 0; j < mat.length; ++j){
+			if(defaultVal == null){
+				res.push(mat[i][j]);
+				continue;
+			}
+			if(mat[i][j] == defaultVal){
+				if(res.length && !isNaN(res.slice(-1))){
+					res.push(NaN);
+				}
+			}
+			else{
+				if(res.length == 0 || isNaN(res.slice(-1))){
+					res.push(i * mat[i].length + j);
+				}
+				res.push(mat[i][j]);
+			}
+		}
+	}
+	return res;
+}
 
 function deepCopyNodeArray(nodeArray){
 	let res = [];
@@ -177,9 +199,9 @@ class Empty2D{
 	}
 }
 
-function empty2D(rows, cols){
+function empty2D(rows, cols, def = undefined){
 	var array = [];
-	while(rows--) array.push(new Array(cols));
+	while(rows--) array.push(new Array(cols).fill(def));
 	return array;
 }
 
@@ -564,10 +586,10 @@ function map_to_obj(map){
 	return obj;
 }
 
-function vec_to_obj(vec){
-	let obj = {};
+function vec_to_arr(vec){
+	let arr = [];
 	for(let i = 0; i < vec.size(); ++i){
-		obj[i] = vec.get(i);
+		arr.push(vec.get(i));
 	}
-	return obj;
+	return arr;
 }

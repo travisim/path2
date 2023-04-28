@@ -32,6 +32,5 @@ void vectDigitPrint(std::vector<uint8_t> v){
   }
   s[i] = '\0';
   std::cout<<s<<std::endl;
-  std::cout<<"."<<std::endl;
   free(s);
 }

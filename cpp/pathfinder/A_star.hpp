@@ -52,9 +52,34 @@ private:
   RedBlackTree data;
 };
 
-class A_star : public GridPathFinder
+template <typename Action_t>
+class A_star : public GridPathFinder<Action_t>
 {
 private:
+  using GridPathFinder<Action_t>::currentNode;
+  using GridPathFinder<Action_t>::currentNodeXY;
+  using GridPathFinder<Action_t>::rootNode;
+  using GridPathFinder<Action_t>::goal;
+  using GridPathFinder<Action_t>::gridHeight;
+  using GridPathFinder<Action_t>::gridWidth;
+  using GridPathFinder<Action_t>::delta;
+  using GridPathFinder<Action_t>::deltaNWSE;
+  using GridPathFinder<Action_t>::deltaNWSEStr;
+  using GridPathFinder<Action_t>::start;
+  using GridPathFinder<Action_t>::batchSize;
+  using GridPathFinder<Action_t>::stepIndex;
+  using GridPathFinder<Action_t>::bigMap;
+  using GridPathFinder<Action_t>::diagonalAllow;
+  using GridPathFinder<Action_t>::neighborsIndex;
+
+  using GridPathFinder<Action_t>::saveStep;
+  using GridPathFinder<Action_t>::terminateSearch;
+  using GridPathFinder<Action_t>::initSearch;
+  using GridPathFinder<Action_t>::createAction;
+  using GridPathFinder<Action_t>::handleArrow;
+  using GridPathFinder<Action_t>::assignCellIndex;
+  using GridPathFinder<Action_t>::foundGoal;
+  using GridPathFinder<Action_t>::nodeIsNeighbor;
   PriorityQueue pq;
   costType chosenCost;
   timeOrder order;
@@ -125,6 +150,10 @@ public:
 
   bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order)
   {
+    std::cout<<startX<<' '<<startY<<' '<<goalX<<' '<<goalY<<std::endl;
+    vectDigitPrint(neighborsIndex);
+    std::cout<<vertexEnabled<<' '<<diagonalAllow<<' '<<bigMap<<' '<<hOptimized<<std::endl;
+    std::cout<<chosenCost<<' '<<order<<std::endl;
     initSearch(grid, {startX, startY}, {goalX, goalY}, neighborsIndex, vertexEnabled, diagonalAllow, bigMap);
     this->chosenCost = chosenCost;
     this->order = order;
@@ -142,7 +171,8 @@ public:
 
     // assign f, (g) and h cost to the starting node
     std::array<double, 3> trip = calcCost({startX, startY});
-    currentNode->fCost = trip[0], currentNode->hCost = trip[2]; // gCost is 0
+    //currentNode->fCost = trip[0];
+    currentNode->hCost = trip[2]; // gCost is 0
 
     //pq.clear();
 
@@ -155,7 +185,7 @@ public:
       {
         createAction(InsertRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, 1, {deltaNWSEStr[*itr], "?", "?", "?", "?", "?"});
       }
-      createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1, {std::to_string(start.first) + "," + std::to_string(start.second), "-", std::to_string(currentNode->fCost).substr(0, 6), std::to_string(currentNode->gCost).substr(0, 6), std::to_string(currentNode->hCost).substr(0, 6)});
+      createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1, {std::to_string(start.first) + "," + std::to_string(start.second), "-", std::to_string(currentNode->fCost()).substr(0, 6), std::to_string(currentNode->gCost).substr(0, 6), std::to_string(currentNode->hCost).substr(0, 6)});
       createAction(DrawPixel, CanvasQueue, start);
       saveStep(true);
     }
@@ -186,11 +216,11 @@ public:
       currentNodeXY = {currentNode->coordX, currentNode->coordY};
       openList.set(currentNodeXY, nullptr);
       if (stepIndex % 10000 == 0)
-        std::cout << "F: " << std::setprecision(5) << currentNode->fCost << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
+        std::cout << "F: " << std::setprecision(5) << currentNode->fCost() << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
       
-      //std::cout<<currentNode->fCost<<' '<<*closedList.get(currentNodeXY);
+      //std::cout<<currentNode->fCost()<<' '<<*closedList.get(currentNodeXY);
 
-      if (closedList.get(currentNodeXY) != nullptr && closedList.get(currentNodeXY)->fCost <= currentNode->fCost)
+      if (closedList.get(currentNodeXY) != nullptr && closedList.get(currentNodeXY)->fCost() <= currentNode->fCost())
         continue;
       //std::cout<<"visiting new node!\n";
 
@@ -205,10 +235,10 @@ public:
         }
         createAction(EraseRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1);
         createAction(DrawSinglePixel, CanvasFocused, currentNodeXY);
-        createAction(EraseCanvas, CanvasNeigbors);
+        createAction(EraseCanvas, CanvasNeighbors);
         createAction(DrawSinglePixel, CanvasExpanded, currentNodeXY);
         createAction(ErasePixel, CanvasQueue, currentNodeXY);
-        createAction(HighlightPseudoCodeRowPri, Pseudocode, {-1, -1}, -1, -1, 12);
+        //createAction(HighlightPseudoCodeRowPri, Pseudocode, {-1, -1}, -1, -1, 12);
       }
       saveStep(true);
 
@@ -278,7 +308,7 @@ public:
         const double fCost = trip[0], gCost = trip[1], hCost = trip[2];
 
         Node* openNode = openList.get(nextXY);
-        if (openNode != NULL && openNode->fCost <= fCost)
+        if (openNode != NULL && openNode->fCost() <= fCost)
         {
           if (!bigMap)
           {
@@ -290,7 +320,7 @@ public:
         //std::cout<<"node has lower fCost\n";
 
         Node* closedNode = closedList.get(nextXY);
-        if (closedNode != NULL && closedNode->fCost <= fCost)
+        if (closedNode != NULL && closedNode->fCost() <= fCost)
         {
           if (!bigMap)
           {
@@ -317,8 +347,8 @@ public:
 
         if (!bigMap)
         {
-          createAction(DrawPixel, CanvasNeigbors, nextXY);
-          createAction(HighlightPseudoCodeRowSec, Pseudocode, {-1, -1}, -1, -1, 32);
+          createAction(DrawPixel, CanvasNeighbors, nextXY);
+          //createAction(HighlightPseudoCodeRowSec, Pseudocode, {-1, -1}, -1, -1, 32);
           handleArrow(nextXY, nextNode, openNode, closedNode);
 
           createAction(DrawPixel, CanvasQueue, nextXY);

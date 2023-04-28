@@ -59,6 +59,7 @@ class wasm_A_star extends GridPathFinder{
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbor, search_direction);
+    this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
   }
 
   setConfig(uid, value){
@@ -81,7 +82,7 @@ class wasm_A_star extends GridPathFinder{
     this.n = 1;
     //this._init_search(start, goal); // for batch size and batch interval
     this.batch_interval = 0;
-    this.batch_size = 2000;
+    this.batch_size = this.bigMap ? 10000 : 200
 
     let chosenCost = ["Manhattan",
       "Euclidean",
@@ -93,7 +94,7 @@ class wasm_A_star extends GridPathFinder{
         return cost == this.timeOrder;
       });
     if(this.cppPlanner) this.cppPlanner.delete();
-    this.cppPlanner = new Module["AStarPlanner"]();
+    this.cppPlanner = this.bigMap ? new Module["BaseAStarPlanner"]() : new Module["AStarPlanner"]();
     let finished = this.cppPlanner.wrapperSearch(this.map.copy_2d(),
     ...start, ...goal,
     this.neighborsIndex,

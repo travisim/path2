@@ -44,6 +44,7 @@ class UIInfoPseudoCode{
   }
   
  	highlightPri(rowNo){
+    console.log(rowNo);
   	for (let i = 0; i < this.highlightedRowsPri.length; i++) { 
      	if(this.highlightedRowsPri[0]){
 				this.highlightedRowsPri[0].classList.remove('highlightingPri');

@@ -38,12 +38,7 @@ function compute_path(){
 		myUI.generateReverseSteps({genStates: true}).then(_=>{
 			myUI.genDuration = Date.now() - myUI.genStart;
 			console.log("Number of steps: ", myUI.planner.max_step() + 2);
-			myUI.sliders.search_progress_slider.elem.disabled = false;
-			myUI.animation.max_step = myUI.planner.max_step();
-			myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
-			myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
-			myUI.sliders.animation_speed_slider.elem.value = (myUI.sliders.animation_speed_slider.elem.max)/2;
-			updateSpeedSlider();
+			myUI.updateStepControls();
 			document.getElementById("compute_btn").children[0].innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
 			myUI.finalTimeout = setTimeout(()=>document.getElementById("compute_btn").children[0].innerHTML = "Compute Path", 30000);
 		
@@ -51,6 +46,15 @@ function compute_path(){
 	}); 
 	
 	
+}
+
+myUI.updateStepControls = function(){
+	myUI.sliders.search_progress_slider.elem.disabled = false;
+	myUI.animation.max_step = myUI.planner.max_step();
+	myUI.sliders.search_progress_slider.elem.max = myUI.animation.max_step;
+	myUI.sliders.animation_speed_slider.elem.max = Math.log2(myUI.animation.max_step / 3)*1000;
+	myUI.sliders.animation_speed_slider.elem.value = (myUI.sliders.animation_speed_slider.elem.max)/2;
+	updateSpeedSlider();
 }
 
 myUI.sliders.animation_speed_slider.elem.addEventListener("input", updateSpeedSlider);

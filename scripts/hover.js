@@ -64,7 +64,7 @@ myUI.handle_map_hover = function(e){
 }
 
 
-if(myUI.gridPrecision == "float"  )myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
+myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
 
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let xy = myUI.scale_coord(e.offsetY, e.offsetX);
@@ -79,10 +79,9 @@ myUI.canvases.hover_map.canvas.addEventListener(`mouseleave`, e=>{
 	tooltip_data.style.display = "none";
 });
 
-
-
-
-
+/* first call is required */
+dragElementGridSnap(myUI.map_start_icon.elem);
+dragElementGridSnap(myUI.map_goal_icon.elem);
 
 function dragElementGridSnap(elmnt) {
 
@@ -96,6 +95,7 @@ function dragElementGridSnap(elmnt) {
 	elmnt.onmousedown = dragMouseDown;
 
   function dragMouseDown(e) {
+		console.log("mouse down on: ", elmnt);
     e = e || window.event;
     e.preventDefault();
     // get the mouse cursor position at startup:
@@ -136,7 +136,7 @@ function dragElementGridSnap(elmnt) {
     // stop moving when mouse button is released:
     document.onmouseup = null;
     document.onmousemove = null;
-	e = e || window.event;
+		e = e || window.event;
     e.preventDefault();
 		let y = x1 - bounds.left;
 		let x = y1 - bounds.top;
@@ -180,56 +180,50 @@ function dragElementNoSnap(elmnt,slaveElmnt) {
     document.onmousemove = elementDrag;
   }
 
-function elementDrag(e) {
-	e = e || window.event;
-	e.preventDefault();
-	var bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
-	// calculate the new cursor position:
-	dx = x1 - e.clientX;
-	dy = y1 - e.clientY;
-	x1 = e.clientX;
-	y1 = e.clientY;
-	// set the element's new position:
-	if (elmnt.offsetTop - dy >= -elmnt.clientHeight / 2 + CANVAS_OFFSET && elmnt.offsetTop - dy <= bounds.height - elmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
-		elmnt.style.top = (elmnt.offsetTop - dy) + "px";
-		
-	}
-	if (elmnt.offsetLeft - dx >= -elmnt.clientWidth / 2 + CANVAS_OFFSET && elmnt.offsetLeft - dx <= bounds.width - elmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
-		elmnt.style.left = (elmnt.offsetLeft - dx) + "px";
-	}
-	if (slaveElmnt) {
-		if (slaveElmnt.offsetTop - dy >= -slaveElmnt.clientHeight / 2 + CANVAS_OFFSET && slaveElmnt.offsetTop - dy <= bounds.height - slaveElmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
-		    slaveElmnt.style.top = (slaveElmnt.offsetTop - dy) + "px";
+	function elementDrag(e) {
+		e = e || window.event;
+		e.preventDefault();
+		var bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
+		// calculate the new cursor position:
+		dx = x1 - e.clientX;
+		dy = y1 - e.clientY;
+		x1 = e.clientX;
+		y1 = e.clientY;
+		// set the element's new position:
+		if (elmnt.offsetTop - dy >= -elmnt.clientHeight / 2 + CANVAS_OFFSET && elmnt.offsetTop - dy <= bounds.height - elmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
+			elmnt.style.top = (elmnt.offsetTop - dy) + "px";
+			
 		}
-		if (slaveElmnt.offsetLeft - dx >= -slaveElmnt.clientWidth / 2 + CANVAS_OFFSET && slaveElmnt.offsetLeft - dx <= bounds.width - slaveElmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
-			slaveElmnt.style.left = (slaveElmnt.offsetLeft - dx) + "px";
+		if (elmnt.offsetLeft - dx >= -elmnt.clientWidth / 2 + CANVAS_OFFSET && elmnt.offsetLeft - dx <= bounds.width - elmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
+			elmnt.style.left = (elmnt.offsetLeft - dx) + "px";
 		}
-		
+		if (slaveElmnt) {
+			if (slaveElmnt.offsetTop - dy >= -slaveElmnt.clientHeight / 2 + CANVAS_OFFSET && slaveElmnt.offsetTop - dy <= bounds.height - slaveElmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
+					slaveElmnt.style.top = (slaveElmnt.offsetTop - dy) + "px";
+			}
+			if (slaveElmnt.offsetLeft - dx >= -slaveElmnt.clientWidth / 2 + CANVAS_OFFSET && slaveElmnt.offsetLeft - dx <= bounds.width - slaveElmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
+				slaveElmnt.style.left = (slaveElmnt.offsetLeft - dx) + "px";
+			}
+			
+		}
 	}
-}
 
   function closeDragElement() {
     /* stop moving when mouse button is released:*/
     document.onmouseup = null;
-	document.onmousemove = null;
-	
-	let y = x1 - bounds.left;
-	let x = y1 - bounds.top;
-	y = Math.max(CANVAS_OFFSET, Math.min(bounds.width - e_num + CANVAS_OFFSET, y));  // fix to boundaries
-	x = Math.max(CANVAS_OFFSET, Math.min(bounds.height - e_num + CANVAS_OFFSET, x));
-	let [scaled_x, scaled_y] = myUI.scale_coord(x,y);
-	if(elmnt.id=="map_start_icon"){
-		myUI.map_start = [scaled_x, scaled_y];
-
-		}   
-	else if(elmnt.id=="map_goal_icon") {
-		myUI.map_goal = [scaled_x, scaled_y];
+		document.onmousemove = null;
 		
-	}
-	  
-
-	  //
-	  
+		let y = x1 - bounds.left;
+		let x = y1 - bounds.top;
+		y = Math.max(CANVAS_OFFSET, Math.min(bounds.width - e_num + CANVAS_OFFSET, y));  // fix to boundaries
+		x = Math.max(CANVAS_OFFSET, Math.min(bounds.height - e_num + CANVAS_OFFSET, x));
+		let [scaled_x, scaled_y] = myUI.scale_coord(x,y);
+		if(elmnt.id=="map_start_icon"){
+			myUI.map_start = [scaled_x, scaled_y];
+		}   
+		else if(elmnt.id=="map_goal_icon") {
+			myUI.map_goal = [scaled_x, scaled_y];
+		}
 		
 	  myUI.displayScen(true, true);
 	  myUI.planner.generateNewMap(myUI.map_start, myUI.map_goal);

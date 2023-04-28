@@ -298,9 +298,9 @@ myUI.loadPlanner = function(create_planner = true) {
   if (myUI.planner.postProcess) myUI.planner.postProcess();
   
   // should change to a more unified one i future 
-  if (myUI.planner.constructor.pseudoCode.code) myUI.PseudoCode.rowGenerator(myUI.planner.constructor.pseudoCode.code)
-  if (myUI.planner.constructor.pseudoCode.reference) myUI.PseudoCode.reference(myUI.planner.constructor.pseudoCode.reference)
-  expandSelectedIndex(myUI.planner.constructor.indexOfCollapsiblesToExpand);
+  if (myUI.planner.constructor.pseudoCode && myUI.planner.constructor.pseudoCode.code) myUI.PseudoCode.rowGenerator(myUI.planner.constructor.pseudoCode.code)
+  if (myUI.planner.constructor.pseudoCode && myUI.planner.constructor.pseudoCode.reference) myUI.PseudoCode.reference(myUI.planner.constructor.pseudoCode.reference)
+  if(myUI.planner.constructor.indexOfCollapsiblesToExpand) expandSelectedIndex(myUI.planner.constructor.indexOfCollapsiblesToExpand);
   document.getElementById("map_goal_radius").style.display = myUI.planner.constructor.addGoalRadius == 1?"block":"none"
   
 }

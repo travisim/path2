@@ -68,8 +68,8 @@ namespace pathfinder
     bool less(const Node* n1, const Node* n2) const
     {
       // lower fCost will be first
-      if (std::abs(n1->fCost - n2->fCost) >= THRESH)
-        return n1->fCost < n2->fCost;
+      if (std::abs(n1->fCost() - n2->fCost()) >= THRESH)
+        return n1->fCost() < n2->fCost();
 
       // lower hCost will be first
       if (hOptimized && std::abs(n1->hCost - n2->hCost) >= THRESH)
@@ -77,9 +77,9 @@ namespace pathfinder
 
       // lower timeCreated will be first (inserted earlier)
       if (order == FIFO)
-        return n1->timeCreatedns < n2->timeCreatedns;
+        return n1->timeCreatedus <= n2->timeCreatedus;
       else
-        return n1->timeCreatedns > n2->timeCreatedns;
+        return n1->timeCreatedus >= n2->timeCreatedus;
     }
 
     RBTNode *findRBTNode(RBTNode *z)

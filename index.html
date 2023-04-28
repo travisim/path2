@@ -382,20 +382,18 @@
                 <!-- steps are 0-indexed -->
                 <span>100%</span>
               </div>
-              <label class="label_centered"
-                >States per step: <span id="state_freq_label">20</span></label
-              >
+              <label class="label_centered">Steps per checkpoint: <input id="state_freq_label" value="20"/></label>
               <div class="flex-row">
                 <span>20</span>
                 <input
                   type="range"
                   min="20"
-                  max="2000"
+                  max="20000"
                   value="20"
                   id="state_freq_slider"
                   class="slider"
                 />
-                <span>2000</span>
+                <span>20000</span>
               </div>
             </div>
             <div class="flex-row">
@@ -458,8 +456,8 @@
                   <label class="scen_label">Increment nodes by:</label>
                   <input type="text" id="number" value="0"/>
                   <input type="button" onclick="myUI.planner.growMapByNodes(1)" value="1 " />
-                  <input type="button" onclick="incrementValue(10)" value="10" />
-                  <input type="button" onclick="incrementValue(100)" value="100" />
+                  <input type="button" onclick="myUI.planner.growMapByNodes(10)" value="10" />
+                  <input type="button" onclick="myUI.planner.growMapByNodes(100)" value="100" />
                 </div>
                 <div class=" flex-row">
                   Map Configurations

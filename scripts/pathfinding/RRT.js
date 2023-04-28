@@ -162,21 +162,15 @@ l        }
 
     }
   }
-
-  
   calc_cost(successor){
     function euclidean(c1, c2){
       return Math.hypot(c1[0]-c2[0], c1[1]-c2[1]);
     }
     
-
-
-    
    if(this.distance_metric == "Euclidean"){
       var g_cost = this.current_node.g_cost + euclidean(this.current_node.self_XY, successor);
       var h_cost = euclidean(successor, this.goal);
     }
-
 
     var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
     return [f_cost, g_cost, h_cost];
@@ -186,19 +180,13 @@ l        }
     this.setConfig("mapType", "Grid Vertex Float");
   }
 
-  
-
   generateNewMap(start = [0, 0], goal = [13, 13]) {
     
     this.prevGoalCoord = [];
     this.prevGoalCoordConnectedto = [];
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
-
     this.exports = {coords:[],neighbours:[],edges:[]};
- 
     //clears SVG canvas
-
-      
     
     myUI.nodeCanvas.reset()
     myUI.edgeCanvas.reset()
@@ -233,9 +221,7 @@ l        }
         this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 3});
         this._save_step(true);
         
-        var nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(this.choosenCoordsNodes, randomCoord_XY)
-       
-        
+        var nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(this.choosenCoordsNodes, randomCoord_XY);
         
         this._create_action({ command: STATIC.DrawSingleVertex, dest: this.dests.expanded, nodeCoord: this.choosenCoordsNodes[nearestNode_Index].value_XY});
         this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 4});
@@ -281,8 +267,6 @@ l        }
           this._create_action({ command: STATIC.UnhighlightAllPseudoCodeRowSec, dest: this.dests.pseudocode });
           this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 2});
           
-          
-          
           this._create_action({ command: STATIC.EraseAllVertex, dest: this.dests.neighbors });
           this._create_action({ command: STATIC.EraseAllVertex, dest: this.dests.intermediaryMapExpansion });
           this._create_action({command: STATIC.EraseAllEdge, dest: this.dests.intermediaryMapExpansion});
@@ -297,15 +281,7 @@ l        }
           this._create_action({command: STATIC.EraseAllEdge, dest: this.dests.intermediaryMapExpansion});
           this._save_step(true);
       }
-      
-      
-
     }
-
-   
-    
-    
-    
     for(let i = 0; i < this.choosenCoordsNodes.length; ++i){
       this.exports.coords.push(this.choosenCoordsNodes[i].value_XY);
       this.exports.neighbours.push(this.choosenCoordsNodes[i].neighbours);
@@ -313,84 +289,120 @@ l        }
     for(let i = 0; i < edgeAccumalator.length; ++i){
       this.exports.edges.push([edgeAccumalator[i][0],edgeAccumalator[i][1]]);
     }
-    
-    
-    
     
     this.addGoalNode(myUI.map_goal);
     //download("RRT_star Map.json", JSON.stringify(this.exports));
     this._create_action({ command: STATIC.UnhighlightAllPseudoCodeRowSec, dest: this.dests.pseudocode });
     this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 9 });
     
-    
     this._save_step(true);
   }
 
-
- 
   growMapByNodes(numberOfNodes=1) {
-    
-   
-  this.sampleSize+=numberOfNodes
-    
-    var edgeAccumalator = [];
-    
+    this.sampleSize+=numberOfNodes
 
-    
-   
     //var testrandom = [[10,3],[4,20],[15,2]]
     
     for (let i = 0; i < numberOfNodes; ++i) {
         var randomCoord_XY = [this.rand()*myUI.map_height, this.rand()*myUI.map_width]; //recycles seed used in generate map
        // var randomCoord_XY = testrandom[i];
+       
+        // -------------FROM generateNewMap-------------
+        this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 2});
+        this._create_action({ command: STATIC.DrawDottedVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: randomCoord_XY,colour:"rgb(0, 204, 255)" });
+        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 3});
+        this._save_step(true);
+        // -------------UNTIL HERE-------------
         
         var nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(this.choosenCoordsNodes, randomCoord_XY)
+
+        // -------------FROM generateNewMap-------------
+        this._create_action({ command: STATIC.DrawSingleVertex, dest: this.dests.expanded, nodeCoord: this.choosenCoordsNodes[nearestNode_Index].value_XY});
+        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 4});
+        this._create_action({ command: STATIC.DrawDottedEdge, dest: this.dests.intermediaryMapExpansion, nodeCoord: this.choosenCoordsNodes[nearestNode_Index].value_XY, endCoord: randomCoord_XY });
+        this._save_step(true);
+        // -------------UNTIL HERE-------------
         
         var nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(this.choosenCoordsNodes[nearestNode_Index].value_XY,randomCoord_XY,this.pointsXawayFromSource);
-      
+
+        // -------------FROM generateNewMap-------------
+        this._create_action({ command: STATIC.DrawDottedVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY });
+        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 5});
+        this._save_step(true)
+        // -------------UNTIL HERE-------------
       
         if (CustomLOSChecker(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY).boolean){ // checks if new randomm coord is on a non-obstacle coord and if path from parent to node has LOS
          
          
           if (document.getElementById("randomCoordLine")){ myUI.edgeCanvas.EraseSvgById("randomCoordLine") }
-           if( document.getElementById("randomCoord") ){myUI.nodeCanvas.EraseSvgById("randomCoord")}
-         
-          myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY);
-          myUI.nodeCanvas.drawCircle(nextCoordToAdd_XY);
-          //if(this.choosenCoordsNodes.length == 1) myUI.edgeCanvas.drawLine(start,nextCoordToAdd_XY);;
-          myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,this.dests.networkGraph,"randomCoordLine",true);
-          myUI.nodeCanvas.drawCircle(randomCoord_XY,this.dests.networkGraph,"randomCoord","purple");
+           if( document.getElementById("randomCoord") ){myUI. nodeCanvas.EraseSvgById("randomCoord")}
+        
+          // -------------OMITTED IN FAVOUR OF generateNewMap methods-------------
+          // myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[nearestNode_Index].value_XY, nextCoordToAdd_XY);
+          // myUI.nodeCanvas.drawCircle(nextCoordToAdd_XY);
+          // //if(this.choosenCoordsNodes.length == 1) myUI.edgeCanvas.drawLine(start,nextCoordToAdd_XY);;
+          // myUI.edgeCanvas.drawLine(nextCoordToAdd_XY,randomCoord_XY,this.dests.networkGraph,"randomCoordLine",true);
+          // myUI.nodeCanvas.drawCircle(randomCoord_XY,this.dests.networkGraph,"randomCoord","purple");
+          // -------------UNTIL HERE-------------
 
           var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, nextCoordToAdd_XY,this.neighbourSelectionMethod,this.connectionDistance); 
+
+          // -------------FROM generateNewMap-------------
+          nodesNearby_Index.forEach(element => {
+            this._create_action({ command: STATIC.DrawVertex, dest: this.dests.neighbors, nodeCoord: this.choosenCoordsNodes[element].value_XY }); 
+          });
+          this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: nextCoordToAdd_XY });
+          this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes",value:"++"});
+          this._create_action({command: STATIC.DrawDottedVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,radius: this.connectionDistance.toString()});
+          this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 6});
+          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 7});
+          this._save_step(true);
+          // -------------UNTIL HERE-------------
+
           var selectedParent_Index = determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index,this.choosenCoordsNodes);
           //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[selectedParent_Index].value_XY,nextCoordToAdd_XY);
-          this.insertNodeToTree(selectedParent_Index,nextCoordToAdd_XY,[selectedParent_Index],randomCoord_XY,[nextCoordToAdd_XY,randomCoord_XY]);
-          this.rewireTree(this.choosenCoordsNodes.length-1, nodesNearby_Index)
+
+          // -------------FROM generateNewMap-------------
+          this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.expanded, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, colour:"pink"});
+          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 8});
+          this._save_step(true);
+          this._create_action({ command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[selectedParent_Index].value_XY, endCoord: nextCoordToAdd_XY });
+          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 9});
+          this._save_step(true);
+          this.insertNodeToTree(selectedParent_Index, nextCoordToAdd_XY, [selectedParent_Index], randomCoord_XY, [nextCoordToAdd_XY, randomCoord_XY]);
+          this.rewireTree(this.choosenCoordsNodes.length - 1, nodesNearby_Index)
+          
+          this._create_action({ command: STATIC.UnhighlightAllPseudoCodeRowSec, dest: this.dests.pseudocode });
+          this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 2});
+          
+          this._create_action({ command: STATIC.EraseAllVertex, dest: this.dests.neighbors });
+          this._create_action({ command: STATIC.EraseAllVertex, dest: this.dests.intermediaryMapExpansion });
+          this._create_action({command: STATIC.EraseAllEdge, dest: this.dests.intermediaryMapExpansion});
+          this._save_step(true);
+          // -------------UNTIL HERE-------------
+
+          // -------------OMITTED IN FAVOUR OF generateNewMap methods-------------
+          // this.insertNodeToTree(selectedParent_Index,nextCoordToAdd_XY,[selectedParent_Index],randomCoord_XY,[nextCoordToAdd_XY,randomCoord_XY]);
+          // this.rewireTree(this.choosenCoordsNodes.length-1, nodesNearby_Index)
+          // -------------UNTIL HERE-------------
+
           //parent, value_XY,neighbours, additionalCoord, additionalEdge, g_cost) parent left as null here as it is not used in search()
           //g cost calculated within in insertNodeToTree()
-        } 
-
+        }
+        else{
+          console.log("Didn't add node!");
+        }
     }
-
-   
-    
-    
-    
-    for(let i = 0; i < this.choosenCoordsNodes.length; ++i){
-      this.exports.coords.push(this.choosenCoordsNodes[i].value_XY);
-      this.exports.neighbours.push(this.choosenCoordsNodes[i].neighbours);
-    }
-    for(let i = 0; i < edgeAccumalator.length; ++i){
-      this.exports.edges.push([edgeAccumalator[i][0],edgeAccumalator[i][1]]);
-    }
-    
-    
     
     this.addGoalNode(myUI.map_goal);
-   // this.addStartGoalNode("start",start);
-    //download("RRT_star Map.json", JSON.stringify(this.exports));
-  
-   
+
+    this._create_action({ command: STATIC.UnhighlightAllPseudoCodeRowSec, dest: this.dests.pseudocode });
+    this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 9 });
+    
+    this._save_step(true);
+    this._save_step(true);
+    
+    myUI.updateStepControls();
   }
 
 
@@ -448,16 +460,11 @@ l        }
   addGoalNode( coord_XY = [4, 1]) {
     if (CustomLOSChecker(coord_XY, coord_XY).boolean == false) return alert(`Goal is on an obstacle`);
 
-    
-    
     /*
     if (this.prevGoalCoordConnectedto.length == 2) {
      myUI.edgeCanvas.eraseLine(this.prevGoalCoordConnectedto,this.prevGoalCoord);
     }
 */
-
-
-
   
     var radiusInPixels = Math.max(myUI.canvases.bg.canvas.clientWidth,myUI.canvases.bg.canvas.clientHeight)/Math.max(myUI.map_width, myUI.map_height)*this.goalRadius
     myUI.map_goal_radius.resize(2 * radiusInPixels);
@@ -493,20 +500,11 @@ l        }
     if(!this.exports.neighbours[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbours[selectedVertexIndex].push(selectedIndexForStartEndVertex);
     if(!this.choosenCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.choosenCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
     if(!this.exports.neighbours[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbours[selectedIndexForStartEndVertex].push(selectedVertexIndex);
-
    
     console.log("Goal:", this.choosenCoordsNodes[selectedIndexForStartEndVertex]);
-    
-    
 
     this.prevGoalCoordConnectedto = selected_XY;
     this.prevGoalCoord = coord_XY;
-
-
-
-    
-   
-
     
   }
     
@@ -529,7 +527,6 @@ l        }
     }
   }
 
-  
 
 
   search(start, goal) {
@@ -540,6 +537,12 @@ l        }
 		this.open_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
     console.log("starting");
     this.generateNewMap(start, goal);
+
+    let planner = this;
+
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(planner._terminate_search()), planner.batch_interval);
+    });
    
     // starting node
     var nextNode = this.choosenCoordsNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // PRM Node
@@ -561,7 +564,6 @@ l        }
     }
     this.open_list.set(this.current_node.self_XY, this.current_node); 
     //---------------------checks if visited 2d array has been visited
-    let planner = this;
 
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
