@@ -342,7 +342,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 	let revCombinedCnt = 0;
 
   //let mem = {canvasCoords:{}, drawSinglePixel:{}, fullCanvas:{}, arrowColor:{}, bounds:{}};
-  let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}, edges:{}};
+  let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}, edges:{}, dottedVertices:{}, dottedEdges:{}};
   myUI.mem = mem;
   Object.values(myUI.canvases).forEach(canvas=>canvas.init_virtual_canvas());
   document.querySelector("#info-tables-dynamic").style.display = "none";
@@ -585,23 +585,27 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         }
         else if(command == STATIC.EraseVertex){
           action = GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y]});
-          if(!mem.vertices.hasOwnProperty(dest)){
-            console.log("ERROR: VERTEX NOT FOUND"); alert("ERROR: VERTEX NOT FOUND"); debugger;
-          }
+
+          console.assert(mem.vertices.hasOwnProperty(dest), "ERROR: VERTEX DEST NOT FOUND");
+
+          let flag = false;
           for(let i = 0; i < mem.vertices[dest].length; ++i){
             if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y){
               mem.vertices[dest].splice(i, 1);
+              flag = true;
               break;
             }
           }
+          console.assert(flag, "ERROR: VERTEX NOT FOUND");
         }
+        
         else if(command == STATIC.EraseAllVertex){
           action = [];
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
           mem.vertices[dest].forEach(coord => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: coord})));
           mem.vertices[dest] = [];
-        } 
+        }
         else if(command == STATIC.DrawSingleVertex){ //now hard coded for current vertex
           action = GridPathFinder.packAction({command: STATIC.EraseAllVertex, dest: dest});
           if(!mem.vertices.hasOwnProperty(dest))
@@ -642,6 +646,9 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         }
         else if( command == STATIC.CreateStaticRow ){
           action = GridPathFinder.packAction({command: STATIC.RemoveStaticRow, dest: dest, id: id, value: value});
+        }
+        else{
+          console.log(STATIC_COMMANDS[command], ", ERR: COMMAND NOT REVERSED");
         }
         
         // add more here

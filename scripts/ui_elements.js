@@ -350,7 +350,7 @@ class UICanvas{
     // third way?: nx where n is the number of following continguous cells -> uses 2D Array
     function draw_next_batch(start){
       if(target_step!=myUI.target_step) return -1;
-      const batchSize = 5000;
+      const batchSize = 1000;
       let end = start + batchSize;
       if(toDraw.constructor != NBitMatrix.data_arr){
         while(start < arrayData.length){
