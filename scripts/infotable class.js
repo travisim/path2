@@ -250,6 +250,11 @@ class UIInfoTable{
     var r = this.rowGenerator([value0, "-"], value0.replaceAll(/\s/g,''));
     this.dynamicTable.append(r);
   }
+
+  removeStaticRowWithACellEditableById(value0){
+    document.getElementById(value0.replaceAll(/\s/g,'')).remove();
+  }
+
   editStaticCellByRowId(id,value1) {
     try{
     value1 == "++"

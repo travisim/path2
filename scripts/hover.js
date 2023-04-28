@@ -64,7 +64,7 @@ myUI.handle_map_hover = function(e){
 }
 
 
-if(myUI.gridPrecision == "float"  )myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
+myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hover);
 
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let xy = myUI.scale_coord(e.offsetY, e.offsetX);
