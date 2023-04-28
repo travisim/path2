@@ -822,7 +822,7 @@ myUI.jump_to_step = function(target_step){
       if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
       for(line of edgeArray){
         if(myUI.planner.constructor.wasm) line = [line.get(0), line.get(1), line.get(2), line.get(3)];
-        myUI.edgeCanvas.drawLine([line[0], line[1]], [line[2], line[3]], dest);
+        myUI.edgeCanvas.drawLine([line[0], line[1]], [line[2], line[3]], myUI.planner.destsToId[dest]);
       }
     }
     

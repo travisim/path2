@@ -90,6 +90,7 @@ function updateMapHeight(e){
 myUI.sliders.map_height_slider.label.addEventListener("keydown", updateMapHeight);
 myUI.sliders.map_height_slider.label.addEventListener("focusout", updateMapHeight);
 
+
 function modal_await_keypress(e){
 	e = e || window.event
 

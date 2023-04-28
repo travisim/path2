@@ -69,6 +69,7 @@ class UICanvas{
     this.fixedResVal = fixedResVal;
     this.setDrawType(drawType);
   }
+  
 
   matrixConstructor(){
     return zero2D(this.data_height, this.data_width, this.defaultVal, this.defaultVal, this.valType);
@@ -465,19 +466,71 @@ class UICanvas{
 
   _handleMouseDown(e){
     // this function is bound to the canvas dom element, use this.wrapper to refer to the UICanvas
+    
     let canvas_x = e.offsetX;
     let canvas_y = e.offsetY;
-    this.wrapper._fillEditedCell(canvas_x, canvas_y);
+    // let thickness = Math.max(myUI.map_height * 0.06, 1);
+    // for (let y = 0; y < thickness; y++) {
+    //   for (let x = 0; x < thickness; x++) {
+    //     this.wrapper._fillEditedCell(canvas_x+x, canvas_y + y);
+    //   }
+    // }
+    
     this.wrapper.isDrawing = true;
   }
 
   _handleMouseMove(e){
     // this function is bound to the canvas dom element, use this.wrapper to refer to the UICanvas
-    let canvas_x = e.offsetX;
-    let canvas_y = e.offsetY;
+    this.canvas_x = e.offsetX;
+    this.canvas_y = e.offsetY;
+    
+    if (this.canvas_x == 300) {
+      console.log(this.canvas_x, this.prev_canvas_x);
+    } 
     this.wrapper.draw_canvas(deep_copy_matrix(this.wrapper.canvas_cache), `2d`);
-    if (this.wrapper.isDrawing) this.wrapper._fillEditedCell(canvas_x, canvas_y);
-    this.wrapper._drawHover(canvas_x, canvas_y);
+    if (this.wrapper.isDrawing) {
+      
+// balance between interpolation and thickness, speed vs beauty
+      if (this.prev_canvas_x) {
+        
+        let toDrawPoints = getInterpolatedPoints(this.prev_canvas_x, this.prev_canvas_y, this.canvas_x, this.canvas_y, Math.max(Math.abs(this.prev_canvas_x - this.canvas_x)/2, Math.abs(this.prev_canvas_y - this.canvas_y)/2, 1))
+        toDrawPoints.forEach(p => {
+          let thickness = 472 * 0.03;
+          for (let y = 0; y < thickness; y++) {
+            for (let x = 0; x < thickness; x++) {
+              this.wrapper._fillEditedCell(p.x+x, p.y+y);
+            }
+          }
+        })
+      }
+      // else {
+      //   let thickness = Math.max(472 * 0.03, 1);
+      //   for (let y = 0; y < thickness; y++) {
+      //     for (let x = 0; x < thickness; x++) {
+      //       this.wrapper._fillEditedCell(this.canvas_x + x, this.canvas_y + y);
+      //     }
+      //   }
+      // }
+    this.prev_canvas_x = this.canvas_x;
+     this.prev_canvas_y = this.canvas_y;
+    } 
+    
+    
+    this.wrapper._drawHover(this.canvas_x, this.canvas_y);
+    function getInterpolatedPoints(x1, y1, x2, y2, numPoints) {
+      const dx = (x2 - x1) / (numPoints - 1);
+      const dy = (y2 - y1) / (numPoints - 1);
+
+      const points = [];
+      for (let i = 0; i < numPoints; i++) {
+        const x = x1 + i * dx;
+        const y = y1 + i * dy;
+        points.push({ x, y });
+    }
+
+  return points;
+}
+
   }
 
   _handleMouseUp(e){
@@ -487,6 +540,9 @@ class UICanvas{
       let child = new EditState(myUI.map_edit.curr_state, deep_copy_matrix(this.wrapper.canvas_cache));
       myUI.map_edit.curr_state.child = child;
       myUI.map_edit.curr_state = child;
+
+       this.prev_canvas_x = null;
+     this.prev_canvas_y = null;
     }
   }
   
@@ -495,7 +551,8 @@ class UICanvas{
   }
 
   _fillEditedCell(canvas_x, canvas_y){
-    let [x,y] = this.scale_coord(canvas_x, canvas_y);
+    let [x, y] = this.scale_coord(canvas_x, canvas_y);
+    this.ctx.lineCap = 'round';
     if(this.erase) this.erase_pixel([x,y]);
     else this.draw_pixel([x,y]);
   }
@@ -515,6 +572,8 @@ class UICanvas{
   copy_data_to(other_id){
     myUI.canvases[other_id].draw_canvas(this.canvas_cache, `2d`, false);
   }
+
+
 }
 
 class UIButton{
