@@ -422,6 +422,14 @@
                   <div class="flex-col label_centered">Compute Path</div>
                 </button>
                 <button
+                  class="btn"
+                  alt="Find path using selected planner"
+                  onclick = "myUI.planner.recurseCurrentPath()"
+                >
+                  <div class="flex-col label_centered">Recurse Current Path</div>
+                </button>
+                </button>
+                <button
                   id="edit_map_btn"
                   class="btn grid-overlay"
                   alt="Switch to editing mode"
@@ -457,7 +465,7 @@
                   <input type="text" id="number" value="0"/>
                   <input type="button" onclick="myUI.planner.growMapByNodes(1)" value="1 " />
                   <input type="button" onclick="myUI.planner.growMapByNodes(10)" value="10" />
-                  <input type="button" onclick="myUI.planner.growMapByNodes(100)" value="100" />
+                  <input type="button" onclick="inc100()" value="100" />
                 </div>
                 <div class=" flex-row">
                   Map Configurations

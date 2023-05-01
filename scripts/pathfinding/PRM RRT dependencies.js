@@ -600,7 +600,7 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY,destId = "networkGraph", id=false,isDotted = false,color = false){
+  drawLine(start_XY, end_XY,destId = "networkGraph", id=false, colorIndex = 0){
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
  
@@ -611,9 +611,9 @@ class SVGCanvas {
     var strokeWidth = Math.max(0.05*this.displayRatio, 1)
     var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
     var line_class = `SVGline_${destId}`;
-    var color = color?color:myUI.canvases[destId] ? myUI.canvases[destId].fillColor : "grey";
+    var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";
     var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:strokeWidth, class:line_class, stroke: color,});
-    if (isDotted) line.style.strokeDasharray = 5;
+    if(myUI.canvases[destId].drawType == "svgDotted") line.style.strokeDasharray = 5;
     document.getElementById(this.canvas_id).appendChild(line);
   }
   eraseLine(start_XY, end_XY, destId){
@@ -623,8 +623,7 @@ class SVGCanvas {
     try{this.EraseSvgById(line_id);}catch{
       line_id = `SVGline_${end_coord.x}_${end_coord.y}_${start_coord.x}_${start_coord.y}_${destId}`;
       try{this.EraseSvgById(line_id);}catch{
-        alert("LINE DOES NOT EXIST");
-        debugger;
+        console.error("LINE DOES NOT EXIST");
       }
     }
   }
@@ -632,27 +631,26 @@ class SVGCanvas {
   eraseAllLines(destId){
     this.EraseSvgsbyClass(`SVGline_${destId}`);
   }
-  drawCircle(circle_XY, destId = "networkGraph",id=false, colour=false,radius = false, opacityValue = false,drawtype = false){
+  drawCircle(circle_XY, destId = "networkGraph",id=false, colorIndex = 0, radius = undefined, opacityValue = false){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
     var r = radius?radius:Math.max(0.25*this.displayRatio, 4);
     var cx = this.displayRatio*circle_coord.y;
     var cy = this.displayRatio*circle_coord.x; 
-    console.log("DP",this.displayRatio)
-    var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}`;
+    //console.log("DP",this.displayRatio)
+    var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}_${colorIndex}_${radius}`;
     var circle_class = `SVGcircle_${destId}`;
 
-    var color = colour ? colour : myUI.canvases[destId] ? myUI.canvases[destId].fillColor : "grey";
-    var drawType = drawtype ? drawtype : myUI.canvases[destId] ? myUI.canvases[destId].drawType : "cell";
+    var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";
+    var drawType = myUI.canvases[destId] ? myUI.canvases[destId].drawType : "cell";
     var opacity = opacityValue ? opacityValue : "100%";
     
     let config = { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color,opacity:opacity};
-    if(drawType == "dotted"){
+    if(drawType == "dotted" || drawType == "svgDotted"){
       config.fill = "none";
       config.stroke = color;
       config.strokeDasharray = "6.5,6.5";
-      config.r = Math.max(radius*this.displayRatio, 0.29*this.displayRatio)
+      config.r = ((radius && radius > 0.29) ? radius : 0.29) * this.displayRatio
       config.strokeWidth = 2;
-  
     }
     var cir = this.getSvgNode('circle', config);
     //var toAppend =`<circle cx=${cx} cy=${cy} r=${r} id=${circle_id} stroke-width="2" fill="grey" />`
@@ -660,12 +658,11 @@ class SVGCanvas {
   }
 
 
-  eraseCircle(circle_XY, destId){
+  eraseCircle(circle_XY, destId, colorIndex = 0, radius = undefined){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
-    var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}`;
-    try{this.EraseSvgById(circle_id);}catch{
-      alert("CIRCLE DOES NOT EXIST");
-      debugger;
+    var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}_${colorIndex}_${radius}`;
+    try{this.EraseSvgById(circle_id);console.log("erased circle of", circle_id)}catch{
+      console.error("CIRCLE DOES NOT EXIST");
     }
   }
   EraseSvgById(svg_id){

@@ -24,7 +24,7 @@ static get wasm(){
 
 	static unpackAction(action, readable = false){
 		/* NEW */
-		let bitOffset = 14;
+		let bitOffset = 13;
 		let idx = 0;
 		
 		let mask;
@@ -80,17 +80,13 @@ static get wasm(){
 		}
 		if(action[0]&(1<<10)){
 			++idx;
-			var colour = action[idx];
+			var radius = parseInt(action[idx]); 
 		}
 		if(action[0]&(1<<11)){
 			++idx;
-			var radius = parseInt(action[idx]); 
-		}
-		if(action[0]&(1<<12)){
-			++idx;
 			var value = action[idx]; 
 		}
-		if(action[0]&(1<<13)){
+		if(action[0]&(1<<12)){
 			++idx;
 			var id = action[idx]; 
 		}
@@ -108,13 +104,12 @@ static get wasm(){
 			infoTableRowData : ${infoTableRowData}
 			cellVal          : ${cellVal}
 			endCoord         : ${endX + ", " + endY}
-			colour           : ${colour}
 			radius           : ${radius}
 			value            : ${value}
 			id               : ${id}
 			`);
 		}
-		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id];/**/
+		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id];/**/
 	}
 
 	static _managePacking(numBits, obj){
@@ -137,7 +132,6 @@ static get wasm(){
 		infoTableRowData,
 		cellVal,
 		endCoord,
-		colour,
 		radius,
 		value,
 		id
@@ -151,12 +145,13 @@ static get wasm(){
 		/* 1111111111*/
 		let obj = {};
 		obj.actionCache = [1];
-		obj.bitOffset = 14;
+		obj.bitOffset = 13;
 		obj.idx = 0;
 
 		// command is assumed to exist
 		this._managePacking(myUI.planner.static_bit_len, obj);
-		console.assert(typeof command == "number", "command should be integer");
+		console.assert(typeof command == "number", `command should be integer; it is ${command}, type: ${typeof command}`);
+		if(typeof command != "number") debugger;
 		obj.actionCache[obj.idx] += bit_shift(command, obj.bitOffset - myUI.planner.static_bit_len);
 		if(dest!==undefined){
 			this._managePacking(myUI.planner.static_bit_len, obj);
@@ -205,25 +200,19 @@ static get wasm(){
 			obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
 			obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates not working for now
 		}
-		if(colour!==undefined){
-			obj.idx++;
-			obj.actionCache[0] |= 1<<10;
-			obj.actionCache.push(colour); 
-			
-		}
 		if (radius !== undefined) {
 			obj.idx++;
-			obj.actionCache[0] |= 1 << 11;
-			obj.actionCache.push(radius);
+			obj.actionCache[0] |= 1 << 10;
+			obj.actionCache.push(radius.toString());
 		}
 		if (value !== undefined) {
 			obj.idx++;
-			obj.actionCache[0] |= 1 << 12;
+			obj.actionCache[0] |= 1 << 11;
 			obj.actionCache.push(value);
 		}
 		if (id !== undefined) {
 			obj.idx++;
-			obj.actionCache[0] |= 1 << 13;
+			obj.actionCache[0] |= 1 << 12;
 			obj.actionCache.push(id);
 		}
 

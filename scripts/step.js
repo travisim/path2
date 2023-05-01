@@ -25,8 +25,6 @@ const STATIC_COMMANDS = [
   "DrawEdge",
   "EraseEdge",
   "EraseAllEdge",
-  "DrawDottedEdge",
-  "DrawDottedVertex",
   "CreateStaticRow",
   "RemoveStaticRow",
   "EditStaticRow"
@@ -116,7 +114,7 @@ myUI.run_steps = function(num_steps, step_direction){
           `);
         }
 
-        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);//,colour,radius,value,id);
+        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);//,radius,value,id);
         if(step_direction == "fwd") ++i; else --i;
       }
       continue;
@@ -129,9 +127,9 @@ myUI.run_steps = function(num_steps, step_direction){
       while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))//rightmost bit is one is start of action
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour,radius,value,id] = GridPathFinder.unpackAction(step.slice(i, j), false);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
-      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id); 
+      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id); 
       
       i=j;
     }
@@ -140,10 +138,10 @@ myUI.run_steps = function(num_steps, step_direction){
   }
 }
 
-myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, colour,radius,value,id){
+myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, radius,value,id){
   try{
   let destId = myUI.planner.destsToId[dest];
-    if (command == STATIC.DrawSinglePixel) { 
+  if (command == STATIC.DrawSinglePixel) { 
     
     myUI.canvases[destId].erase_canvas();
     if(cellVal===undefined) cellVal = 1;
@@ -213,32 +211,22 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
     myUI.InfoTables["ITStatistics"].editStaticCellByRowId(id,value);
   }
     
-    
   else if(command == STATIC.DrawVertex){
-    let colour = myUI.canvases[destId].fillColor;
-    myUI.nodeCanvas.drawCircle([x,y],destId,false,false,radius);//id generated from coord and type
+    myUI.nodeCanvas.drawCircle([x,y],destId,false,colorIndex,radius);//id generated from coord and type
   }
-  else if(command == STATIC.DrawDottedVertex){
-    myUI.nodeCanvas.drawCircle([x,y],destId,false,colour,radius,false,"dotted");
-  }
-    
 
   else if(command == STATIC.EraseVertex){
-    myUI.nodeCanvas.eraseCircle([x,y], destId);
+    myUI.nodeCanvas.eraseCircle([x,y], destId, colorIndex, radius);
   } 
   else if(command == STATIC.EraseAllVertex){
     myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${destId}`);
   } 
   else if(command == STATIC.DrawSingleVertex){
     myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${destId}`);
-    let colour = myUI.canvases[destId].fillColor;
-    myUI.nodeCanvas.drawCircle([x,y],destId,false,false,radius);//id generated from coord and type
+    myUI.nodeCanvas.drawCircle([x,y],destId,false,colorIndex,radius);//id generated from coord and type
   }
   else if(command == STATIC.DrawEdge){
-    myUI.edgeCanvas.drawLine([x,y], [endX,endY], destId,false,false,colour);
-  }
-  else if(command == STATIC.DrawDottedEdge){
-    myUI.edgeCanvas.drawLine([x,y], [endX,endY], destId,false,true);
+    myUI.edgeCanvas.drawLine([x,y], [endX,endY], destId,false,colorIndex);
   }
   else if(command == STATIC.EraseEdge){
     myUI.edgeCanvas.eraseLine([x,y], [endX,endY], destId);
@@ -342,7 +330,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 	let revCombinedCnt = 0;
 
   //let mem = {canvasCoords:{}, drawSinglePixel:{}, fullCanvas:{}, arrowColor:{}, bounds:{}};
-  let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}, edges:{}, dottedVertices:{}, dottedEdges:{}};
+  let mem = {activeCanvas:{}, activeTable:{}, drawSinglePixel:{}, arrowColor:{}, bounds:{}, vertices:{}, edges:{}};
   myUI.mem = mem;
   Object.values(myUI.canvases).forEach(canvas=>canvas.init_virtual_canvas());
   document.querySelector("#info-tables-dynamic").style.display = "none";
@@ -385,7 +373,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,colour, radius, value, id] = GridPathFinder.unpackAction(step.slice(i, j),  false);
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, radius, value, id] = GridPathFinder.unpackAction(step.slice(i, j),  false);
         let destId = myUI.planner.destsToId[dest];
         let action = [];
         var includeAction = true;
@@ -397,7 +385,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
         }
 
-        if(x!==undefined || command===STATIC.EraseCanvas){
+        if(STATIC_COMMANDS[command].includes("Pixel") || command===STATIC.EraseCanvas){
           if(!mem.activeCanvas.hasOwnProperty(dest))
             mem.activeCanvas[destId] = myUI.canvases[destId];
         }
@@ -577,22 +565,20 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           else action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: dest, pseudoCodeRow: -1});
           mem.pseudoCodeRowSec = pseudoCodeRow;
         }
-        else if(command == STATIC.DrawVertex || command == STATIC.DrawDottedVertex){
-          action = GridPathFinder.packAction({command: STATIC.EraseVertex, dest: dest, nodeCoord: [x,y]});
+        else if(command == STATIC.DrawVertex){
+          action = GridPathFinder.packAction({command: STATIC.EraseVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, radius: radius});
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].push([x,y]);
+          mem.vertices[dest].push([x,y,colorIndex,radius]);
         }
         else if(command == STATIC.EraseVertex){
-          action = GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y]});
-
           console.assert(mem.vertices.hasOwnProperty(dest), "ERROR: VERTEX DEST NOT FOUND");
-
           let flag = false;
           for(let i = 0; i < mem.vertices[dest].length; ++i){
-            if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y){
+            if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y && mem.vertices[dest][i][2] == colorIndex && mem.vertices[dest][i][3] == radius){
               mem.vertices[dest].splice(i, 1);
               flag = true;
+              action = GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, radius: radius});
               break;
             }
           }
@@ -603,18 +589,19 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           action = [];
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].forEach(coord => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: coord})));
+          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], radius: coordData[3]})));
           mem.vertices[dest] = [];
         }
         else if(command == STATIC.DrawSingleVertex){ //now hard coded for current vertex
-          action = GridPathFinder.packAction({command: STATIC.EraseAllVertex, dest: dest});
+          action = [];
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].forEach(coord => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: coord})));
+          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], radius: coordData[3]})));
           mem.vertices[dest] = [];
-          mem.vertices[dest].push([x,y]);
+          mem.vertices[dest].push([x,y,colorIndex,radius]);
+          action = GridPathFinder.packAction({command: STATIC.EraseAllVertex, dest: dest});
         } 
-        else if(command == STATIC.DrawEdge || command == STATIC.DrawDottedEdge){
+        else if(command == STATIC.DrawEdge){
           action = GridPathFinder.packAction({command: STATIC.EraseEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
           if(!mem.edges.hasOwnProperty(dest))
             mem.edges[dest] = [];

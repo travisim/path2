@@ -96,6 +96,7 @@ myUI.reset_animation = function(clear_data = false){
 		});
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(clear_data);
+	//if(myUI.planner && myUI?.planner.constructor.display_name.includes("RRT*")) myUI.resetMapAnimations();
 		
 	myUI.arrow.step = -1;
 }
@@ -190,6 +191,8 @@ myUI.toggleMapDetail = function(){
 }
 myUI.buttons.detail_btn.btn.addEventListener("click", myUI.toggleMapDetail);
 
+
+
 function openControlTab(evt, tabId, linkId) {
 
   // Get all elements with class="tabcontent" and hide them
@@ -215,3 +218,9 @@ function openControlTab(evt, tabId, linkId) {
 	}
 }
 openControlTab(null, "configTab", "configLink");
+
+function inc100(){
+	const INTERVAL = 20;
+	let timer = setInterval(()=>myUI.planner.growMapByNodes(10), INTERVAL);
+	setTimeout(()=>clearInterval(timer), INTERVAL * 10);
+}

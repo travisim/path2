@@ -224,7 +224,7 @@ class PRM extends GridPathFinder{
           }
         }
       }
-      // this.exports.coords.push(randomCoord_XY);
+      this.exports.coords.push(randomCoord_XY);
       
       this.randomCoordsNodes.push(new MapNode(null, randomCoord_XY, []));
       //this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: randomCoord_XY });

@@ -90,17 +90,22 @@ class UICanvas{
       case "dotted":
         this.fixedRes = true;
         break;
-      default:
+      case "cell":
         this.fixedRes = false;
         this.data_height = myUI.map_height;
         this.data_width = myUI.map_width;
         this.scale_canvas(this.data_height, this.data_width, false);
+        break;
+      case "svg":
+      case "svgDotted":
+        break;
+      default:
+        console.error(`UNKNOWN CANVAS DRAWTYPE, ID: ${this.id}`)
     }
     this.canvas_cache = this.matrixConstructor();
   }
 
   hide() {
-  
     this.canvas.classList.add("hidden");
   }
 
