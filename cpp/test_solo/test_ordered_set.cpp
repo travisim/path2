@@ -33,9 +33,9 @@ int main(){
   size_t order = mySet.order_of_key(ptrs[i]);
   std::cout<<"\nPrinting fCost now"<<std::endl;
   for(auto it : mySet){
-    std::cout<<it->fCost()<<std::endl;
+    std::cout<<it->fCost<<std::endl;
   }
-  std::cout<<"n1 has fCost value of "<<ptrs[i]->fCost()<<std::endl;
+  std::cout<<"n1 has fCost value of "<<ptrs[i]->fCost<<std::endl;
 
   std::cout << "n1 is at position " << order << " in the set" << std::endl;
   for(auto ptr : ptrs) free(ptr);

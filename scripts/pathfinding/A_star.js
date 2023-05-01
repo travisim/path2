@@ -74,9 +74,9 @@ class A_star extends GridPathFinder{
       case "distance_metric":
 				this.distance_metric = value; break;
       case "g_weight":
-				this.gWeight = value; break;
+				this.gWeight = Number(value); break;
       case "h_weight":
-				this.hWeight = value; break;
+				this.hWeight = Number(value); break;
       case "h_optimized":
 				this.hOptimized = value=="On"; break;
       case "time_ordering":

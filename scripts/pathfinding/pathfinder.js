@@ -411,10 +411,9 @@ static get wasm(){
     this.searched = false;
     this._create_cell_index();
 		
-		if(this.map_height<=32) this.batch_size = 10;
-		else if(this.map_height<=64) this.batch_size = 40;
-		else this.batch_size = 1000;
+		
     this.batch_interval = 0;
+    this.batch_size = Math.max(Math.floor(this.map_height * this.map_width / 20), 10000);
 	}
 
 	_nodeIsNeighbor(next_XY, next_NWSE, cardinalCoords){

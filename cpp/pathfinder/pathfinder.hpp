@@ -55,7 +55,8 @@ namespace pathfinder
     std::vector<std::vector<int>> cellMap;
 
     Node *currentNode = nullptr;
-    Node *rootNode = nullptr;
+    std::vector<Node*> rootNodes;
+    int maxNodeDepth = 500;
 
     // additional stuff that is not in js
     std::vector<std::vector<std::string>> ITRowDataCache;
@@ -108,7 +109,6 @@ namespace pathfinder
     {
       std::cout << "deleting GridPathFinder\n";
       steps.clear();
-
     }
 
     void initSearch(grid_t &grid, coord_t start, coord_t goal, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap)
@@ -326,9 +326,13 @@ namespace pathfinder
       }
       std::cout << "Num steps: " << steps.size() << std::endl;
       std::cout << "Num actions: " << fwdActionCnt << std::endl;
+      #ifdef PURE_CPP
       std::cout<<getCurrentRSS()<<std::endl;
+      #endif
       std::cout<<"Num nodes: "<<Node::count<<std::endl;
-      delete rootNode;
+      std::cout<<"Num root nodes: "<<rootNodes.size()<<std::endl;
+      for(const Node* ptr : rootNodes) delete ptr;
+      std::cout<<"Deleted rootNodes!"<<std::endl;
       return true;
     }
 

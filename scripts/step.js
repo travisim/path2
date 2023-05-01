@@ -68,7 +68,10 @@ myUI.run_steps = function(num_steps, step_direction){
   while(num_steps--){
     if(step_direction!="fwd" && myUI.animation.step>-1)--myUI.animation.step;
     else if(step_direction=="fwd" && myUI.animation.step<myUI.animation.max_step) ++myUI.animation.step;
-    else return;
+    else{
+      if(myUI.planner.recurseCurrentPath) myUI.planner.recurseCurrentPath();
+      return;
+    };
 
     // wasm
     if(myUI.planner.constructor.wasm){
@@ -269,7 +272,7 @@ myUI.run_combined_step = function(step_direction){
 }
 
 myUI.generateReverseSteps = function({genStates=false}={}){
-  const batchSize = Math.min(20000, myUI.planner.max_step() * 0.5), batchInterval = 0;
+  const batchSize = Math.min(50000, myUI.planner.max_step() * 0.2), batchInterval = 0;
   const stateFreq = myUI.stateFreq;
   
   console.log("myUI.stateFreq:",myUI.stateFreq);

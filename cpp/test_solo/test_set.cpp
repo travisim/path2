@@ -3,7 +3,7 @@
 #include <vector>
 
 auto comp = [](Node* n1, Node* n2){
-  return n1->fCost() > n2->fCost();
+  return n1->fCost > n2->fCost;
 };
 
 
@@ -19,10 +19,10 @@ int main(){
   s.insert(&b);
   s.insert(&c);
   s.insert(&d);
-  std::cout<<(*s.lower_bound(&a))->fCost()<<std::endl;
+  std::cout<<(*s.lower_bound(&a))->fCost<<std::endl;
   std::cout<<std::distance(s.lower_bound(&a), s.begin())<<std::endl;
   while(!s.empty()){
-    std::cout<<(*s.begin())->fCost()<<std::endl;
+    std::cout<<(*s.begin())->fCost<<std::endl;
     s.erase(s.begin());
   }
 }

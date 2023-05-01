@@ -60,6 +60,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
     .function("insertNode", &pathfinder::A_star<pathfinder::Action>::insertNode)
     .function("eraseNode", &pathfinder::A_star<pathfinder::Action>::eraseNode)
     .function("pqSize", &pathfinder::A_star<pathfinder::Action>::pqSize)
+    .function("createNodes", &pathfinder::A_star<pathfinder::Action>::createNodes)
     ;
   /* -------------END OF ACTION------------- */
 
@@ -90,6 +91,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
     .function("insertNode", &pathfinder::A_star<pathfinder::BaseAction>::insertNode)
     .function("eraseNode", &pathfinder::A_star<pathfinder::BaseAction>::eraseNode)
     .function("pqSize", &pathfinder::A_star<pathfinder::BaseAction>::pqSize)
+    .function("createNodes", &pathfinder::A_star<pathfinder::BaseAction>::createNodes)
     ;
   /* -------------END OF BASEACTION------------- */
   

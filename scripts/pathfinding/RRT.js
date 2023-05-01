@@ -55,7 +55,7 @@ class RRT_star extends GridPathFinder{
 			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			// },
       {
-				id:"networkGraph", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"networkGraph", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey", "red"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			},
 			{
 				id:"intermediaryMapExpansion", drawType:"svgDotted", drawOrder: 12, fixedResVal: 1024, valType: "integer", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "rgb(0, 204, 255)"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: null,
@@ -299,7 +299,7 @@ l        }
   }
 
   growMapByNodes(numberOfNodes=1) {
-    this.sampleSize+=numberOfNodes
+    //this.sampleSize+=numberOfNodes
 
     //var testrandom = [[10,3],[4,20],[15,2]]
     
@@ -447,7 +447,7 @@ l        }
           }
         }
           this._create_action({command: STATIC.EraseEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY });
-          this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colour:"red" });
+          this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colorIndex:1 });
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 10});
           this._save_step(true);
         console.log("rewire",this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY)

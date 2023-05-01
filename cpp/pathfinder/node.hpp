@@ -19,12 +19,13 @@ namespace pathfinder
     Node *parent;
     std::vector<Node *> children;
     uint32_t arrowIndex;
-    // double fCost;
+    double fCost;
     double gCost;
     double hCost;
+    uint16_t depth = 0;
     uint64_t timeCreatedus;
     Node(uint16_t x, uint16_t y, Node *p, int a, double f, double g, double h)
-        : coordX(x), coordY(y), parent(p), arrowIndex(a), gCost(g), hCost(h)
+        : coordX(x), coordY(y), parent(p), arrowIndex(a), fCost(f), gCost(g), hCost(h)
     {
 #ifdef DEBUG
       Node::count++;
@@ -32,14 +33,13 @@ namespace pathfinder
       using namespace std::chrono;
       timeCreatedus = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
     }
-    inline double fCost () const { return gCost + hCost; }
-    inline void addChild(Node *child) { children.push_back(child); }
+    //inline double fCost () const { return gCost + hCost; }
+    inline void addChild(Node *child) { child->depth = depth + 1; children.push_back(child); }
     ~Node()
     {
       //std::cout << "deleting " << coordX << ' ' << coordY << ' ' << fCost << std::endl;
       for (auto child : children)
         delete child;
-      children.clear();
 #ifdef DEBUG
       Node::count--;
 #endif
@@ -48,7 +48,7 @@ namespace pathfinder
   };
 
   std::ostream &operator<<(std::ostream &os, const Node &n){
-    os<<n.coordX<<' '<<n.coordY<<' '<<n.fCost()<<std::endl;
+    os<<n.coordX<<' '<<n.coordY<<' '<<n.fCost<<std::endl;
     return os;
   }
 }

@@ -67,6 +67,42 @@ class predefinedMaps{
         return maze;
     }
 
+    static widePassage(width, height) {
+        // create a 2D array with all black pixels (".")
+        const maze = Array.from({ length: height }, () => Array.from({ length: width }, () => '.'));
+
+        // define the positions of the two passages
+        const passage1 = Math.floor(width * 0.33);
+        const passage2 = Math.floor(width * 0.66);
+
+        const thickness = Math.ceil(height * 0.06) ;
+        
+
+        
+            // mark the pixels in the passages as passable ("@")
+            for (let x = 0; x < height; x++) {
+                // mark the pixel at 33% from the top in the first passage as impassable
+                if (!(x > Math.floor(height * 0.20) && x < Math.ceil(height * 0.46))) {
+                    for (let y = 0; y < thickness; y++) {
+                        maze[x][passage1 + y] = "@";
+                    }
+                   
+                }
+                
+
+                // mark the pixel at 66% from the top in the second passage as impassable
+                if (!(x > Math.floor(height * 0.53) && x < Math.ceil(height * 0.79))) {
+                    for (let y = 0; y < thickness; y++) {
+                        maze[x][passage2 + y] = "@";
+                    }
+                }
+               
+            }
+        
+
+        return maze;
+    }
+
 
 
     static logSpiral(width, height) {

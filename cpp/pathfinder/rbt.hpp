@@ -68,8 +68,8 @@ namespace pathfinder
     bool less(const Node* n1, const Node* n2) const
     {
       // lower fCost will be first
-      if (std::abs(n1->fCost() - n2->fCost()) >= THRESH)
-        return n1->fCost() < n2->fCost();
+      if (std::abs(n1->fCost - n2->fCost) >= THRESH)
+        return n1->fCost < n2->fCost;
 
       // lower hCost will be first
       if (hOptimized && std::abs(n1->hCost - n2->hCost) >= THRESH)

@@ -11,6 +11,17 @@ class wasm_A_star extends GridPathFinder{
     return "A_star";
   }
   
+  static get indexOfCollapsiblesToExpand() {
+    return [0,1, 2, 3, 4];
+  }
+
+  static get pseudoCode() {
+    return {
+      code: 'def astar(map, start_vertex, goal_vertex): \nlist = OpenList() \npath = [ ] \n#Initialise h-cost for all \nfor vertex in map.vertices(): \n    vertex.set_h_cost(goal_vertex)  \n    vertex.g_cost = ∞  \n    vertex.visited = False \n  # Assign 0 g-cost to start_vertex  \n start_vertex.g_cost = 0 \n list.add(start_vertex) \n while list.not_empty(): \n  current_vertex = list.remove() \n  # Skip if visited: a cheaper path  \n  # was already found \n    if current_vertex.visited: \n      continue \n   # Trace back and return the path if at the goal \n   if current_vertex is goal_vertex : \n     while current_vertex is not None: \n      path.push(current_vertex) \n      current_vertex = current_vertex.parent \n     return path # exit the function \n  # Add all free, neighboring vertices which \n   # are cheaper, into the list  \n  for vertex in get_free_neighbors(map, current_vertex):  \n      # f or h-costs are not checked bcos obstacles \n     # affects the optimal path cost from the g-cost \n     tentative_g = calc_g_cost(vertex, current_vertex)  \n     if tentative_g < vertex.g_cost: \n       vertex.g_cost = tentative_g  \n      vertex.parent = current_vertex  \n      list.add(vertex) \nreturn path',
+      reference: ""
+    }
+  }
+  
   static get distance_metrics(){
     return ["Octile", "Euclidean", "Manhattan", "Chebyshev"];
   }
@@ -26,6 +37,8 @@ class wasm_A_star extends GridPathFinder{
 
   get canvases(){
     let canvases = super.canvases.concat([
+    
+    
 			{
 				id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "F",
 			},
@@ -53,6 +66,22 @@ class wasm_A_star extends GridPathFinder{
 		return configs;
   }
 
+  setConfig(uid, value){
+		super.setConfig(uid, value);
+    switch(uid){
+      case "distance_metric":
+				this.distance_metric = value; break;
+      case "g_weight":
+				this.gWeight = Number(value); break;
+      case "h_weight":
+				this.hWeight = Number(value); break;
+      case "h_optimized":
+				this.hOptimized = value=="On"; break;
+      case "time_ordering":
+				this.timeOrder = value; break;
+    }
+  }
+
   max_step(){
     return myUI.planner.cppPlanner.maxStep();
   }
@@ -62,28 +91,8 @@ class wasm_A_star extends GridPathFinder{
     this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
   }
 
-  setConfig(uid, value){
-		super.setConfig(uid, value);
-    switch(uid){
-      case "distance_metric":
-				this.distance_metric = value; break;
-      case "g_weight":
-				this.gWeight = value; break;
-      case "h_weight":
-				this.hWeight = value; break;
-      case "h_optimized":
-				this.hOptimized = value=="On"; break;
-      case "time_ordering":
-				this.timeOrder = value; break;
-    }
-  }
-
   search(start, goal) {
-    this.n = 1;
-    //this._init_search(start, goal); // for batch size and batch interval
-    this.batch_interval = 0;
-    this.batch_size = this.bigMap ? 10000 : 200
-
+    this._init_search(start, goal); // for batch size and batch interval
     let chosenCost = ["Manhattan",
       "Euclidean",
       "Chebyshev",
@@ -99,7 +108,7 @@ class wasm_A_star extends GridPathFinder{
     ...start, ...goal,
     this.neighborsIndex,
     this.vertexEnabled, this.diagonal_allow, this.bigMap, this.hOptimized,
-    chosenCost, order);
+    chosenCost, order, this.gWeight, this.hWeight);
 
     if(finished) return this._finish_searching();
 
@@ -114,8 +123,7 @@ class wasm_A_star extends GridPathFinder{
     try{
       finished = this.cppPlanner.runNextSearch(this.batch_size);
       if(finished){
-        if(this.constructor.wasm) return this._finish_searching();
-        return this._finish_searching_old();
+        return this._finish_searching();
       }
       
       let planner = this;
@@ -124,15 +132,15 @@ class wasm_A_star extends GridPathFinder{
       });
     }
     catch(e){
-      let t = Date.now() - myUI.startTime;
-      let n = this.cppPlanner.stepIndex;
-      console.log(t);
+      console.log("ERROR WASM A* FAILED");
       console.log(e);
+      let t = Date.now() - myUI.startTime;
+      console.log(t);
+      let n = this.cppPlanner.stepIndex;
       console.log("Number of steps before error: ",n);
       console.log(n/t);
       alert("Something went wrong during searching");
-      if(this.constructor.wasm) return this._finish_searching();
-      return this._finish_searching_old();
+      return this._finish_searching();
     }
   }
 
@@ -157,51 +165,6 @@ class wasm_A_star extends GridPathFinder{
 
   getStep(stepNo){
     return myUI.planner.cppPlanner.getStep(stepNo);
-  }
-
-  _finish_searching_old(){
-    console.log(Date.now() - myUI.startTime);
-
-    // postProcess
-    console.log("getting steps now");
-    this.steps_data = [...vector_values(myUI.planner.cppPlanner.stepData)];
-    console.log("getting index map now");
-    this.step_index_map = [...vector_values(myUI.planner.cppPlanner.stepIndexMap)];
-    console.log("getting combined map now");
-    this.combined_index_map = [...vector_values(myUI.planner.cppPlanner.combinedIndexMap)];
-    console.log("getting cell map now");
-    this.cell_map = new Empty2D(0, 0, 0, myUI.planner.cppPlanner.cellMap);  // override using emscripten version
-  
-    console.log("getting IT Row Data Cache now");
-    // since vector<int> doesn't allow for strings or vector<strings>, we need to add the IT Row Data back to the steps
-    let rows = myUI.planner.cppPlanner.ITRowDataCache;
-    let idx = 0;
-    
-    for(let i = 0; i < rows.size(); ++i){
-      while(this.steps_data[idx] != -7 && idx < this.steps_data.length) idx++;
-      this.steps_data[idx] = [...vector_values(rows.get(i))];
-    }
-
-    console.log("getting cellVal now");
-    // since vector<int> doesn't allow for doubles or floats, we need to add the cellVals back to the steps
-    let vals = myUI.planner.cppPlanner.cellVals;
-    idx = 0;
-    
-    for(let i = 0; i < vals.size(); ++i){
-      while(this.steps_data[idx] != -8 && idx < this.steps_data.length) idx++;
-      this.steps_data[idx] = vals.get(i) * 2;
-    }
-
-    console.log("getting arrow coords now");
-    // since c++ cannot create arrows, we need to do it here
-    // possible to export the javascript create_arrow function, will do so after the c++ A* is finalized
-    let arrows = myUI.planner.cppPlanner.arrowCoords;
-    for(let i = 0; i < arrows.size(); ++i){
-      let arrow_data = [...vector_values(arrows.get(i))];
-      let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
-      myUI.create_arrow(start, end);
-    }
-    return this._terminate_search();
   }
 }
 
