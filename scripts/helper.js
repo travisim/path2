@@ -117,6 +117,7 @@ function deepCopyNodeArray(nodeArray){
 }
 
 function zero2D(rows, cols, max_val=255, defaultVal=0, type="int") {
+	console.assert(rows > 0 && cols > 0, `Invalid zero2D parameters, rows: ${rows}, cols: ${cols}`);
   var array = new Array(rows);
   while(rows--){
 		if(type=="float" || max_val>=(1<<32 || !(Number.isInteger(defaultVal)))){

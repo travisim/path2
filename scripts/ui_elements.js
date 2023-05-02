@@ -92,8 +92,8 @@ class UICanvas{
         break;
       case "cell":
         this.fixedRes = false;
-        this.data_height = myUI.map_height;
-        this.data_width = myUI.map_width;
+        if(myUI.map_height) this.data_height = myUI.map_height;
+        if(myUI.map_width) this.data_width = myUI.map_width;
         this.scale_canvas(this.data_height, this.data_width, false);
         break;
       case "svg":
@@ -231,14 +231,6 @@ class UICanvas{
     }
   }
 
-  draw_pixel_override(xy, val = 1){
-    if(val == this.defaultVal) return;
-    let [x,y] = xy;
-    this.canvas_cache[x][y] = val;
-    this.set_color(this.calc_color(val, val - 1));
-    this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
-  }
-
   erase_pixel(xy, virtual=false, save_in_cache=true){
 		let [x,y] = xy;
     if(x>=this.data_height || y>=this.data_width) return;
@@ -367,7 +359,7 @@ class UICanvas{
           else if(!isNaN(curr)){
             let x = Math.floor(idx / canvas.data_width);
             let y = idx++ - x * canvas.data_width;
-            canvas.draw_pixel_override([x,y], curr);
+            canvas.draw_pixel([x, y], false, curr);
           }
           prev = curr;
           start++;
@@ -379,7 +371,7 @@ class UICanvas{
         while(start < end && start < arrayData.length * arrayData[0].length){
           let x = Math.floor(start / arrayData[0].length);
           let y = start++ - x * arrayData[0].length;
-          canvas.draw_pixel_override([x, y], arrayData[x][y]);
+          canvas.draw_pixel([x, y], false, arrayData[x][y]);
         }
         if(start >= arrayData.length * arrayData[0].length) return canvasNo + 1;
       }

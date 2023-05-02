@@ -21,22 +21,25 @@ function compute_path(){
 	Object.values(myUI.canvases).forEach(function(uiCanvas){
 		if(uiCanvas.valType=="float")uiCanvas.minVal = uiCanvas.maxVal = null;
 	});
-	document.getElementById("compute_btn").children[0].innerHTML = "computing... 0s";
+	// document.getElementById("compute_btn").children[0].innerHTML = "computing... 0s";
 	myUI.startTime = Date.now();
 	clearInterval(myUI.interval);  // common interval used while updating the time of searching and generating steps
-	myUI.interval = setInterval(function(){
-		document.getElementById("compute_btn").children[0].innerHTML = `computing... ${(Date.now()-myUI.startTime)/1000.0}s`;
-	}, 50);
+	// myUI.interval = setInterval(function(){
+	// 	document.getElementById("compute_btn").children[0].innerHTML = `computing... ${(Date.now()-myUI.startTime)/1000.0}s`;
+	// }, 50);
+	updateComputeProgress();
 	// search
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(_=>{
 		myUI.genStart = Date.now();
 		myUI.searchDuration = myUI.genStart-myUI.startTime;
-		clearInterval(myUI.interval);
-		document.getElementById("compute_btn").children[0].innerHTML = "optimizing... 0%";
+		setComputeFinish();
+		// clearInterval(myUI.interval);
+		// document.getElementById("compute_btn").children[0].innerHTML = "optimizing... 0%";
 		myUI.currentCoord = myUI.map_start;
 		// optimize
 		myUI.generateReverseSteps({genStates: true}).then(_=>{
 			myUI.genDuration = Date.now() - myUI.genStart;
+			setOptimizeFinish();
 			console.log("Number of steps: ", myUI.planner.max_step() + 2);
 			myUI.updateStepControls();
 			document.getElementById("compute_btn").children[0].innerHTML = `Search: ${myUI.searchDuration}ms<br>Optimize: ${myUI.genDuration}ms`;
@@ -97,8 +100,10 @@ myUI.reset_animation = function(clear_data = false){
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(clear_data);
 	//if(myUI.planner && myUI?.planner.constructor.display_name.includes("RRT*")) myUI.resetMapAnimations();
-		
-	myUI.arrow.step = -1;
+}
+
+myUI.reset_animation_callback = function(e){
+	myUI.reset_animation(false);
 }
 
 myUI.resetMapAnimations = () => {
@@ -106,7 +111,7 @@ myUI.resetMapAnimations = () => {
 	myUI.edgeCanvas.reset();
 }
 
-myUI.buttons.clear_btn.btn.addEventListener("click", myUI.reset_animation);
+myUI.buttons.clear_btn.btn.addEventListener("click", myUI.reset_animation_callback);
 
 
 myUI.step_back = function(){

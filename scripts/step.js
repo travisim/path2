@@ -274,6 +274,8 @@ myUI.run_combined_step = function(step_direction){
 myUI.generateReverseSteps = function({genStates=false}={}){
   const batchSize = Math.min(50000, myUI.planner.max_step() * 0.2), batchInterval = 0;
   const stateFreq = myUI.stateFreq;
+
+  const startTime = myUI.startTime;
   
   console.log("myUI.stateFreq:",myUI.stateFreq);
   if(genStates)  myUI.states = [stateFreq];
@@ -289,10 +291,13 @@ myUI.generateReverseSteps = function({genStates=false}={}){
     });
     
     function nextGenSteps(batchSize){
+      // if(startTime != myUI.startTime) return;
       let finished;
       try{
-        document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(cnt++ * batchSize / myUI.planner.max_step() * 100).toPrecision(3)}%`;
-        //finished = Module["nextGenSteps"](batchSize);
+        // document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(cnt++ * batchSize / myUI.planner.max_step() * 100).toPrecision(3)}%`;
+
+        updateOptimizeProgress((cnt++ * batchSize / myUI.planner.max_step() * 100));
+        
         finished = myUI.planner.cppPlanner.nextGenSteps(batchSize);
         if(!finished) return new Promise((resolve, reject) => {
           setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
@@ -339,7 +344,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   document.querySelector("#info-tables-dynamic").style.display = "none";
 
   const statusUpdate = setInterval(function(){
-    document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
+    updateOptimizeProgress(stepCnt/indexMap.length*100);
+    // document.getElementById("compute_btn").children[0].innerHTML = `optimizing... ${(stepCnt/indexMap.length*100).toPrecision(3)}%`;
   }, 200);
 
   return new Promise((resolve, reject) => {
@@ -361,6 +367,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   }
 
   function nextGenSteps(nxtSize){
+    // if(startTime != myUI.startTime) return;
     while(nxtSize--){
       if(stepCnt==indexMap.length) return finishGenerating(mem.bounds);
       let step = steps.slice(indexMap[stepCnt], indexMap[stepCnt+1]);
@@ -844,6 +851,7 @@ myUI.jump_to_step = function(target_step){
       }
       if(id == "fCost"){
         console.log(data);
+        myUI.test_data = data;
         myUI.fCostStart = Date.now();
         myUI.fCostNo = canvasNo;
       }

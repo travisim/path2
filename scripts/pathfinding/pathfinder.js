@@ -317,13 +317,12 @@ static get wasm(){
 				if(value=="Grid Vertex"){
 					this.vertexEnabled = true;
 					myUI.toggleVertex(true);
+					myUI.gridPrecision = "int"
 				}
 				else if(value=="Grid Vertex Float"){
 					this.vertexEnabled = true;
 					myUI.gridPrecision = "float"
 					myUI.toggleVertex(true);
-				
-					
 				}
 				else{
 					this.vertexEnabled = false;
@@ -332,11 +331,9 @@ static get wasm(){
 				myUI.displayScen();
 				break;
 			case "big_map":
-				let bigMap = value=="Enabled";
-				if(this.bigMap != bigMap){
-					this.bigMap = bigMap;
-					myUI.loadPlanner(false);
-				}
+				let prev = this.bigMap;
+				this.bigMap = value=="Enabled";
+				if(prev!==undefined && prev != this.bigMap) myUI.loadPlanner(false);
     }
   }
 
@@ -398,6 +395,7 @@ static get wasm(){
 	}
 
 	_init_search(start, goal){
+		this.startTime = myUI.startTime;
     this.start = start; //in array form [x,y]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
     this.queue = [];  // BFS uses a FIFO queue to order the sequence in which nodes are visited

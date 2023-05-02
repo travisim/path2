@@ -167,6 +167,7 @@ class A_star extends GridPathFinder{
   }
 
   _run_next_search(planner, num) {
+    // if(this.startTime != myUI.startTime) return this._terminate_search();
     while (num--) {
       // while there are still nodes left to visit
       if (this.queue.length == 0){

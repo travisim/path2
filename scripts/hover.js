@@ -152,12 +152,8 @@ function dragElementGridSnap(elmnt) {
 			myUI.map_goal = [scaled_x, scaled_y];
 			
 		}
-	
-	  
-		console.log("GOING TO DISPLAY")
+
 	  myUI.displayScen(true, true);
-	  
-	  
   }
 }
 

@@ -168,7 +168,6 @@ myUI.loadScenario = function(){
     myUI.displayScen(true, false);
   }
   else{
-    console.log(this.id);
     let change=0;
     if(myUI.vertex) change=1
     if(this.id.includes(x)) this.value = Math.max(0, Math.min(myUI.map_height-1+change, elem.value));
@@ -286,7 +285,9 @@ myUI.loadPlanner = function(create_planner = true) {
   myUI.dynamicCanvas = myUI.canvasGenerator(myUI.planner.canvases);
   myUI.infoTableReset();
   myUI.infoTableGenerator(myUI.planner.infoTables);
-  if(create_planner) myUI.setPlannerConfig();
+  if(create_planner){
+    myUI.setPlannerConfig();
+  }
 
 	myUI.reset_animation();
   myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
@@ -302,7 +303,6 @@ myUI.loadPlanner = function(create_planner = true) {
   if (myUI.planner.constructor.pseudoCode && myUI.planner.constructor.pseudoCode.reference) myUI.PseudoCode.reference(myUI.planner.constructor.pseudoCode.reference)
   if(myUI.planner.constructor.indexOfCollapsiblesToExpand) expandSelectedIndex(myUI.planner.constructor.indexOfCollapsiblesToExpand);
   document.getElementById("map_goal_radius").style.display = myUI.planner.constructor.addGoalRadius == 1?"block":"none"
-  
 }
 
 myUI.selects["planner_select"].elem.addEventListener("change", myUI.loadPlanner);
