@@ -535,7 +535,7 @@ static get wasm(){
       //this._create_action(STATIC.EraseArrow, closed_node.arrow_index);
       this._create_action({command: STATIC.EraseArrow, arrowIndex: closed_node.arrow_index});
     }
-    new_node.arrow_index = myUI.create_arrow(next_XY, this.current_node_XY); // node is reference typed so properties can be modified after adding to queue or open list
+    new_node.arrow_index = myUI.create_arrow(next_XY, new_node.parent.self_XY); // node is reference typed so properties can be modified after adding to queue or open list
     this._create_action({command: STATIC.DrawArrow, arrowIndex: new_node.arrow_index, colorIndex: 0});
     // END OF ARROW
   }

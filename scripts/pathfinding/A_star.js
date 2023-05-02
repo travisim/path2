@@ -103,25 +103,29 @@ class A_star extends GridPathFinder{
       return Math.min(dx, dy)*Math.SQRT2 + Math.abs(dy-dx);
     }
 
+    let chosen_parent = this.current_node;
+    if(this.pick_parent) chosen_parent = this.pick_parent(successor);
+    
     if(this.distance_metric == "Manhattan"){
-      var g_cost = this.current_node.g_cost + manhattan(this.current_node.self_XY, successor);
+      var g_cost = chosen_parent.g_cost + manhattan(chosen_parent.self_XY, successor);
       var h_cost = manhattan(successor, this.goal);
     }
     else if(this.distance_metric == "Euclidean"){
-      var g_cost = this.current_node.g_cost + euclidean(this.current_node.self_XY, successor);
+      var g_cost = chosen_parent.g_cost + euclidean(chosen_parent.self_XY, successor);
       var h_cost = euclidean(successor, this.goal);
     }
     else if(this.distance_metric == "Chebyshev"){
-      var g_cost = this.current_node.g_cost + chebyshev(this.current_node.self_XY, successor);
+      var g_cost = chosen_parent.g_cost + chebyshev(chosen_parent.self_XY, successor);
       var h_cost = chebyshev(successor, this.goal);
     }
-    else if(this.distance_metric == "Octile"){
-      var g_cost = this.current_node.g_cost + octile(this.current_node.self_XY, successor);
+    else{// if(this.distance_metric == "Octile"){
+      console.assert(this.distance_metric == "Octile", "Invalid distance metric provided!");
+      var g_cost = chosen_parent.g_cost + octile(chosen_parent.self_XY, successor);
       var h_cost = octile(successor, this.goal);
     }
 
     var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
-    return [f_cost, g_cost, h_cost];
+    return new Node(f_cost, g_cost, h_cost, chosen_parent, successor, undefined, this.step_index);
   }
 
   search(start, goal) {
@@ -136,7 +140,7 @@ class A_star extends GridPathFinder{
     this.current_node = new Node(0, 0, 0, null, this.start, undefined, 0);
 
     // assigns the F, G, H cost to the node
-    [this.current_node.f_cost, this.current_node.g_cost, this.current_node.h_cost] = this.calc_cost(this.current_node.self_XY);
+    this.current_node = this.calc_cost(this.start);
 
     
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
@@ -169,15 +173,16 @@ class A_star extends GridPathFinder{
         console.log(`${Date.now() - myUI.startTime}ms`);
         return this._terminate_search();
       }
-           //++ from bfs.js
-      this.queue.sort(function (a, b){
-        if(Math.abs(a.f_cost-b.f_cost)<0.000001){
-					if(myUI.planner.hOptimized)
-          	return a.h_cost-b.h_cost;
-        }
-        return a.f_cost-b.f_cost;
-      });   
-      //++ from bfs.js
+
+      if(this.bigMap){
+        this.queue.sort(function (a, b){
+          if(Math.abs(a.f_cost-b.f_cost)<0.000001){
+            if(myUI.planner.hOptimized)
+              return a.h_cost-b.h_cost;
+          }
+          return a.f_cost > b.f_cost;
+        });
+      }
       
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
@@ -241,9 +246,11 @@ class A_star extends GridPathFinder{
           continue;
         }
 
-        let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
+        let new_node = this.calc_cost(next_XY);
+        let f_cost = new_node.f_cost;
+        let g_cost = new_node.g_cost;
+        let h_cost = new_node.h_cost;
         
-        let new_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, undefined, this.step_index);
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){
@@ -261,10 +268,6 @@ class A_star extends GridPathFinder{
               this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
           }
 
-          /* no longer required as closed list functions as visited */
-          /* and INC_P keeps tracks of how many times a node is visited */
-          //this.visited.increment(next_XY); 
-
           // increment after visiting a node on the closed list
           this._create_action({command: STATIC.IncrementPixel, dest: this.dests.visited, nodeCoord: next_XY});
           this._save_step(false);
@@ -274,34 +277,45 @@ class A_star extends GridPathFinder{
         this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
         this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
         this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
+
+        // add to queue 
+        if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO
+        else this.queue.unshift(new_node); // LIFO
+        this.open_list.set(next_XY, new_node);  // add to open list
         
         // since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
         // see https://www.geeksforgeeks.org/a-search-algorithm/
         
         if(!this.bigMap){
+          
           this._create_action({command: STATIC.DrawPixel, dest: this.dests.neighbors, nodeCoord: next_XY});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 32});
           this._handleArrow(next_XY, new_node, open_node, closed_node);
 
           this._create_action({command: STATIC.DrawPixel, dest: this.dests.queue, nodeCoord: next_XY});
 
+          this.queue.sort(function (a, b){
+            if(Math.abs(a.f_cost-b.f_cost)<0.000001){
+              if(myUI.planner.hOptimized)
+                return a.h_cost-b.h_cost;
+            }
+            return a.f_cost > b.f_cost;
+          });
+
           // counts the number of nodes that have a lower F-Cost than the new node
           // to find the position to add it to the queue
-          let numLess = this.queue.filter(node => node.f_cost < new_node.f_cost).length;
+          let numLess = 0;
+          while(this.queue[numLess] != new_node) numLess++;
           
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(new_node.f_cost.toPrecision(5)), parseFloat(new_node.g_cost.toPrecision(5)), parseFloat(new_node.h_cost.toPrecision(5))]});
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5))]});
           
           if(open_node===undefined && closed_node===undefined) 
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
-          else if(open_node)
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5)), "New encounter"]});
+          else// if(open_node || closed_node)
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5)), "Replace parent"]});
+
         }
         this._save_step(false);
-
-        // add to queue 
-        if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO
-        else this.queue.unshift(new_node); // LIFO
-        this.open_list.set(next_XY, new_node);  // add to open list
 
         if(this._found_goal(new_node)) return this._terminate_search();
       }
