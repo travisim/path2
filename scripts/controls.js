@@ -99,7 +99,7 @@ myUI.reset_animation = function(clear_data = false){
 		});
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(clear_data);
-	//if(myUI.planner && myUI?.planner.constructor.display_name.includes("RRT*")) myUI.resetMapAnimations();
+	myUI.resetMapAnimations();
 }
 
 myUI.reset_animation_callback = function(e){

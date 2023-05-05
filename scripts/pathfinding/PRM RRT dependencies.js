@@ -341,9 +341,7 @@ function CustomLOSChecker(src, tgt){
   
 }
 
-
-
-function CustomLOSGenerator(src, tgt, cons = true){
+function CustomLOSGenerator(src, tgt, cons = false){
   const THRES = 1e-3;
   
   /* addition to given algo */
@@ -369,6 +367,9 @@ function CustomLOSGenerator(src, tgt, cons = true){
   let cmp = (floorZ[0] + psiZ[0] - srcZ[0]) * absZ[1] / diffZ[0] - dZ[1] * psiZ[1];
   let changeS = diffZ[1] / absZ[0];
 
+  /* addition to given algo */
+  let gradient = (tgt[1] - src[1]) / (tgt[0] - src[0]);
+  /* end of addition */
   let path = [];
   /* addition to given algo */
   if(src[0] > 0 && src[1] > 0){
@@ -377,7 +378,7 @@ function CustomLOSGenerator(src, tgt, cons = true){
   }
   /* end of addition */
   if(cons) console.log(`src, tgt: [${src[0]}, ${src[1]}], [${tgt[0]}, ${tgt[1]}]`);
-  if(cons) console.log(floorZ, tgtFloorZ);
+  if(cons) console.log("initial path: ", coords2String(path));
   let step = 0;
   while (!equal(floorZ, tgtFloorZ)) {
     if(cons) console.log(`floorZ: ${floorZ}, tgtFloorZ: ${tgtFloorZ}`);
@@ -385,6 +386,7 @@ function CustomLOSGenerator(src, tgt, cons = true){
 
     let S = changeS * step + srcZ[1];
     let floorS = Math.floor(S);
+    if(cons) console.log(`floorS: ${floorS}`);
     if (floorS !== floorZ[1]) {
       // short incremented
       let cmpS = dZ[1] * (floorZ[1] - prevS);
@@ -433,9 +435,18 @@ function CustomLOSGenerator(src, tgt, cons = true){
       floorZ[0] = floorZ[0] + dZ[0];
       if(cons) console.log(`nc: [${conv(cflag, floorZ)}]`);
     }
-    let cur = conv(cflag, floorZ);
-    path.push(cur);
+    if(cons) console.log("current path: ", coords2String(path));
+    /* addition to given algo */
+    if(equal(tgtFloorZ, floorZ) && cmp == -1)
+      break;
+    if(gradient == -1 && (isInt(src))){
+      prevS = S;
+      continue;
+    }
+    /* end of addition */
+    path.push(conv(cflag, floorZ));
     prevS = S;
+    if(cons) console.log("current path: ", coords2String(path));
   }
       
   if(cons) console.log(path);
@@ -451,6 +462,18 @@ function CustomLOSGenerator(src, tgt, cons = true){
 
   function add(accumulator, a) {
     return accumulator + a;
+  }
+
+  function isInt(A){
+    return A.every((x, i) => Number.isInteger(x));
+  }
+
+  function coords2String(coords){
+    let s = "";
+    for(const coord of coords){
+      s += "[" + coord.toString() + "] ";
+    }
+    return s;
   }
 
 }

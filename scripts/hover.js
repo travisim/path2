@@ -1,16 +1,16 @@
 myUI.scale_coord = function (x, y) {
 	const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
-	if(myUI.vertex && !myUI.gridPrecision ){
-		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
-		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
-		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1));
-		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientHeight+sx) * (myUI.map_height+1));
-	}
-	else if(myUI.vertex && myUI.gridPrecision == "float"){
+	if(myUI.vertex && myUI.gridPrecision == "float"){
 		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
 		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
 		var scaled_y = (y-CANVAS_OFFSET) / sy;
 		var scaled_x = (x-CANVAS_OFFSET) / sx;
+	}
+	else if(myUI.vertex){
+		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
+		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
+		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1));
+		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientHeight+sx) * (myUI.map_height+1));
 	}
 	else{
 		var scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);

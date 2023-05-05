@@ -3,7 +3,7 @@ var myUI = {};
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [RRT_star, PRM, A_star, Theta_star, wasm_A_star];
+  myUI.planners = [VisibilityGraph, RRT_star, PRM, A_star, Theta_star, wasm_A_star];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 
@@ -23,7 +23,6 @@ myUI.initialize = function(){
     const keep = ["bg", "hover_map", "edit_map"];
     for(const id of Object.keys(myUI.canvases)){
       if(!keep.includes(id)){
-        console.log(id);
         document.getElementById("canvas_container").removeChild(document.getElementById(id));
         delete myUI.canvases[id];
       }
