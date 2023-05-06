@@ -187,9 +187,6 @@ l        }
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
     this.exports = {coords:[],neighbours:[],edges:[]};
     //clears SVG canvas
-    
-    myUI.nodeCanvas.reset()
-    myUI.edgeCanvas.reset()
 
     this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);

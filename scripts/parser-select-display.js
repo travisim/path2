@@ -54,7 +54,7 @@ myUI.parse2DArrayToMap = (map_array) => {
 }
 
 myUI.displayMap = function(){
-  console.log("Map Arr");
+  console.log("Map Arr below:");
 	console.log(myUI.map_arr);
 	myUI.reset_animation();
   
@@ -67,7 +67,6 @@ myUI.displayMap = function(){
   Object.values(myUI.canvases).forEach(uiCanvas=>{
     let plus = uiCanvas.drawType=="vertex";
     uiCanvas.scale_canvas(height+plus, width+plus, false);
-		console.log(uiCanvas.id, height, width);
   });
 
   /* summary the css canvas and html/ js canvas are different
@@ -200,7 +199,7 @@ myUI.displayScen = function(update=false, reset_zero=false){
 		myUI.scenFail = true;  // will remember to load the Scen the next time a map is loaded
 	}
 	/* */
-  console.log(myUI.map_start, myUI.map_goal);
+  console.log("UPDATING SCENARIO:", myUI.map_start, myUI.map_goal);
   let change = myUI.vertex ? 1 : 0;
   myUI.map_start[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_start[0]));
   myUI.map_goal[0] = Math.max(0, Math.min(myUI.map_height-1+change, myUI.map_goal[0]));
@@ -219,9 +218,7 @@ myUI.displayScen = function(update=false, reset_zero=false){
   myUI.map_start_icon.move(myUI.map_start);
     myUI.map_goal_radius.move(myUI.map_goal);
   myUI.map_goal_icon.move(myUI.map_goal);
-
   
-  console.log("LOS:", CustomLOSChecker(myUI.map_start, myUI.map_goal));
 	try{myUI.updateInfoMap(myUI.map_start);}catch(e){}
 }
 
@@ -279,6 +276,7 @@ myUI.loadPlanner = function(create_planner = true) {
     // updates select
     myUI.selects["planner_select"].elem.value = myUI.planner_choice;
   }
+  console.log(`LOADING PLANNER ${myUI.planner.constructor.display_name}`);
   myUI.canvasReset();
   for(const cb of myUI.planner.constructor.checkboxes)
     appendCheckbox(...cb);

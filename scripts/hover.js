@@ -3,14 +3,14 @@ myUI.scale_coord = function (x, y) {
 	if(myUI.vertex && !myUI.gridPrecision ){// just draws a circle that snaps to grid mouse when cursor on canvas for 2d canvas
 		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
 		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
-		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1));
-		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientHeight+sx) * (myUI.map_height+1));
+		var scaled_y = (y-CANVAS_OFFSET) / sy;
+		var scaled_x = (x-CANVAS_OFFSET) / sx;
 	}
 	 else if(myUI.vertex && myUI.gridPrecision == "float"){  // just draws a circle that follows mouse when cursor on canvas
 		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
 		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
-		var scaled_y = (y-CANVAS_OFFSET) / sy;
-		var scaled_x = (x-CANVAS_OFFSET) / sx;
+		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1));
+		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientHeight+sx) * (myUI.map_height+1));
 	}
 	else{// just draws a circle that snaps to grid mouse when cursor on canvas for integer vertex
 		var scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
