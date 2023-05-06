@@ -871,3 +871,15 @@ function incrementValue(incrementNumber)
     value+=incrementNumber;
     document.getElementById('number').value = value;
 }
+
+// Define a helper function that converts camel case to normal case
+function camelToNormal(str) {
+  // Use a regex to replace each uppercase letter with a space and the same letter
+  let spaced = str.replace(/([A-Z])/g, " $1");
+  // Split the string by spaces into an array of words
+  let words = spaced.split(" ");
+  // Map each word to its capitalized version
+  let capitalized = words.map(word => word.charAt(0).toUpperCase() + word.slice(1));
+  // Join the words with spaces and return the result
+  return capitalized.join(" ");
+}

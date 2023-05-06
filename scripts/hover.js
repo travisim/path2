@@ -1,18 +1,18 @@
 myUI.scale_coord = function (x, y) {
 	const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
-	if(myUI.vertex && !myUI.gridPrecision ){
+	if(myUI.vertex && !myUI.gridPrecision ){// just draws a circle that snaps to grid mouse when cursor on canvas for 2d canvas
 		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
 		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
 		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1));
 		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientHeight+sx) * (myUI.map_height+1));
 	}
-	else if(myUI.vertex && myUI.gridPrecision == "float"){
+	 else if(myUI.vertex && myUI.gridPrecision == "float"){  // just draws a circle that follows mouse when cursor on canvas
 		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
 		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
 		var scaled_y = (y-CANVAS_OFFSET) / sy;
 		var scaled_x = (x-CANVAS_OFFSET) / sx;
 	}
-	else{
+	else{// just draws a circle that snaps to grid mouse when cursor on canvas for integer vertex
 		var scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
 		var scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientHeight * myUI.map_height);
 	}
@@ -28,11 +28,16 @@ myUI.handle_map_hover = function(e){
 	let tooltip_data = document.getElementById("tooltip_data");
 
 	e = e || window.event;
-  e.preventDefault();
+	e.preventDefault();
 	/* colours the map on hover */
 	let [scaled_x, scaled_y] = myUI.scale_coord(e.offsetY, e.offsetX);
+	
+	// set max 2dp for tooltip coords
+	if (precision(scaled_x) > 2) scaled_x = scaled_x.toPrecision(2);
+	if (precision(scaled_y) > 2) scaled_y = scaled_y.toPrecision(2);
 	document.getElementById("hover_y").innerHTML = scaled_y;
 	document.getElementById("hover_x").innerHTML = scaled_x;
+
 	myUI.canvases.hover_map.erase_canvas();
 	myUI.canvases.hover_map.set_color_index(0, "both");
 	if(myUI.map_arr && !myUI.vertex)
@@ -42,14 +47,14 @@ myUI.handle_map_hover = function(e){
 	myUI.canvases.hover_map.canvas.style.cursor = "auto";
 	//document.getElementById("hover_cell_index").innerHTML = "-";
 	tooltip_data.style.backgroundColor = ``;
-	if(cellIsValid([scaled_x, scaled_y])){
+	if(myUI.gridPrecision != "float"  && cellIsValid([scaled_x, scaled_y])){ //lazy evaluation
 		myUI.canvases.hover_map.set_color_index(2, "both");
 		myUI.canvases.hover_map.canvas.style.cursor = "pointer";
 		//document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map.get([scaled_x, scaled_y])
 	}
 	myUI.canvases.hover_map.draw_start_goal([scaled_x, scaled_y]);
 
-	myUI.hoverData.forEach(obj=>{
+	myUI.planner.constructor.hoverData.forEach(obj=>{
 		if(obj.type=="canvasCache"){
 			let val = myUI.canvases[obj.canvasId].canvas_cache[scaled_x][scaled_y];
 			if(myUI.canvases[obj.canvasId].valType=="float") val = val.toPrecision(5);
@@ -68,7 +73,7 @@ myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hov
 
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let xy = myUI.scale_coord(e.offsetY, e.offsetX);
-	if(cellIsValid(xy)){
+	if(myUI.gridPrecision != "float"  && cellIsValid(xy)){
 		myUI.animation.step = myUI.planner.cell_map.get(xy);
 		myUI.jump_to_step();
 	}
@@ -171,6 +176,8 @@ function dragElementNoSnap(elmnt,slaveElmnt) {
     // get the mouse cursor position at startup:
     x1 = e.clientX;
     y1 = e.clientY;
+	ddx = e.clientX - (elmnt.getBoundingClientRect().left + (elmnt.clientWidth/2));//diff between center of goal and cursor at mouse down
+    ddy = e.clientY - (elmnt.getBoundingClientRect().top+ (elmnt.clientHeight/2)) ;//diff between center of goal and cursor at mouse down
     document.onmouseup = closeDragElement;
     // call a function whenever the cursor moves:
     document.onmousemove = elementDrag;
@@ -185,13 +192,17 @@ function dragElementNoSnap(elmnt,slaveElmnt) {
 		dy = y1 - e.clientY;
 		x1 = e.clientX;
 		y1 = e.clientY;
+
+		
 		// set the element's new position:
 		if (elmnt.offsetTop - dy >= -elmnt.clientHeight / 2 + CANVAS_OFFSET && elmnt.offsetTop - dy <= bounds.height - elmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
 			elmnt.style.top = (elmnt.offsetTop - dy) + "px";
+			y1 = elmnt.getBoundingClientRect().y + elmnt.height/2;// update the y-coordinate when mouseup 
 			
 		}
 		if (elmnt.offsetLeft - dx >= -elmnt.clientWidth / 2 + CANVAS_OFFSET && elmnt.offsetLeft - dx <= bounds.width - elmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
 			elmnt.style.left = (elmnt.offsetLeft - dx) + "px";
+			x1 = elmnt.getBoundingClientRect().x + elmnt.width/2; // update the x-coordinate when mouseup
 		}
 		if (slaveElmnt) {
 			if (slaveElmnt.offsetTop - dy >= -slaveElmnt.clientHeight / 2 + CANVAS_OFFSET && slaveElmnt.offsetTop - dy <= bounds.height - slaveElmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
@@ -211,9 +222,23 @@ function dragElementNoSnap(elmnt,slaveElmnt) {
 		
 		let y = x1 - bounds.left;
 		let x = y1 - bounds.top;
-		y = Math.max(CANVAS_OFFSET, Math.min(bounds.width - e_num + CANVAS_OFFSET, y));  // fix to boundaries
-		x = Math.max(CANVAS_OFFSET, Math.min(bounds.height - e_num + CANVAS_OFFSET, x));
-		let [scaled_x, scaled_y] = myUI.scale_coord(x,y);
+		y = Math.max(CANVAS_OFFSET, Math.min(bounds.width - e_num + CANVAS_OFFSET, y+9));  // fix to boundaries
+		x = Math.max(CANVAS_OFFSET, Math.min(bounds.height - e_num + CANVAS_OFFSET, x+9));
+		let [scaled_x, scaled_y] = myUI.scale_coord(x, y);
+	  //below code auto shifts coords to prevent start.goal to be on obstacle
+		let flag = true;
+		let scaled_x_original = scaled_x
+		while (flag){
+			if (CustomLOSChecker([scaled_x, scaled_y], [scaled_x, scaled_y]).boolean == false) {//on obstacle
+				scaled_x++;
+				scaled_y++;
+			}
+			else {
+				if (scaled_x != scaled_x_original) alert("coordinates have been shifted to avoid obstacles")
+				flag = false;
+			}
+		}
+		
 		if(elmnt.id=="map_start_icon"){
 			myUI.map_start = [scaled_x, scaled_y];
 		}   
@@ -222,7 +247,7 @@ function dragElementNoSnap(elmnt,slaveElmnt) {
 		}
 		
 	  myUI.displayScen(true, true);
-	  myUI.planner.generateNewMap(myUI.map_start, myUI.map_goal);
+	  
 	  /*
 	  document.getElementById("compute_btn").click();
 	
@@ -234,3 +259,10 @@ function dragElementNoSnap(elmnt,slaveElmnt) {
   }
 }
 
+// retruns number of digits after decimal place
+function precision(a) {
+  if (!isFinite(a)) return 0;
+  var e = 1, p = 0;
+  while (Math.round(a * e) / e !== a) { e *= 10; p++; }
+  return p;
+}

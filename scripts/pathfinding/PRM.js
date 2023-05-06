@@ -33,11 +33,15 @@ class PRM extends GridPathFinder{
   
   static get hoverData(){
     return [
-      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"},
-      {id: "hoverFCost", displayName: "F Cost", type: "canvasCache", canvasId: "fCost"},
-      {id: "hoverGCost", displayName: "G Cost", type: "canvasCache", canvasId: "gCost"},
-      {id: "hoverHCost", displayName: "H Cost", type: "canvasCache", canvasId: "hCost"},
+      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCacheArray", canvasId: "visited"},
+      {id: "hoverFCost", displayName: "F Cost", type: "canvasCacheArray", canvasId: "fCost"},
+      {id: "hoverGCost", displayName: "G Cost", type: "canvasCacheArray", canvasId: "gCost"},
+      {id: "hoverHCost", displayName: "H Cost", type: "canvasCacheArray", canvasId: "hCost"},
     ];
+  }
+
+    postProcess(){
+    this.setConfig("mapType", "Grid Vertex Float");
   }
 
   get canvases(){

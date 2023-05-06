@@ -205,10 +205,10 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
     myUI.PseudoCode.removeAllHighlightSec();
   }
   else if( command == STATIC.CreateStaticRow ){
-    myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById(id,value);
+    myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById(value,id);
   }
   else if( command == STATIC.RemoveStaticRow ){
-    myUI.InfoTables["ITStatistics"].removeStaticRowWithACellEditableById(id,value);
+    myUI.InfoTables["ITStatistics"].removeStaticRowWithACellEditableById(value,id);
   }  
   else if( command == STATIC.EditStaticRow ){
     myUI.InfoTables["ITStatistics"].editStaticCellByRowId(id,value);

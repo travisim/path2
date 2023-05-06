@@ -246,12 +246,12 @@ class UIInfoTable{
     return prevHighlight;
   }
 
-  createStaticRowWithACellEditableById(value0) { // id of cell is value with whitespace stripped
+  createStaticRowWithACellEditableById(value0,id) { // id of cell is value with whitespace stripped
     var r = this.rowGenerator([value0, "-"], value0.replaceAll(/\s/g,''));
     this.dynamicTable.append(r);
   }
 
-  removeStaticRowWithACellEditableById(value0){
+  removeStaticRowWithACellEditableById(value0,id){// id of cell is value with whitespace stripped
     document.getElementById(value0.replaceAll(/\s/g,'')).remove();
   }
 

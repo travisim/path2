@@ -45,7 +45,7 @@ myUI.initialize = function(){
       myUI.canvases[item.id] = new UICanvas(item.id, item.drawOrder, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal, true, item.minVal, item.maxVal, item.infoMapBorder, item.infoMapValue);
       ref.push(myUI.canvases[item.id]);
       if(item.toggle!="off"){
-        appendCheckbox(`show_${item.id}`, item.checked, item.id, "", item.toggle);
+        appendCheckbox(`show_${item.id}`, item.checked, camelToNormal(item.id), "", item.toggle);
         if(item.checked==false) document.getElementById(item.id).classList.add("hidden");
       }
     });
@@ -218,7 +218,7 @@ myUI.initialize = function(){
       myUI.InfoTables[item.id] = new UIInfoTable(item.displayName, item.headers.length);
       myUI.InfoTables[item.id].setTableActive();
       myUI.InfoTables[item.id].setTableHeader(item.headers);
-      if(item.fixedContentOfFirstRowOfHeaders) item.fixedContentOfFirstRowOfHeaders.forEach(value => myUI.InfoTables[item.id].createStaticRowWithACellEditableById(value.replace(/ /g,''),value));
+      if(item.fixedContentOfFirstRowOfHeaders) item.fixedContentOfFirstRowOfHeaders.forEach(value => myUI.InfoTables[item.id].createStaticRowWithACellEditableById(value));
       console.log("gs")
     }
   }

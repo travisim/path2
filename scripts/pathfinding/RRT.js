@@ -36,10 +36,10 @@ class RRT_star extends GridPathFinder{
 
   static get hoverData(){
     return [
-      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"},
-      {id: "hoverFCost", displayName: "F Cost", type: "canvasCache", canvasId: "fCost"},
-      {id: "hoverGCost", displayName: "G Cost", type: "canvasCache", canvasId: "gCost"},
-      {id: "hoverHCost", displayName: "H Cost", type: "canvasCache", canvasId: "hCost"},
+      // {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCacheArray", canvasId: "visited"},
+      // {id: "hoverFCost", displayName: "F Cost", type: "canvasCacheArray", canvasId: "fCost"},
+      // {id: "hoverGCost", displayName: "G Cost", type: "canvasCacheArray", canvasId: "gCost"},
+      // {id: "hoverHCost", displayName: "H Cost", type: "canvasCacheArray", canvasId: "hCost"},
     ];
   }
 
@@ -71,7 +71,7 @@ class RRT_star extends GridPathFinder{
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new RRT* map`},
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "", description: `Sets seed for randomness of random points`},
-      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 15, description: `Sets number of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 130, description: `Sets number of random points`},
       {uid: "neighbour_selection_method", displayName: "neighbours selection method", options: ["Closest Neighbours By Radius"],defaultVal:"Closest Neighbours By Radius", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:3, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:3, description: `Sets radius of closest neighbours to select`},
@@ -204,7 +204,8 @@ l        }
     this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "Number Of Nodes" });
     this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
     this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "0" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"∞"});
+    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "∞" });
+    
     this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: start });
     this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 1 });
   
@@ -425,32 +426,40 @@ l        }
       var nodeNearby_index  = nodesNearby_Index[i];
 
       if(nodeNearby_index == this.choosenCoordsNodes[currentNode_index].parent) continue;
-      var newConnection_g_cost = distanceBetween2Points(this.choosenCoordsNodes[currentNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY) + this.choosenCoordsNodes[currentNode_index].g_cost
+      var newConnection_g_cost = distanceBetween2Points(this.choosenCoordsNodes[currentNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY) + this.choosenCoordsNodes[currentNode_index].g_cost
+      
       var LOS = CustomLOSChecker(this.choosenCoordsNodes[currentNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY).boolean;
-      if(this.choosenCoordsNodes[nodeNearby_index].g_cost>newConnection_g_cost && LOS){ // yes rewire
+      if (this.choosenCoordsNodes[nodeNearby_index].g_cost > newConnection_g_cost && LOS) { // yes rewire
+        //console.log("before rewire",currentNode_index,this.choosenCoordsNodes[currentNode_index].neighbours,this.choosenCoordsNodes[currentNode_index].parent,nodeNearby_index, this.choosenCoordsNodes[nodeNearby_index].neighbours,this.choosenCoordsNodes[nodeNearby_index].parent)
         this.choosenCoordsNodes[nodeNearby_index].neighbours.push(currentNode_index);// forms edge between nearby node and current
         this.choosenCoordsNodes[currentNode_index].neighbours.push(nodeNearby_index);
+       // console.log("before 1rewire",currentNode_index,this.choosenCoordsNodes[currentNode_index].neighbours,this.choosenCoordsNodes[currentNode_index].parent,nodeNearby_index, this.choosenCoordsNodes[nodeNearby_index].neighbours,this.choosenCoordsNodes[nodeNearby_index].parent)
 
 
         for (let j = 0; j < this.choosenCoordsNodes[nodeNearby_index].neighbours.length; ++j) { // remove edge between nearby node and parent of nearby node
           if(this.choosenCoordsNodes[nodeNearby_index].neighbours[j] == this.choosenCoordsNodes[nodeNearby_index].parent){
-            var formerParentOfNearbyNode_index =  this.choosenCoordsNodes[nodeNearby_index].neighbours[j];
+            var formerParentOfNearbyNode_index = this.choosenCoordsNodes[nodeNearby_index].neighbours[j];
+             this.choosenCoordsNodes[nodeNearby_index].neighbours.splice(j, 1); // removes parent as a neighbour 
             continue;
           }
         }
         this.choosenCoordsNodes[nodeNearby_index].parent = currentNode_index;
-        this.choosenCoordsNodes[nodeNearby_index].neighbours.splice(formerParentOfNearbyNode_index, 1); // removes parent as a neighbour 
+       
 
+       // console.log("after rewire",currentNode_index,this.choosenCoordsNodes[currentNode_index].neighbours,this.choosenCoordsNodes[currentNode_index].parent,nodeNearby_index, this.choosenCoordsNodes[nodeNearby_index].neighbours,this.choosenCoordsNodes[nodeNearby_index].parent)
+       // console.log("after rewire p1 ",this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours,this.choosenCoordsNodes[formerParentOfNearbyNode_index])
+        //console.log("rewire", this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, "nodeNearby_index", nodeNearby_index, "formerParentOfNearbyNode_index", formerParentOfNearbyNode_index)
         for (let j = 0; j < this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours.length; ++j) {
           if(this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours[j] == nodeNearby_index){
             this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours.splice(j, 1); // removes nearby node as a neighbour of (nearby node parent)
           }
         }
+        // console.log("after rewire p ",this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours,this.choosenCoordsNodes[formerParentOfNearbyNode_index])
           this._create_action({command: STATIC.EraseEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY });
           this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colorIndex:1 });
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 10});
           this._save_step(true);
-        console.log("rewire",this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY)
+        
        // myUI.edgeCanvas.eraseLine(this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, this.choosenCoordsNodes[nodeNearby_index].value_XY, this.dests.networkGraph);
         //myUI.edgeCanvas.drawLine(this.choosenCoordsNodes[currentNode_index].value_XY,this.choosenCoordsNodes[nodeNearby_index].value_XY);
       }
@@ -484,7 +493,7 @@ l        }
     var selectedVertexCost = this.getNeighbourIndexThatResultsInShortestPath(coord_XY, nodesNearby_Index).cost;
     //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes", selectedVertexCost);
     this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "++" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:selectedVertexCost.toPrecision(5)});
+    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"jv"});
 
   
     const selected_XY = this.choosenCoordsNodes[selectedVertexIndex].value_XY;
@@ -727,18 +736,20 @@ l        }
     });
   }
 
-  recurseCurrentPath(){
+  recurseCurrentPath() {
     myUI.run_action(STATIC.EraseAllVertex, this.dests.path);
     myUI.run_action(STATIC.EraseAllEdge, this.dests.path);
     let node = this.choosenCoordsNodes[this.goalIndex];
-    console.log(node);
-    while(node.parent != null){
-      console.log("Drawing Vertex");
-      myUI.run_action(STATIC.DrawVertex, this.dests.path, node.value_XY[0], node.value_XY[1], 0);
-      var p = this.choosenCoordsNodes[node.parent];
-      console.log("Drawing Edge");
-      myUI.run_action(STATIC.DrawEdge, this.dests.path, node.value_XY[0], node.value_XY[1], 0, undefined, undefined, undefined, undefined, undefined, p.value_XY[0], p.value_XY[1]);
-      node = p;
+    if (node != undefined) { 
+      console.log(node);
+      while (node.parent != null) {
+        console.log("Drawing Vertex");
+        myUI.run_action(STATIC.DrawVertex, this.dests.path, node.value_XY[0], node.value_XY[1], 0);
+        var p = this.choosenCoordsNodes[node.parent];
+        console.log("Drawing Edge");
+        myUI.run_action(STATIC.DrawEdge, this.dests.path, node.value_XY[0], node.value_XY[1], 0, undefined, undefined, undefined, undefined, undefined, p.value_XY[0], p.value_XY[1]);
+        node = p;
+      }
     }
   }
 

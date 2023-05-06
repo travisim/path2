@@ -31,7 +31,9 @@ function updateComputeProgress(){
 
       gsap.to(progressBar, {
         width: `${state}%`,
-          duration: 0,
+        duration: 0.5,
+        ease:"slow"
+          
         });
     }, interval + time));
     time += interval;
@@ -52,6 +54,8 @@ function setComputeFinish(){
   gsap.to(progressBar, {
     width: `100%`,
     duration: 0,
+    duration: 0.5,
+    ease:"slow",
     backgroundColor: '#4895ef',
     onComplete: () => {
       progressBarText.style.display = "initial";
@@ -90,6 +94,7 @@ function setOptimizeFinish(){
     width: `100%`,
     duration: 0,
     backgroundColor: '#4895ef',
+    ease:"slow",
     onComplete: () => {
       progressBarText.style.display = "initial";
       progressBarText.innerHTML = "Optimized path";

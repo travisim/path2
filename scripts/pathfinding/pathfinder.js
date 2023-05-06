@@ -536,7 +536,9 @@ static get wasm(){
     new_node.arrow_index = myUI.create_arrow(next_XY, new_node.parent.self_XY); // node is reference typed so properties can be modified after adding to queue or open list
     this._create_action({command: STATIC.DrawArrow, arrowIndex: new_node.arrow_index, colorIndex: 0});
     // END OF ARROW
-  }
+	}
+	
+	// things with _cell_index are only for the 2d maps
 
 	_create_cell_index(){
 		this.cell_map = new Empty2D(this.map_height, this.map_width);

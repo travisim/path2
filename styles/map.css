@@ -129,9 +129,10 @@
   margin-left: 28px;
   padding: 10px;
   position: absolute;
-  z-index: 50;
-  width:200px;
+  z-index: 80;
+  /* width:200px; */
   height:auto;
+  border-radius: 10%;
 }
 
 #hover_x, #hover_y{
@@ -169,8 +170,9 @@ h1{
 }
 
 #canvas_layers label{
+  
   background: rgb(188,186,201);
-  height: 40px;
+  height: fit-content;
   width: auto;
   display: block;
   border-bottom: 1px solid #2C3E50;
@@ -179,7 +181,7 @@ h1{
   font-weight: 900;
   font-size: 9px;
   letter-spacing: 1px;
-  text-indent: 20px;
+ 
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
@@ -191,7 +193,7 @@ h1{
 }
 
 #canvas_layers label h2{
-  margin: 6px;
+  margin:6px;
 }
 
 #canvas_layers label h2 span{
