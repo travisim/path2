@@ -187,6 +187,9 @@ l        }
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
     this.exports = {coords:[],neighbours:[],edges:[]};
     //clears SVG canvas
+    
+    myUI.nodeCanvas.reset()
+    myUI.edgeCanvas.reset()
 
     this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);
@@ -490,7 +493,7 @@ l        }
     var selectedVertexCost = this.getNeighbourIndexThatResultsInShortestPath(coord_XY, nodesNearby_Index).cost;
     //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes", selectedVertexCost);
     this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "++" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"jv"});
+    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:selectedVertexCost.toPrecision(5)});
 
   
     const selected_XY = this.choosenCoordsNodes[selectedVertexIndex].value_XY;
