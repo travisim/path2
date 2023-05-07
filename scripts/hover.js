@@ -9,8 +9,12 @@ myUI.scale_coord = function (x, y) {
 	 else if(myUI.vertex && myUI.gridPrecision == "float"){  // just draws a circle that follows mouse when cursor on canvas
 		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
 		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
-		var scaled_y = Math.floor((y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1));
-		var scaled_x = Math.floor((x+sx/2) / (myUI.canvases.hover_map.canvas.clientHeight+sx) * (myUI.map_height+1));
+		var scaled_y = (y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1)-0.5;
+		var scaled_x = (x + sx / 2) / (myUI.canvases.hover_map.canvas.clientHeight + sx) * (myUI.map_height + 1) - 0.5;
+		if (scaled_y < 0) scaled_y = 0;
+		if (scaled_x < 0) scaled_x = 0;
+		if (scaled_x > myUI.map_height) scaled_x = myUI.map_height;
+		if (scaled_y > myUI.map_width) scaled_y = myUI.map_width;
 	}
 	else{// just draws a circle that snaps to grid mouse when cursor on canvas for integer vertex
 		var scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
@@ -33,8 +37,8 @@ myUI.handle_map_hover = function(e){
 	let [scaled_x, scaled_y] = myUI.scale_coord(e.offsetY, e.offsetX);
 	
 	// set max 2dp for tooltip coords
-	if (precision(scaled_x) > 2) scaled_x = scaled_x.toPrecision(2);
-	if (precision(scaled_y) > 2) scaled_y = scaled_y.toPrecision(2);
+	if (precision(scaled_x) > 4) scaled_x = scaled_x.toPrecision(4);
+	if (precision(scaled_y) > 4) scaled_y = scaled_y.toPrecision(4);
 	document.getElementById("hover_y").innerHTML = scaled_y;
 	document.getElementById("hover_x").innerHTML = scaled_x;
 
@@ -222,8 +226,8 @@ function dragElementNoSnap(elmnt,slaveElmnt) {
 		
 		let y = x1 - bounds.left;
 		let x = y1 - bounds.top;
-		y = Math.max(CANVAS_OFFSET, Math.min(bounds.width - e_num + CANVAS_OFFSET, y+9));  // fix to boundaries
-		x = Math.max(CANVAS_OFFSET, Math.min(bounds.height - e_num + CANVAS_OFFSET, x+9));
+		y = Math.max(CANVAS_OFFSET, Math.min(bounds.width - e_num + CANVAS_OFFSET, y));  // fix to boundaries
+		x = Math.max(CANVAS_OFFSET, Math.min(bounds.height - e_num + CANVAS_OFFSET, x));
 		let [scaled_x, scaled_y] = myUI.scale_coord(x, y);
 	  //below code auto shifts coords to prevent start.goal to be on obstacle
 		let flag = true;
@@ -245,7 +249,9 @@ function dragElementNoSnap(elmnt,slaveElmnt) {
 		else if(elmnt.id=="map_goal_icon") {
 			myUI.map_goal = [scaled_x, scaled_y];
 		}
-		
+		//
+	  
+	  
 	  myUI.displayScen(true, true);
 	  
 	  /*

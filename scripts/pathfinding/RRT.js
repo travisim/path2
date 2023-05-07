@@ -36,7 +36,7 @@ class RRT_star extends GridPathFinder{
 
   static get hoverData(){
     return [
-      // {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCacheArray", canvasId: "visited"},
+      //{id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCacheArray", canvasId: "visited"},
       // {id: "hoverFCost", displayName: "F Cost", type: "canvasCacheArray", canvasId: "fCost"},
       // {id: "hoverGCost", displayName: "G Cost", type: "canvasCacheArray", canvasId: "gCost"},
       // {id: "hoverHCost", displayName: "H Cost", type: "canvasCacheArray", canvasId: "hCost"},
@@ -93,6 +93,7 @@ class RRT_star extends GridPathFinder{
     this.vertexEnabled = true;
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
+    
     
   }
 
@@ -470,11 +471,11 @@ l        }
   addGoalNode( coord_XY = [4, 1], addToExports = true) {
     if (CustomLOSChecker(coord_XY, coord_XY).boolean == false) return alert(`Goal is on an obstacle`);
 
-    /*
+    
     if (this.prevGoalCoordConnectedto.length == 2) {
      myUI.edgeCanvas.eraseLine(this.prevGoalCoordConnectedto,this.prevGoalCoord);
     }
-*/
+
   
     var radiusInPixels = Math.max(myUI.canvases.bg.canvas.clientWidth,myUI.canvases.bg.canvas.clientHeight)/Math.max(myUI.map_width, myUI.map_height)*this.goalRadius
     myUI.map_goal_radius.resize(2 * radiusInPixels);
@@ -483,8 +484,7 @@ l        }
 
     var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, coord_XY, "Closest Neighbours By Radius", this.goalRadius); 
     if (nodesNearby_Index == false) {
-      this.prevGoalCoord = [0];
-      this.prevGoalCoordConnectedto = [0]; 
+     
       //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes","infinite");
       this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"∞"});
       return;

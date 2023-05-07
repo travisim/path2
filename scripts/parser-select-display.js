@@ -413,7 +413,7 @@ myUI.sliders.map_height_slider.label.addEventListener("focusout", updateMapBased
 myUI.sliders.map_width_slider.label.addEventListener("keydown", updateMapBasedOnMapConfig);
 myUI.sliders.map_width_slider.label.addEventListener("focusout", updateMapBasedOnMapConfig);
 
-  function updateMapBasedOnMapConfig() {
+function updateMapBasedOnMapConfig() {
   
   myUI.reset_animation()
   myUI.resetMapAnimations()
