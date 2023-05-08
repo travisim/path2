@@ -7,6 +7,7 @@ class PRM extends GridPathFinder{
     return "PRM";
   }
 
+  static drawMode = "Free Vertex";
 
   static get indexOfCollapsiblesToExpand() {
     return [1, 2, 3, 4];
@@ -163,19 +164,14 @@ class PRM extends GridPathFinder{
   
   calc_cost(successor){
 
-
     function euclidean(c1, c2){
       return Math.hypot(c1[0]-c2[0], c1[1]-c2[1]);
     }
-    
-
-
     
    if(this.distance_metric == "Euclidean"){
       var g_cost = this.current_node.g_cost + euclidean(this.current_node.self_XY, successor);
       var h_cost = euclidean(successor, this.goal);
     }
-
 
     var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
     return [f_cost, g_cost, h_cost];
@@ -198,8 +194,6 @@ class PRM extends GridPathFinder{
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
     this.randomCoordsNodes = []
-  
-
 
     this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "Number Of Nodes" });
     this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
@@ -539,7 +533,7 @@ class PRM extends GridPathFinder{
       //this._assign_cell_index(this.current_node_XY);
 
       /* FOUND GOAL */
-      if(this._found_goal(this.current_node, "free_vertex")) return this._terminate_search(); // found the goal & exits the loop
+      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
       
 
       /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
@@ -615,7 +609,7 @@ class PRM extends GridPathFinder{
         else this.queue.unshift(next_node); // LIFO
         this.open_list.set(next_XY, next_node);  // add to open list
 
-        if(this._found_goal(next_node, "free_vertex")) return this._terminate_search();
+        if(this._found_goal(next_node)) return this._terminate_search();
       }
 
 

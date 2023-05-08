@@ -327,6 +327,7 @@ static get wasm(){
 				else{
 					this.vertexEnabled = false;
 					myUI.toggleVertex(false);
+					myUI.gridPrecision = "int"
 				}
 				myUI.displayScen();
 				break;
@@ -551,7 +552,7 @@ static get wasm(){
 		this.cell_map.set(xy, this.step_index);
 	}
 
-	_found_goal(node, draw_mode = "grid"){
+	_found_goal(node){
 		// found the goal & exits the loop
 		if (node.self_XY[0] != this.goal[0] || node.self_XY[1] != this.goal[1]) return false;
 		
@@ -568,7 +569,7 @@ static get wasm(){
 			this._create_action(STATIC.DrawPixel, this.dests.path, node.self_XY);
 			this._create_action(STATIC.DrawArrow, node.arrow_index, 1);
 			/* NEW */
-			if(draw_mode == "free_vertex"){
+			if(this.constructor.drawMode == "Free Vertex"){
 				this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: node.self_XY});
 				if(prevNode){
 					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: prevNode.self_XY});

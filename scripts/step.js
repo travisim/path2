@@ -130,7 +130,7 @@ myUI.run_steps = function(num_steps, step_direction){
       while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))//rightmost bit is one is start of action
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id] = GridPathFinder.unpackAction(step.slice(i, j), true);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id] = GridPathFinder.unpackAction(step.slice(i, j), false);
 
       myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id); 
       
@@ -240,8 +240,8 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   }
 
   }catch(e){
-    console.log(e);
-    console.log(STATIC_COMMANDS[command], myUI.planner.destsToId[dest], "failed");
+    // console.log(e);
+    // console.log(STATIC_COMMANDS[command], myUI.planner.destsToId[dest], "failed");
   }
 }
 
@@ -802,7 +802,13 @@ myUI.jump_to_step = function(target_step){
           let idx = -myUI.InfoTables[tableId].rows.length-1;
           myUI.InfoTables[tableId].insertRowAtIndex(idx, tableData.slice(i, i+rowSize));
         }
-        myUI.InfoTables[tableId].setHighlightAtIndex(tableData[0]);
+        try{
+          myUI.InfoTables[tableId].setHighlightAtIndex(tableData[0]);
+        }
+        catch(e){
+          console.log(tableData[0]);
+          debugger;
+        }
       }
     }
     // pseudocode

@@ -4,6 +4,8 @@ class Theta_star extends A_star{
 		return "Theta star";
   }
 
+  static drawMode = "Free Vertex";
+
   pick_parent(successor){
     if(this.current_node.parent){
       let OFFSET = this.vertexEnabled ? 0 : 0.5;
