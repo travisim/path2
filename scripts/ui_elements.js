@@ -114,8 +114,8 @@ class UICanvas{
   }
 
   scale_coord(x,y){
-    let scaled_y = Math.floor(x/this.canvas.clientWidth * myUI.map_width);
-    let scaled_x = Math.floor(y/this.canvas.clientHeight * myUI.map_height);
+    let scaled_y = Math.round(x/this.canvas.clientWidth * myUI.map_width);
+    let scaled_x = Math.round(y/this.canvas.clientHeight * myUI.map_height); //if x/y > 472 numbers will be skipped due to rounding
     return [scaled_x, scaled_y];
   }
 
@@ -146,7 +146,8 @@ class UICanvas{
     
     this.ctx.scale(widthRatio*dpr, heightRatio*dpr); //adjust this! context.scale(2,2); 2=200
 
-    if (data_width > 256 || data_height>256) this.pixelSize = 1.2;
+    if (data_width > 256 || data_height > 256) this.pixelSize = 1.2;
+   
     else this.pixelSize = 1;
 
     if(retain_data){
@@ -230,6 +231,31 @@ class UICanvas{
       }
     }
   }
+  //  draw_rect(xy, virtual=false, val=1, color_index=0,x_height,y_height ){
+  //   let [x,y] = xy;
+  //   if(x>=this.data_height || y>=this.data_width) return;
+  //   if(virtual)
+  //     this.virtualCanvas[x][y] = val;
+  //   else {
+  //     if(val==this.defaultVal){
+  //       this.erase_pixel(xy);
+  //       return;
+  //     }
+      
+  //     this.set_color(this.calc_color(val, color_index));
+
+  //     switch(this.drawType){
+  //       case "dotted":
+  //         this.draw_dotted_square(xy);
+  //         break;
+  //       case "vertex":
+  //         this.draw_vertex(xy);
+  //         break;
+  //       default:
+  //         this.ctx.fillRect(y, x, this.pixelSize*x_height, this.pixelSize*y_height);
+  //     }
+  //   }
+  // }
 
   erase_pixel(xy, virtual=false, save_in_cache=true){
 		let [x,y] = xy;
@@ -471,25 +497,35 @@ class UICanvas{
     }
   }
 
+  squareOfPixels(canvas_x, canvas_y) {
+    
+    var resolution = Math.max(myUI.map_height,myUI.map_width)>472?Math.min(1/(Math.ceil(myUI.map_height/472)),1/(Math.ceil(myUI.map_width/472))):1
+
+    let thickness = Math.floor(472 * 0.03);    
+    for (let y = 0; y < thickness; y=y+resolution) {
+      for (let x = 0; x < thickness; x = x + resolution) {
+        let canvas_x_processed = canvas_x+x
+        this._fillEditedCell(canvas_x_processed, canvas_y+y);
+      }
+    }
+  }
+
   _handleMouseDown(e){
     // this function is bound to the canvas dom element, use this.wrapper to refer to the UICanvas
     
-    let canvas_x = e.offsetX;
-    let canvas_y = e.offsetY;
-    // let thickness = Math.max(myUI.map_height * 0.06, 1);
-    // for (let y = 0; y < thickness; y++) {
-    //   for (let x = 0; x < thickness; x++) {
-    //     this.wrapper._fillEditedCell(canvas_x+x, canvas_y + y);
-    //   }
-    // }
+    let canvas_x = Math.floor(e.offsetX/472*myUI.map_height)/myUI.map_height*472;
+    let canvas_y = Math.floor(e.offsetY/472*myUI.map_width)/myUI.map_width*472;
+   
+   
+    this.wrapper.squareOfPixels(canvas_x,canvas_y)
     
     this.wrapper.isDrawing = true;
   }
 
   _handleMouseMove(e){
     // this function is bound to the canvas dom element, use this.wrapper to refer to the UICanvas
-    this.canvas_x = e.offsetX;
-    this.canvas_y = e.offsetY;
+    this.canvas_x = Math.floor(e.offsetX/472*myUI.map_height)/myUI.map_height*472;
+    this.canvas_y = Math.floor(e.offsetY/472*myUI.map_width)/myUI.map_width*472;
     
     if (this.canvas_x == 300) {
       console.log(this.canvas_x, this.prev_canvas_x);
@@ -500,31 +536,20 @@ class UICanvas{
 // balance between interpolation and thickness, speed vs beauty
       if (this.prev_canvas_x) {
         
-        let toDrawPoints = getInterpolatedPoints(this.prev_canvas_x, this.prev_canvas_y, this.canvas_x, this.canvas_y, Math.max(Math.abs(this.prev_canvas_x - this.canvas_x)/2, Math.abs(this.prev_canvas_y - this.canvas_y)/2, 1))
+        let toDrawPoints = getInterpolatedPoints(this.prev_canvas_x, this.prev_canvas_y, this.canvas_x, this.canvas_y)
         toDrawPoints.forEach(p => {
-          let thickness = 472 * 0.03;
-          for (let y = 0; y < thickness; y++) {
-            for (let x = 0; x < thickness; x++) {
-              this.wrapper._fillEditedCell(p.x+x, p.y+y);
-            }
-          }
+         this.wrapper.squareOfPixels(p.x,p.y)
         })
       }
-      // else {
-      //   let thickness = Math.max(472 * 0.03, 1);
-      //   for (let y = 0; y < thickness; y++) {
-      //     for (let x = 0; x < thickness; x++) {
-      //       this.wrapper._fillEditedCell(this.canvas_x + x, this.canvas_y + y);
-      //     }
-      //   }
-      // }
+      
     this.prev_canvas_x = this.canvas_x;
      this.prev_canvas_y = this.canvas_y;
     } 
     
     
     this.wrapper._drawHover(this.canvas_x, this.canvas_y);
-    function getInterpolatedPoints(x1, y1, x2, y2, numPoints) {
+    function getInterpolatedPoints(x1, y1, x2, y2) {
+      var numPoints = Math.max(Math.abs(x1 - x2)/2, Math.abs(y1 - y2)/2, 1)
       const dx = (x2 - x1) / (numPoints - 1);
       const dy = (y2 - y1) / (numPoints - 1);
 
@@ -563,6 +588,7 @@ class UICanvas{
     if(this.erase) this.erase_pixel([x,y]);
     else this.draw_pixel([x,y]);
   }
+
 
   _drawHover(canvas_x, canvas_y){
     let [x,y] = this.scale_coord(canvas_x, canvas_y);

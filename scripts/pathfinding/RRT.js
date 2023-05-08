@@ -7,6 +7,8 @@ class RRT_star extends GridPathFinder{
     return "RRT_star";
   }
 
+  static drawMode = "Free Vertex";
+
   static get addGoalRadius() {
     return 1;
   }
@@ -36,7 +38,7 @@ class RRT_star extends GridPathFinder{
 
   static get hoverData(){
     return [
-      // {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCacheArray", canvasId: "visited"},
+      //{id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCacheArray", canvasId: "visited"},
       // {id: "hoverFCost", displayName: "F Cost", type: "canvasCacheArray", canvasId: "fCost"},
       // {id: "hoverGCost", displayName: "G Cost", type: "canvasCacheArray", canvasId: "gCost"},
       // {id: "hoverHCost", displayName: "H Cost", type: "canvasCacheArray", canvasId: "hCost"},
@@ -93,6 +95,7 @@ class RRT_star extends GridPathFinder{
     this.vertexEnabled = true;
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
+    
     
   }
 
@@ -187,6 +190,9 @@ l        }
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
     this.exports = {coords:[],neighbours:[],edges:[]};
     //clears SVG canvas
+    
+    myUI.nodeCanvas.reset()
+    myUI.edgeCanvas.reset()
 
     this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
     var seed = cyrb128(this.seed);
@@ -467,11 +473,11 @@ l        }
   addGoalNode( coord_XY = [4, 1], addToExports = true) {
     if (CustomLOSChecker(coord_XY, coord_XY).boolean == false) return alert(`Goal is on an obstacle`);
 
-    /*
+    
     if (this.prevGoalCoordConnectedto.length == 2) {
      myUI.edgeCanvas.eraseLine(this.prevGoalCoordConnectedto,this.prevGoalCoord);
     }
-*/
+
   
     var radiusInPixels = Math.max(myUI.canvases.bg.canvas.clientWidth,myUI.canvases.bg.canvas.clientHeight)/Math.max(myUI.map_width, myUI.map_height)*this.goalRadius
     myUI.map_goal_radius.resize(2 * radiusInPixels);
@@ -480,8 +486,7 @@ l        }
 
     var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, coord_XY, "Closest Neighbours By Radius", this.goalRadius); 
     if (nodesNearby_Index == false) {
-      this.prevGoalCoord = [0];
-      this.prevGoalCoordConnectedto = [0]; 
+     
       //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes","infinite");
       this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"∞"});
       return;
@@ -490,7 +495,7 @@ l        }
     var selectedVertexCost = this.getNeighbourIndexThatResultsInShortestPath(coord_XY, nodesNearby_Index).cost;
     //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes", selectedVertexCost);
     this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "++" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"jv"});
+    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:selectedVertexCost.toPrecision(5)});
 
   
     const selected_XY = this.choosenCoordsNodes[selectedVertexIndex].value_XY;
@@ -641,7 +646,7 @@ l        }
       //this._assign_cell_index(this.current_node_XY);
 
       /* FOUND GOAL */
-      if(this._found_goal(this.current_node, "free_vertex")) return this._terminate_search(); // found the goal & exits the loop
+      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
       
 
       /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
@@ -717,7 +722,7 @@ l        }
         else this.queue.unshift(next_node); // LIFO
         this.open_list.set(next_XY, next_node);  // add to open list
 
-         if (this._found_goal(next_node, "free_vertex")) {
+         if (this._found_goal(next_node)) {
            
           
            return this._terminate_search();

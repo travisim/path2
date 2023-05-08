@@ -69,6 +69,7 @@ myUI.displayMap = function(){
     uiCanvas.scale_canvas(height+plus, width+plus, false);
   });
 
+  myUI.displayScen();
   /* summary the css canvas and html/ js canvas are different
     to get sharp lines dont let the canvs auto scale up a low res js canvas to a high res one 
     instead create a js canvas that is the same as the css one and scale up the small/large image created
@@ -220,6 +221,13 @@ myUI.displayScen = function(update=false, reset_zero=false){
   myUI.map_goal_icon.move(myUI.map_goal);
   
 	try{myUI.updateInfoMap(myUI.map_start);}catch(e){}
+
+  Array.prototype.toPrecision = function(n){
+    return this.map(x => parseFloat(x.toPrecision(n)));
+  }
+
+  if(CustomLOSChecker(myUI.map_start, myUI.map_goal).boolean) console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "HAVE LOS");
+  else console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "NO LOS");
 }
 
 function moveDraggable(xy){
@@ -332,18 +340,6 @@ myUI.toggleVertex = function(enable=true){
       else if(uiCanvas.drawType=="cell") uiCanvas.setDrawType("vertex");
     }
     myUI.canvases.hover_map.setDrawType("vertex");
-
-    if (myUI.gridPrecision != "float" ) {
-      dragElementGridSnap(myUI.map_start_icon.elem);
-      dragElementGridSnap(myUI.map_goal_icon.elem);
-    }
-
-    else if (myUI.gridPrecision =="float") {
-      dragElementNoSnap(myUI.map_start_icon.elem);
-      dragElementNoSnap(myUI.map_goal_icon.elem,myUI.map_goal_radius.elem);
-      //dragElementNoSnap();
-    }
-    
   }
   else{
     myUI.vertex = false;
@@ -354,6 +350,9 @@ myUI.toggleVertex = function(enable=true){
     }
     myUI.canvases.hover_map.setDrawType("cell");
   }
+  
+  dragElement(myUI.map_start_icon.elem)
+  dragElement(myUI.map_goal_icon.elem, myUI.map_goal_radius.elem);
 }
 
 myUI.parseNodeMap = function(contents){
@@ -413,7 +412,7 @@ myUI.sliders.map_height_slider.label.addEventListener("focusout", updateMapBased
 myUI.sliders.map_width_slider.label.addEventListener("keydown", updateMapBasedOnMapConfig);
 myUI.sliders.map_width_slider.label.addEventListener("focusout", updateMapBasedOnMapConfig);
 
-  function updateMapBasedOnMapConfig() {
+function updateMapBasedOnMapConfig() {
   
   myUI.reset_animation()
   myUI.resetMapAnimations()

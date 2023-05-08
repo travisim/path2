@@ -53,7 +53,7 @@ function setComputeFinish(){
 
   gsap.to(progressBar, {
     width: `100%`,
-    duration: 0,
+
     duration: 0.5,
     ease:"slow",
     backgroundColor: '#4895ef',
@@ -80,6 +80,7 @@ function updateOptimizeProgress(percent){
   gsap.to(progressBar, {
     width: `${percent}%`,
     duration: 0,
+    ease:"slow"
   });
 
   document.getElementById("optimize_progress_label").innerHTML = `${percent.toPrecision(3)}%`;
@@ -92,7 +93,7 @@ function setOptimizeFinish(){
 
   gsap.to(progressBar, {
     width: `100%`,
-    duration: 0,
+    duration: 0.5,
     backgroundColor: '#4895ef',
     ease:"slow",
     onComplete: () => {
