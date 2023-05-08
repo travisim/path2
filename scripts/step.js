@@ -394,6 +394,9 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           mem.bounds[dest][0] = Math.min(mem.bounds[dest][0], cellVal);
           mem.bounds[dest][1] = Math.max(mem.bounds[dest][1], cellVal);
         }
+        
+        // set default color
+        if(colorIndex === undefined) colorIndex = 0;
 
         if(STATIC_COMMANDS[command].includes("Pixel") || command===STATIC.EraseCanvas){
           if(!mem.activeCanvas.hasOwnProperty(dest))
@@ -522,7 +525,6 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           }
           else
             action = GridPathFinder.packAction({command: STATIC.EraseArrow, arrowIndex: arrowIndex});
-          colorIndex = colorIndex || 0;
           mem.arrowColor[arrowIndex] = colorIndex;
         }
         else if(command==STATIC.EraseArrow){
@@ -615,10 +617,9 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           action = GridPathFinder.packAction({command: STATIC.EraseEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
           if(!mem.edges.hasOwnProperty(dest))
             mem.edges[dest] = [];
-          mem.edges[dest].push([x,y,endX,endY]);
+          mem.edges[dest].push([x,y,endX,endY,colorIndex]);
         }
         else if(command == STATIC.EraseEdge){
-          action = GridPathFinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
           if(!mem.edges.hasOwnProperty(dest)){
             console.log("ERROR: EDGE NOT FOUND");
             Array.prototype.unshift.apply(curStep, action);
@@ -629,6 +630,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             let a = mem.edges[dest][i][0] == x && mem.edges[dest][i][1] == y && mem.edges[dest][i][2] == endX && mem.edges[dest][i][3] == endY;
             let b = mem.edges[dest][i][2] == x && mem.edges[dest][i][3] == y && mem.edges[dest][i][0] == endX && mem.edges[dest][i][1] == endY;
             if(a || b){
+              let colorIdx = mem.edges[dest][i][4];
+              action = GridPathFinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY], colorIndex: colorIdx});
               mem.edges[dest].splice(i, 1);
               break;
             }
@@ -638,7 +641,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           action = [];
           if(!mem.edges.hasOwnProperty(dest))
             mem.edges[dest] = [];
-          mem.edges[dest].forEach(quad => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [quad[0], quad[1]], endCoord: [quad[2], quad[3]]})));
+          mem.edges[dest].forEach(quad => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [quad[0], quad[1]], endCoord: [quad[2], quad[3]], colorIndex: quad[4]})));
           mem.edges[dest] = [];
         }
         else if( command == STATIC.CreateStaticRow ){
@@ -697,14 +700,14 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         
         for(const [dest, vertices] of Object.entries(mem.vertices)){
           nextState.vertices[dest] = [];
-          for(const coord of vertices)
-            nextState.vertices[dest].push([coord[0], coord[1]]);
+          for(const vert of vertices)
+            nextState.vertices[dest].push([vert[0], vert[1], vert[2], vert[3]]);
         }
 
         for(const [dest, edges] of Object.entries(mem.edges)){
           nextState.edges[dest] = [];
-          for(const coord of edges)
-            nextState.edges[dest].push([coord[0], coord[1], coord[2], coord[3]]);
+          for(const edge of edges)
+            nextState.edges[dest].push([edge[0], edge[1], edge[2], edge[3], edge[4]]);
         }
 
         myUI.states.push(nextState);
@@ -820,23 +823,40 @@ myUI.jump_to_step = function(target_step){
 
     }
 
+    function orderCanvases(x, y){
+      let xOrder = myUI.canvases[myUI.planner.destsToId[x[0]]].drawOrder;
+      let yOrder = myUI.canvases[myUI.planner.destsToId[y[0]]].drawOrder;
+
+      if(xOrder > yOrder) return -1;
+      return 1;
+    }
+
     // free vertices
     var vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices;
-    for(let [dest, coordArray] of Object.entries(vertices)){
-      if(myUI.planner.constructor.wasm) coordArray = [...vector_values(coordArray)];
-      for(coord of coordArray){
-        if(myUI.planner.constructor.wasm) coord = [coord.x, coord.y];
-        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest]);
+    var items = Object.entries(vertices);
+    items.sort(orderCanvases);
+    for(let [dest, vertexArray] of items){
+      console.log(myUI.planner.destsToId[dest]);
+      if(myUI.planner.constructor.wasm) vertexArray = [...vector_values(vertexArray)];
+      for(vert of vertexArray){
+        if(myUI.planner.constructor.wasm) vert = [vert.x, vert.y];
+        let coord = vert.slice(0, 2);
+        console.log(coord);
+        let colorIndex = vert[2];
+        let radius = vert[3];
+        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, colorIndex, radius);
       }
     }
 
     // free edge
     var edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges;
-    for(const [dest, edgeArray] of Object.entries(edges)){
+    var items = Object.entries(edges);
+    items.sort(orderCanvases);
+    for(const [dest, edgeArray] of items){
       if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
       for(line of edgeArray){
         if(myUI.planner.constructor.wasm) line = [line.get(0), line.get(1), line.get(2), line.get(3)];
-        myUI.edgeCanvas.drawLine([line[0], line[1]], [line[2], line[3]], myUI.planner.destsToId[dest]);
+        myUI.edgeCanvas.drawLine([line[0], line[1]], [line[2], line[3]], myUI.planner.destsToId[dest], false, line[4]);
       }
     }
     

@@ -6,6 +6,10 @@ class Theta_star extends A_star{
 
   static drawMode = "Free Vertex";
 
+  postProcess(){
+    this.setConfig("mapType", "Grid Vertex");
+  }
+
   pick_parent(successor){
     if(this.current_node.parent){
       let OFFSET = this.vertexEnabled ? 0 : 0.5;

@@ -19,7 +19,7 @@ class PRM extends GridPathFinder{
     }
   }
 
-   get infoTables(){
+   static get infoTables(){
     return [
       {id: "ITStatistics", displayName: "Statistics", headers: ["Indicator ", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
 			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
@@ -41,7 +41,7 @@ class PRM extends GridPathFinder{
     ];
   }
 
-    postProcess(){
+  postProcess(){
     this.setConfig("mapType", "Grid Vertex Float");
   }
 
@@ -57,7 +57,7 @@ class PRM extends GridPathFinder{
 			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			// },
       {
-				id:"networkGraph", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"networkGraph", drawType:"svg", drawOrder: 19, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			}
     ])
     if(this.bigMap){
@@ -66,7 +66,7 @@ class PRM extends GridPathFinder{
     return canvases;
   }
 
-  get configs(){
+  static get configs(){
 		let configs = [];
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
@@ -175,10 +175,6 @@ class PRM extends GridPathFinder{
 
     var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
     return [f_cost, g_cost, h_cost];
-  }
-
-  postProcess(){
-    this.setConfig("mapType", "Grid Vertex");
   }
 
   generateNewMap(start = [0,0], goal=[13,13]){

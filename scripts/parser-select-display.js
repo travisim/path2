@@ -289,8 +289,10 @@ myUI.loadPlanner = function(create_planner = true) {
   for(const cb of myUI.planner.constructor.checkboxes)
     appendCheckbox(...cb);
   myUI.dynamicCanvas = myUI.canvasGenerator(myUI.planner.canvases);
+  if(myUI.planner.vertexEnabled) myUI.toggleVertex(true);
+  
   myUI.infoTableReset();
-  myUI.infoTableGenerator(myUI.planner.infoTables);
+  myUI.infoTableGenerator(myUI.planner.constructor.infoTables);
   if(create_planner){
     myUI.setPlannerConfig();
   }

@@ -265,8 +265,8 @@ class UIInfoTable{
       : document.getElementById(id).cells[1].innerHTML = value1; 
     }
     catch(e){
-      console.error("CANNOT FIND ID OF: ", id);
-      debugger;
+      //console.error("CANNOT FIND ID OF: ", id);
+     // debugger;
     }
   }
 

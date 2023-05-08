@@ -70,7 +70,7 @@ function updateSpeedSlider(){
 	myUI.animation.speed = apparent_speed;
 	// skip steps in animation
 	myUI.animation.jump_steps = 5*myUI.animation.speed/myUI.animation.max_fps;
-	if(myUI.animation.jump_steps>1) myUI.animation.jump_steps = myUI.animation.jump_steps *10;
+	if(myUI.animation.jump_steps>1) myUI.animation.jump_steps *= 10;
 	//console.log(myUI.animation.jump_steps);
 }
 
@@ -99,7 +99,7 @@ myUI.reset_animation = function(clear_data = false){
 		});
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(clear_data);
-	//myUI.resetMapAnimations();
+	myUI.resetMapAnimations();
 }
 
 myUI.reset_animation_callback = function(e){
