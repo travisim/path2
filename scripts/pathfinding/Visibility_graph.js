@@ -5,18 +5,34 @@ class VisibilityGraph extends PRM{
   }
 
   static get configs(){
-		let configs = GridPathFinder.configs;
+		let configs = Pathfinder.configs;
 		configs.push(
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
-      {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`});
+      {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`},  
+      {uid: "show_network_graph", displayName: "Show network graph:", options: ["Off", "On"], description: `Every corner and corner-pair will be shown in the first two steps if set to "On".`});
 		return configs;
   }
 
-  postProcess(){
-    this.setConfig("mapType", "Grid Vertex");
+  setConfig(uid, value){
+    switch(uid){
+      case "distance_metric":
+				this.distance_metric = value; break;
+      case "g_weight":
+				this.gWeight = Number(value); break;
+      case "h_weight":
+				this.hWeight = Number(value); break;
+      case "h_optimized":
+				this.hOptimized = value=="On"; break;
+      case "time_ordering":
+				this.timeOrder = value; break;
+      case "show_network_graph":
+        this.showNetworkGraph = value=="On"; break;
+      default:
+        super.setConfig(uid, value);
+    }
   }
 
   generateNewMap(start, goal){
@@ -213,6 +229,10 @@ class VisibilityGraph extends PRM{
     }
 
     this.randomCoordsNodes = [];
+    this.randomCoordsNodes.push(new MapNode(null, start, []));
+    if(this.showNetworkGraph) this._create_action({command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: start});
+    this.randomCoordsNodes.push(new MapNode(null, goal, []));
+    if(this.showNetworkGraph) this._create_action({command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: goal});
     let kernelSize = 2;
 
     for(let i = 0; i < this.bg_height - kernelSize + 1; ++i){
@@ -221,11 +241,11 @@ class VisibilityGraph extends PRM{
         if(coords == null) continue;
         for(const coord of coords){
           this.randomCoordsNodes.push(new MapNode(null, coord, []));
-          this._create_action({command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: coord});
+          if(this.showNetworkGraph) this._create_action({command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: coord});
         }
       }
     }
-    this._save_step(true);
+    if(this.showNetworkGraph) this._save_step(true);
 
     // iterate through coordinates & check for visbiliity between them
 
@@ -233,16 +253,13 @@ class VisibilityGraph extends PRM{
       for(let j = 0; j < i; ++j){
         let n1 = this.randomCoordsNodes[i], n2 = this.randomCoordsNodes[j];
         if(CustomLOSChecker(n1.value_XY, n2.value_XY).boolean){
-          this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: n1.value_XY, endCoord: n2.value_XY});
+          if(this.showNetworkGraph) this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: n1.value_XY, endCoord: n2.value_XY});
           this.randomCoordsNodes[i].neighbours.push(j);
           this.randomCoordsNodes[j].neighbours.push(i);
         }
       }
     }
-    this._save_step(true);
-    this.addNodeToGraph(start);
-    this.addNodeToGraph(goal);
-    this._save_step(true);
+    if(this.showNetworkGraph) this._save_step(true);
   }
 
   addNodeToGraph(coord){

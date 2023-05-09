@@ -1,31 +1,3 @@
-myUI.init_planner_config = function(){}
-
-myUI.modals.planner_config.show = function(){
-  show_modal(myUI.modals.planner_config.elem);
-  myUI.stop_animation(change_svg = true);
-}
-
-// When the user clicks on the button, open the modal
-myUI.buttons.planner_config_btn.btn.addEventListener("click", myUI.modals.planner_config.show);
-
-myUI.modals.planner_config.close = function(){
-  
-  hide_modal(myUI.modals.planner_config.elem);
-}
-myUI.modals.planner_config.close_btn.addEventListener("click", myUI.modals.planner_config.close);
-
-window.addEventListener("mousedown", event=>{
-	if (event.target == myUI.modals.planner_config.elem)
-    myUI.modals.planner_config.modalClose = true;
-});
-
-window.addEventListener("mouseup", event=>{
-	if (event.target == myUI.modals.planner_config.elem)
-    if(myUI.modals.planner_config.modalClose)
-      myUI.modals.planner_config.close();
-  myUI.modals.planner_config.modalClose = false;
-});
-
 myUI.plannerConfigCallback = function(){
   // bind "this" to the dropdown/input
   // this refers to the select/input element

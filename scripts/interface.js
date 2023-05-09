@@ -98,10 +98,9 @@ myUI.initialize = function(){
   myUI.InfoCurrent = UIInfoCurrent;
 
   
-	[ 
+	/*[ 
 		["edit_map_modal", "edit_map_close"],
 		["planner_config_modal", "planner_config_close"],
-    ["first_neighbor_modal", "first_neighbor_close"],
     ["about_modal", "about_close"],
     ["team_modal", "team_close"],
     ["terms_modal", "terms_close"],
@@ -114,7 +113,21 @@ myUI.initialize = function(){
 			show: null,
 			close: null // show and close modal function is bound to itself
 		};
-	});
+	});*/
+
+  [ 
+		["edit_map_modal", "edit_map_btn", "edit_map_close", edit_map_open, edit_map_close],
+		["planner_config_modal", "planner_config_btn", "planner_config_close", planner_config_open, planner_config_close],
+    ["about_modal", "trigger-about", "about_close"],
+    ["team_modal", "trigger-team", "team_close"],
+    ["terms_modal", "trigger-terms", "terms_close"],
+    ["privacy_modal", "trigger-privacy", "privacy_close"],
+	].forEach(item=>{
+    let open_fn = item[3] ? item[3] : null;
+    let close_fn = item[4] ? item[4] : null;
+    let modal = new Modal(item[0], item[1], item[2], open_fn, close_fn);
+    myUI.modals[item[0]] = modal;
+  });
 
   
   // Initialize selects
@@ -143,7 +156,6 @@ myUI.initialize = function(){
     ["edit_map_btn"],
     ["stop_edit_btn"],
 		["planner_config_btn"],
-    ["first_neighbor_btn"],
     ["about_button"],
     ["team_button"],
     ["terms_button"],

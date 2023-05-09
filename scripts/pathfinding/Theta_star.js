@@ -1,13 +1,16 @@
 class Theta_star extends A_star{
 
-	static get display_name(){
-		return "Theta star";
-  }
+	static get display_name(){ return "Theta star"; }
 
   static drawMode = "Free Vertex";
 
-  postProcess(){
-    this.setConfig("mapType", "Grid Vertex");
+  static get configs(){
+    let configs = super.configs;
+    for(let i = 0; i < configs.length; ++i) if(configs[i].uid == "distance_metric"){
+      configs[i].options = ["Euclidean"];
+      configs[i].description =  `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`;
+    }
+		return configs;
   }
 
   pick_parent(successor){
