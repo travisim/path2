@@ -130,7 +130,7 @@ myUI.run_steps = function(num_steps, step_direction){
       while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))//rightmost bit is one is start of action
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id] = GridPathFinder.unpackAction(step.slice(i, j), false);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id] = Pathfinder.unpackAction(step.slice(i, j), false);
 
       myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id); 
       
@@ -383,7 +383,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, radius, value, id] = GridPathFinder.unpackAction(step.slice(i, j),  false);
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, radius, value, id] = Pathfinder.unpackAction(step.slice(i, j),  false);
         let destId = myUI.planner.destsToId[dest];
         let action = [];
         var includeAction = true;
@@ -410,8 +410,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         // checking command type
         if(command==STATIC.DrawSinglePixel){
           try{
-            if(mem.drawSinglePixel[dest]!==undefined) action = GridPathFinder.packAction({command: STATIC.DrawSinglePixel, dest: dest, nodeCoord: mem.drawSinglePixel[dest], cellVal: 1});
-            else action = GridPathFinder.packAction({command: STATIC.EraseCanvas, dest: dest});
+            if(mem.drawSinglePixel[dest]!==undefined) action = Pathfinder.packAction({command: STATIC.DrawSinglePixel, dest: dest, nodeCoord: mem.drawSinglePixel[dest], cellVal: 1});
+            else action = Pathfinder.packAction({command: STATIC.EraseCanvas, dest: dest});
             mem.drawSinglePixel[dest] = [x,y];
             myUI.canvases[destId].erase_canvas(true);
             myUI.canvases[destId].draw_pixel([x,y], true, cellVal, cellVal-1, false);
@@ -425,11 +425,11 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           try{
             /*
             mem.fullCanvas[dest] = mem.fullCanvas[dest] || deep_copy_matrix(myUI.canvases[destId].canvas_cache);
-            action = GridPathFinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [x,y], cellVal: mem.fullCanvas[dest][x][y]});
+            action = Pathfinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [x,y], cellVal: mem.fullCanvas[dest][x][y]});
             mem.fullCanvas[dest][x][y] = cellVal;
             
             /* virtualCanvas version */
-            action = GridPathFinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[destId].virtualCanvas[x][y]});
+            action = Pathfinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[destId].virtualCanvas[x][y]});
             myUI.canvases[destId].draw_pixel([x,y], true, cellVal, cellVal-1, false);
             /**/
           }
@@ -445,13 +445,13 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             if(coord!==undefined && coord[0]==x && coord[1]==y)
               includeAction = false;
           if(includeAction){
-            action = GridPathFinder.packAction({command: STATIC.ErasePixel, dest: dest, nodeCoord: [x,y], cellVal: cellVal});
+            action = Pathfinder.packAction({command: STATIC.ErasePixel, dest: dest, nodeCoord: [x,y], cellVal: cellVal});
             mem.canvasCoords[dest].push([x,y]);
           }
           /* virtualCanvas version */
           try{
             if(myUI.canvases[destId].virtualCanvas[x][y]==myUI.canvases[destId].defaultVal)
-              action = GridPathFinder.packAction({command: STATIC.ErasePixel, dest: dest, nodeCoord: [x,y]});
+              action = Pathfinder.packAction({command: STATIC.ErasePixel, dest: dest, nodeCoord: [x,y]});
             myUI.canvases[destId].draw_pixel([x,y], true, cellVal, cellVal-1, false);
           } catch(e){
             console.log(destId);
@@ -461,7 +461,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         }
         else if(command==STATIC.ErasePixel){
           /*
-          action = GridPathFinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: [x,y], cellVal: 1});
+          action = Pathfinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: [x,y], cellVal: 1});
           if(!(dest in mem.canvasCoords)) mem.canvasCoords[dest] = [];
           let i;
           for(i=0;i<mem.canvasCoords[dest].length;++i){
@@ -472,7 +472,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           delete mem.canvasCoords[dest][i];
           /* virtualCanvas version */
           try{
-            action = GridPathFinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[destId].virtualCanvas[x][y]});
+            action = Pathfinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: [x,y], cellVal: myUI.canvases[destId].virtualCanvas[x][y]});
             myUI.canvases[destId].erase_pixel([x,y], true, false);
           }
           catch(e){
@@ -486,7 +486,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           /*
           if(!(dest in mem.canvasCoords)) mem.canvasCoords[dest] = [];
           mem.canvasCoords[dest].forEach(nodeCoord=>{
-            let subAction = GridPathFinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: nodeCoord});
+            let subAction = Pathfinder.packAction({command: STATIC.DrawPixel, dest: dest, nodeCoord: nodeCoord});
             Array.prototype.push.apply(action, subAction);
           });
           mem.canvasCoords[dest] = [];
@@ -498,7 +498,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             for(let i=0;i<height;++i){
               for(let j=0;j<width;++j){
                 if(myUI.canvases[destId].virtualCanvas[i][j]!=canvasDefaultVal){
-                  let subAction = GridPathFinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [i,j], cellVal: myUI.canvases[destId].virtualCanvas[i][j]});
+                  let subAction = Pathfinder.packAction({command: STATIC.SetPixelValue, dest: dest, nodeCoord: [i,j], cellVal: myUI.canvases[destId].virtualCanvas[i][j]});
                   Array.prototype.push.apply(action, subAction);
                 }
               }
@@ -512,31 +512,31 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           /**/
         }
         else if(command==STATIC.IncrementPixel){
-          action = GridPathFinder.packAction({command: STATIC.DecrementPixel, dest: dest, nodeCoord: [x,y]});
+          action = Pathfinder.packAction({command: STATIC.DecrementPixel, dest: dest, nodeCoord: [x,y]});
           myUI.canvases[destId].change_pixel([x,y], "inc", true);
         }
         else if(command==STATIC.DecrementPixel){
-          action = GridPathFinder.packAction({command: STATIC.IncrementPixel, dest: dest, nodeCoord: [x,y]});
+          action = Pathfinder.packAction({command: STATIC.IncrementPixel, dest: dest, nodeCoord: [x,y]});
           myUI.canvases[destId].change_pixel([x,y], "dec", true);
         }
         else if(command==STATIC.DrawArrow){
           if(arrowIndex in mem.arrowColor){
-            action = GridPathFinder.packAction({command: STATIC.DrawArrow, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
+            action = Pathfinder.packAction({command: STATIC.DrawArrow, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
           }
           else
-            action = GridPathFinder.packAction({command: STATIC.EraseArrow, arrowIndex: arrowIndex});
+            action = Pathfinder.packAction({command: STATIC.EraseArrow, arrowIndex: arrowIndex});
           mem.arrowColor[arrowIndex] = colorIndex;
         }
         else if(command==STATIC.EraseArrow){
-          action = GridPathFinder.packAction({command: STATIC.DrawArrow, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
+          action = Pathfinder.packAction({command: STATIC.DrawArrow, arrowIndex: arrowIndex, colorIndex: mem.arrowColor[arrowIndex]});
           delete mem.arrowColor[arrowIndex];
         }
         else if(command==STATIC.InsertRowAtIndex){
           try{
             let prevHighlight = myUI.InfoTables[destId].insertRowAtIndex(infoTableRowIndex, infoTableRowData); 
-            action = GridPathFinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
+            action = Pathfinder.packAction({command: STATIC.EraseRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex});
             if(prevHighlight)
-              Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
+              Array.prototype.push.apply(action, Pathfinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
           }
           catch(e){
             console.log(e);
@@ -546,39 +546,39 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         }
         else if(command==STATIC.EraseRowAtIndex){
           let [data, toHighlight] = myUI.InfoTables[destId].eraseRowAtIndex(infoTableRowIndex);
-          action = GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight?infoTableRowIndex:infoTableRowIndex*-1, infoTableRowData: data});
+          action = Pathfinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight?infoTableRowIndex:infoTableRowIndex*-1, infoTableRowData: data});
         }
         else if(command==STATIC.EraseAllRows){
           // IT SHOULD WORK, UNTESTED
           action = [];
           while (!myUI.InfoTables[destId].empty()){
             let [data, toHighlight] = myUI.InfoTables[destId].eraseRowAtIndex(1); 
-            Array.prototype.unshift.apply(action, GridPathFinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight ? 1 : -1, infoTableRowData: data}));
+            Array.prototype.unshift.apply(action, Pathfinder.packAction({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: toHighlight ? 1 : -1, infoTableRowData: data}));
           }
         }
         else if(command==STATIC.UpdateRowAtIndex){
           let [data, prevHighlight] = myUI.InfoTables[destId].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
-          action = GridPathFinder.packAction({command: STATIC.UpdateRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex, infoTableRowData: data});
+          action = Pathfinder.packAction({command: STATIC.UpdateRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex, infoTableRowData: data});
           if(prevHighlight)
-            Array.prototype.push.apply(action, GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
+            Array.prototype.push.apply(action, Pathfinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
         }
         else if(command==STATIC.SetHighlightAtIndex){
           let prevHighlight = myUI.InfoTables[destId].setHighlightAtIndex(infoTableRowIndex); 
-          action = GridPathFinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight});
+          action = Pathfinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight});
         }
         else if(command == STATIC.HighlightPseudoCodeRowPri ){
           if(mem.pseudoCodeRowPri===undefined) mem.pseudoCodeRowPri = -1;
           // -1 resets all pseudocoderows
-          action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowPri, dest: dest, pseudoCodeRow: mem.pseudoCodeRowPri});
+          action = Pathfinder.packAction({command: STATIC.HighlightPseudoCodeRowPri, dest: dest, pseudoCodeRow: mem.pseudoCodeRowPri});
           mem.pseudoCodeRowPri = pseudoCodeRow;
         }  
         else if(command == STATIC.HighlightPseudoCodeRowSec ){
-          if(mem.pseudoCodeRowSec!==undefined) action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: dest, pseudoCodeRow: mem.pseudoCodeRowSec});
-          else action = GridPathFinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: dest, pseudoCodeRow: -1});
+          if(mem.pseudoCodeRowSec!==undefined) action = Pathfinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: dest, pseudoCodeRow: mem.pseudoCodeRowSec});
+          else action = Pathfinder.packAction({command: STATIC.HighlightPseudoCodeRowSec, dest: dest, pseudoCodeRow: -1});
           mem.pseudoCodeRowSec = pseudoCodeRow;
         }
         else if(command == STATIC.DrawVertex){
-          action = GridPathFinder.packAction({command: STATIC.EraseVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, radius: radius});
+          action = Pathfinder.packAction({command: STATIC.EraseVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, radius: radius});
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
           mem.vertices[dest].push([x,y,colorIndex,radius]);
@@ -590,7 +590,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y && mem.vertices[dest][i][2] == colorIndex && mem.vertices[dest][i][3] == radius){
               mem.vertices[dest].splice(i, 1);
               flag = true;
-              action = GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, radius: radius});
+              action = Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, radius: radius});
               break;
             }
           }
@@ -601,20 +601,20 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           action = [];
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], radius: coordData[3]})));
+          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], radius: coordData[3]})));
           mem.vertices[dest] = [];
         }
         else if(command == STATIC.DrawSingleVertex){ //now hard coded for current vertex
           action = [];
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], radius: coordData[3]})));
+          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], radius: coordData[3]})));
           mem.vertices[dest] = [];
           mem.vertices[dest].push([x,y,colorIndex,radius]);
-          action = GridPathFinder.packAction({command: STATIC.EraseAllVertex, dest: dest});
+          action = Pathfinder.packAction({command: STATIC.EraseAllVertex, dest: dest});
         } 
         else if(command == STATIC.DrawEdge){
-          action = GridPathFinder.packAction({command: STATIC.EraseEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
+          action = Pathfinder.packAction({command: STATIC.EraseEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
           if(!mem.edges.hasOwnProperty(dest))
             mem.edges[dest] = [];
           mem.edges[dest].push([x,y,endX,endY,colorIndex]);
@@ -631,7 +631,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             let b = mem.edges[dest][i][2] == x && mem.edges[dest][i][3] == y && mem.edges[dest][i][0] == endX && mem.edges[dest][i][1] == endY;
             if(a || b){
               let colorIdx = mem.edges[dest][i][4];
-              action = GridPathFinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY], colorIndex: colorIdx});
+              action = Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY], colorIndex: colorIdx});
               mem.edges[dest].splice(i, 1);
               break;
             }
@@ -641,11 +641,11 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           action = [];
           if(!mem.edges.hasOwnProperty(dest))
             mem.edges[dest] = [];
-          mem.edges[dest].forEach(quad => Array.prototype.push.apply(action,GridPathFinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [quad[0], quad[1]], endCoord: [quad[2], quad[3]], colorIndex: quad[4]})));
+          mem.edges[dest].forEach(quad => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [quad[0], quad[1]], endCoord: [quad[2], quad[3]], colorIndex: quad[4]})));
           mem.edges[dest] = [];
         }
         else if( command == STATIC.CreateStaticRow ){
-          action = GridPathFinder.packAction({command: STATIC.RemoveStaticRow, dest: dest, id: id, value: value});
+          action = Pathfinder.packAction({command: STATIC.RemoveStaticRow, dest: dest, id: id, value: value});
         }
         else{
           console.log(STATIC_COMMANDS[command], ", ERR: COMMAND NOT REVERSED");

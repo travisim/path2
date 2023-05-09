@@ -1,0 +1,11 @@
+PathFinder:
+  GridPathFinder:
+    BFS
+    DFS
+    GBFS
+    Dijkstra
+    A*:
+      Theta*
+  PRM:
+    VisibilityGraph
+  RRT

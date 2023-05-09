@@ -1,4 +1,4 @@
-class RRT_star extends GridPathFinder{
+class RRT_star extends Pathfinder{
 
 	static get display_name(){
 		return "RRT*";
@@ -32,9 +32,6 @@ class RRT_star extends GridPathFinder{
       
 		];
 	}
-  static get distance_metrics(){
-    return ["Euclidean"];
-  }
 
   static get hoverData(){
     return [
@@ -80,7 +77,7 @@ class RRT_star extends GridPathFinder{
       {uid: "max_distance_between_nodes", displayName: "Max Distance Between Nodes", options: "number",defaultVal:5, description: `Sets maximum distance between 2 nodes`},
       {uid: "goal_radius", displayName: "Goal Radius", options: "number", defaultVal: 3, description: `Sets radius of goal` },
       {uid: "round_nodes", displayName: "Round Node Values", options: ["Allow Floats","Round to Nearest Integer", ], description: `Round the nodes`},
-      {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], defaultVal:"Euclidean", description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
+      {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], defaultVal:"Euclidean", description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
@@ -92,15 +89,11 @@ class RRT_star extends GridPathFinder{
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
     this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
-    this.vertexEnabled = true;
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
-    
-    
   }
 
   setConfig(uid, value){
-		super.setConfig(uid, value);
     switch(uid){
       case "distance_metric":
 				this.distance_metric = value;
@@ -160,9 +153,12 @@ l        }
         break;
       case "goal_radius":
         this.goalRadius = value;
+        break;
       case "max_distance_between_nodes":
         this.pointsXawayFromSource = value;
-
+        break;
+      default:
+		    super.setConfig(uid, value);
     }
   }
   calc_cost(successor){
@@ -177,10 +173,6 @@ l        }
 
     var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
     return [f_cost, g_cost, h_cost];
-  }
-
-  postProcess(){
-    this.setConfig("mapType", "Grid Vertex Float");
   }
 
   generateNewMap(start = [0, 0], goal = [13, 13]) {

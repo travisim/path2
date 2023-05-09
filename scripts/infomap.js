@@ -44,13 +44,9 @@ class UIInfoNWSE{
   }
 }
 
-
-
-
-
 class UIInfoMap{
   reset(){
-   myUI.planner.deltaNWSE.forEach(deltaNWSE => {myUI.InfoNWSE[deltaNWSE].resetOne();
+   if(myUI.planner.deltaNWSE) myUI.planner.deltaNWSE.forEach(deltaNWSE => {myUI.InfoNWSE[deltaNWSE].resetOne();
   }); //reset obstacles in info map 
 
   }
