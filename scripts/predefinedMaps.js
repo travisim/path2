@@ -114,7 +114,7 @@ class predefinedMaps{
         const a = 0.01 * width;
         const b = 0.15;
         const thetaMax = 40 * Math.PI;
-        const dTheta = 0.01;
+        const dTheta = 0.0001 ;
 
         // Initialize the 2D array
         const spiral = new Array(height).fill('.').map(() => new Array(width).fill('.'));
@@ -127,7 +127,9 @@ class predefinedMaps{
             const y = Math.floor(centerY + r * Math.sin(theta));
             if (x >= 0 && x < width && y >= 0 && y < height) {
                 spiral[y][x] = '@';
-       
+                if ((x > (0.97 * width)) || (y > (0.97 * height))) {
+                    break;
+                }
             }
             theta += dTheta;
         }
@@ -142,11 +144,18 @@ class predefinedMaps{
         let centerY = Math.floor(height / 2);
         let numTurns = Math.floor(Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2))); // calculate number of turns needed to fill most of the array
   
-        for (let i = 0; i <= numTurns * 2 * Math.PI; i = i + 0.01) {
+        for (let i = 0; i <= numTurns * 2 * Math.PI; i = i + 0.001) {
             let x = Math.floor(centerX + i * Math.cos(i));
             let y = Math.floor(centerY + i * Math.sin(i));
             if (x >= 0 && x < width && y >= 0 && y < height) {
+                // const distanceFromCenter = (Math.sqrt(Math.pow(centerX - x, 2) + Math.pow(centerY - y, 2)) * 2);
+                // if (distanceFromCenter < centerX) {
+                //    spiral[y][x] = '@';
+                // }
                 spiral[y][x] = '@';
+                if ((x > (0.97 * width)) || (y > (0.97 * height))) {
+                    break;
+                }
             }
         }
   

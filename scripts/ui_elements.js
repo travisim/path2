@@ -151,7 +151,7 @@ class UICanvas{
 
     if (data_width > 256 || data_height > 256) this.pixelSize = 1.2;
    
-    else this.pixelSize = 1;
+    else this.pixelSize = 1.05;
 
     if(retain_data){
       let new_canvas_cache = deep_copy_matrix(this.canvas_cache);
