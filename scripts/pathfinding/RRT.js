@@ -744,7 +744,9 @@ l        }
     let node = this.choosenCoordsNodes[this.goalIndex];
     if (node != undefined) { 
       console.log(node);
-      while (node.parent != null) {
+      while (true) { // adding node.parent != null  does not work
+        console.log(node);
+        if (node.parent == null) break
         console.log("Drawing Vertex");
         myUI.run_action(STATIC.DrawVertex, this.dests.path, node.value_XY[0], node.value_XY[1], 0);
         var p = this.choosenCoordsNodes[node.parent];
