@@ -221,7 +221,7 @@ class VisibilityGraph extends PRM{
         if(coords == null) continue;
         for(const coord of coords){
           this.randomCoordsNodes.push(new MapNode(null, coord, []));
-          this._create_action({command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: coord});
+          // this._create_action({command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: coord});
         }
       }
     }
@@ -233,7 +233,7 @@ class VisibilityGraph extends PRM{
       for(let j = 0; j < i; ++j){
         let n1 = this.randomCoordsNodes[i], n2 = this.randomCoordsNodes[j];
         if(CustomLOSChecker(n1.value_XY, n2.value_XY).boolean){
-          this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: n1.value_XY, endCoord: n2.value_XY});
+          // this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: n1.value_XY, endCoord: n2.value_XY});
           this.randomCoordsNodes[i].neighbours.push(j);
           this.randomCoordsNodes[j].neighbours.push(i);
         }

@@ -167,13 +167,6 @@ input[type=range][orient=vertical]{
 	width: 120px;
 }
 
-.first_neighbor_choice{
-  font-size: large;
-  font-weight: bold;
-  height: 80px;
-  margin: 12px;
-}
-
 #planner_config_body tr td{
   font-size: small;
 }

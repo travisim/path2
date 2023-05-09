@@ -290,7 +290,7 @@ static get wasm(){
       {uid: "num_neighbors", displayName: "Neighbors:", options: ["Octal (8-directions)", "Cardinal (4-directions)"], description: `Octal when all 8 neighbors surrounding the each cell are searched.<br>Cardinal when 4 neighbors in N,W,S,E (cardinal) directions are searched.`},
       {uid: "first_neighbor", displayName: "Starting Node:", options: ["N", "NW", "W", "SW", "S", "SE", "E", "NE"], description: `The first direction to begin neighbour searching. Can be used for breaking ties. N is downwards (+i/+x/-row). W is rightwards (+j/+y/-column).`},//["+x", "+x+y", "+y", "-x+y", "-x", "-x-y", "-y", "+x-y"]},
       {uid: "search_direction", displayName: "Search Direction:", options: ["Anticlockwise", "Clockwise"], description: `The rotating direction to search neighbors. Can be used for breaking ties. Anticlockwise means the rotation from N to W. Clockwise for the opposite rotation.`},
-			{uid: "mapType", displayName: "Map Type:", options: ["Grid Vertex", "Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
+			{uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
       {uid: "big_map", displayName: "Big Map Optimization:", options: ["Disabled","Enabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
     ];
 	}
@@ -570,10 +570,12 @@ static get wasm(){
 			this._create_action(STATIC.DrawArrow, node.arrow_index, 1);
 			/* NEW */
 			if(this.constructor.drawMode == "Free Vertex"){
-				console.log("TRUEEEEEE");
-				this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: node.self_XY});
+				const OFFSET = this.vertexEnabled ? 0 : 0.5;
+				let nodeCoord = node.self_XY.map(x=>x + OFFSET);
+				this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: nodeCoord});
 				if(prevNode){
-					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: prevNode.self_XY});
+					let endCoord = prevNode.self_XY.map(x=>x + OFFSET);
+					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: nodeCoord, endCoord: endCoord});
 				}
 			}
 			else this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});

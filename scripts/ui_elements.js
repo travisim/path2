@@ -509,7 +509,7 @@ class UICanvas{
     
     var resolution = Math.max(myUI.map_height,myUI.map_width)>472?Math.min(1/(Math.ceil(myUI.map_height/472)),1/(Math.ceil(myUI.map_width/472))):1
 
-    let thickness = Math.floor(472 * 0.03);    
+    let thickness = myUI.thickness ? myUI.thickness : Math.floor(472 * 0.03);    
     for (let y = 0; y < thickness; y=y+resolution) {
       for (let x = 0; x < thickness; x = x + resolution) {
         let canvas_x_processed = canvas_x+x

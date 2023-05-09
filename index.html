@@ -383,12 +383,12 @@
                 <!-- steps are 0-indexed -->
                 <span>100%</span>
               </div>
-              <label class="label_centered">Steps per checkpoint: <input id="state_freq_label" value="1"/></label>
+              <label class="label_centered">Steps per checkpoint: <input id="state_freq_label" value="20"/></label>
               <div class="flex-row">
-                <span>1</span>
+                <span>20</span>
                 <input
                   type="range"
-                  min="1"
+                  min="20"
                   max="20000"
                   value="20"
                   id="state_freq_slider"
@@ -698,26 +698,6 @@
         </div>
       </div>
     </div>
-    <div id="first_neighbor_modal" class="modal">
-      <div class="modal-content mini">
-        <span id="first_neighbor_close" class="close">&times;</span>
-        <div class="flex-col">
-          <div class="flex-row">
-            <button class="first_neighbor_choice btn">NW</button>
-            <button class="first_neighbor_choice btn">N</button>
-            <button class="first_neighbor_choice btn">NE</button>
-          </div>
-          <div class="flex-row">
-            <button class="first_neighbor_choice btn">W</button>
-            <button class="first_neighbor_choice btn empty"></button>
-            <button class="first_neighbor_choice btn">E</button>
-          </div>
-          <div class="flex-row">
-            <button class="first_neighbor_choice btn">SW</button>
-            <button class="first_neighbor_choice btn">S</button>
-            <button class="first_neighbor_choice btn">SE</button>
-          </div>
-		</div>
       </div>
     </div>
 
@@ -817,6 +797,7 @@
     <script src="scripts/infotable class.js"></script>
     <script src="scripts/infopseudocode class.js"></script>
     <script src="scripts/layers_checklist.js"></script>
+    <script src="scripts/modal.js"></script>
     <script src="scripts/interface.js"></script>
     <!-- creates myUI -->
     <script src="scripts/hover_config.js"></script>
@@ -828,7 +809,7 @@
     <script src="scripts/upload.js"></script>
     <script src="scripts/darkmode.js"></script>
     <script src="scripts/hover.js"></script>
-    <script src="scripts/modal.js"></script>
+    <script src="scripts/edit_map.js"></script>
     <script src="scripts/parser-select-display.js"></script>
     <script src="scripts/planner_config.js"></script>
     <script src="scripts/download.js"></script>
