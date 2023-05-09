@@ -96,9 +96,6 @@ class UICanvas{
         if(myUI.map_width) this.data_width = myUI.map_width;
         this.scale_canvas(this.data_height, this.data_width, false);
         break;
-      case "svg":
-      case "svgDotted":
-        break;
       default:
         console.error(`UNKNOWN CANVAS DRAWTYPE, ID: ${this.id}`)
     }
@@ -515,7 +512,7 @@ class UICanvas{
   draw_vertex(xy, color_index){
     let y = xy[0]*this.canvas.height/myUI.map_height;
     let x = xy[1]*this.canvas.width/myUI.map_width;
-    let r = Math.max(1.5, 0.15 * this.canvas.height/myUI.map_height);
+    let r = Math.max(1.25, 0.125 * this.canvas.height/myUI.map_height);
 
     this.set_color(this.strokeColor, "stroke");
     this.ctx.beginPath();

@@ -6,6 +6,6 @@ PathFinder:
     Dijkstra
     A*:
       Theta*
-  PRM:
-    VisibilityGraph
+  PRM
+  VisibilityGraph
   RRT

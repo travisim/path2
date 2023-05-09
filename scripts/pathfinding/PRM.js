@@ -7,9 +7,10 @@ class PRM extends Pathfinder{
     return "PRM";
   }
 
-  static drawMode = "Free Vertex";
+  static get showFreeVertex(){ return true; }
+  static get gridPrecision(){ return "float"; }
 
-  static get indexOfCollapsiblesToExpand() {
+  static get indexOfCollapsiblesToExpand() {", "
     return [1, 2, 3, 4];
   }
   static get pseudoCode() {
@@ -21,7 +22,7 @@ class PRM extends Pathfinder{
 
    static get infoTables(){
     return [
-      {id: "ITStatistics", displayName: "Statistics", headers: ["Indicator ", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
+      {id: "ITStatistics", displayName: "Statistics", headers: ["Indicator", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
 			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
       {id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
       
@@ -49,7 +50,7 @@ class PRM extends Pathfinder{
 			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			// },
       {
-				id:"networkGraph", drawType:"svg", drawOrder: 19, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"networkGraph", drawType:"cell", drawOrder: 17, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			}
     ])
     if(this.bigMap){
@@ -80,11 +81,9 @@ class PRM extends Pathfinder{
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
-    this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
     this.vertexEnabled = true;
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
-    
   }
 
   setConfig(uid, value){
@@ -207,10 +206,6 @@ class PRM extends Pathfinder{
       this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: randomCoord_XY });
     }
     this._save_step(true);
-    
-    
-   
-    
     
     //var otherRandomCoordsDistance = empty2D(randomCoordsNodes.length,randomCoordsNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
     
@@ -408,10 +403,6 @@ class PRM extends Pathfinder{
       this.prevGoalCoordConnectedto = selected_XY;
     }
   }
-    
-    
-   
-  
 
   search(start, goal) {
     // this method finds the path using the prescribed map, start & goal coordinates
@@ -431,12 +422,11 @@ class PRM extends Pathfinder{
 
     // pushes the starting node onto the queue
     this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
-    console.log(this.current_node);
     //;
     
     if(!this.bigMap){
       // for every node that is pushed onto the queue, it should be added to the queue infotable
-      this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1, infoTableRowData: [nextNode.value_XY[0].toPrecision(5)+','+nextNode.value_XY[1].toPrecision(5), '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
+      this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1, infoTableRowData: [nextNode.value_XY.toPrecision(5).join(", "), '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
       this._create_action({command: STATIC.DrawVertex, dest: this.dests.queue, nodeCoord: nextNode.value_XY});
       this._save_step(true);
     }
@@ -450,18 +440,19 @@ class PRM extends Pathfinder{
   }
 
   _run_next_search(planner, num) {
+    function A_star_cmp(a, b){
+      if(Math.abs(a.f_cost-b.f_cost)<0.000001){
+        if(myUI.planner.hOptimized)
+          return a.h_cost-b.h_cost;
+      }
+      return a.f_cost > b.f_cost;
+    }
+
     while (num--) {
       // while there are still nodes left to visit
       if (this.queue.length == 0) return this._terminate_search();
-           //++ from bfs.js
-      this.queue.sort(function (a, b){
-        if(Math.abs(a.f_cost-b.f_cost)<0.000001){
-					if(myUI.planner.hOptimized)
-          	return a.h_cost-b.h_cost;
-        }
-        return a.f_cost-b.f_cost;
-      });   
-      //++ from bfs.js
+      
+      if(this.bigMap) this.queue.sort(A_star_cmp);
       
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
@@ -480,14 +471,13 @@ class PRM extends Pathfinder{
 			this.closed_list.set(this.current_node_XY, this.current_node);
       this.open_list.set(this.current_node_XY, undefined); // remove from open list
 
-      //this.visited.increment(this.current_node_XY); // marks current node XY as visited
       this._create_action({command: STATIC.DrawVertex, dest: this.dests.visited, nodeCoord: this.current_node_XY});
       
       if(!this.bigMap){
         this._create_action({command: STATIC.EraseAllRows, dest: this.dests.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
           const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [`${XY[0].toPrecision(5)}, ${XY[1].toPrecision(5)}`, "?", "?", "?", "?"]})
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [XY.toPrecision(5).join(", "), "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1});
 
@@ -514,11 +504,10 @@ class PRM extends Pathfinder{
       if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
       
 
-      /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
+      /* iterates through the neighbors and adds them to the queue & neighbour array */
        for (let i = 0; i < this.current_node.neighbours.length; ++i){
         const idx = this.current_node.neighbours[i];
         var next_XY = this.randomCoordsNodes[idx].value_XY; // calculate the coordinates for the new neighbour
-    
 
         let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
         
@@ -529,7 +518,7 @@ class PRM extends Pathfinder{
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.focused, nodeCoord: next_XY});
             this._save_step(false);
           }
@@ -539,17 +528,12 @@ class PRM extends Pathfinder{
         if(closed_node !== undefined && closed_node.f_cost<=f_cost){
           if(!this.bigMap){
             if(this.current_node.parent.self_XY[0] == next_XY[0] && this.current_node.parent.self_XY[1] == next_XY[1])
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
             else
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.focused, nodeCoord: next_XY});
           }
           
-          /* no longer required as closed list functions as visited */
-          /* and INC_P keeps tracks of how many times a node is visited */
-          //this.visited.increment(next_XY); 
-
-          // increment after visiting a node on the closed list
           /*this._create_action({command: STATIC.IncrementPixel, dest: this.dests.visited, nodeCoord: next_XY});*///add on
           this._save_step(false);
           continue; // do not add to queue if closed list already has a lower cost node
@@ -558,6 +542,11 @@ class PRM extends Pathfinder{
         //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
         //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
         //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
+        
+        // add to queue 
+        if(this.timeOrder=="FIFO") this.queue.push(next_node); // FIFO
+        else this.queue.unshift(next_node); // LIFO
+        this.open_list.set(next_XY, next_node);  // add to open list
         
         // since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
         // see https://www.geeksforgeeks.org/a-search-algorithm/
@@ -568,24 +557,22 @@ class PRM extends Pathfinder{
           this._create_action({command: STATIC.DrawVertex, dest: this.dests.queue, nodeCoord: next_XY});
           this._create_action({command: STATIC.DrawVertex, dest: this.dests.neighbors, nodeCoord: next_XY}); //add on
 
+          this.queue.sort(A_star_cmp);
+
           // counts the number of nodes that have a lower F-Cost than the new node
           // to find the position to add it to the queue
-          let numLess = this.queue.filter(node => node.f_cost < next_node.f_cost).length;
+          let numLess = 0;
+          while(this.queue[numLess] != next_node) numLess++;
           
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0].toPrecision(5)+','+next_XY[1].toPrecision(5), this.current_node_XY[0].toPrecision(5)+','+this.current_node_XY[1].toPrecision(5), parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), this.current_node_XY.toPrecision(5).join(", "), parseFloat(next_node.f_cost.toPrecision(5)), parseFloat(next_node.g_cost.toPrecision(5)), parseFloat(next_node.h_cost.toPrecision(5))]});
           
           if(open_node===undefined && closed_node===undefined) 
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
           else if(open_node)
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.focused, nodeCoord: next_XY});
         }
         this._save_step(false);
-
-        // add to queue 
-        if(this.timeOrder=="FIFO") this.queue.push(next_node); // FIFO
-        else this.queue.unshift(next_node); // LIFO
-        this.open_list.set(next_XY, next_node);  // add to open list
 
         if(this._found_goal(next_node)) return this._terminate_search();
       }

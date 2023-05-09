@@ -53,7 +53,6 @@ class A_star extends GridPathfinder{
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbor, search_direction);
-    this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
   }
 
   setConfig(uid, value){
@@ -141,7 +140,7 @@ class A_star extends GridPathfinder{
       );
 
       // for every node that is pushed onto the queue, it should be added to the queue infotable
-      this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1, infoTableRowData: [start[0]+','+start[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
+      this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1, infoTableRowData: [start.join(", "), '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
       this._create_action({command: STATIC.DrawPixel, dest: this.dests.queue, nodeCoord: start});
       this._save_step(true);
     }
@@ -156,23 +155,18 @@ class A_star extends GridPathfinder{
   }
 
   _run_next_search(planner, num) {
-    // if(this.startTime != myUI.startTime) return this._terminate_search();
+    function A_star_cmp(a, b){
+      if(Math.abs(a.f_cost-b.f_cost)<0.000001){
+        if(myUI.planner.hOptimized)
+          return a.h_cost-b.h_cost;
+      }
+      return a.f_cost > b.f_cost;
+    }
     while (num--) {
       // while there are still nodes left to visit
-      if (this.queue.length == 0){
-        console.log(`${Date.now() - myUI.startTime}ms`);
-        return this._terminate_search();
-      }
+      if (this.queue.length == 0) return this._terminate_search();
 
-      if(this.bigMap){
-        this.queue.sort(function (a, b){
-          if(Math.abs(a.f_cost-b.f_cost)<0.000001){
-            if(myUI.planner.hOptimized)
-              return a.h_cost-b.h_cost;
-          }
-          return a.f_cost > b.f_cost;
-        });
-      }
+      if(this.bigMap) this.queue.sort(A_star_cmp);
       
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
@@ -187,7 +181,6 @@ class A_star extends GridPathfinder{
       
 			this.closed_list.set(this.current_node_XY, this.current_node);
 
-      //this.visited.increment(this.current_node_XY); // marks current node XY as visited
       this._create_action({command: STATIC.IncrementPixel, dest: this.dests.visited, nodeCoord: this.current_node_XY});
       
       if(!this.bigMap){
@@ -219,7 +212,7 @@ class A_star extends GridPathfinder{
       for(const i of this.neighborsIndex){
         var next_XY = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
         if (next_XY[0] < 0 || next_XY[0] >= this.map_height || next_XY[1] < 0 || next_XY[1] >= this.map_width){
-          if(!this.bigMap) this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, 'inf', 'inf', 'inf', "Out of Bounds"]});
+          if(!this.bigMap) this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], next_XY.join(", "), 'inf', 'inf', 'inf', "Out of Bounds"]});
           continue;  // if the neighbour not within map borders, don't add it to queue
         }
 
@@ -230,7 +223,7 @@ class A_star extends GridPathfinder{
         if(!this._nodeIsNeighbor(next_XY, this.deltaNWSE[i], cardinalCoords)){
           if(!this.bigMap){
             // records the neighbor as a obstacle
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, 'inf', 'inf', 'inf', "Obstacle"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], next_XY.join(", "), 'inf', 'inf', 'inf', "Obstacle"]});
             this._save_step(false);
           }
           continue;
@@ -244,7 +237,7 @@ class A_star extends GridPathfinder{
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], next_XY.join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._save_step(false);
           }
           continue; // do not add to queue if open list already has a lower cost node
@@ -253,9 +246,9 @@ class A_star extends GridPathfinder{
         if(closed_node !== undefined && closed_node.f_cost<=f_cost){
           if(!this.bigMap){
             if(this.current_node.parent.self_XY[0] == next_XY[0] && this.current_node.parent.self_XY[1] == next_XY[1])
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], next_XY.join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
             else
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
+              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], next_XY.join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
           }
 
           // increment after visiting a node on the closed list
@@ -284,13 +277,7 @@ class A_star extends GridPathfinder{
 
           this._create_action({command: STATIC.DrawPixel, dest: this.dests.queue, nodeCoord: next_XY});
 
-          this.queue.sort(function (a, b){
-            if(Math.abs(a.f_cost-b.f_cost)<0.000001){
-              if(myUI.planner.hOptimized)
-                return a.h_cost-b.h_cost;
-            }
-            return a.f_cost > b.f_cost;
-          });
+          this.queue.sort(A_star_cmp);
 
           // counts the number of nodes that have a lower F-Cost than the new node
           // to find the position to add it to the queue
@@ -300,9 +287,9 @@ class A_star extends GridPathfinder{
           this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5))]});
           
           if(open_node===undefined && closed_node===undefined) 
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5)), "New encounter"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], next_XY.join(", "), parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5)), "New encounter"]});
           else// if(open_node || closed_node)
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5)), "Replace parent"]});
+            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], next_XY.join(", "), parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5)), "Replace parent"]});
 
         }
         this._save_step(false);

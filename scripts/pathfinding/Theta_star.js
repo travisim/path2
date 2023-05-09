@@ -2,7 +2,7 @@ class Theta_star extends A_star{
 
 	static get display_name(){ return "Theta star"; }
 
-  static drawMode = "Free Vertex";
+  static get showFreeVertex(){ return true; }
 
   static get configs(){
     let configs = super.configs;

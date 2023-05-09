@@ -2,7 +2,7 @@ myUI.scale_coord = function (x, y) {
 	const HOVER_MAP = myUI.canvases.hover_map.canvas;
 	var scaled_y = (y) / (HOVER_MAP.clientWidth) * myUI.map_width;
 	var scaled_x = (x) / (HOVER_MAP.clientHeight) * myUI.map_height;
-	if(myUI.gridPrecision != "float"){
+	if(myUI.planner.constructor.gridPrecision != "float"){
 		if(myUI.vertex){
 			var scaled_y = Math.round(scaled_y);
 			var scaled_x = Math.round(scaled_x);
@@ -43,7 +43,7 @@ myUI.handle_map_hover = function(e){
 	myUI.canvases.hover_map.canvas.style.cursor = "auto";
 	//document.getElementById("hover_cell_index").innerHTML = "-";
 	tooltip_data.style.backgroundColor = ``;
-	if(myUI.gridPrecision != "float"  && cellIsValid([scaled_x, scaled_y])){ //lazy evaluation
+	if(myUI.planner.constructor.gridPrecision != "float"  && cellIsValid([scaled_x, scaled_y])){ //lazy evaluation
 		myUI.canvases.hover_map.set_color_index(2, "both");
 		myUI.canvases.hover_map.canvas.style.cursor = "pointer";
 		//document.getElementById("hover_cell_index").innerHTML = myUI.planner.cell_map.get([scaled_x, scaled_y])
@@ -70,7 +70,7 @@ myUI.canvases.hover_map.canvas.addEventListener(`mousemove`, myUI.handle_map_hov
 
 myUI.canvases.hover_map.canvas.addEventListener(`click`, e=>{
 	let xy = myUI.scale_coord(e.offsetY, e.offsetX);
-	if(myUI.gridPrecision != "float"  && cellIsValid(xy)){
+	if(myUI.planner.constructor.gridPrecision != "float"  && cellIsValid(xy)){
 		myUI.animation.step = myUI.planner.cell_map.get(xy);
 		myUI.jump_to_step();
 	}
@@ -168,6 +168,9 @@ function dragElement(elmnt, slaveElmnt) {
 	  myUI.displayScen(true, true);
   }
 }
+
+dragElement(myUI.map_start_icon.elem)
+dragElement(myUI.map_goal_icon.elem, myUI.map_goal_radius.elem);
 
 // retruns number of digits after decimal place
 function precision(a) {

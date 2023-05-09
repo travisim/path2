@@ -1,3 +1,7 @@
+Array.prototype.toPrecision = function(n){
+	return this.map(x => parseFloat(x.toPrecision(n)));
+}
+
 function removeChildren(elem, childTag="", omitIds=[]){
   childTag = childTag.toLowerCase();
   let idx = 0;

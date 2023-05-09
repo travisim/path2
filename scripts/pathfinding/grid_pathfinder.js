@@ -40,14 +40,11 @@ class GridPathfinder extends Pathfinder{
 				if(value=="Grid Vertex"){
 					this.vertexEnabled = true;
 					myUI.toggleVertex(true);
-					myUI.gridPrecision = "int"
 				}
 				else{
 					this.vertexEnabled = false;
 					myUI.toggleVertex(false);
-					myUI.gridPrecision = "int"
 				}
-				myUI.displayScen();
 				break;
       default:
         super.setConfig(uid, value);
@@ -99,7 +96,6 @@ class GridPathfinder extends Pathfinder{
   _init_search(start, goal){
     super._init_search(start, goal);
     // generate empty 2d array
-    this.visited = new NBitMatrix(this.map_height, this.map_width, 8);
     this._create_cell_index();
   }
 

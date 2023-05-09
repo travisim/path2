@@ -76,7 +76,7 @@ class Pathfinder{
 		}
 		if(action[0]&(1<<10)){
 			++idx;
-			var radius = parseInt(action[idx]); 
+			var thickness = action[idx]; 
 		}
 		if(action[0]&(1<<11)){
 			++idx;
@@ -100,12 +100,12 @@ class Pathfinder{
 			infoTableRowData : ${infoTableRowData}
 			cellVal          : ${cellVal}
 			endCoord         : ${endX + ", " + endY}
-			radius           : ${radius}
+			thickness        : ${thickness}
 			value            : ${value}
 			id               : ${id}
 			`);
 		}
-		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id];/**/
+		return [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,thickness,value,id];/**/
 	}
 
 	static _managePacking(numBits, obj){
@@ -128,7 +128,7 @@ class Pathfinder{
 		infoTableRowData,
 		cellVal,
 		endCoord,
-		radius,
+		thickness,
 		value,
 		id
 		
@@ -196,10 +196,10 @@ class Pathfinder{
 			obj.actionCache.push(endCoord[0] * 2); // for floating point coordinates
 			obj.actionCache.push(endCoord[1] * 2); // for floating point coordinates not working for now
 		}
-		if (radius !== undefined) {
+		if (thickness !== undefined) {
 			obj.idx++;
 			obj.actionCache[0] |= 1 << 10;
-			obj.actionCache.push(radius.toString());
+			obj.actionCache.push(thickness);
 		}
 		if (value !== undefined) {
 			obj.idx++;
@@ -252,7 +252,9 @@ class Pathfinder{
 		];
 	}
 
-	constructor(){}
+	constructor(){
+    this.generateDests();
+	}
 	
 	generateDests(){
 		let idx = 0;
@@ -358,13 +360,13 @@ class Pathfinder{
 		cellVal,
 		endCoord,
 		colour,
-		radius,
+		thickness,
 		value,
 		id
 		
 	} = {}){
-		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord, colour: colour,radius: radius,value:value,id:id});
-		if(this.step_index == 0) console.log(this.actionCache, command, dest);
+		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord, colour: colour,thickness: thickness,value:value,id:id});
+		if(this.step_index == 0) console.log(STATIC_COMMANDS[command], this.dests[dest]);
 		Array.prototype.push.apply(this.step_cache, this.actionCache);
 		return this.actionCache.length;
 	}
@@ -423,13 +425,16 @@ class Pathfinder{
 			this._create_action(STATIC.DrawPixel, this.dests.path, node.self_XY);
 			this._create_action(STATIC.DrawArrow, node.arrow_index, 1);
 			/* NEW */
-			if(this.constructor.drawMode == "Free Vertex"){
+			if(this.constructor.showFreeVertex){
 				const OFFSET = this.vertexEnabled ? 0 : 0.5;
 				let nodeCoord = node.self_XY.map(x=>x + OFFSET);
-				this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: nodeCoord});
+				if(this.constructor.gridPrecision == "float")
+					this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: nodeCoord});
+				else
+					this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
 				if(prevNode){
 					let endCoord = prevNode.self_XY.map(x=>x + OFFSET);
-					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: nodeCoord, endCoord: endCoord});
+					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: nodeCoord, endCoord: endCoord, thickness: 0.15});
 				}
 			}
 			else this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});

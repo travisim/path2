@@ -7,7 +7,8 @@ class RRT_star extends Pathfinder{
     return "RRT_star";
   }
 
-  static drawMode = "Free Vertex";
+  static get showFreeVertex(){ return true; }
+  static get gridPrecision(){ return "float"; }
 
   static get addGoalRadius() {
     return 1;
@@ -54,10 +55,10 @@ class RRT_star extends Pathfinder{
 			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			// },
       {
-				id:"networkGraph", drawType:"svg", drawOrder: 19, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey", "red"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"networkGraph", drawType:"cell", drawOrder: 17, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey", "red"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			},
 			{
-				id:"intermediaryMapExpansion", drawType:"svgDotted", drawOrder: 12, fixedResVal: 1024, valType: "integer", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "rgb(0, 204, 255)"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: null,
+				id:"intermediaryMapExpansion", drawType:"dotted", drawOrder: 12, fixedResVal: 1024, valType: "integer", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "rgb(0, 204, 255)"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: null,
 			},
     ])
     if(this.bigMap){
@@ -88,7 +89,6 @@ class RRT_star extends Pathfinder{
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbour = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
-    this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
   }
@@ -243,7 +243,7 @@ l        }
           });
           this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: nextCoordToAdd_XY });
           this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes",value:"++"});
-          this._create_action({command: STATIC.DrawVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,radius: this.connectionDistance.toString()});
+          this._create_action({command: STATIC.DrawVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,thickness: this.connectionDistance.toString()});
           this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 6});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 7});
           this._save_step(false);
@@ -349,7 +349,7 @@ l        }
           });
           this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: nextCoordToAdd_XY });
           this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes",value:"++"});
-          this._create_action({command: STATIC.DrawVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,radius: this.connectionDistance.toString()});
+          this._create_action({command: STATIC.DrawVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,thickness: this.connectionDistance.toString()});
           this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 6});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 7});
           this._save_step(false);
@@ -607,7 +607,6 @@ l        }
 			this.closed_list.set(this.current_node_XY, this.current_node);
       this.open_list.set(this.current_node_XY, undefined); // remove from open list
 
-      //this.visited.increment(this.current_node_XY); // marks current node XY as visited
       this._create_action({command: STATIC.DrawVertex, dest: this.dests.visited, nodeCoord: this.current_node_XY});
       
       if(!this.bigMap){
@@ -671,12 +670,7 @@ l        }
               this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [ `${next_XY[0].toPrecision(5)}, ${next_XY[1].toPrecision(5)}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._create_action({command: STATIC.DrawSingleVertex, dest: this.dests.focused, nodeCoord: next_XY,pseudoCodeRow:0.2});
           }
-          
-          /* no longer required as closed list functions as visited */
-          /* and INC_P keeps tracks of how many times a node is visited */
-          //this.visited.increment(next_XY); 
-
-          // increment after visiting a node on the closed list
+  
           /*this._create_action({command: STATIC.IncrementPixel, dest: this.dests.visited, nodeCoord: next_XY});*///add on
           this._save_step(false);
           continue; // do not add to queue if closed list already has a lower cost node

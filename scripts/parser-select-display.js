@@ -168,8 +168,7 @@ myUI.loadScenario = function(){
     myUI.displayScen(true, false);
   }
   else{
-    let change=0;
-    if(myUI.vertex) change=1
+    let change = myUI.vertex ? 1 : 0;
     if(this.id.includes(x)) this.value = Math.max(0, Math.min(myUI.map_height-1+change, elem.value));
     else this.value = Math.max(0, Math.min(myUI.map_width-1+change, elem.value));
     myUI.map_start = [
@@ -217,14 +216,10 @@ myUI.displayScen = function(update=false, reset_zero=false){
   }
   if(reset_zero) document.querySelector('#scen_num').value = 0;
   myUI.map_start_icon.move(myUI.map_start);
-    myUI.map_goal_radius.move(myUI.map_goal);
+  myUI.map_goal_radius.move(myUI.map_goal);
   myUI.map_goal_icon.move(myUI.map_goal);
   
 	try{myUI.updateInfoMap(myUI.map_start);}catch(e){}
-
-  Array.prototype.toPrecision = function(n){
-    return this.map(x => parseFloat(x.toPrecision(n)));
-  }
 
   if(CustomLOSChecker(myUI.map_start, myUI.map_goal).boolean) console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "HAVE LOS");
   else console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "NO LOS");
@@ -233,9 +228,7 @@ myUI.displayScen = function(update=false, reset_zero=false){
 function moveDraggable(xy){
   const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
 	let bounds = myUI.canvases.bg.canvas.getBoundingClientRect();
-  let offset = 0.5;
-  if(myUI.vertex)
-    offset = 0;
+  let offset = (myUI.planner && myUI?.planner.constructor.gridPrecision == "float") || myUI.vertex ? 0 : 0.5;
 
   if (this.elem.height) { //checks if the elem has this property
     this.elem.style.top = ((xy[0] + offset) * bounds.height / myUI.map_height - this.elem.height / 2) + CANVAS_OFFSET + "px";
@@ -304,7 +297,11 @@ myUI.loadPlanner = function(create_planner = true) {
   myUI.initHover(myUI.planner.constructor.hoverData);
   if(myUI.planner.bigMap) document.getElementById("info-container").classList.add("none");
   else document.getElementById("info-container").classList.remove("none");
-  if (myUI.planner.postProcess) myUI.planner.postProcess();
+  if(myUI.planner.constructor.gridPrecision != "float"){
+    myUI.map_start = myUI.map_start.map(Math.round);
+    myUI.map_goal = myUI.map_goal.map(Math.round);
+    myUI.displayScen(true, true);
+  }
   
   // should change to a more unified one i future 
   if (myUI.planner.constructor.pseudoCode && myUI.planner.constructor.pseudoCode.code) myUI.PseudoCode.rowGenerator(myUI.planner.constructor.pseudoCode.code)
@@ -352,9 +349,9 @@ myUI.toggleVertex = function(enable=true){
     }
     myUI.canvases.hover_map.setDrawType("cell");
   }
-  
   dragElement(myUI.map_start_icon.elem)
   dragElement(myUI.map_goal_icon.elem, myUI.map_goal_radius.elem);
+  myUI.displayScen(true, true);
 }
 
 myUI.parseNodeMap = function(contents){

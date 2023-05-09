@@ -3,12 +3,11 @@ var myUI = {};
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [RRT_star,VisibilityGraph, PRM, A_star, Theta_star, wasm_A_star];
+  myUI.planners = [VisibilityGraph, RRT_star, PRM, A_star, Theta_star, wasm_A_star];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 
   myUI.vertex = false;
-  myUI.gridPrecision = "";
   
   myUI.canvases = {};
   myUI.buttons = {};
@@ -27,7 +26,7 @@ myUI.initialize = function(){
         delete myUI.canvases[id];
       }
     }
-    if(myUI.planner && myUI.planner.constructor.drawMode == "Free Vertex"){
+    if(myUI.planner && myUI.planner.constructor.showFreeVertex){
       myUI.edgeCanvas.show();
       myUI.nodeCanvas.show();
     }
@@ -74,8 +73,8 @@ myUI.initialize = function(){
   myUI.map_height = myUI.canvases.bg.canvas.height;
   myUI.map_width = myUI.canvases.bg.canvas.width;
 
-  myUI.nodeCanvas = new SVGCanvas("node_SVG", -3);
-  myUI.edgeCanvas = new SVGCanvas("edge_SVG", -2);
+  myUI.nodeCanvas = new SVGCanvas("node_SVG", 18);
+  myUI.edgeCanvas = new SVGCanvas("edge_SVG", 19);
 
  //initialise info
   

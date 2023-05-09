@@ -190,7 +190,6 @@ function CustomLOSChecker(src, tgt){
         
         if (src[1]>tgt[1]){
           for (let y = src_dynamic[1]; y > tgt_dynamic[1]-1; --y){
-            console.log(x0,y,x1,y)
             if (grid[src[0]-1][y] && (grid[src[0]][y] == undefined || grid[src[0]][y])){
               return{
                 boolean: false,
@@ -622,7 +621,13 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY,destId = "networkGraph", id=false, colorIndex = 0){
+  drawLine(start_XY, end_XY, destId = "networkGraph", id=false, colorIndex = 0, lineWidth = 0.05){
+    if(myUI.planner.constructor.gridPrecision != "float" && myUI.vertex == false){
+      // draw lines from centre of squares
+      start_XY = start_XY.map(x => x + 0.5);
+      end_XY = end_XY.map(x => x + 0.5);
+    }
+
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
  
@@ -630,7 +635,8 @@ class SVGCanvas {
     var y1 = this.displayRatio*start_coord.x;
     var x2 = this.displayRatio*end_coord.y;
     var y2 = this.displayRatio * end_coord.x;
-    var strokeWidth = Math.max(0.05*this.displayRatio, 1)
+    var strokeWidth = Math.max(lineWidth*this.displayRatio, 1)
+    console.log("STROKEWIDTH", strokeWidth);
     var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
     var line_class = `SVGline_${destId}`;
     var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";

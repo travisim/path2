@@ -117,7 +117,7 @@ myUI.run_steps = function(num_steps, step_direction){
           `);
         }
 
-        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);//,radius,value,id);
+        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);//,thickness,value,id);
         if(step_direction == "fwd") ++i; else --i;
       }
       continue;
@@ -130,9 +130,9 @@ myUI.run_steps = function(num_steps, step_direction){
       while(j<step.length && !(Number.isInteger(step[j]) && step[j]&1))//rightmost bit is one is start of action
         ++j;
       // [i,j) is the action
-      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id] = Pathfinder.unpackAction(step.slice(i, j), false);
+      let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,thickness,value,id] = Pathfinder.unpackAction(step.slice(i, j), false);
 
-      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,radius,value,id); 
+      myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY,thickness,value,id); 
       
       i=j;
     }
@@ -141,7 +141,7 @@ myUI.run_steps = function(num_steps, step_direction){
   }
 }
 
-myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, radius,value,id){
+myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, thickness, value,id){
   try{
   let destId = myUI.planner.destsToId[dest];
   if (command == STATIC.DrawSinglePixel) { 
@@ -215,21 +215,21 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   }
     
   else if(command == STATIC.DrawVertex){
-    myUI.nodeCanvas.drawCircle([x,y],destId,false,colorIndex,radius);//id generated from coord and type
+    myUI.nodeCanvas.drawCircle([x,y],destId,false,colorIndex, thickness);//id generated from coord and type
   }
 
   else if(command == STATIC.EraseVertex){
-    myUI.nodeCanvas.eraseCircle([x,y], destId, colorIndex, radius);
+    myUI.nodeCanvas.eraseCircle([x,y], destId, colorIndex, thickness);
   } 
   else if(command == STATIC.EraseAllVertex){
     myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${destId}`);
   } 
   else if(command == STATIC.DrawSingleVertex){
     myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${destId}`);
-    myUI.nodeCanvas.drawCircle([x,y],destId,false,colorIndex,radius);//id generated from coord and type
+    myUI.nodeCanvas.drawCircle([x,y],destId,false,colorIndex,thickness);//id generated from coord and type
   }
   else if(command == STATIC.DrawEdge){
-    myUI.edgeCanvas.drawLine([x,y], [endX,endY], destId,false,colorIndex);
+    myUI.edgeCanvas.drawLine([x,y], [endX,endY], destId,false,colorIndex,thickness);
   }
   else if(command == STATIC.EraseEdge){
     myUI.edgeCanvas.eraseLine([x,y], [endX,endY], destId);
@@ -383,7 +383,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, radius, value, id] = Pathfinder.unpackAction(step.slice(i, j),  false);
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, thickness, value, id] = Pathfinder.unpackAction(step.slice(i, j),  false);
         let destId = myUI.planner.destsToId[dest];
         let action = [];
         var includeAction = true;
@@ -578,19 +578,19 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           mem.pseudoCodeRowSec = pseudoCodeRow;
         }
         else if(command == STATIC.DrawVertex){
-          action = Pathfinder.packAction({command: STATIC.EraseVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, radius: radius});
+          action = Pathfinder.packAction({command: STATIC.EraseVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, thickness: thickness});
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].push([x,y,colorIndex,radius]);
+          mem.vertices[dest].push([x,y,colorIndex,thickness]);
         }
         else if(command == STATIC.EraseVertex){
           console.assert(mem.vertices.hasOwnProperty(dest), "ERROR: VERTEX DEST NOT FOUND");
           let flag = false;
           for(let i = 0; i < mem.vertices[dest].length; ++i){
-            if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y && mem.vertices[dest][i][2] == colorIndex && mem.vertices[dest][i][3] == radius){
+            if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y && mem.vertices[dest][i][2] == colorIndex && mem.vertices[dest][i][3] == thickness){
               mem.vertices[dest].splice(i, 1);
               flag = true;
-              action = Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, radius: radius});
+              action = Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, thickness: thickness});
               break;
             }
           }
@@ -601,27 +601,29 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           action = [];
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], radius: coordData[3]})));
+          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], thickness: coordData[3]})));
           mem.vertices[dest] = [];
         }
         else if(command == STATIC.DrawSingleVertex){ //now hard coded for current vertex
           action = [];
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], radius: coordData[3]})));
+          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], thickness: coordData[3]})));
           mem.vertices[dest] = [];
-          mem.vertices[dest].push([x,y,colorIndex,radius]);
+          mem.vertices[dest].push([x,y,colorIndex,thickness]);
           action = Pathfinder.packAction({command: STATIC.EraseAllVertex, dest: dest});
         } 
         else if(command == STATIC.DrawEdge){
           action = Pathfinder.packAction({command: STATIC.EraseEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
           if(!mem.edges.hasOwnProperty(dest))
             mem.edges[dest] = [];
-          mem.edges[dest].push([x,y,endX,endY,colorIndex]);
+          let edge = [x,y,endX,endY,colorIndex];
+          if(thickness !== undefined) edge.push(thickness);
+          mem.edges[dest].push(edge);
         }
         else if(command == STATIC.EraseEdge){
           if(!mem.edges.hasOwnProperty(dest)){
-            console.log("ERROR: EDGE NOT FOUND");
+            console.error("ERROR: EDGE NOT FOUND");
             Array.prototype.unshift.apply(curStep, action);
             i=j;
             continue;
@@ -631,7 +633,8 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             let b = mem.edges[dest][i][2] == x && mem.edges[dest][i][3] == y && mem.edges[dest][i][0] == endX && mem.edges[dest][i][1] == endY;
             if(a || b){
               let colorIdx = mem.edges[dest][i][4];
-              action = Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY], colorIndex: colorIdx});
+              let thickness = mem.edges[dest][i][5];
+              action = Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY], colorIndex: colorIdx, thickness: thickness});
               mem.edges[dest].splice(i, 1);
               break;
             }
@@ -641,14 +644,14 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           action = [];
           if(!mem.edges.hasOwnProperty(dest))
             mem.edges[dest] = [];
-          mem.edges[dest].forEach(quad => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [quad[0], quad[1]], endCoord: [quad[2], quad[3]], colorIndex: quad[4]})));
+          mem.edges[dest].forEach(quad => Array.prototype.push.apply(action, Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [quad[0], quad[1]], endCoord: [quad[2], quad[3]], colorIndex: quad[4], thickness: quad[5]})));
           mem.edges[dest] = [];
         }
         else if( command == STATIC.CreateStaticRow ){
           action = Pathfinder.packAction({command: STATIC.RemoveStaticRow, dest: dest, id: id, value: value});
         }
         else{
-          console.log(STATIC_COMMANDS[command], ", ERR: COMMAND NOT REVERSED");
+          console.error(STATIC_COMMANDS[command], ", ERR: COMMAND NOT REVERSED");
         }
         
         // add more here
@@ -826,7 +829,6 @@ myUI.jump_to_step = function(target_step){
     function orderCanvases(x, y){
       let xOrder = myUI.canvases[myUI.planner.destsToId[x[0]]].drawOrder;
       let yOrder = myUI.canvases[myUI.planner.destsToId[y[0]]].drawOrder;
-
       if(xOrder > yOrder) return -1;
       return 1;
     }
@@ -843,8 +845,8 @@ myUI.jump_to_step = function(target_step){
         let coord = vert.slice(0, 2);
         console.log(coord);
         let colorIndex = vert[2];
-        let radius = vert[3];
-        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, colorIndex, radius);
+        let thickness = vert[3];
+        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, colorIndex, thickness);
       }
     }
 

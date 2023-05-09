@@ -82,7 +82,6 @@ class wasm_A_star extends GridPathfinder{
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbor, search_direction);
-    this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
   }
 
   search(start, goal) {
