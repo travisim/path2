@@ -115,7 +115,7 @@ class UICanvas{
 
   scale_coord(x,y){
     let scaled_y = Math.round(x/this.canvas.clientWidth * myUI.map_width);
-    let scaled_x = Math.round(y/this.canvas.clientHeight * myUI.map_height); //if x/y > 472 numbers will be skipped due to rounding
+    let scaled_x = Math.round(y/this.canvas.clientHeight * myUI.map_height); //if x or y > 472 numbers will be skipped due to rounding 
     return [scaled_x, scaled_y];
   }
 
@@ -239,31 +239,45 @@ class UICanvas{
       }
     }
   }
-  //  draw_rect(xy, virtual=false, val=1, color_index=0,x_height,y_height ){
-  //   let [x,y] = xy;
-  //   if(x>=this.data_height || y>=this.data_width) return;
-  //   if(virtual)
-  //     this.virtualCanvas[x][y] = val;
-  //   else {
-  //     if(val==this.defaultVal){
-  //       this.erase_pixel(xy);
-  //       return;
-  //     }
+  draw_rect(xy, virtual=false, val=1, color_index=-1, save_in_cache=true,x_height,y_height ){
+    let [x,y] = xy;
+    if(x>=this.data_height || y>=this.data_width) return;
+    if (virtual) {
       
-  //     this.set_color(this.calc_color(val, color_index));
+      for (let i = 0; i < y_height; i++) {
+        for (let j = 0; j < x_height; j++) {
+          this.virtualCanvas[x+j][y+i] = val;
+        }
+      }
+     
+    }
+    else {
+      if (save_in_cache) {
+         for (let i = 0; i < y_height; i++) {
+          for (let j = 0; j < x_height; j++) {
+            this.canvas_cache[x+j][y+i] = val;
+          }
+        }
+      }
+      if(val==this.defaultVal){  //val = 0
+        this.erase_pixel(xy);
+        return;
+      }
+      
+      this.set_color(this.calc_color(val, color_index));
 
-  //     switch(this.drawType){
-  //       case "dotted":
-  //         this.draw_dotted_square(xy);
-  //         break;
-  //       case "vertex":
-  //         this.draw_vertex(xy);
-  //         break;
-  //       default:
-  //         this.ctx.fillRect(y, x, this.pixelSize*x_height, this.pixelSize*y_height);
-  //     }
-  //   }
-  // }
+      switch(this.drawType){
+        case "dotted":
+          this.draw_dotted_square(xy);
+          break;
+        case "vertex":
+          this.draw_vertex(xy);
+          break;
+        default:
+          this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
+      }
+    }
+  }
 
   erase_pixel(xy, virtual=false, save_in_cache=true){
 		let [x,y] = xy;
