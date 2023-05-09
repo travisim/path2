@@ -118,6 +118,12 @@ class UICanvas{
     let scaled_x = Math.round(y/this.canvas.clientHeight * myUI.map_height); //if x or y > 472 numbers will be skipped due to rounding 
     return [scaled_x, scaled_y];
   }
+  
+  scale_thickness(x,y){
+    let scaled_y = Math.max(Math.round(x/this.canvas.clientWidth * myUI.map_width),1)
+    let scaled_x = Math.max(Math.round(y/this.canvas.clientHeight * myUI.map_height),1); //if x or y > 472 numbers will be skipped due to rounding 
+    return [scaled_x, scaled_y];
+  }
 
   scale_canvas(data_height, data_width, retain_data=false){
     const dpr = 2;  // controls canvas resolution
@@ -239,7 +245,7 @@ class UICanvas{
       }
     }
   }
-  draw_rect(xy, virtual=false, val=1, color_index=-1, save_in_cache=true,x_height,y_height ){
+  draw_rect(xy,x_height,y_height, virtual=false, val=1, color_index=-1, save_in_cache=true ){
     let [x,y] = xy;
     if(x>=this.data_height || y>=this.data_width) return;
     if (virtual) {
@@ -259,8 +265,14 @@ class UICanvas{
           }
         }
       }
-      if(val==this.defaultVal){  //val = 0
-        this.erase_pixel(xy);
+      if (val == this.defaultVal) {  //val = 0
+        this.ctx.clearRect(y, x, y_height,x_height);
+        // for (let i = 0; i < y_height; i++) {
+        //   for (let j = 0; j < x_height; j++) {
+        //     this.erase_pixel([x+j,y+i]);;
+        //   }
+        // }
+        
         return;
       }
       
@@ -268,13 +280,72 @@ class UICanvas{
 
       switch(this.drawType){
         case "dotted":
-          this.draw_dotted_square(xy);
+           for (let i = 0; i < x_height; i++) {
+            for (let j = 0; j < y_height; j++) {
+              this.draw_dotted_square([x+i,y+j]);
+            }
+          }
+         
+          
           break;
         case "vertex":
-          this.draw_vertex(xy);
+          for (let i = 0; i < x_height; i++) {
+            for (let j = 0; j < y_height; j++) {
+              this.draw_vertex([x+i,y+j]);
+            }
+          }
+        
           break;
         default:
-          this.ctx.fillRect(y, x, this.pixelSize, this.pixelSize);
+      
+          this.ctx.fillRect(y, x, y_height, x_height);
+      }
+    }
+
+   
+  }
+
+   erase_rect(xy,x_height,y_height, virtual=false, save_in_cache=true){
+		let [x,y] = xy;
+    if(x>=this.data_height || y>=this.data_width) return;
+     if (virtual) {
+        for (let i = 0; i < y_height; i++) {
+          for (let j = 0; j < x_height; j++) {
+            this.virtualCanvas[x + j][y + i] = this.defaultVal;;
+
+          }
+        }
+    }
+      
+    else {
+      if(save_in_cache) this.canvas_cache[x][y] = this.defaultVal;
+      switch(this.drawType){
+        case "dotted":
+          for (let i = 0; i < x_height; i++) {
+            for (let j = 0; j < y_height; j++) {
+              this.erase_dotted_square([x+i,y+j]);
+            }
+          }
+        
+          break;
+        case "vertex":
+          for (let i = 0; i < x_height; i++) {
+            for (let j = 0; j < y_height; j++) {
+              this.erase_vertex_circle([x+i,y+j]);
+            }
+          }
+          
+          break;
+        default:
+          this.ctx.clearRect(y, x, y_height,x_height);
+      }
+     }
+
+     function LoopForRect(f,y_height, x_height) {
+      for (let i = 0; i < x_height; i++) {
+        for (let j = 0; j < y_height; j++) {
+          f([x+i,y+j]);
+        }
       }
     }
   }
@@ -319,17 +390,17 @@ class UICanvas{
     this.ctx.fillRect(y - scaled_cross_length, x - lineWidth/2, scaled_cross_length * 2 + 1, lineWidth + 1);
     this.ctx.fillRect(y - lineWidth/2, x - scaled_cross_length, lineWidth + 1, scaled_cross_length * 2 + 1);
     return;
-    for(let offset = -lineWidth/2; offset <= lineWidth/2; ++offset){
-      console.log("OFFSET:", offset);
-      let data = [coord[0], coord[1] + offset];
-      for(let i = data[0] - scaled_cross_length; i <= data[0] + scaled_cross_length; ++i){
-        this.draw_pixel([i, data[1]], false, 1, -1, false);
-      }
-      data = [coord[0] + offset, coord[1]];
-      for(let j = data[1] - scaled_cross_length; j <= data[1] + scaled_cross_length; ++j){
-        this.draw_pixel([data[0], j], false, 1, -1, false);
-      }
-    }
+    // for(let offset = -lineWidth/2; offset <= lineWidth/2; ++offset){
+    //   console.log("OFFSET:", offset);
+    //   let data = [coord[0], coord[1] + offset];
+    //   for(let i = data[0] - scaled_cross_length; i <= data[0] + scaled_cross_length; ++i){
+    //     this.draw_pixel([i, data[1]], false, 1, -1, false);
+    //   }
+    //   data = [coord[0] + offset, coord[1]];
+    //   for(let j = data[1] - scaled_cross_length; j <= data[1] + scaled_cross_length; ++j){
+    //     this.draw_pixel([data[0], j], false, 1, -1, false);
+    //   }
+    // }
     /*
     //drawing the crosses from top left down and top right down
     let ctx = this.ctx;
@@ -537,9 +608,14 @@ class UICanvas{
     
     let canvas_x = Math.floor(e.offsetX/472*myUI.map_height)/myUI.map_height*472;
     let canvas_y = Math.floor(e.offsetY/472*myUI.map_width)/myUI.map_width*472;
-   
-   
-    this.wrapper.squareOfPixels(canvas_x,canvas_y)
+    let thickness = myUI.thickness ? myUI.thickness : Math.floor(472 * 0.03); 
+    this.wrapper._fillEditedRect(canvas_x,canvas_y,thickness,thickness)
+    
+    
+    
+    
+    
+    
     
     this.wrapper.isDrawing = true;
   }
@@ -560,7 +636,9 @@ class UICanvas{
         
         let toDrawPoints = getInterpolatedPoints(this.prev_canvas_x, this.prev_canvas_y, this.canvas_x, this.canvas_y)
         toDrawPoints.forEach(p => {
-         this.wrapper.squareOfPixels(p.x,p.y)
+           let thickness = myUI.thickness ? myUI.thickness : Math.floor(472 * 0.03); 
+           this.wrapper._fillEditedRect(p.x,p.y,thickness,thickness)
+         
         })
       }
       
@@ -571,7 +649,10 @@ class UICanvas{
     
     this.wrapper._drawHover(this.canvas_x, this.canvas_y);
     function getInterpolatedPoints(x1, y1, x2, y2) {
-      var numPoints = Math.max(Math.abs(x1 - x2)/2, Math.abs(y1 - y2)/2, 1)
+      var thickness = myUI.thickness ? myUI.thickness : Math.floor(472 * 0.03);
+      var thicknessBeforeInterpolating = thickness / 4;
+      var numPoints = Math.max(Math.round(Math.abs(x1 - x2)/thicknessBeforeInterpolating), Math.round(Math.abs(y1 - y2)/thicknessBeforeInterpolating), 1) 
+      //var numPoints = 10;
       const dx = (x2 - x1) / (numPoints - 1);
       const dy = (y2 - y1) / (numPoints - 1);
 
@@ -609,6 +690,14 @@ class UICanvas{
     this.ctx.lineCap = 'round';
     if(this.erase) this.erase_pixel([x,y]);
     else this.draw_pixel([x,y]);
+  }
+  _fillEditedRect(canvas_x, canvas_y,canvas_x_height,canvas_y_height){
+    let [x, y] = this.scale_coord(canvas_x, canvas_y);
+    let [x_height, y_height] = this.scale_thickness(canvas_x_height, canvas_y_height);
+    this.ctx.lineCap = 'round';
+    if(this.erase) this.erase_rect([x,y],x_height,y_height);
+    else this.draw_rect([x, y],x_height,y_height )
+    
   }
 
 
