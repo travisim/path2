@@ -158,7 +158,7 @@ class UIInfoMap{
 
 var UIInfoCurrent = {
   DrawCurrent(x,y){
-    x = x===undefined ? '-' : x;
+    x = x === undefined ? '-' : x;
     y = y===undefined ? '-' : y;
     document.getElementById("currentXY").innerHTML =  "( "+x+", "+y+")"; // flipped x and y because of matrix transformation
   }
