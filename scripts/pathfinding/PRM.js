@@ -7,6 +7,7 @@ class PRM extends GridPathFinder{
     return "PRM";
   }
 
+  static drawMode = "Free Vertex";
 
   static get indexOfCollapsiblesToExpand() {
     return [1, 2, 3, 4];
@@ -18,7 +19,7 @@ class PRM extends GridPathFinder{
     }
   }
 
-   get infoTables(){
+   static get infoTables(){
     return [
       {id: "ITStatistics", displayName: "Statistics", headers: ["Indicator ", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
 			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
@@ -40,7 +41,7 @@ class PRM extends GridPathFinder{
     ];
   }
 
-    postProcess(){
+  postProcess(){
     this.setConfig("mapType", "Grid Vertex Float");
   }
 
@@ -56,7 +57,7 @@ class PRM extends GridPathFinder{
 			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			// },
       {
-				id:"networkGraph", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"networkGraph", drawType:"svg", drawOrder: 19, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			}
     ])
     if(this.bigMap){
@@ -65,7 +66,7 @@ class PRM extends GridPathFinder{
     return canvases;
   }
 
-  get configs(){
+  static get configs(){
 		let configs = [];
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new PRM map`},
@@ -163,26 +164,17 @@ class PRM extends GridPathFinder{
   
   calc_cost(successor){
 
-
     function euclidean(c1, c2){
       return Math.hypot(c1[0]-c2[0], c1[1]-c2[1]);
     }
-    
-
-
     
    if(this.distance_metric == "Euclidean"){
       var g_cost = this.current_node.g_cost + euclidean(this.current_node.self_XY, successor);
       var h_cost = euclidean(successor, this.goal);
     }
 
-
     var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
     return [f_cost, g_cost, h_cost];
-  }
-
-  postProcess(){
-    this.setConfig("mapType", "Grid Vertex");
   }
 
   generateNewMap(start = [0,0], goal=[13,13]){
@@ -198,8 +190,6 @@ class PRM extends GridPathFinder{
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
     this.randomCoordsNodes = []
-  
-
 
     this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "Number Of Nodes" });
     this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
@@ -539,7 +529,7 @@ class PRM extends GridPathFinder{
       //this._assign_cell_index(this.current_node_XY);
 
       /* FOUND GOAL */
-      if(this._found_goal(this.current_node, "free_vertex")) return this._terminate_search(); // found the goal & exits the loop
+      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
       
 
       /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
@@ -615,7 +605,7 @@ class PRM extends GridPathFinder{
         else this.queue.unshift(next_node); // LIFO
         this.open_list.set(next_XY, next_node);  // add to open list
 
-        if(this._found_goal(next_node, "free_vertex")) return this._terminate_search();
+        if(this._found_goal(next_node)) return this._terminate_search();
       }
 
 

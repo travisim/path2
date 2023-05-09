@@ -27,7 +27,7 @@ myUI.initialize = function(){
         delete myUI.canvases[id];
       }
     }
-    if(myUI.planner && myUI.planner.generateNewMap){
+    if(myUI.planner && myUI.planner.constructor.drawMode == "Free Vertex"){
       myUI.edgeCanvas.show();
       myUI.nodeCanvas.show();
     }

@@ -7,6 +7,8 @@ class RRT_star extends GridPathFinder{
     return "RRT_star";
   }
 
+  static drawMode = "Free Vertex";
+
   static get addGoalRadius() {
     return 1;
   }
@@ -22,7 +24,7 @@ class RRT_star extends GridPathFinder{
   }
   
   
-  get infoTables(){
+  static get infoTables(){
     return [
       {id:"ITStatistics", displayName: "Statistics", headers: ["Indicator ", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
 			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
@@ -55,7 +57,7 @@ class RRT_star extends GridPathFinder{
 			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			// },
       {
-				id:"networkGraph", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey", "red"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"networkGraph", drawType:"svg", drawOrder: 19, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey", "red"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
 			},
 			{
 				id:"intermediaryMapExpansion", drawType:"svgDotted", drawOrder: 12, fixedResVal: 1024, valType: "integer", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "rgb(0, 204, 255)"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: null,
@@ -66,7 +68,7 @@ class RRT_star extends GridPathFinder{
     }
     return canvases;
   }
-  get configs(){
+  static get configs(){
 		let configs = [];
 		configs.push(
       {uid: "generate_new_map", displayName: "Generate new map", options: "button", description: `generates a new RRT* map`},
@@ -644,7 +646,7 @@ l        }
       //this._assign_cell_index(this.current_node_XY);
 
       /* FOUND GOAL */
-      if(this._found_goal(this.current_node, "free_vertex")) return this._terminate_search(); // found the goal & exits the loop
+      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
       
 
       /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
@@ -720,7 +722,7 @@ l        }
         else this.queue.unshift(next_node); // LIFO
         this.open_list.set(next_XY, next_node);  // add to open list
 
-         if (this._found_goal(next_node, "free_vertex")) {
+         if (this._found_goal(next_node)) {
            
           
            return this._terminate_search();

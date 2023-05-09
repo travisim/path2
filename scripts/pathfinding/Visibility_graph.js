@@ -1,71 +1,13 @@
-class VisibilityGraph extends GridPathFinder{
+class VisibilityGraph extends PRM{
 
-	static get display_name(){
+  static get display_name(){
 		return "Visibility Graph";
   }
-  infoMapPlannerMode(){
-    return "A_star";
-  }
-  static get indexOfCollapsiblesToExpand() {
-    return [ 1, 2, 3, 4];
-  }
-  static get pseudoCode() {
-    return {
-      code: "T ← InitializeTree();\nT ← InsertNode(∅, Zinit , T ); \nfor i = 1 to i = N do \n  Zrand ← Sample(i);\n  Znearest ←Nearest(T,Zrand); \n  (Xnew,Unew,Tnew) ← Steer(Znearest,Zrand);\n  if ObstacleFree(Xnew) then \n    Znear ←Near(T, Znew,|V|);\n    Zmin ← ChooseParent(Znear, Znearest, Znew, Xnew);\n    T ←InsertNode(Zmin, Znew, T);\n    T ←ReWire(T, Znear, Zmin, Znew); \nreturn T;",
-      reference:"S. Karaman, M. R. Walter, A. Perez, E. Frazzoli and S. Teller, \"Anytime Motion Planning using the RRT*,\" 2011 IEEE International Conference on Robotics and Automation, Shanghai, China, 2011, pp. 1478-1483, doi: 10.1109/ICRA.2011.5980479."
-    }
-  }
-  
-  
-  get infoTables(){
-    return [
-      {id:"ITStatistics", displayName: "Statistics", headers: ["Indicator ", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
-			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
-      {id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
-      
-		];
-	}
-  static get distance_metrics(){
-    return ["Euclidean"];
-  }
 
-  static get hoverData(){
-    return [
-      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCache", canvasId: "visited"},
-      {id: "hoverFCost", displayName: "F Cost", type: "canvasCache", canvasId: "fCost"},
-      {id: "hoverGCost", displayName: "G Cost", type: "canvasCache", canvasId: "gCost"},
-      {id: "hoverHCost", displayName: "H Cost", type: "canvasCache", canvasId: "hCost"},
-    ];
-  }
-
-  get canvases(){
-    let canvases = super.canvases.concat([
-			// {
-			// 	id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "F",
-			// },
-			// {
-			// 	id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "G",
-			// },
-			// {
-			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
-			// },
-      {
-				id:"networkGraph", drawType:"svg", drawOrder: 3, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey", "red"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
-			},
-			{
-				id:"intermediaryMapExpansion", drawType:"svgDotted", drawOrder: 12, fixedResVal: 1024, valType: "integer", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "rgb(0, 204, 255)"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: null,
-			},
-    ])
-    if(this.bigMap){
-      canvases = canvases.filter(conf => conf.bigMap);
-    }
-    return canvases;
-  }
-
-  get configs(){
-		let configs = super.configs;
+  static get configs(){
+		let configs = GridPathFinder.configs;
 		configs.push(
-      {uid: "distance_metric", displayName: "Distance Metric:", options: ["Octile", "Manhattan", "Euclidean", "Chebyshev"], description: `The metrics used for calculating distances.<br>Octile is commonly used for grids which allow movement in 8 directions. It sums the maximum number of diagonal movements, with the residual cardinal movements.<br>Manhattan is used for grids which allow movement in 4 cardinal directions. It sums the absolute number of rows and columns (all cardinal) between two cells.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.<br>Chebyshev is the maximum cardinal distance between the two points. It is taken as max(y2-y1, x2-x1) where x2>=x1 and y2>=y1.`},
+      {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
@@ -73,30 +15,11 @@ class VisibilityGraph extends GridPathFinder{
 		return configs;
   }
 
-  constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise") {
-    super(num_neighbors, diagonal_allow, first_neighbor, search_direction);
-    this.generateDests(); // call this in the derived class, not the base class because it references derived class properties (canvases, infotables)
-  
-    
+  postProcess(){
+    this.setConfig("mapType", "Grid Vertex");
   }
 
-  setConfig(uid, value){
-		super.setConfig(uid, value);
-    switch(uid){
-      case "distance_metric":
-				this.distance_metric = value; break;
-      case "g_weight":
-				this.gWeight = Number(value); break;
-      case "h_weight":
-				this.hWeight = Number(value); break;
-      case "h_optimized":
-				this.hOptimized = value=="On"; break;
-      case "time_ordering":
-				this.timeOrder = value; break;
-    }
-  }
-
-  generateNewMap(){
+  generateNewMap(start, goal){
     this.add_map(myUI.map_arr);
     // iterate through entire map
     // find vertices
@@ -289,7 +212,7 @@ class VisibilityGraph extends GridPathFinder{
       return null;
     }
 
-    this.vertexCoordNodes = [];
+    this.randomCoordsNodes = [];
     let kernelSize = 2;
 
     for(let i = 0; i < this.bg_height - kernelSize + 1; ++i){
@@ -297,7 +220,7 @@ class VisibilityGraph extends GridPathFinder{
         let coords = cornerCoords(this.map, kernelSize, i, j);
         if(coords == null) continue;
         for(const coord of coords){
-          this.vertexCoordNodes.push(new MapNode(undefined, coord, null));
+          this.randomCoordsNodes.push(new MapNode(null, coord, []));
           this._create_action({command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: coord});
         }
       }
@@ -306,262 +229,43 @@ class VisibilityGraph extends GridPathFinder{
 
     // iterate through coordinates & check for visbiliity between them
 
-    for(let i = 0; i < this.vertexCoordNodes.length; ++i){
+    for(let i = 0; i < this.randomCoordsNodes.length; ++i){
       for(let j = 0; j < i; ++j){
-        let n1 = this.vertexCoordNodes[i], n2 = this.vertexCoordNodes[j];
+        let n1 = this.randomCoordsNodes[i], n2 = this.randomCoordsNodes[j];
         if(CustomLOSChecker(n1.value_XY, n2.value_XY).boolean){
           this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: n1.value_XY, endCoord: n2.value_XY});
+          this.randomCoordsNodes[i].neighbours.push(j);
+          this.randomCoordsNodes[j].neighbours.push(i);
         }
       }
     }
     this._save_step(true);
-    return this._terminate_search();
-  }
-  
-  calc_cost(successor){
-    function manhattan(c1, c2){
-      return Math.abs(c1[0]-c2[0]) + Math.abs(c1[1]-c2[1]);
-    }
-
-    function euclidean(c1, c2){
-      return Math.hypot(c1[0]-c2[0], c1[1]-c2[1]);
-    }
-    
-    function chebyshev(c1, c2){
-      return Math.max(Math.abs(c1[0]-c2[0]), Math.abs(c1[1]-c2[1]));
-    }
-
-    function octile(c1, c2){
-      var dx = Math.abs(c1[0]-c2[0]);
-      var dy =  Math.abs(c1[1]-c2[1]);
-      return Math.min(dx, dy)*Math.SQRT2 + Math.abs(dy-dx);
-    }
-
-    let chosen_parent = this.current_node;
-    if(this.pick_parent) chosen_parent = this.pick_parent(successor);
-    
-    if(this.distance_metric == "Manhattan"){
-      var g_cost = chosen_parent.g_cost + manhattan(chosen_parent.self_XY, successor);
-      var h_cost = manhattan(successor, this.goal);
-    }
-    else if(this.distance_metric == "Euclidean"){
-      var g_cost = chosen_parent.g_cost + euclidean(chosen_parent.self_XY, successor);
-      var h_cost = euclidean(successor, this.goal);
-    }
-    else if(this.distance_metric == "Chebyshev"){
-      var g_cost = chosen_parent.g_cost + chebyshev(chosen_parent.self_XY, successor);
-      var h_cost = chebyshev(successor, this.goal);
-    }
-    else{// if(this.distance_metric == "Octile"){
-      console.assert(this.distance_metric == "Octile", "Invalid distance metric provided!");
-      var g_cost = chosen_parent.g_cost + octile(chosen_parent.self_XY, successor);
-      var h_cost = octile(successor, this.goal);
-    }
-
-    var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
-    return new Node(f_cost, g_cost, h_cost, chosen_parent, successor, undefined, this.step_index);
+    this.addNodeToGraph(start);
+    this.addNodeToGraph(goal);
+    this._save_step(true);
   }
 
-  search(start, goal) {
-    this._init_search(start, goal);
-    this.generateNewMap();
-    return new Promise((resolve, reject) => {
-      resolve();
-    });
-    // this method finds the path using the prescribed map, start & goal coordinates
-		this.closed_list =  new Empty2D(this.map_height, this.map_width);
-		this.open_list =  new Empty2D(this.map_height, this.map_width);
-
-    console.log("starting");
-    
-    // starting node
-    this.current_node = new Node(0, 0, 0, null, this.start, undefined, 0);
-
-    // assigns the F, G, H cost to the node
-    this.current_node = this.calc_cost(this.start);
-
-    
-    this.queue.push(this.current_node);  // begin with the start; add starting node to rear of []
-    if(!this.bigMap){
-
-      // initialize the starting sequences
-      this.deltaNWSE.slice().reverse().forEach(item=>
-        this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: 1, infoTableRowData: [item, "?", "?", "?", "?", "?"]})
-      );
-
-      // for every node that is pushed onto the queue, it should be added to the queue infotable
-      this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1, infoTableRowData: [start[0]+','+start[1], '-', parseFloat(this.current_node.f_cost.toPrecision(5)), parseFloat(this.current_node.g_cost.toPrecision(5)), parseFloat(this.current_node.h_cost.toPrecision(5))]});
-      this._create_action({command: STATIC.DrawPixel, dest: this.dests.queue, nodeCoord: start});
-      this._save_step(true);
+  addNodeToGraph(coord){
+    // simple algorithm which checks all nodes with LOS to start node and picks the shortest one
+    let node = new MapNode(null, coord, []);
+    let n = this.randomCoordsNodes.length;
+    let curMin = Number.MAX_SAFE_INTEGER;
+    for(let i = 0; i < n; ++i){
+      if(CustomLOSChecker(coord, this.randomCoordsNodes[i].value_XY).boolean){
+        let a = this.randomCoordsNodes[i].value_XY[0] - coord[0];
+        let b = this.randomCoordsNodes[i].value_XY[1] - coord[1];
+        let dist = Math.hypot(a, b);
+        if(dist < curMin){
+          curMin = dist;
+          node.neighbours[0] = i;
+        }
+      }
     }
+    this.randomCoordsNodes.push(node);
+    this.randomCoordsNodes[node.neighbours[0]].neighbours.push(n);
+    this._create_action({command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: coord});
+    this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: coord, endCoord: this.randomCoordsNodes[node.neighbours[0]].value_XY});
 
-    this.open_list.set(this.current_node.self_XY, this.current_node);
-    //---------------------checks if visited 2d array has been visited
-    let planner = this;
-
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
-    });
   }
 
-  _run_next_search(planner, num) {
-    // if(this.startTime != myUI.startTime) return this._terminate_search();
-    while (num--) {
-      // while there are still nodes left to visit
-      if (this.queue.length == 0){
-        console.log(`${Date.now() - myUI.startTime}ms`);
-        return this._terminate_search();
-      }
-
-      if(this.bigMap){
-        this.queue.sort(function (a, b){
-          if(Math.abs(a.f_cost-b.f_cost)<0.000001){
-            if(myUI.planner.hOptimized)
-              return a.h_cost-b.h_cost;
-          }
-          return a.f_cost > b.f_cost;
-        });
-      }
-      
-      this.current_node = this.queue.shift(); // remove the first node in queue
-      this.current_node_XY = this.current_node.self_XY; // first node in queue XY
-      this.open_list.set(this.current_node_XY, undefined); // remove from open list
-
-      if(this.step_index % 10000==0) console.log(`F: ${this.current_node.f_cost.toPrecision(5)}, H: ${this.current_node.h_cost.toPrecision(5)}`);
-      
-      /* first check if visited */
-      if (this.closed_list.get(this.current_node_XY) && this.closed_list.get(this.current_node_XY).f_cost <= this.current_node.f_cost){
-        continue;  // if the current node has been visited, skip to next one in queue
-      }/* */
-      
-			this.closed_list.set(this.current_node_XY, this.current_node);
-
-      //this.visited.increment(this.current_node_XY); // marks current node XY as visited
-      this._create_action({command: STATIC.IncrementPixel, dest: this.dests.visited, nodeCoord: this.current_node_XY});
-      
-      if(!this.bigMap){
-        for(const i of this.neighborsIndex){
-          this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], "?", "?", "?", "?", "?"]})
-        }
-        this._create_action({command: STATIC.EraseRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1});
-        //this._create_action({command: STATIC.EraseCanvas, dest: this.dests.focused, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.focused, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.EraseCanvas, dest: this.dests.neighbors});
-        this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.expanded, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.ErasePixel, dest: this.dests.queue, nodeCoord: this.current_node_XY});
-        this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 12});
-      }
-      this._save_step(true);
-
-      this._assign_cell_index(this.current_node_XY);
-
-      /* FOUND GOAL */
-      if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
-
-      let cardinalCoords = {};
-      if(this.diagonal_allow == false && this.num_neighbors == 8)
-        for(let i = 0; i < this.num_neighbors; ++i)
-          if(this.delta[i].includes(0))
-            cardinalCoords[this.deltaNWSE[i]] = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];
-
-      /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
-      for(const i of this.neighborsIndex){
-        var next_XY = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];  // calculate the coordinates for the new neighbour
-        if (next_XY[0] < 0 || next_XY[0] >= this.map_height || next_XY[1] < 0 || next_XY[1] >= this.map_width){
-          if(!this.bigMap) this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, 'inf', 'inf', 'inf', "Out of Bounds"]});
-          continue;  // if the neighbour not within map borders, don't add it to queue
-        }
-
-        if(!this.bigMap){
-          this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.focused, nodeCoord: next_XY});
-        }
-        
-        if(!this._nodeIsNeighbor(next_XY, this.deltaNWSE[i], cardinalCoords)){
-          if(!this.bigMap){
-            // records the neighbor as a obstacle
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, 'inf', 'inf', 'inf', "Obstacle"]});
-            this._save_step(false);
-          }
-          continue;
-        }
-
-        let new_node = this.calc_cost(next_XY);
-        let f_cost = new_node.f_cost;
-        let g_cost = new_node.g_cost;
-        let h_cost = new_node.h_cost;
-        
-        let open_node = this.open_list.get(next_XY);
-        if(open_node !== undefined && open_node.f_cost<=f_cost){
-          if(!this.bigMap){
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
-            this._save_step(false);
-          }
-          continue; // do not add to queue if open list already has a lower cost node
-        }
-        let closed_node = this.closed_list.get(next_XY);
-        if(closed_node !== undefined && closed_node.f_cost<=f_cost){
-          if(!this.bigMap){
-            if(this.current_node.parent.self_XY[0] == next_XY[0] && this.current_node.parent.self_XY[1] == next_XY[1])
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Parent"]});  //  a parent must be visited already
-            else
-              this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
-          }
-
-          // increment after visiting a node on the closed list
-          this._create_action({command: STATIC.IncrementPixel, dest: this.dests.visited, nodeCoord: next_XY});
-          this._save_step(false);
-          continue; // do not add to queue if closed list already has a lower cost node
-        }
-
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
-
-        // add to queue 
-        if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO
-        else this.queue.unshift(new_node); // LIFO
-        this.open_list.set(next_XY, new_node);  // add to open list
-        
-        // since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
-        // see https://www.geeksforgeeks.org/a-search-algorithm/
-        
-        if(!this.bigMap){
-          
-          this._create_action({command: STATIC.DrawPixel, dest: this.dests.neighbors, nodeCoord: next_XY});
-          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 32});
-          this._handleArrow(next_XY, new_node, open_node, closed_node);
-
-          this._create_action({command: STATIC.DrawPixel, dest: this.dests.queue, nodeCoord: next_XY});
-
-          this.queue.sort(function (a, b){
-            if(Math.abs(a.f_cost-b.f_cost)<0.000001){
-              if(myUI.planner.hOptimized)
-                return a.h_cost-b.h_cost;
-            }
-            return a.f_cost > b.f_cost;
-          });
-
-          // counts the number of nodes that have a lower F-Cost than the new node
-          // to find the position to add it to the queue
-          let numLess = 0;
-          while(this.queue[numLess] != new_node) numLess++;
-          
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: numLess+1, infoTableRowData: [next_XY[0]+','+next_XY[1], this.current_node_XY[0]+','+this.current_node_XY[1], parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5))]});
-          
-          if(open_node===undefined && closed_node===undefined) 
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5)), "New encounter"]});
-          else// if(open_node || closed_node)
-            this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], `${next_XY[0]}, ${next_XY[1]}`, parseFloat(f_cost.toPrecision(5)), parseFloat(g_cost.toPrecision(5)), parseFloat(h_cost.toPrecision(5)), "Replace parent"]});
-
-        }
-        this._save_step(false);
-
-        if(this._found_goal(new_node)) return this._terminate_search();
-      }
-      // continue to next node in queue
-    }
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(planner._run_next_search(planner, planner.batch_size)), planner.batch_interval);
-    });
-  }
 }

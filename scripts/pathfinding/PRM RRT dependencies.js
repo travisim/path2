@@ -94,15 +94,14 @@ function CustomLOSChecker(src, tgt){
   let grid = myUI.canvases.bg.canvas_cache;                     // obstacle 2d matrix
   if(grid == undefined || grid[0] == undefined) return false;
   if (src[0] == tgt[0] && src[1] == tgt[1]) {
-    if (grid[Math.floor(src[0])][Math.floor(src[1])]) {
-      return {
-        boolean: false
-      }
+    if(src[0] == Math.floor(src[0]) && src[1] == Math.floor(src[1])){
+      return { boolean: true };
+    }
+    else if (grid[Math.floor(src[0])][Math.floor(src[1])]) {
+      return { boolean: false };
     }
     else {
-      return {
-        boolean: true
-      }
+      return {  boolean: true };
     }
   }
   
@@ -684,8 +683,8 @@ class SVGCanvas {
   eraseCircle(circle_XY, destId, colorIndex = 0, radius = undefined){
     const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
     var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}_${colorIndex}_${radius}`;
-    try{this.EraseSvgById(circle_id);console.log("erased circle of", circle_id)}catch{
-      console.error("CIRCLE DOES NOT EXIST");
+    try{this.EraseSvgById(circle_id);}catch{
+      console.error(`CIRCLE DOES NOT EXIST ${circle_id}`);
     }
   }
   EraseSvgById(svg_id){

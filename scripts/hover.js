@@ -1,24 +1,16 @@
 myUI.scale_coord = function (x, y) {
-	const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
-	if(myUI.vertex && !myUI.gridPrecision ){// just draws a circle that snaps to grid mouse when cursor on canvas for 2d canvas
-		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
-		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
-		var scaled_y = (y-CANVAS_OFFSET) / sy;
-		var scaled_x = (x-CANVAS_OFFSET) / sx;
-	}
-	 else if(myUI.vertex && myUI.gridPrecision == "float"){  // just draws a circle that follows mouse when cursor on canvas
-		let sy = myUI.canvases.hover_map.canvas.clientWidth/myUI.map_width;
-		let sx = myUI.canvases.hover_map.canvas.clientHeight/myUI.map_height;
-		var scaled_y = (y+sy/2) / (myUI.canvases.hover_map.canvas.clientWidth+sy) * (myUI.map_width+1)-0.5;
-		var scaled_x = (x + sx / 2) / (myUI.canvases.hover_map.canvas.clientHeight + sx) * (myUI.map_height + 1) - 0.5;
-		if (scaled_y < 0) scaled_y = 0;
-		if (scaled_x < 0) scaled_x = 0;
-		if (scaled_x > myUI.map_height) scaled_x = myUI.map_height;
-		if (scaled_y > myUI.map_width) scaled_y = myUI.map_width;
-	}
-	else{// just draws a circle that snaps to grid mouse when cursor on canvas for integer vertex
-		var scaled_y = Math.floor(y/myUI.canvases.hover_map.canvas.clientWidth * myUI.map_width);
-		var scaled_x = Math.floor(x/myUI.canvases.hover_map.canvas.clientHeight * myUI.map_height);
+	const HOVER_MAP = myUI.canvases.hover_map.canvas;
+	var scaled_y = (y) / (HOVER_MAP.clientWidth) * myUI.map_width;
+	var scaled_x = (x) / (HOVER_MAP.clientHeight) * myUI.map_height;
+	if(myUI.gridPrecision != "float"){
+		if(myUI.vertex){
+			var scaled_y = Math.round(scaled_y);
+			var scaled_x = Math.round(scaled_x);
+		}
+		else{
+			var scaled_y = Math.floor(scaled_y);
+			var scaled_x = Math.floor(scaled_x);
+		}
 	}
 	return [scaled_x, scaled_y];
 }
@@ -60,6 +52,7 @@ myUI.handle_map_hover = function(e){
 
 	myUI.planner.constructor.hoverData.forEach(obj=>{
 		if(obj.type=="canvasCache"){
+			if(!myUI.canvases[obj.canvasId]) return;
 			let val = myUI.canvases[obj.canvasId].canvas_cache[scaled_x][scaled_y];
 			if(myUI.canvases[obj.canvasId].valType=="float") val = val.toPrecision(5);
 			document.getElementById(obj.id).innerHTML = val;
@@ -88,11 +81,7 @@ myUI.canvases.hover_map.canvas.addEventListener(`mouseleave`, e=>{
 	tooltip_data.style.display = "none";
 });
 
-/* first call is required */
-dragElementGridSnap(myUI.map_start_icon.elem);
-dragElementGridSnap(myUI.map_goal_icon.elem);
-
-function dragElementGridSnap(elmnt) {
+function dragElement(elmnt, slaveElmnt) {
 
 	elmnt.addEventListener(`mouseenter`, e=>elmnt.style.cursor = "move");
 	elmnt.addEventListener(`mouseleave`, e=>elmnt.style.cursor = "auto");
@@ -104,7 +93,6 @@ function dragElementGridSnap(elmnt) {
 	elmnt.onmousedown = dragMouseDown;
 
   function dragMouseDown(e) {
-		console.log("mouse down on: ", elmnt);
     e = e || window.event;
     e.preventDefault();
     // get the mouse cursor position at startup:
@@ -132,13 +120,20 @@ function dragElementGridSnap(elmnt) {
 			elmnt.style.top = (elmnt.offsetTop - dy) + "px";  // move the element in y-axis
 			y1 = elmnt.getBoundingClientRect().y + elmnt.height/2;// update the y-coordinate when mouseup 
 		}
-		
 	 
 	  if (elmnt.offsetLeft - dx >= -elmnt.width / 2 + CANVAS_OFFSET && elmnt.offsetLeft - dx <= bounds.width - elmnt.width / 2 + CANVAS_OFFSET) {  // if within x-bounds
 			elmnt.style.left = (elmnt.offsetLeft - dx) + "px";  // move the element in x-axis
 			x1 = elmnt.getBoundingClientRect().x + elmnt.width/2; // update the x-coordinate when mouseup
 		}
 		
+		if (slaveElmnt) {
+			if (slaveElmnt.offsetTop - dy >= -slaveElmnt.clientHeight / 2 + CANVAS_OFFSET && slaveElmnt.offsetTop - dy <= bounds.height - slaveElmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
+					slaveElmnt.style.top = (slaveElmnt.offsetTop - dy) + "px";
+			}
+			if (slaveElmnt.offsetLeft - dx >= -slaveElmnt.clientWidth / 2 + CANVAS_OFFSET && slaveElmnt.offsetLeft - dx <= bounds.width - slaveElmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
+				slaveElmnt.style.left = (slaveElmnt.offsetLeft - dx) + "px";
+			}
+		}
   }
 
   function closeDragElement(e) {
@@ -149,119 +144,28 @@ function dragElementGridSnap(elmnt) {
     e.preventDefault();
 		let y = x1 - bounds.left;
 		let x = y1 - bounds.top;
-		y = Math.max(CANVAS_OFFSET, Math.min(bounds.width- e_num + CANVAS_OFFSET, y));  // fix to boundaries
-		x = Math.max(CANVAS_OFFSET, Math.min(bounds.height- e_num + CANVAS_OFFSET, x));
+		y = Math.max(0, Math.min(bounds.width - e_num + CANVAS_OFFSET, y));  // fix to boundaries
+		x = Math.max(0, Math.min(bounds.height - e_num + CANVAS_OFFSET, x));
 		let [scaled_x, scaled_y] = myUI.scale_coord(x,y);
-		console.log(scaled_x, scaled_y);
+
+		//below code auto shifts coords to prevent start.goal to be on obstacle
+		let checkX = scaled_x, checkY = scaled_y;
+		if(!myUI.vertex) checkX += 0.5, checkY += 0.5;
+		while(CustomLOSChecker([checkX, checkY], [checkX, checkY]).boolean == false){
+			checkX++; checkY++;
+		}
+		if(!myUI.vertex) checkX -= 0.5, checkY -= 0.5;
+		if(checkX != scaled_x) alert("coordinates have been shifted to avoid obstacles");
+		scaled_x = checkX; scaled_y = checkY;
+		
 		if(elmnt.id=="map_start_icon"){
 			myUI.map_start = [scaled_x, scaled_y];
-
 		} 
 		else if(elmnt.id=="map_goal_icon") {
 			myUI.map_goal = [scaled_x, scaled_y];
-			
 		}
 
 	  myUI.displayScen(true, true);
-  }
-}
-
-function dragElementNoSnap(elmnt,slaveElmnt) {
-	var dx = 0, dy = 0, x1 = 0, y1 = 0;
-	const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
- 	const e_num = 1e-3;
-    /* otherwise, move the DIV from anywhere inside the DIV:*/
-    elmnt.onmousedown = dragMouseDown;
-	var bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
-
-  function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    // get the mouse cursor position at startup:
-    x1 = e.clientX;
-    y1 = e.clientY;
-	ddx = e.clientX - (elmnt.getBoundingClientRect().left + (elmnt.clientWidth/2));//diff between center of goal and cursor at mouse down
-    ddy = e.clientY - (elmnt.getBoundingClientRect().top+ (elmnt.clientHeight/2)) ;//diff between center of goal and cursor at mouse down
-    document.onmouseup = closeDragElement;
-    // call a function whenever the cursor moves:
-    document.onmousemove = elementDrag;
-  }
-
-	function elementDrag(e) {
-		e = e || window.event;
-		e.preventDefault();
-		var bounds = myUI.canvases.hover_map.canvas.getBoundingClientRect();
-		// calculate the new cursor position:
-		dx = x1 - e.clientX;
-		dy = y1 - e.clientY;
-		x1 = e.clientX;
-		y1 = e.clientY;
-
-		
-		// set the element's new position:
-		if (elmnt.offsetTop - dy >= -elmnt.clientHeight / 2 + CANVAS_OFFSET && elmnt.offsetTop - dy <= bounds.height - elmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
-			elmnt.style.top = (elmnt.offsetTop - dy) + "px";
-			y1 = elmnt.getBoundingClientRect().y + elmnt.height/2;// update the y-coordinate when mouseup 
-			
-		}
-		if (elmnt.offsetLeft - dx >= -elmnt.clientWidth / 2 + CANVAS_OFFSET && elmnt.offsetLeft - dx <= bounds.width - elmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
-			elmnt.style.left = (elmnt.offsetLeft - dx) + "px";
-			x1 = elmnt.getBoundingClientRect().x + elmnt.width/2; // update the x-coordinate when mouseup
-		}
-		if (slaveElmnt) {
-			if (slaveElmnt.offsetTop - dy >= -slaveElmnt.clientHeight / 2 + CANVAS_OFFSET && slaveElmnt.offsetTop - dy <= bounds.height - slaveElmnt.clientHeight / 2 + CANVAS_OFFSET) {  // if within y-bounds
-					slaveElmnt.style.top = (slaveElmnt.offsetTop - dy) + "px";
-			}
-			if (slaveElmnt.offsetLeft - dx >= -slaveElmnt.clientWidth / 2 + CANVAS_OFFSET && slaveElmnt.offsetLeft - dx <= bounds.width - slaveElmnt.clientWidth / 2 + CANVAS_OFFSET) {  // if within x-bounds
-				slaveElmnt.style.left = (slaveElmnt.offsetLeft - dx) + "px";
-			}
-			
-		}
-	}
-
-  function closeDragElement() {
-    /* stop moving when mouse button is released:*/
-    document.onmouseup = null;
-		document.onmousemove = null;
-		
-		let y = x1 - bounds.left;
-		let x = y1 - bounds.top;
-		y = Math.max(CANVAS_OFFSET, Math.min(bounds.width - e_num + CANVAS_OFFSET, y));  // fix to boundaries
-		x = Math.max(CANVAS_OFFSET, Math.min(bounds.height - e_num + CANVAS_OFFSET, x));
-		let [scaled_x, scaled_y] = myUI.scale_coord(x, y);
-	  //below code auto shifts coords to prevent start.goal to be on obstacle
-		let flag = true;
-		let scaled_x_original = scaled_x
-		while (flag){
-			if (CustomLOSChecker([scaled_x, scaled_y], [scaled_x, scaled_y]).boolean == false) {//on obstacle
-				scaled_x++;
-				scaled_y++;
-			}
-			else {
-				if (scaled_x != scaled_x_original) alert("coordinates have been shifted to avoid obstacles")
-				flag = false;
-			}
-		}
-		
-		if(elmnt.id=="map_start_icon"){
-			myUI.map_start = [scaled_x, scaled_y];
-		}   
-		else if(elmnt.id=="map_goal_icon") {
-			myUI.map_goal = [scaled_x, scaled_y];
-		}
-		//
-	  
-	  
-	  myUI.displayScen(true, true);
-	  
-	  /*
-	  document.getElementById("compute_btn").click();
-	
-	setTimeout(() => {
-		document.getElementById("end_btn").click()
-		}, 100);
-	  //setTimeout(myUI.jump_to_end(), 5000)
-	  */
   }
 }
 

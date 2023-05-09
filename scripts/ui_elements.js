@@ -187,12 +187,18 @@ class UICanvas{
 
   change_pixel(xy, direction, virtual=false){
     let [x,y] = xy;
-    let val = virtual ? this.virtualCanvas[x][y] : this.canvas_cache[x][y];
-    if(direction=="inc") ++val; else --val;
-    if(val==this.defaultVal)
-      return this.erase_pixel(xy);
-    val = Math.min(this.maxVal, Math.max(val, this.minVal));
-    this.draw_pixel(xy, virtual, val, val-1);
+    try{
+      let val = virtual ? this.virtualCanvas[x][y] : this.canvas_cache[x][y];
+      if(direction=="inc") ++val; else --val;
+      if(val==this.defaultVal)
+        return this.erase_pixel(xy);
+      val = Math.min(this.maxVal, Math.max(val, this.minVal));
+      this.draw_pixel(xy, virtual, val, val-1);
+    }
+    catch(e){
+      console.log(e);
+      debugger;
+    }
   }
 
   calc_color(val, color_index){
@@ -202,10 +208,12 @@ class UICanvas{
     }
     else if(color_index!=-1)
       var color = this.colors[color_index];
+    else
+      var color = this.colors[val - 1];
     return color;
   }
 
-  draw_pixel(xy, virtual=false, val=1, color_index=0, save_in_cache=true){
+  draw_pixel(xy, virtual=false, val=1, color_index = -1, save_in_cache=true){
     let [x,y] = xy;
     if(x>=this.data_height || y>=this.data_width) return;
     if(virtual)

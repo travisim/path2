@@ -45,7 +45,7 @@ myUI.plannerConfigCallback = function(){
 myUI.setPlannerConfig = function(){
   let parent = document.getElementById("planner_config_body");
   removeChildren(parent);
-  for(const config of myUI.planner.configs){
+  for(const config of myUI.planner.constructor.configs){
     let row = document.createElement("tr");
     let conf = document.createElement("td");
     conf.innerHTML = config.displayName+"<br>";

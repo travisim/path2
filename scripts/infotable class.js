@@ -198,17 +198,20 @@ class UIInfoTable{
   }
 
   setHighlightAtIndex(rowIndex){
-    rowIndex--;
     for (let i = 0; i <  this.highlightedRows.length; i++) { 
       if( this.highlightedRows[i]){
         this.highlightedRows[i].style.outlineColor = "transparent";
         this.highlightedRows[i].classList.remove('highlighting');
       }
     }
-    this.rows[rowIndex].style.outline = "2px solid red";
-    this.rows[rowIndex].classList.add("highlighting");
-    let prevHighlight = this.highlightRow;
-    this.highlightRow = rowIndex+1;
+    let prevHighlight  = this.highlightRow;
+    this.highlightRow = null;
+    if(rowIndex !== null){
+      rowIndex--;
+      this.rows[rowIndex].style.outline = "2px solid red";
+      this.rows[rowIndex].classList.add("highlighting");
+      this.highlightRow = rowIndex+1;
+    }
     return prevHighlight;
   }
   
@@ -262,8 +265,8 @@ class UIInfoTable{
       : document.getElementById(id).cells[1].innerHTML = value1; 
     }
     catch(e){
-      console.error("CANNOT FIND ID OF: ", id);
-      debugger;
+      //console.error("CANNOT FIND ID OF: ", id);
+     // debugger;
     }
   }
 
