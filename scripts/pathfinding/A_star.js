@@ -202,11 +202,7 @@ class A_star extends GridPathfinder{
       /* FOUND GOAL */
       if(this._found_goal(this.current_node)) return this._terminate_search(); // found the goal & exits the loop
 
-      let cardinalCoords = {};
-      if(this.diagonal_allow == false && this.num_neighbors == 8)
-        for(let i = 0; i < this.num_neighbors; ++i)
-          if(this.delta[i].includes(0))
-            cardinalCoords[this.deltaNWSE[i]] = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];
+      let cardinalCoords = this.getCardinalCoords();
 
       /* iterates through the 4 or 8 neighbors and adds the valid (passable & within boundaries of map) ones to the queue & neighbour array */
       for(const i of this.neighborsIndex){

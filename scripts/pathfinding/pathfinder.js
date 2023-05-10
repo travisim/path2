@@ -317,6 +317,8 @@ class Pathfinder{
 		this.color_bit_len = Math.ceil(Math.log2(myUI.arrow.colors.length));
 	}
 
+	isPassable(coord){ return this.map.get_data(coord); }
+
 	_init_search(start, goal){
 		this.startTime = myUI.startTime;
     this.start = start; //in array form [x,y]  [0,0] is top left  [512,512] is bottom right
@@ -426,7 +428,7 @@ class Pathfinder{
 			this._create_action(STATIC.DrawArrow, node.arrow_index, 1);
 			/* NEW */
 			if(this.constructor.showFreeVertex){
-				const OFFSET = this.vertexEnabled ? 0 : 0.5;
+				const OFFSET = 0;//this.vertexEnabled ? 0 : 0.5;
 				let nodeCoord = node.self_XY.map(x=>x + OFFSET);
 				if(this.constructor.gridPrecision == "float")
 					this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: nodeCoord});

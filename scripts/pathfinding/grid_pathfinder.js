@@ -58,7 +58,14 @@ class GridPathfinder extends Pathfinder{
 		];
 	}
 
-  
+  getCardinalCoords(){
+		let cardinalCoords = {};
+		if(this.diagonal_allow == false && this.num_neighbors == 8)
+			for(let i = 0; i < this.num_neighbors; ++i)
+				if(this.delta[i].includes(0))
+					cardinalCoords[this.deltaNWSE[i]] = [this.current_node_XY[0] + this.delta[i][0], this.current_node_XY[1] + this.delta[i][1]];
+		return cardinalCoords;
+	}
 
 	init_neighbors(num_neighbors, first_neighbor=this.first_neighbor, search_direction=this.search_direction){
 		this.num_neighbors = num_neighbors;
@@ -111,46 +118,73 @@ class GridPathfinder extends Pathfinder{
 		this.cell_map.set(xy, this.step_index);
 	}
 
+	isValidCoord(coord){
+		return coord[0] >= 0 && coord[1] >= 0 && coord[0] < this.map_height && coord[1] < this.map_width;
+	}
+
+	isDiagonalBlockedVertex(next_XY, current_XY, parent_XY){
+		if(parent_XY === undefined) return false; // assume able to pass through in ambiguous case
+		let blocked1 = current_XY, blocked2 = current_XY.map(x=>x-1);
+		if(this.isValidCoord(blocked2) && !this.isPassable(blocked1) && !this.isPassable(blocked2)){
+			let sideOf = (XY) => XY[0] >= current_XY[0] && XY[1] <= current_XY[1];
+			if(sideOf(next_XY) != sideOf(parent_XY)) return true; // different sides, blocked
+		}
+		blocked1 = [current_XY[0] - 1, current_XY[1]]; blocked2 = [current_XY[0], current_XY[1] - 1];
+		if(this.isValidCoord(blocked1) && this.isValidCoord(blocked2) && !this.isPassable(blocked1) && !this.isPassable(blocked2)){
+			let sideOf = (XY) => XY[0] + XY[1] > current_XY[0] + current_XY[1];
+			if(sideOf(next_XY) != sideOf(parent_XY)) return true; // different sides, blocked
+		}
+		return false; // no cases triggered, not blocked
+	}
+
   _nodeIsNeighbor(next_XY, next_NWSE, cardinalCoords){
 		if(this.vertexEnabled){
-			// no diagonal blocking considered
+			let parent_XY = this.current_node.parent ? this.current_node.parent.self_XY : undefined;
 			if(next_XY[0]!=this.current_node_XY[0] && next_XY[1]!=this.current_node_XY[1]){
 				// diagonal crossing
 				// consider [Math.min(next_XY[0], this.current_node_XY[0]), Math.min(next_XY[1], this.current_node_XY[1])];
 				let coord = [Math.min(next_XY[0], this.current_node_XY[0]), Math.min(next_XY[1], this.current_node_XY[1])];
-				if(this.map.get_data(coord)==0) return false; // not passable
+				if(!this.isPassable(coord)) return false; // not passable
 			}
 			else{
 				// cardinal crossing
 				if(next_XY[0]!=this.current_node_XY[0]){
-					// consider [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]]
-					// consider [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]-1]
-					var c1 =  [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]];
+					// change in x, "N-S" movement
+					var c1 = [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]];
 					var c2 = [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]-1];
+
+					if(next_XY[1] == 0 && !this.isPassable(c1)) return false; // edges of map
+					else if(next_XY[1] == this.map_width - 1 && !this.isPassable(c2)) return false;
 				}
 				else{
-					// consider [next_XY[0], Math.min(next_XY[1], this.current_node_XY[1])]
-					// consider [next_XY[0]-1, Math.min(next_XY[1], this.current_node_XY[1])] 
+					// change in y, "E-W" movement
 					var c1 = [next_XY[0], Math.min(next_XY[1], this.current_node_XY[1])];
 					var c2 = [next_XY[0]-1, Math.min(next_XY[1], this.current_node_XY[1])];
+
+					if(next_XY[0] == 0 && !this.isPassable(c1)) return false; // edges of map
+					else if(next_XY[0] == this.map_height - 1&& !this.isPassable(c2)) return false;
 				}
-				if(this.map.get_data(c1)==0 && this.map.get_data(c2)==0) return false; // not passable
+				if(!this.isPassable(c1) && !this.isPassable(c2)) return false; // not passable
+			}
+			// at this point, the vertex is visible in either case. last check will be for diagonal blocking
+			if(!this.diagonal_allow){
+				if(this.isDiagonalBlockedVertex(next_XY, this.current_node_XY, parent_XY)) return false;
 			}
 		}
 		else{
-			if (this.map.get_data(next_XY) == 0) return false;  // if neighbour is not passable
+			if (!this.isPassable(next_XY)) return false;  // if neighbour is not passable
 			if (this.diagonal_allow == false && this.num_neighbors == 8) { // if diagonal blocking is enabled
 				if (next_NWSE == "NW") {
-					if(this.map.get_data(cardinalCoords["N"]) == 0 && this.map.get_data(cardinalCoords["W"]) == 0) return false;
+					if(!this.isPassable(cardinalCoords["N"]) && !this.isPassable(cardinalCoords["W"])) return false;
 				}
 				else if (next_NWSE == "SW") {
-					if(this.map.get_data(cardinalCoords["S"]) == 0 && this.map.get_data(cardinalCoords["W"]) == 0) return false;
+					if(!this.isPassable(cardinalCoords["S"]) && !this.isPassable(cardinalCoords["W"])) return false;
 				}
 				else if (next_NWSE == "SE") {
-					if(this.map.get_data(cardinalCoords["S"]) == 0 && this.map.get_data(cardinalCoords["E"]) == 0) return false;
+					if(!this.isPassable(cardinalCoords["S"]) && !this.isPassable(cardinalCoords["E"])) return false;
 				}
 				else if (next_NWSE == "NE") {
-					if(this.map.get_data(cardinalCoords["N"]) == 0 && this.map.get_data(cardinalCoords["E"]) == 0) return false;
+					if(!this.isPassable(cardinalCoords["N"]) && !this.isPassable(cardinalCoords["E"])) return false;
 				}
 			}
 		}
