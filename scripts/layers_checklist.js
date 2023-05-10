@@ -37,8 +37,8 @@ function appendCheckbox(id,checked = false, label,subLabel = null,toggleType){
    
         if (this.checked) document.getElementById(id.slice(5)).classList.remove("hidden");
         else document.getElementById(id.slice(5)).classList.add("hidden");
-      toggleHideSVGCircleByClassIdentifier(id.slice(5))
-      toggleHideSVGLineByClassIdentifier(id.slice(5))
+      toggleHideSVGCircleByClassIdentifier(id.slice(5), this.checked);
+      toggleHideSVGLineByClassIdentifier(id.slice(5), this.checked);
     });
   }
   else if(toggleType=="single"){

@@ -334,9 +334,7 @@ myUI.toggleVertex = function(enable=true){
   if(enable){
     myUI.vertex = true;
     for(const uiCanvas of myUI.dynamicCanvas){
-      if(uiCanvas.drawType=="dotted")
-        uiCanvas.hide();
-      else if(uiCanvas.drawType=="cell") uiCanvas.setDrawType("vertex");
+      if(uiCanvas.drawType=="cell") uiCanvas.setDrawType("vertex");
     }
     myUI.canvases.hover_map.setDrawType("vertex");
   }

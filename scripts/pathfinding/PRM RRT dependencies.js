@@ -320,23 +320,34 @@ function CustomLOSChecker(src, tgt){
 
   else{
     let path = CustomLOSGenerator(src, tgt, false);
+    let prevX = undefined, prevY = undefined;
     for(coord of path){
       let x = coord[0];
       let y = coord[1];
-      if(x >= myUI.map_height || y >= myUI.map_width) continue;
+      
+      if(myUI.planner && !myUI.planner.diagonal_allow
+        && prevX !== undefined && prevY !== undefined
+        && x != prevX && y != prevY){
+        console.log(x, y, prevX, prevY);
+        // diagonal crossing 
+        if(grid[x][prevY] && grid[prevX][y]){
+          // diagonal blocked
+          return false;
+        }
+      }
+
       if(grid[x][y]){
         return{
           boolean: false,
-          
         } 
       } 
-      
+      prevX = x;
+      prevY = y;
     }
     return{
       boolean: true,
     }
   }
-  
 }
 
 function CustomLOSGenerator(src, tgt, cons = false){
@@ -739,31 +750,20 @@ class SVGCanvas {
   }
 }
 
-function toggleHideSVGCircleByClassIdentifier(className){
+function toggleHideSVGCircleByClassIdentifier(className, checked){
   var divsToHide = document.getElementsByClassName(`SVGcircle_${className}`); //divsToHide is an array
   for (var i = 0; i < divsToHide.length; i++) {
-    if (divsToHide[i].style.display == "none") {
-      divsToHide[i].style.display = "block";
-    }
-    else {
-      divsToHide[i].style.display = "none";
-    }
+    if(checked) divsToHide[i].classList.remove("hidden");
+    else divsToHide[i].classList.add("hidden");
   }
 }
-function toggleHideSVGLineByClassIdentifier(className){
+function toggleHideSVGLineByClassIdentifier(className, checked){
   var divsToHide = document.getElementsByClassName(`SVGline_${className}`); //divsToHide is an array
   for (var i = 0; i < divsToHide.length; i++) {
-    if (divsToHide[i].style.display == "none") {
-      divsToHide[i].style.display = "block";
-    }
-    else {
-      divsToHide[i].style.display = "none";
-    }
+    if(checked) divsToHide[i].classList.remove("hidden");
+    else divsToHide[i].classList.add("hidden");
   }
 }
-
-
-
 
 function isArraysEqual(arr1, arr2)
     {

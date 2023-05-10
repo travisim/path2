@@ -287,11 +287,11 @@ center {
 }
 
 /**************************** TOOLTIP  *******************************/
-.btn[alt] {
+.hover-info[alt] {
   display: flex;
   justify-content: center;
 }
-.btn[alt]:hover::after {
+.hover-info[alt]:hover::after {
   /* tooltip */
   content: attr(alt);
   background: rgba(0, 0, 0, 0.7);
@@ -310,8 +310,10 @@ center {
   white-space: -pre-wrap;
   white-space: -o-pre-wrap;
   word-wrap: break-word;
+  z-index: 102;
 }
-.btn[alt]:hover::before {
+
+.hover-info[alt]:hover::before {
   /* arrow */
   display: block;
   position: absolute;
@@ -321,6 +323,7 @@ center {
   border: 5px solid transparent;
   border-bottom: 5px solid rgba(0, 0, 0, 0.7);
   box-sizing: border-box;
+  z-index: 102;
 }
 
 .empty-outer {
@@ -352,7 +355,7 @@ element.style {
     margin-left: -325px;
     margin-top: -295px;
 }
-<style>
+
 .overlays {
     background-image: initial;
     background-color: rgb(34, 36, 38);

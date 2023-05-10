@@ -232,7 +232,8 @@ class UICanvas{
 
       switch(this.drawType){
         case "dotted":
-          this.draw_dotted_square(xy);
+          if(myUI.vertex) this.draw_dotted_vertex(xy);
+          else this.draw_dotted_square(xy);
           break;
         case "vertex":
           this.draw_vertex(xy);
@@ -509,14 +510,27 @@ class UICanvas{
     this.canvas_cache = this.matrixConstructor();
   }
 
-  draw_vertex(xy, color_index){
+  draw_dotted_vertex(xy){
     let y = xy[0]*this.canvas.height/myUI.map_height;
     let x = xy[1]*this.canvas.width/myUI.map_width;
-    let r = Math.max(1.25, 0.125 * this.canvas.height/myUI.map_height);
+    let r = Math.max(6, 0.1875 * this.canvas.height/myUI.map_height); // * 64 = 12;
 
     this.set_color(this.strokeColor, "stroke");
     this.ctx.beginPath();
-    this.ctx.lineWidth = Math.max(r*1.9, 1);
+    this.ctx.setLineDash([16, 9]);
+    this.ctx.lineWidth = Math.max(r * 2 / 3, 3);
+    this.ctx.arc(x, y, r, 0, 2 * Math.PI);
+    this.ctx.stroke();  
+  }
+
+  draw_vertex(xy){
+    let y = xy[0]*this.canvas.height/myUI.map_height;
+    let x = xy[1]*this.canvas.width/myUI.map_width;
+    let r = Math.max(1, 0.125 * this.canvas.height/myUI.map_height); // 4 for VisibiltyGraph, else 1 for A*
+
+    this.set_color(this.strokeColor, "stroke");
+    this.ctx.beginPath();
+    this.ctx.lineWidth = Math.max(r*1.9, 3);
     this.ctx.arc(x, y, r, 0, 2 * Math.PI);
     this.ctx.stroke();  
   }

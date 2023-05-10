@@ -252,13 +252,13 @@
             <button class="collapsible">Display Controls</button>
             <div class="content">
               <div id="display_controls" class="flex-row">
-                <button id="clear_btn" class="btn" alt="Go to start">
+                <button id="clear_btn" class="btn hover-info" alt="Go to start">
                   <img src="assets/clear.svg" class="icon" alt="clear" />
                 </button>
-                <button id="back_btn" class="btn" alt="Step back">
+                <button id="back_btn" class="btn hover-info" alt="Step back">
                   <img src="assets/back.svg" class="icon" alt="back" />
                 </button>
-                <button id="start_pause_btn" class="btn" alt="Play">
+                <button id="start_pause_btn" class="btn hover-info" alt="Play">
                   <div class="grid-overlay">
                     <img
                       src="assets/start.svg"
@@ -276,10 +276,10 @@
                     <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
                   </div>
                 </button>
-                <button id="forward_btn" class="btn" alt="Step forward">
+                <button id="forward_btn" class="btn hover-info" alt="Step forward">
                   <img src="assets/next.svg" class="icon" alt="next" />
                 </button>
-                <button id="end_btn" class="btn" alt="Go to end">
+                <button id="end_btn" class="btn hover-info" alt="Go to end">
                   <img src="assets/end.svg" class="icon" alt="end" />
                 </button>
               </div>
@@ -308,7 +308,7 @@
             </div>
             <button class="collapsible">Slider Controls</button>
             <div id="slider_controls" class="content">
-              <label class="label_centered"
+              <label class="label_centered hover-info" alt="Animation speed. Higher numbers are faster"
                 >Step Frequency (#/s):
                 <span id="animation_speed_label">1.00x</span></label
               >
@@ -367,7 +367,7 @@
                 <span>max</span>
               </div>
 
-              <label class="label_centered"
+              <label class="label_centered hover-info" alt="Controls the frame on screen"
                 >Search progress:
                 <span id="search_progress_label">0%</span></label
               >
@@ -383,7 +383,7 @@
                 <!-- steps are 0-indexed -->
                 <span>100%</span>
               </div>
-              <label class="label_centered">Steps per checkpoint: <input id="state_freq_label" value="20"/></label>
+              <label class="label_centered hover-info" alt="Controls how frequently checkpoints are saved. Lower numbers use more memory">Steps per checkpoint: <input id="state_freq_label" value="20"/></label>
               <div class="flex-row">
                 <span>20</span>
                 <input
@@ -436,26 +436,26 @@
               <div class="flex-row">
                 <button
                   id="compute_btn"
-                  class="btn"
+                  class="btn hover-info"
                   alt="Find path using selected planner"
                 >
                   <div class="flex-col label_centered">Compute Path</div>
                 </button>
                 <button
                   id="edit_map_btn"
-                  class="btn grid-overlay"
+                  class="btn grid-overlay hover-info"
                   alt="Switch to editing mode"
                 >
                   <img
                     src="assets/edit-map.svg"
                     id="edit_map_icon"
-                    class="icon overlay"
+                    class="icon overlay hover-info"
                     alt="edit map"
                   />
                 </button>
                 <button
                   id="planner_config_btn"
-                  class="btn"
+                  class="btn hover-info"
                   alt="Choose and customize the algorithm"
                 >
                   <div class="flex-col"></div>
@@ -638,7 +638,8 @@
             /></label>
           </div>
         </div>
-         <button id="draw_erase_btn" class="btn grid-overlay">
+        <button id="draw_erase_btn" class="btn hover-info" alt="Toggle between draw and erase">
+          <div class="grid-overlay">
             <img
               src="assets/pencil-svgrepo-com.svg"
               id="draw_icon"
@@ -651,7 +652,8 @@
               class="icon overlay hidden"
               alt="erase"
             />
-          </button>
+          </div>
+        </button>
         <div id="bottom_panel">
           <div class="flex-row" style="display: none">
             <span>1</span>
