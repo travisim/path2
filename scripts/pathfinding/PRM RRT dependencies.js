@@ -647,7 +647,6 @@ class SVGCanvas {
     var x2 = this.displayRatio*end_coord.y;
     var y2 = this.displayRatio * end_coord.x;
     var strokeWidth = Math.max(lineWidth*this.displayRatio, 1)
-    console.log("STROKEWIDTH", strokeWidth);
     var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
     var line_class = `SVGline_${destId}`;
     var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";

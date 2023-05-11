@@ -347,8 +347,8 @@ class VisibilityGraph extends Pathfinder{
     if(this.showNetworkGraph) this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: goal});
     let kernelSize = 2;
 
-    for(let i = 0; i < this.bg_height - kernelSize + 1; ++i){
-      for(let j = 0; j < this.bg_width - kernelSize + 1; ++j){
+    for(let i = 0; i < this.grid_height - kernelSize + 1; ++i){
+      for(let j = 0; j < this.grid_width - kernelSize + 1; ++j){
         let coords = cornerCoords(this.map, kernelSize, i, j, this.vertexEnabled);
         if(coords == null) continue;
         for(const coord of coords){

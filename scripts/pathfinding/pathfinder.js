@@ -131,7 +131,6 @@ class Pathfinder{
 		thickness,
 		value,
 		id
-		
 	} = {}){
 		/* NEW */
 		/*
@@ -309,8 +308,8 @@ class Pathfinder{
 	add_map(map){
 		this.map_height = map.length;
 		this.map_width = map[0].length;
-		this.bg_height = this.map_height;
-		this.bg_width = this.map_width;
+		this.grid_height = this.map_height;
+		this.grid_width = this.map_width;
 		if(this.vertexEnabled){
 			++this.map_height;
 			++this.map_width;
@@ -372,6 +371,8 @@ class Pathfinder{
 		
 	} = {}){
 		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, cellVal: cellVal, endCoord: endCoord, colour: colour,thickness: thickness,value:value,id:id});
+		if(command == STATIC.DrawEdge) this.drawEdgeCnt++;
+		else if(command == STATIC.EraseEdge) this.eraseEdgeCnt++;
 		if(this.step_index == 0) console.log(STATIC_COMMANDS[command], this.dests[dest]);
 		Array.prototype.push.apply(this.step_cache, this.actionCache);
 		return this.actionCache.length;
@@ -432,16 +433,14 @@ class Pathfinder{
 			this._create_action(STATIC.DrawArrow, node.arrow_index, 1);
 			/* NEW */
 			if(this.constructor.showFreeVertex){
-				const OFFSET = 0;//this.vertexEnabled ? 0 : 0.5;
-				let nodeCoord = node.self_XY.map(x=>x + OFFSET);
 				if(this.constructor.gridPrecision == "float")
-					this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: nodeCoord});
+					this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: node.self_X});
 				else
 					this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
-				if(prevNode){
-					let endCoord = prevNode.self_XY.map(x=>x + OFFSET);
-					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: nodeCoord, endCoord: endCoord, thickness: 0.15});
-				}
+
+				if(prevNode)
+					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: prevNode.self_XY, thickness: 0.15});
+				
 			}
 			else this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
 			if(! (node.arrow_index === null))
@@ -473,7 +472,6 @@ class Pathfinder{
 	}
 	
 	calculatePathLength(path) {
-		
 		var pathLength = 0
 		if (path.length > 1) {
 			for (i = 0; i < path.length-1; i++){
@@ -481,9 +479,7 @@ class Pathfinder{
 			}
 		}
 		return pathLength.toPrecision(5)
-
 	}
-	
 }
 
 class Node{

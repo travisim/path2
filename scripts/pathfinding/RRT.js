@@ -91,6 +91,8 @@ class RRT_star extends Pathfinder{
     super(num_neighbors, diagonal_allow, first_neighbour, search_direction);
     myUI.nodeCanvas.isDisplayRatioGrid(true)
     myUI.edgeCanvas.isDisplayRatioGrid(true)
+    this.drawEdgeCnt = 0;
+    this.eraseEdgeCnt = 0;
   }
 
   setConfig(uid, value){
@@ -729,14 +731,14 @@ l        }
     myUI.run_action(STATIC.EraseAllEdge, this.dests.path);
     let node = this.choosenCoordsNodes[this.goalIndex];
     if (node != undefined) { 
-      console.log(node);
+      // console.log(node);
       while (true) { // adding node.parent != null  does not work
-        console.log(node);
+        // console.log(node);
         if (node.parent == null) break
-        console.log("Drawing Vertex");
+        // console.log("Drawing Vertex");
         myUI.run_action(STATIC.DrawVertex, this.dests.path, node.value_XY[0], node.value_XY[1], 0);
         var p = this.choosenCoordsNodes[node.parent];
-        console.log("Drawing Edge");
+        // console.log("Drawing Edge");
         myUI.run_action(STATIC.DrawEdge, this.dests.path, node.value_XY[0], node.value_XY[1], 0, undefined, undefined, undefined, undefined, undefined, p.value_XY[0], p.value_XY[1]);
         node = p;
       }

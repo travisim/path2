@@ -10,7 +10,7 @@
 namespace pathfinder
 {
   template <typename Action_t>
-  bool GridPathFinder<Action_t>::generateReverseSteps(bool genStates, int stateFreq)
+  bool Pathfinder<Action_t>::generateReverseSteps(bool genStates, int stateFreq)
   {
     sim.clear();
     this->genStates = genStates;
@@ -21,7 +21,7 @@ namespace pathfinder
   }
 
   template <typename Action_t>
-  bool GridPathFinder<Action_t>::nextGenSteps(int givenBatchSize)
+  bool Pathfinder<Action_t>::nextGenSteps(int givenBatchSize)
   {
     if (givenBatchSize == -1)
       givenBatchSize = batchSize; // use fwd step generation size
@@ -42,14 +42,17 @@ namespace pathfinder
         Dest dest = (Dest)fwd.dest;
         int x = fwd.nodeCoord.first;
         int y = fwd.nodeCoord.second;
-        int colorIndex; if constexpr(std::is_same<Action_t, Action>::value) colorIndex = fwd.colorIndex;
-        int arrowIndex; if constexpr(std::is_same<Action_t, Action>::value) arrowIndex = fwd.arrowIndex;
-        int pseudoCodeRow; if constexpr(std::is_same<Action_t, Action>::value) pseudoCodeRow = fwd.pseudoCodeRow;
-        int infoTableRowIndex; if constexpr(std::is_same<Action_t, Action>::value) infoTableRowIndex = fwd.infoTableRowIndex;
-        std::vector<std::string> infoTableRowData; if constexpr(std::is_same<Action_t, Action>::value) infoTableRowData = fwd.infoTableRowData;
+        int colorIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) colorIndex = fwd.colorIndex;
+        int arrowIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) arrowIndex = fwd.arrowIndex;
+        int pseudoCodeRow = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) pseudoCodeRow = fwd.pseudoCodeRow;
+        int infoTableRowIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowIndex = fwd.infoTableRowIndex;
+        std::vector<std::string> infoTableRowData; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowData = fwd.infoTableRowData;
         double cellVal = fwd.cellVal;
-        int endX; if constexpr(std::is_same<Action_t, Action>::value) endX = fwd.endCoord.first;
-        int endY; if constexpr(std::is_same<Action_t, Action>::value) endY = fwd.endCoord.second;
+        int endX = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX = fwd.endCoord.first;
+        int endY = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY = fwd.endCoord.second;
+        uint8_t thickness = fwd.thickness;
+        std::string value; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) value = fwd.value;
+        std::string id; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) id = fwd.id;
         
         double defaultVal;
         if(dest == CanvasFCost || dest == CanvasGCost || dest == CanvasHCost){
@@ -182,10 +185,8 @@ namespace pathfinder
         {
           std::vector<std::string> data = sim.activeTable[dest]->eraseRowAtIndex(infoTableRowIndex);
 
-          int prevHighlight = stoi(data.back());
+          int toHighlight = stoi(data.back());
           data.pop_back();
-
-          bool toHighlight = prevHighlight == infoTableRowIndex;
 
           if (!toHighlight)
             infoTableRowIndex *= -1;
@@ -198,10 +199,8 @@ namespace pathfinder
             infoTableRowIndex = 1;
             std::vector<std::string> data = sim.activeTable[dest]->eraseRowAtIndex(infoTableRowIndex);
 
-            int prevHighlight = stoi(data.back());
+            int toHighlight = stoi(data.back());
             data.pop_back();
-
-            bool toHighlight = prevHighlight == infoTableRowIndex;
 
             if (!toHighlight)
               infoTableRowIndex *= -1;
@@ -210,14 +209,21 @@ namespace pathfinder
         }
         else if (command == UpdateRowAtIndex)
         {
+          // if(dest == ITNeighbors && (infoTableRowData[1] == "13,12" || infoTableRowData[1] == "13,13")) std::cout<<infoTableRowData[1]<<": "<<infoTableRowData[5]<<": "<<sim.activeTable[dest]->getHiglightIndex()<<std::endl;
+
           std::vector<std::string> data = sim.activeTable[dest]->updateRowAtIndex(infoTableRowIndex, infoTableRowData);
+
           int prevHighlight = stoi(data.back());
           data.pop_back();
+          
+          // if(dest == ITNeighbors && (infoTableRowData[1] == "13,12" || infoTableRowData[1] == "13,13")) std::cout<<infoTableRowData[1]<<": "<<infoTableRowData[5]<<": "<<sim.activeTable[dest]->getHiglightIndex()<<std::endl<<"OLD: "<<prevHighlight<<std::endl;
 
           if (prevHighlight != -1)
           {
             steps[stepCnt]->revActions.push_back(packAction(SetHighlightAtIndex, dest, {-1, -1}, -1, -1, -1, prevHighlight));
           }
+
+          infoTableRowIndex = infoTableRowIndex > 0 ? infoTableRowIndex * -1 : infoTableRowIndex;
           steps[stepCnt]->revActions.push_back(packAction(UpdateRowAtIndex, dest, {-1, -1}, -1, -1, -1, infoTableRowIndex, data));
         }
         else if (command == HighlightPseudoCodeRowPri)
@@ -296,7 +302,7 @@ namespace pathfinder
           std::cout << "CURRENT RSS at state "<<stateNum<<": "<<getCurrentRSS() <<std::endl;
 
         }
-        std::unique_ptr<State> nextState = std::make_unique<State>();
+        std::unique_ptr<State<Coord_t>> nextState = std::make_unique<State<Coord_t>>();
 
         // canvas
         for (const auto &p : sim.activeCanvas)
@@ -364,25 +370,6 @@ namespace pathfinder
       }
     }
     return false;
-  }
-
-  template <typename Action_t>
-  Step<Action_t> GridPathFinder<Action_t>::getStep(int stepNo)
-  {
-    return Step(*steps[stepNo].get());
-  }
-
-  template <typename Action_t>
-  State GridPathFinder<Action_t>::getState(int stepNo)
-  {
-    int stateNo = (stepNo + 1) / stateFreq;
-    std::cout<<"Getting state "<<stateNo<<" from wasm!\n";
-    if (stepNo < stateFreq){
-      std::cout<<0<<std::endl;
-      return State{false};
-    }
-    State s = *states[stateNo - 1].get();
-    return s;
   }
 }
 

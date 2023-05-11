@@ -197,16 +197,22 @@ class UIInfoTable{
     return this.highlightRow;
   }
 
-  setHighlightAtIndex(rowIndex){
+  resetAllHighlight(){
     for (let i = 0; i <  this.highlightedRows.length; i++) { 
       if( this.highlightedRows[i]){
         this.highlightedRows[i].style.outlineColor = "transparent";
         this.highlightedRows[i].classList.remove('highlighting');
       }
     }
-    let prevHighlight  = this.highlightRow;
+    let prevHighlight = this.highlightRow;
     this.highlightRow = null;
-    if(rowIndex !== null){
+    return prevHighlight;
+  }
+
+  setHighlightAtIndex(rowIndex){
+    let prevHighlight = this.resetAllHighlight();
+    console.assert(rowIndex > 0);
+    if(rowIndex > 0){
       rowIndex--;
       this.rows[rowIndex].style.outline = "2px solid red";
       this.rows[rowIndex].classList.add("highlighting");
@@ -308,7 +314,8 @@ class UIInfoTable{
       idx++;
     }
     if(toHighlight) return [data, this.setHighlightAtIndex(rowIndex+1)];
-    return [data, this.highlightRow];
+    let prevHighlight = this.resetAllHighlight();
+    return [data, prevHighlight];
   }
   
   flatten(){

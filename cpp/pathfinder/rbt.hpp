@@ -42,14 +42,15 @@ namespace pathfinder
     black
   };
 
-  struct RBTNode
+  template <typename Coord_t>
+  struct RBTVertex
   {
 
-    Node* data;
+    Node<Coord_t>* data;
     ll size;
     bool colour;
-    RBTNode *parent, *left, *right;
-    ~RBTNode()
+    RBTVertex *parent, *left, *right;
+    ~RBTVertex()
     {
       if (left)
         delete left;
@@ -58,14 +59,15 @@ namespace pathfinder
     }
   };
 
+  template <typename Coord_t>
   class RedBlackTree
   {
 
-    RBTNode *root, *tNil;
+    RBTVertex<Coord_t> *root, *tNil;
     bool hOptimized = true;
     timeOrder order;
 
-    bool less(const Node* n1, const Node* n2) const
+    bool less(const Node<Coord_t>* n1, const Node<Coord_t>* n2) const
     {
       // lower fCost will be first
       if (std::abs(n1->fCost - n2->fCost) >= THRESH)
@@ -82,10 +84,10 @@ namespace pathfinder
         return n1->timeCreatedus >= n2->timeCreatedus;
     }
 
-    RBTNode *findRBTNode(RBTNode *z)
+    RBTVertex<Coord_t> *findRBTVertex(RBTVertex<Coord_t> *z)
     {
 
-      RBTNode *x = this->root;
+      RBTVertex<Coord_t> *x = this->root;
 
       while (x != tNil)
       {
@@ -110,7 +112,7 @@ namespace pathfinder
       return tNil;
     }
 
-    RBTNode *findMin(RBTNode *z)
+    RBTVertex<Coord_t> *findMin(RBTVertex<Coord_t> *z)
     {
 
       while (z->left != tNil)
@@ -122,7 +124,7 @@ namespace pathfinder
       return z;
     }
 
-    void leftRotate(RBTNode *x)
+    void leftRotate(RBTVertex<Coord_t> *x)
     {
 
       if (x->right == tNil)
@@ -131,7 +133,7 @@ namespace pathfinder
         return;
       }
 
-      RBTNode *y = x->right;
+      RBTVertex<Coord_t> *y = x->right;
       x->right = y->left;
 
       if (y->left != tNil)
@@ -164,7 +166,7 @@ namespace pathfinder
       x->size = x->left->size + x->right->size + 1;
     }
 
-    void rightRotate(RBTNode *y)
+    void rightRotate(RBTVertex<Coord_t> *y)
     {
 
       if (y->left == tNil)
@@ -173,7 +175,7 @@ namespace pathfinder
         return;
       }
 
-      RBTNode *x = y->left;
+      RBTVertex<Coord_t> *x = y->left;
       y->left = x->right;
 
       if (x->right != tNil)
@@ -206,7 +208,7 @@ namespace pathfinder
       y->size = y->left->size + y->right->size + 1;
     }
 
-    void insertFixUp(RBTNode *z)
+    void insertFixUp(RBTVertex<Coord_t> *z)
     {
 
       while (z->parent->colour == red)
@@ -215,7 +217,7 @@ namespace pathfinder
         if (z->parent == z->parent->parent->left)
         {
 
-          RBTNode *y = z->parent->parent->right;
+          RBTVertex<Coord_t> *y = z->parent->parent->right;
 
           if (y->colour == red)
           {
@@ -248,7 +250,7 @@ namespace pathfinder
         else
         {
 
-          RBTNode *y = z->parent->parent->left;
+          RBTVertex<Coord_t> *y = z->parent->parent->left;
 
           if (y->colour == red)
           {
@@ -281,7 +283,7 @@ namespace pathfinder
       }
     }
 
-    void insertRBTNode(RBTNode *z)
+    void insertRBTVertex(RBTVertex<Coord_t> *z)
     {
 
       if (this->root == tNil)
@@ -293,7 +295,7 @@ namespace pathfinder
         return;
       }
 
-      RBTNode *y = tNil, *x = this->root;
+      RBTVertex<Coord_t> *y = tNil, *x = this->root;
 
       while (x != tNil)
       {
@@ -329,7 +331,7 @@ namespace pathfinder
       insertFixUp(z);
     }
 
-    void transplant(RBTNode *u, RBTNode *v)
+    void transplant(RBTVertex<Coord_t> *u, RBTVertex<Coord_t> *v)
     {
 
       if (u->parent == tNil)
@@ -350,7 +352,7 @@ namespace pathfinder
       v->parent = u->parent;
     }
 
-    void deleteFixUp(RBTNode *x)
+    void deleteFixUp(RBTVertex<Coord_t> *x)
     {
 
       while (x != this->root && x->colour == black)
@@ -359,7 +361,7 @@ namespace pathfinder
         if (x == x->parent->left)
         {
 
-          RBTNode *w = x->parent->right;
+          RBTVertex<Coord_t> *w = x->parent->right;
 
           if (w->colour == red)
           {
@@ -400,7 +402,7 @@ namespace pathfinder
         else
         {
 
-          RBTNode *w = x->parent->left;
+          RBTVertex<Coord_t> *w = x->parent->left;
 
           if (w->colour == red)
           {
@@ -442,10 +444,10 @@ namespace pathfinder
       x->colour = black;
     }
 
-    void deleteRBTNode(RBTNode *z)
+    void deleteRBTVertex(RBTVertex<Coord_t> *z)
     {
 
-      RBTNode *y = z, *x;
+      RBTVertex<Coord_t> *y = z, *x;
       bool originalColour = y->colour;
 
       if (z->left == tNil)
@@ -480,7 +482,7 @@ namespace pathfinder
           y->right = z->right;
           y->right->parent = y;
 
-          RBTNode *s = x->parent;
+          RBTVertex<Coord_t> *s = x->parent;
 
           while (s != tNil && s != y)
           {
@@ -506,27 +508,27 @@ namespace pathfinder
       }
     }
 
-    void inOrderHelper(RBTNode *RBTNode)
+    void inOrderHelper(RBTVertex<Coord_t> *RBTVertex)
     {
 
-      if (RBTNode == tNil)
+      if (RBTVertex == tNil)
       {
 
         return;
       }
 
-      inOrderHelper(RBTNode->left);
+      inOrderHelper(RBTVertex->left);
 
-      std::cout << *(RBTNode->data) << " ";
+      std::cout << *(RBTVertex->data) << " ";
 
-      inOrderHelper(RBTNode->right);
+      inOrderHelper(RBTVertex->right);
     }
 
   public:
     RedBlackTree(bool hOptimized = true, timeOrder order = FIFO) : hOptimized(hOptimized), order(order)
     {
 
-      tNil = new RBTNode();
+      tNil = new RBTVertex<Coord_t>();
       tNil->colour = black;
       tNil->size = 0;
 
@@ -537,13 +539,13 @@ namespace pathfinder
       this->root = tNil;
     }
 
-    RBTNode *getRoot()
+    RBTVertex<Coord_t> *getRoot()
     {
 
       return this->root;
     }
 
-    RBTNode *minimum(RBTNode *node)
+    RBTVertex<Coord_t> *minimum(RBTVertex<Coord_t> *node)
     {
       while (node->left != tNil)
       {
@@ -552,25 +554,25 @@ namespace pathfinder
       return node;
     }
 
-    Node* minimumVal()
+    Node<Coord_t>* minimumVal()
     {
       return minimum(getRoot())->data;
     }
 
-    RBTNode *find(Node* node)
+    RBTVertex<Coord_t> *find(Node<Coord_t>* node)
     {
 
-      RBTNode *z = new RBTNode();
+      RBTVertex<Coord_t> *z = new RBTVertex<Coord_t>();
 
       z->data = node;
 
-      return findRBTNode(z);
+      return findRBTVertex(z);
     }
 
-    void insert(Node* node)
+    void insert(Node<Coord_t>* node)
     {
 
-      RBTNode *z = new RBTNode();
+      RBTVertex<Coord_t> *z = new RBTVertex<Coord_t>();
       z->data = node;
       z->colour = red;
       z->size = 1;
@@ -579,13 +581,13 @@ namespace pathfinder
       z->right = tNil;
       z->parent = tNil;
 
-      insertRBTNode(z);
+      insertRBTVertex(z);
     }
 
-    void erase(Node* node)
+    void erase(Node<Coord_t>* node)
     {
 
-      RBTNode *z = find(node);
+      RBTVertex<Coord_t> *z = find(node);
 
       if (z == tNil)
       {
@@ -593,7 +595,7 @@ namespace pathfinder
         return;
       }
 
-      RBTNode *s = z->parent;
+      RBTVertex<Coord_t> *s = z->parent;
 
       while (s != tNil)
       {
@@ -602,10 +604,10 @@ namespace pathfinder
         s = s->parent;
       }
 
-      deleteRBTNode(z);
+      deleteRBTVertex(z);
     }
 
-    Node* osSelect(RBTNode *x, ll i)
+    Node<Coord_t>* osSelect(RBTVertex<Coord_t> *x, ll i)
     {
 
       ll r = x->left->size + 1;
@@ -627,12 +629,12 @@ namespace pathfinder
       }
     }
 
-    ll osRank(RBTNode *x)
+    ll osRank(RBTVertex<Coord_t> *x)
     {
 
       ll r = x->left->size + 1;
 
-      RBTNode *y = x;
+      RBTVertex<Coord_t> *y = x;
 
       while (y != this->root)
       {

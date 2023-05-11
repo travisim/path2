@@ -7,13 +7,12 @@
 
 #include "../nadeau.hpp"
 
-
-pathfinder::A_star planner;
+pathfinder::A_star<pathfinder::Action<coordInt_t>> planner;
 
 int main(int argc, char* argv[]){
 
   if(argc <= 2){
-    std::cout<<"Please provide map!"; return 0;
+    std::cout<<"Please provide map!\n"; return 0;
   }
   grid_t grid = parseMap(argv[1]);
   std::cout<<"opening file now!\n";
@@ -23,7 +22,7 @@ int main(int argc, char* argv[]){
 
   std::cout<<"starting"<<std::endl;
   uint64_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-  bool finished = planner.search(grid, coords[0], coords[1], coords[2], coords[3], neighborsIndex, false, false, false, true, pathfinder::Octile, pathfinder::FIFO);
+  bool finished = planner.search(grid, coords[0], coords[1], coords[2], coords[3], neighborsIndex, false, false, true, true, pathfinder::Octile, pathfinder::FIFO);
 
   while(!finished){
     finished = planner.runNextSearch();
@@ -31,7 +30,6 @@ int main(int argc, char* argv[]){
   std::cout<<getCurrentRSS()<<std::endl;;
   uint64_t endSearch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
   std::cout<<"Search time: "<<endSearch - start<<"ms"<<std::endl;
-  path_t path = planner.path;
 
   finished = planner.generateReverseSteps(true, 20);
   while(!finished){

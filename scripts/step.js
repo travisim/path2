@@ -44,7 +44,6 @@ Actions
 - `ep`, erase pixel
 - `ia`, infopane add
 - `ie`, infopane erase
-
 */
 
 myUI.get_step = function(anim_step, step_direction="fwd"){
@@ -100,8 +99,11 @@ myUI.run_steps = function(num_steps, step_direction){
         let cellVal = action.cellVal == -1 ? undefined : action.cellVal;
         let endX = action.endCoord === undefined || action.endCoord.x == -1 ? undefined : action.endCoord.x;
         let endY = action.endCoord === undefined || action.endCoord.y == -1 ? undefined : action.endCoord.y;
+        let thickness = action.thickness === undefined || action.thickness == -1 ? undefined : action.thickness;
+        let value = action.value === undefined || action.value == "" ? undefined : action.value;
+        let id = action.id === undefined || action.id == "" ? undefined : action.id;
 
-        let debug = false;
+        let debug = true;
         if(debug){
           console.log(`
           Command          : ${STATIC_COMMANDS[command]}
@@ -114,10 +116,13 @@ myUI.run_steps = function(num_steps, step_direction){
           infoTableRowData : ${infoTableRowData}
           cellVal          : ${cellVal}
           endCoord         : ${endX + ", " + endY}
+          thickness        : ${thickness}
+          value            : ${value}
+          id               : ${id}
           `);
         }
 
-        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY);//,thickness,value,id);
+        myUI.run_action(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, thickness, value, id);
         if(step_direction == "fwd") ++i; else --i;
       }
       continue;
@@ -141,7 +146,7 @@ myUI.run_steps = function(num_steps, step_direction){
   }
 }
 
-myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, thickness, value,id){
+myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endX, endY, thickness, value, id){
   try{
   let destId = myUI.planner.destsToId[dest];
   if (command == STATIC.DrawSinglePixel) { 
@@ -283,7 +288,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   // wasm
   if(myUI.planner.constructor.wasm){
     //Module["genSteps"](genStates, stateFreq);
-    myUI.planner.cppPlanner.generateReverseSteps(genStates, stateFreq);
+    myUI.planner.wasmPlanner.generateReverseSteps(genStates, stateFreq);
     let cnt = 0;
 
     return new Promise((resolve, reject) => {
@@ -298,13 +303,13 @@ myUI.generateReverseSteps = function({genStates=false}={}){
 
         updateOptimizeProgress((cnt++ * batchSize / myUI.planner.max_step() * 100));
         
-        finished = myUI.planner.cppPlanner.nextGenSteps(batchSize);
+        finished = myUI.planner.wasmPlanner.nextGenSteps(batchSize);
         if(!finished) return new Promise((resolve, reject) => {
           setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
         });
         console.log("finished generating wasm steps!");
         //let bounds_cpp = Module["getBounds"]();
-        let bounds_cpp = myUI.planner.cppPlanner.getBounds();
+        let bounds_cpp = myUI.planner.wasmPlanner.getBounds();
         let bounds = map_to_obj(bounds_cpp);
         for(let k of Object.keys(bounds)) bounds[k] = [bounds[k].min, bounds[k].max];
         return finishGenerating(bounds, false);
@@ -312,7 +317,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
       catch(e){
         let t = Date.now() - myUI.genStart;
         //let n = Module["getNumStates"]();
-        let n = myUI.planner.cppPlanner.getNumStates();
+        let n = myUI.planner.wasmPlanner.getNumStates();
         console.log(e);
         console.log(t);
         console.log("Number of states before error: ", n);
@@ -558,6 +563,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         }
         else if(command==STATIC.UpdateRowAtIndex){
           let [data, prevHighlight] = myUI.InfoTables[destId].updateRowAtIndex(infoTableRowIndex, infoTableRowData); 
+          infoTableRowIndex = infoTableRowIndex > 0 ? infoTableRowIndex * -1 : infoTableRowIndex;
           action = Pathfinder.packAction({command: STATIC.UpdateRowAtIndex, dest: dest, infoTableRowIndex: infoTableRowIndex, infoTableRowData: data});
           if(prevHighlight)
             Array.prototype.push.apply(action, Pathfinder.packAction({command: STATIC.SetHighlightAtIndex, dest: dest, infoTableRowIndex: prevHighlight}));
@@ -776,7 +782,7 @@ myUI.jump_to_step = function(target_step){
   if(target_step>=stateFreq){
     idx = Math.floor(target_step/stateFreq);
     //let state = myUI.planner.constructor.wasm ? Module["getState"](target_step) : myUI.states[idx];
-    let state = myUI.planner.constructor.wasm ? myUI.planner.cppPlanner.getState(target_step) : myUI.states[idx];
+    let state = myUI.planner.constructor.wasm ? myUI.planner.wasmPlanner.getState(target_step) : myUI.states[idx];
   
     // arrows
     let arrows = myUI.planner.constructor.wasm ? map_to_obj(state.arrowColor) : state.arrowColor ;
@@ -797,7 +803,7 @@ myUI.jump_to_step = function(target_step){
           myUI.InfoTables[tableId].insertRowAtIndex(1, row);
           nxt = generator.next();
         }
-        myUI.InfoTables[tableId].setHighlightAtIndex(tableState.highlightedRow);
+        if(tableState.highlightedRow != -1) myUI.InfoTables[tableId].setHighlightAtIndex(tableState.highlightedRow);
       }
     }
     else{
