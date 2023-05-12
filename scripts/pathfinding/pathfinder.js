@@ -486,17 +486,17 @@ class Pathfinder{
 	
 }
 
-class Node{
-	constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index = null, neighbours = []){
-	  	this.f_cost = f_cost;
-      this.g_cost = g_cost;
-      this.h_cost = h_cost;
-		  this.parent = parent;
-		  this.self_XY = self_XY;
-			this.arrow_index = arrow_index;  // refers to the index (or arrow array) at which the arrow points from the node to the parent
+	class Node{
+		constructor(f_cost, g_cost, h_cost, parent, self_XY, arrow_index = null, neighbours = []){
+		this.f_cost = f_cost;
+		this.g_cost = g_cost;
+		this.h_cost = h_cost;
+		this.parent = parent;
+		this.self_XY = self_XY;
+		this.arrow_index = arrow_index;  // refers to the index (or arrow array) at which the arrow points from the node to the parent
 			// arrow index is used to construct the steps/states when computing the path
-      this.neighbours = neighbours;
-  }
+		this.neighbours = neighbours;
+    }
 
 	clone(){
 		let node = new this.constructor(this.f_cost, this.g_cost, this.h_cost, null, this.self_XY, this.arrow_index);

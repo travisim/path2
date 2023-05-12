@@ -883,7 +883,7 @@ function determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,neare
 var selectedParent_index = nearestNode_Index;
 for (let i = 0; i < nodesNearby_Index.length; ++i) {
   //console.log(nodesNearby_Index,i,"i",selectedParent_index,mapNodes)
-  if(mapNodes[nodesNearby_Index[i]].g_cost + distanceBetween2Points(mapNodes[nodesNearby_Index[i]].value_XY,nextCoordToAdd_XY)<mapNodes[selectedParent_index].g_cost+distanceBetween2Points(mapNodes[selectedParent_index].value_XY,nextCoordToAdd_XY &&  CustomLOSChecker(mapNodes[nodesNearby_Index[i]].value_XY , nextCoordToAdd_XY).boolean)){
+  if(mapNodes[nodesNearby_Index[i]].g_cost + distanceBetween2Points(mapNodes[nodesNearby_Index[i]].value_XY,nextCoordToAdd_XY)<mapNodes[selectedParent_index].g_cost+distanceBetween2Points(mapNodes[selectedParent_index].value_XY,nextCoordToAdd_XY) &&  CustomLOSChecker(mapNodes[nodesNearby_Index[i]].value_XY , nextCoordToAdd_XY).boolean){
     selectedParent_index = nodesNearby_Index[i];
     
   }

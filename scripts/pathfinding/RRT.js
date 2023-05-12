@@ -545,7 +545,6 @@ l        }
     this.generateNewMap(start, goal);
 
     let planner = this;
-
     return new Promise((resolve, reject) => {
       setTimeout(() => resolve(planner._terminate_search()), planner.batch_interval);
     });

@@ -31,16 +31,16 @@ class GridPathfinder extends Pathfinder{
         value = value.toLowerCase();
         this.init_search_direction(value);
         break;
-			case "mapType":
-				if(value=="Grid Vertex"){
-					this.vertexEnabled = true;
-					myUI.toggleVertex(true);
-				}
-				else{
-					this.vertexEnabled = false;
-					myUI.toggleVertex(false);
-				}
-				break;
+		case "mapType":
+			if(value=="Grid Vertex"){
+				this.vertexEnabled = true;
+				myUI.toggleVertex(true);
+			}
+			else{
+				this.vertexEnabled = false;
+				myUI.toggleVertex(false);
+			}
+			break;
       default:
         super.setConfig(uid, value);
     }
