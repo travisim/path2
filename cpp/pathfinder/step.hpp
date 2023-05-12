@@ -50,7 +50,7 @@ namespace pathfinder
         double cellVal = fwd.cellVal;
         int endX = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX = fwd.endCoord.first;
         int endY = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY = fwd.endCoord.second;
-        uint8_t thickness = fwd.thickness;
+        uint8_t thickness; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) thickness = fwd.thickness;
         std::string value; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) value = fwd.value;
         std::string id; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) id = fwd.id;
         

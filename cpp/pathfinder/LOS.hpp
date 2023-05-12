@@ -7,6 +7,7 @@
 #ifndef LOS_HPP
 #define LOS_HPP
 
+
 std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, double> src, std::pair<double, double> tgt, bool cons = false, int correctLength = -1) {
   using coordDouble_t = std::pair<double, double>;
   
@@ -40,6 +41,7 @@ std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, doub
     return trunc(A.first) == A.first && trunc(A.second) == A.second;
   };
 
+  #ifdef LOS_DEBUG
   auto coord2String = [&](const coordDouble_t& coord) {
     return "[" + std::to_string(coord.first) + ", " + std::to_string(coord.second) + "]";
   };
@@ -51,6 +53,7 @@ std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, doub
     }
     return s;
   };
+  #endif
 
   auto signum = [&](double x){ return (x > 0) - (x < 0); };
 
@@ -80,12 +83,18 @@ std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, doub
 
   std::pair<int, int> psiZ; psiZ.first = dZ.first > 0 ? dZ.first : 0;  psiZ.second = dZ.second > 0 ? dZ.second : 0; 
   double cmp = ((double)floorZ.first + (double)psiZ.first - srcZ.first) * absZ.second / diffZ.first - dZ.second * psiZ.second;
-  if(cons) std::cout << "diffZ.second: " << diffZ.second << ", absZ.first" << absZ.first << std::endl;
+  
+  #ifdef LOS_DEBUG
+  std::cout << "diffZ.second: " << diffZ.second << ", absZ.first" << absZ.first << std::endl;
+  #endif
+
   double changeS = diffZ.second / absZ.first;
 
   /* addition to given algo */
   double gradient = (tgt.second - src.second) / (tgt.first - src.first);
-  if(cons) std::cout << "Gradient: " << gradient << std::endl;
+  #ifdef LOS_DEBUG
+  std::cout << "Gradient: " << gradient << std::endl;
+  #endif
   /* end of addition */
 
   std::vector<coordDouble_t> path;
@@ -96,11 +105,16 @@ std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, doub
   }
   /* end of additon */
 
-  if(cons) std::cout << "src, tgt: " << coord2String(src) << ", " << coord2String(tgt) <<std::endl;
-  if(cons) std::cout << "initial path: " << coords2String(path) << std::endl;
+  #ifdef LOS_DEBUG
+  std::cout << "src, tgt: " << coord2String(src) << ", " << coord2String(tgt) <<std::endl;
+  std::cout << "initial path: " << coords2String(path) << std::endl;
+  #endif
+  
   int step = 0;
   while(!isEqual(floorZ, tgtFloorZ)){
-    if(cons) std::cout << "floorZ: " << coord2String(floorZ) << ", tgtFloorZ: " << coord2String(tgtFloorZ) << std::endl;
+    #ifdef LOS_DEBUG
+    std::cout << "floorZ: " << coord2String(floorZ) << ", tgtFloorZ: " << coord2String(tgtFloorZ) << std::endl;
+    #endif
     step++;
     if((correctLength != -1 && path.size() > correctLength)){
       std::cout << "ERROR: numsteps " << step << std::endl;
@@ -108,35 +122,48 @@ std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, doub
     }
 
     double S = changeS * step + srcZ.second;
-    if(cons) std::cout << "S: " << S << ", changeS: " << changeS << ", step: " << step << ", srcZ.second: " << srcZ.second << std::endl;
     auto floorS = floor(S);
-    if(cons) std::cout << "floorS: " << floorS << std::endl;
+    #ifdef LOS_DEBUG
+    std::cout << "S: " << S << ", changeS: " << changeS << ", step: " << step << ", srcZ.second: " << srcZ.second << std::endl;
+    std::cout << "floorS: " << floorS << std::endl;
+    #endif
     if(floorS != floorZ.second){
       // short incremented
       double cmpS = dZ.second * (floorZ.second - prevS);
       
-      if(cons) std::cout << "cmpS: " << cmpS << ", cmp: " << cmp << std::endl;
+      #ifdef LOS_DEBUG
+      std::cout << "cmpS: " << cmpS << ", cmp: " << cmp << std::endl;
+      #endif
       if(cmpS - THRES > cmp){
         // pass thru large first
         floorZ.first += dZ.first;
         path.push_back(convInt(cflag, floorZ));
-        if(cons) std::cout << "small1: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #ifdef LOS_DEBUG
+        std::cout << "small1: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #endif
+
         if(isEqual(floorZ, tgtFloorZ)){
           break;  // reached destination
         }
         floorZ.second += dZ.second;
-        if(cons) std::cout << "small2: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #ifdef LOS_DEBUG
+        std::cout << "small2: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #endif
       }
       else if(cmpS + THRES < cmp){
         // pass thru small first
         floorZ.second += dZ.second;
         path.push_back(convInt(cflag, floorZ));
-        if(cons) std::cout << "long1: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #ifdef LOS_DEBUG
+        std::cout << "long1: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #endif
         if(isEqual(floorZ, tgtFloorZ)){
           break;
         }
         floorZ.first += dZ.first;
-        if(cons) std::cout << "long2: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #ifdef LOS_DEBUG
+        std::cout << "long2: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #endif
       }
       else{
         // pass thru both at same time
@@ -145,28 +172,38 @@ std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, doub
         auto floorZ1 = floorZ;
         floorZ1.first += dZ.first;
         if(isEqual(floorZ1, tgtFloorZ)){
-          if(cons) std::cout << "eqx: out" << std::endl;
+          #ifdef LOS_DEBUG
+          std::cout << "eqx: out" << std::endl;
+          #endif
           break;
         }
         // then check y
         auto floorZ2 = floorZ;
         floorZ2.second += dZ.second;
         if(isEqual(floorZ2, tgtFloorZ)){
-          if(cons) std::cout << "eqy: out" << std::endl;
+          #ifdef LOS_DEBUG
+          std::cout << "eqy: out" << std::endl;
+          #endif
           break;
         }
         /* end of addition */
         floorZ.first += dZ.first;
         floorZ.second += dZ.second;
-        if(cons) std::cout << "eq: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #ifdef LOS_DEBUG
+        std::cout << "eq: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+        #endif
       }
     }
     else{
       // no change in short
       floorZ.first += dZ.first;
-      if(cons) std::cout << "nc: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+      #ifdef LOS_DEBUG
+      std::cout << "nc: " << coord2String(convInt(cflag, floorZ)) << std::endl;
+      #endif
     }
-    if(cons) std::cout << "current path: " << coords2String(path) << std::endl;
+    #ifdef LOS_DEBUG
+    std::cout << "current path: " << coords2String(path) << std::endl;
+    #endif
     /* addition to given algo */
     if(isEqual(tgtFloorZ, floorZ) && cmp == -1)
       break;
@@ -177,10 +214,14 @@ std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, doub
     /* end of addition */
     path.push_back(convInt(cflag, floorZ));
     prevS = S;
-    if(cons) std::cout << "current path: " << coords2String(path) << std::endl;
+    #ifdef LOS_DEBUG
+    std::cout << "current path: " << coords2String(path) << std::endl;
+    #endif
   }
+  #ifdef LOS_DEBUG
+  std::cout << "Final path: " << coords2String(path) << std::endl;
+  #endif
 
-  if(cons) std::cout << "Final path: " << coords2String(path) << std::endl;\
   return path;
 }
 
@@ -191,7 +232,9 @@ struct CustomLOSResult {
   std::pair<int, int> lastPassableCoordBeforeUnpassable;
 };
 
-CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double, double> tgt, grid_t grid, bool diagonaAllow) {
+CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double, double> tgt, grid_t& grid, bool diagonalAllow) {
+  // c++ implementation checks for opposite values of grid[][] because it uses 1: passable and 0: blocked
+  // JS implementation uses bg.canvas_cache which takes 1: blocked and 0: passable
   if (grid.empty() || grid[0].empty())
     return {false, {0, 0}};
 
@@ -201,7 +244,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
   if (src.first == tgt.first && src.second == tgt.second) {
     if (src.first == std::floor(src.first) && src.second == std::floor(src.second)) {
       return {true, {0, 0}};
-    } else if (grid[static_cast<int>(std::floor(src.first))][static_cast<int>(std::floor(src.second))]) {
+    } else if (grid[static_cast<int>(std::floor(src.first))][static_cast<int>(std::floor(src.second))] == 0) {
       return {false, {0, 0}};
     } else {
       return {true, {0, 0}};
@@ -218,13 +261,12 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
   if ((src.first == tgt.first && std::floor(src.first) == src.first) ||
     (src.second == tgt.second && std::floor(src.second) == src.second)) {
     // Cardinal crossing (horizontal/vertical)
-    int x1 = static_cast<int>(src.first), x0 = static_cast<int>(src.first) - 1;
     if (src.first == tgt.first) {
       if (src.first - 1 < 0) {
         // At top edge of canvas
         if (src.second > tgt.second) {
           for (int y = src_dynamic.second; y > tgt_dynamic.second - 1; --y) {
-            if (grid[static_cast<int>(src.first)][y]) {
+            if (grid[static_cast<int>(src.first)][y] == 0) {
               return {false, {static_cast<int>(src.first), y + 1}};
             }
           }
@@ -232,7 +274,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
         }
         if (src.second < tgt.second) {
           for (int y = src_dynamic.second; y < tgt_dynamic.second; ++y) {
-            if (grid[static_cast<int>(src.first)][y]) {
+            if (grid[static_cast<int>(src.first)][y] == 0) {
               return {false, {static_cast<int>(src.first), y}};
             }
           }
@@ -242,7 +284,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
         // At bottom edge of canvas
         if (src.second > tgt.second) {
           for (int y = src_dynamic.second; y > tgt_dynamic.second - 1; --y) {
-            if (grid[static_cast<int>(src.first) - 1][y]) {
+            if (grid[static_cast<int>(src.first) - 1][y] == 0) {
               return {false, {static_cast<int>(src.first), y + 1}};
             }
           }
@@ -250,7 +292,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
         }
         if (src.second < tgt.second) {
           for (int y = src_dynamic.second; y < tgt_dynamic.second; ++y) {
-            if (grid[static_cast<int>(src.first) - 1][y]) {
+            if (grid[static_cast<int>(src.first) - 1][y] == 0) {
               return {false, {static_cast<int>(src.first), y}};
             }
           }
@@ -260,8 +302,8 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
         // LOS is not at the edge of the canvas
         if (src.second > tgt.second) {
           for (int y = src_dynamic.second; y > tgt_dynamic.second - 1; --y) {
-            if (grid[static_cast<int>(src.first) - 1][y] &&
-              (grid[static_cast<int>(src.first)][y] == 0 || grid[static_cast<int>(src.first)][y])) {
+            if (grid[static_cast<int>(src.first) - 1][y] == 0 &&
+              (y >= grid[0].size() || y < 0 || grid[static_cast<int>(src.first)][y] == 0)) {
               return {false, {static_cast<int>(src.first), y + 1}};
             }
           }
@@ -269,8 +311,8 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
         }
         if (src.second < tgt.second) {
           for (int y = src_dynamic.second; y < tgt_dynamic.second; ++y) {
-            if (grid[static_cast<int>(src.first) - 1][y] &&
-              (grid[static_cast<int>(src.first)][y] == 0 || grid[static_cast<int>(src.first)][y])) {
+            if (grid[static_cast<int>(src.first) - 1][y] == 0 &&
+              (y >= grid[0].size() || y < 0 || grid[static_cast<int>(src.first)][y] == 0)) {
               return {false, {static_cast<int>(src.first), y}};
             }
           }
@@ -279,13 +321,12 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
       }
     }
 
-    int y1 = static_cast<int>(src.second), y0 = static_cast<int>(src.second) - 1;
     if (src.second == tgt.second) {
       if (src.second - 1 < 0) {
         // Travelling along edge of map
         if (src.first > tgt.first) {
           for (int x = src_dynamic.first; x > tgt_dynamic.first - 1; --x) {
-            if (grid[x][static_cast<int>(src.second)]) {
+            if (grid[x][static_cast<int>(src.second)] == 0) {
               return {false, {x + 1, static_cast<int>(src.second)}};
             }
           }
@@ -293,7 +334,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
         }
         if (src.first < tgt.first) {
           for (int x = src_dynamic.first; x < tgt_dynamic.first; ++x) {
-            if (grid[x][static_cast<int>(src.second)]) {
+            if (grid[x][static_cast<int>(src.second)] == 0) {
               return {false, {x, static_cast<int>(src.second)}};
             }
           }
@@ -302,7 +343,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
       } else if (src.second == map_width) {
         if (src.first > tgt.first) {
           for (int x = src_dynamic.first; x > tgt_dynamic.first - 1; --x) {
-            if (grid[x][static_cast<int>(src.second) - 1]) {
+            if (grid[x][static_cast<int>(src.second) - 1] == 0) {
               return {false, {x + 1, static_cast<int>(src.second)}};
             }
           }
@@ -310,7 +351,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
         }
         if (src.first < tgt.first) {
           for (int x = src_dynamic.first; x < tgt_dynamic.first; ++x) {
-            if (grid[x][static_cast<int>(src.second) - 1]) {
+            if (grid[x][static_cast<int>(src.second) - 1] == 0) {
               return {false, {x, static_cast<int>(src.second)}};
             }
           }
@@ -319,8 +360,8 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
       } else {
         if (src.first > tgt.first) {
           for (int x = src_dynamic.first; x > tgt_dynamic.first - 1; --x) {
-            if (grid[x][static_cast<int>(src.second) - 1] &&
-              (grid[x][static_cast<int>(src.second)] == 0 || grid[x][static_cast<int>(src.second)])) {
+            if (grid[x][static_cast<int>(src.second) - 1] == 0 &&
+              (src.second >=grid[x].size() || src.second < 0 || grid[x][static_cast<int>(src.second)] == 0)) {
               return {false, {x + 1, static_cast<int>(src.second)}};
             }
           }
@@ -329,7 +370,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
         if (src.first < tgt.first) {
           for (int x = src_dynamic.first; x < tgt_dynamic.first; ++x) {
             if (grid[x][static_cast<int>(src.second) - 1] &&
-              (grid[x][static_cast<int>(src.second)] == 0 || grid[x][static_cast<int>(src.second)])) {
+              (src.second >=grid[x].size() || src.second < 0 || grid[x][static_cast<int>(src.second)] == 0)) {
               return {false, {x, static_cast<int>(src.second)}};
             }
           }
@@ -339,22 +380,22 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
     }
   } else {
     // Non-cardinal crossing
-    auto path = CustomLOSGenerator(src, tgt, false);
+    auto path = CustomLOSGenerator(src, tgt);
     int prevX = -1, prevY = -1;
     for (auto& coord : path) {
       int x = coord.first;
       int y = coord.second;
 
-      if (!diagonaAllow && prevX != -1 && prevY != -1 && x != prevX &&
+      if (!diagonalAllow && prevX != -1 && prevY != -1 && x != prevX &&
         y != prevY) {
         // Diagonal crossing
-        if (grid[x][prevY] && grid[prevX][y]) {
+        if (grid[x][prevY] == 0 && grid[prevX][y] == 0) {
           // Diagonal is blocked
           return {false, {0, 0}};
         }
       }
 
-      if (grid[x][y]) {
+      if (grid[x][y] == 0) {
         return {false, {0, 0}};
       }
       prevX = x;
@@ -362,6 +403,7 @@ CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double
     }
     return {true, {0, 0}};
   }
+  return {false, {0, 0}};
 }
 
 #endif

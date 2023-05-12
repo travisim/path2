@@ -57,6 +57,7 @@ class A_star : public GridPathfinder<Action_t>
 {
 protected:
   using Coord_t = typename Action_t::CoordType;
+  // properties
   using GridPathfinder<Action_t>::currentNode;
   using GridPathfinder<Action_t>::currentNodeXY;
   using GridPathfinder<Action_t>::rootNodes;
@@ -74,6 +75,7 @@ protected:
   using GridPathfinder<Action_t>::diagonalAllow;
   using GridPathfinder<Action_t>::neighborsIndex;
 
+  // methods
   using GridPathfinder<Action_t>::saveStep;
   using GridPathfinder<Action_t>::terminateSearch;
   using GridPathfinder<Action_t>::initSearch;
@@ -82,6 +84,12 @@ protected:
   using GridPathfinder<Action_t>::assignCellIndex;
   using GridPathfinder<Action_t>::foundGoal;
   using GridPathfinder<Action_t>::nodeIsNeighbor;
+
+  // required in Theta*
+  using GridPathfinder<Action_t>::grid;
+  using GridPathfinder<Action_t>::vertexEnabled;
+  Node<Coord_t> *parentNode;
+
   PriorityQueue<Coord_t> pq;
   costType chosenCost;
   timeOrder order;
@@ -100,12 +108,15 @@ protected:
     return std::min(dx, dy) * M_SQRT2 + abs(dx - dy);
   }
 
-  std::array<double, 3> calcCost(Coord_t nextXY)
+  virtual std::array<double, 3> calcCost(Coord_t nextXY)
   {
-    const int curX = currentNode->selfXY.first, curY = currentNode->selfXY.second;
+    parentNode = currentNode;
+    
+    // inherited in Theta_star
+    const int curX = parentNode->selfXY.first, curY = parentNode->selfXY.second;
     const int nextX = nextXY.first, nextY = nextXY.second;
     const int goalX = goal.first, goalY = goal.second;
-    const double curG = currentNode->gCost;
+    const double curG = parentNode->gCost;
 
     double gCost, hCost;
     if (chosenCost == Manhattan)
@@ -255,7 +266,7 @@ public:
       if (foundGoal(currentNode))
         return terminateSearch();
 
-      std::vector<std::array<int, 2>> cardinalCoords(4);
+      std::vector<Coord_t> cardinalCoords(4);
       if (!diagonalAllow && neighborsIndex.size() == 8)
       {
         for (int i = 0; i < 8; ++i)
@@ -346,7 +357,7 @@ public:
           continue;
         }
 
-        Node<Coord_t>* nextNode = new Node<Coord_t>(nextXY, currentNode, -1, fCost, gCost, hCost);
+        Node<Coord_t>* nextNode = new Node<Coord_t>(nextXY, parentNode, -1, fCost, gCost, hCost);
         if(currentNode->depth < maxNodeDepth){
           currentNode->addChild(nextNode);
         }
@@ -364,7 +375,7 @@ public:
         {
           createAction(DrawPixel, CanvasNeighbors, nextXY);
           //createAction(HighlightPseudoCodeRowSec, Pseudocode, {-1, -1}, -1, -1, 32);
-          handleArrow(nextXY, nextNode, openNode, closedNode);
+          handleArrow(nextNode, openNode, closedNode);
 
           createAction(DrawPixel, CanvasQueue, nextXY);
 

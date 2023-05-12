@@ -129,7 +129,7 @@ class wasm_A_star extends GridPathfinder{
       });
     }
     catch(e){
-      console.log("ERROR WASM A* FAILED");
+      console.log(`ERROR ${this.constructor.display_name} FAILED`);
       console.log(e);
       let t = Date.now() - myUI.startTime;
       console.log(t);

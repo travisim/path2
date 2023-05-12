@@ -422,7 +422,6 @@ class Pathfinder{
 		if(this._assign_cell_index) if(this.roundNodes===undefined || this.roundNodes) this._assign_cell_index(this.current_node_XY);
 		this.path = [];
 		// retraces the entire parent tree until start is found
-		var prevNode = null;
 		const originalNode = node;
 		myUI.node = originalNode;
 		console.log("RETRACING PATH");
@@ -438,15 +437,14 @@ class Pathfinder{
 				else
 					this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
 
-				if(prevNode)
-					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: prevNode.self_XY, thickness: 0.15});
+				if(node.parent)
+					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: node.parent.self_XY, thickness: 0.15});
 				
 			}
 			else this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
 			if(! (node.arrow_index === null))
 				this._create_action({command: STATIC.DrawArrow, arrowIndex: node.arrow_index, colorIndex: 1});
 			
-			prevNode = node;
 			node = node.parent;
 		}
 		console.log("found");

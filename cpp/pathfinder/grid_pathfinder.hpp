@@ -26,15 +26,7 @@ namespace pathfinder{
   {
   public:
     using Coord_t = typename Action_t::CoordType;
-    std::vector<NWSE> deltaNWSE;
-    std::vector<std::string> deltaNWSEStr;
-    std::vector<std::vector<int>> delta;
-
-    neighbors_t neighborsIndex;
-    bool vertexEnabled;
-
-    std::vector<std::vector<int>> cellMap;
-
+    // properties
     using Pathfinder<Action_t>::grid;
     using Pathfinder<Action_t>::start;
     using Pathfinder<Action_t>::goal;
@@ -45,9 +37,18 @@ namespace pathfinder{
     using Pathfinder<Action_t>::currentNodeXY;
     using Pathfinder<Action_t>::currentNode;
 
+    // methods
     using Pathfinder<Action_t>::isPassable;
-
     using Pathfinder<Action_t>::initSearch;
+
+    std::vector<NWSE> deltaNWSE;
+    std::vector<std::string> deltaNWSEStr;
+    std::vector<std::vector<int>> delta;
+
+    neighbors_t neighborsIndex;
+    bool vertexEnabled;
+
+    std::vector<std::vector<int>> cellMap;
 
     void initSearch(grid_t &grid, Coord_t start, Coord_t goal, bool diagonalAllow, bool bigMap, neighbors_t &neighborsIndex, bool vertexEnabled){ 
       initSearch(grid, start, goal, diagonalAllow, bigMap);  // super equivalent in c++      
@@ -123,7 +124,7 @@ namespace pathfinder{
       return false;
     }
 
-    bool nodeIsNeighbor(Coord_t &nextXY, NWSE nextNWSE, std::vector<std::array<int, 2>> &cardinalCoords)
+    bool nodeIsNeighbor(Coord_t &nextXY, NWSE nextNWSE, std::vector<Coord_t> &cardinalCoords)
     {
       if (vertexEnabled)
       {

@@ -39,7 +39,6 @@ namespace pathfinder
     int gridHeight, gridWidth;
     int batchSize, batchInterval;
 
-
     Coord_t start, goal, currentNodeXY;
     std::vector<Coord_t> path;
 
@@ -55,7 +54,6 @@ namespace pathfinder
     // additional stuff that is not in js
     std::vector<std::vector<int>> arrowCoords;
 
-    // STEP STRUCT METHOD
     std::vector<std::unique_ptr<Step<Action_t>>> steps;
     std::unique_ptr<Step<Action_t>> currentStep;
 
@@ -92,6 +90,10 @@ namespace pathfinder
     {
       std::cout << "deleting Pathfinder\n";
     }
+
+    virtual inline bool showFreeVertex(){ return false; }
+    virtual inline bool gridPrecisionFloat(){ return false; }
+
 
     virtual void initSearch(grid_t &grid, Coord_t start, Coord_t goal, bool diagonalAllow, bool bigMap)
     {
@@ -147,7 +149,7 @@ namespace pathfinder
 
     inline bool isPassable(Coord_t coord){ return grid[coord.first][coord.second]; }
 
-    void handleArrow(Coord_t nextXY, Node<Coord_t> *&newNode, Node<Coord_t> *&openNode, Node<Coord_t> *&closedNode)
+    void handleArrow(Node<Coord_t> *&newNode, Node<Coord_t> *&openNode, Node<Coord_t> *&closedNode)
     {
       if (!drawArrows)
         return;
@@ -160,8 +162,8 @@ namespace pathfinder
       { // need to remove the previous arrow drawn and switch it to the newNode
         createAction(EraseArrow, -1, {-1, -1}, -1, closedNode->arrowIndex);
       }
-      arrowCoords.push_back({nextXY.first, nextXY.second, currentNodeXY.first, currentNodeXY.second});
-      // newNode->arrowIndex = myUI.create_arrow(nextXY, currentNodeXY); // node is reference typed so properties can be modified after adding to queue or open list
+      arrowCoords.push_back({newNode->selfXY.first, newNode->selfXY.second, newNode->parent->selfXY.first, newNode->parent->selfXY.second});
+      // node is reference typed so properties can be modified after adding to queue or open list
       newNode->arrowIndex = arrowCnt++;
       // std::cout<<"Arrow: "<<arrowCnt<<' '<<nextXY.first<<' '<<nextXY.second<<' '<<currentNodeXY.first<<' '<<currentNodeXY.second<<std::endl;
       createAction(DrawArrow, -1, {-1, -1}, 0, newNode->arrowIndex);
@@ -176,10 +178,17 @@ namespace pathfinder
 
       //  retraces the entire parent tree until start is found
       Node<Coord_t> *current = node;
+      std::cout<<"showFreeVertex: "<<showFreeVertex()<<std::endl;
       while (current != nullptr)
       {
-        // TOTHINK: how to make this general for all planners
-        createAction(DrawPixel, CanvasPath, current->selfXY);
+        if(showFreeVertex()){
+          if(gridPrecisionFloat()) createAction(DrawVertex, CanvasPath, current->selfXY);
+          else createAction(DrawPixel, CanvasPath, current->selfXY);
+          
+          if(current->parent)
+            createAction(DrawEdge, CanvasPath, current->selfXY, -1, -1, -1, -1, {}, -1, current->parent->selfXY);
+        }
+        else createAction(DrawPixel, CanvasPath, current->selfXY);
         path.push_back(current->selfXY);
         if (current->arrowIndex != -1)
           createAction(DrawArrow, -1, {-1, -1}, 1, current->arrowIndex);

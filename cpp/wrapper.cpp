@@ -6,6 +6,7 @@
 #include "bindings/bind_data.hpp"
 #include "bindings/bind_pathfinder.hpp"
 #include "bindings/bind_A_star.hpp"
+#include "bindings/bind_Theta_star.hpp"
 
 
 int main() { return 0; }
@@ -19,6 +20,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
   bindPathfinder(BindType::int_coord);
   bindGridPathfinder(BindType::int_coord);
   bindAStar();
+  bindThetaStar();
 
   // misc
   emscripten::class_<coordInt_t>("coordInt_t")

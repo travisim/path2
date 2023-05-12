@@ -78,7 +78,7 @@ int main() {
     for (int t = 0; t < tests.size();) {
         const auto test = tests[t++];
         // std::cout << "Test no. " << t << std::endl;
-        if (!compareCoords(test[1], CustomLOSGenerator(test[0][0], test[0][1], false, test[1].size()))) {
+        if (!compareCoords(test[1], CustomLOSGenerator(test[0][0], test[0][1], test[1].size()))) {
             std::cout << "Test " << t << " failed:\n";
             std::cout << "Question: ";
             std::cout << "(" << coord2String(test[0][0]) << ", " << coord2String(test[0][1]) << "), ";
