@@ -102,7 +102,7 @@ std::vector<std::pair<double, double>> CustomLOSGenerator(std::pair<double, doub
   while(!isEqual(floorZ, tgtFloorZ)){
     if(cons) std::cout << "floorZ: " << coord2String(floorZ) << ", tgtFloorZ: " << coord2String(tgtFloorZ) << std::endl;
     step++;
-    if(step > 20 || (correctLength != -1 && path.size() > correctLength)){
+    if((correctLength != -1 && path.size() > correctLength)){
       std::cout << "ERROR: numsteps " << step << std::endl;
       return path;
     }
