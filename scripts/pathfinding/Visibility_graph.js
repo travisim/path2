@@ -514,9 +514,9 @@ class VisibilityGraph extends Pathfinder{
           continue; // do not add to queue if closed list already has a lower cost node
         }
 
-        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
-        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
-        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, anyVal: f_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, anyVal: g_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, anyVal: h_cost});
         
         // add to queue 
         if(this.timeOrder=="FIFO") this.queue.push(next_node); // FIFO

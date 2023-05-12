@@ -47,7 +47,7 @@ namespace pathfinder
         int pseudoCodeRow = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) pseudoCodeRow = fwd.pseudoCodeRow;
         int infoTableRowIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowIndex = fwd.infoTableRowIndex;
         std::vector<std::string> infoTableRowData; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowData = fwd.infoTableRowData;
-        double cellVal = fwd.cellVal;
+        double anyVal = fwd.anyVal;
         int endX = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX = fwd.endCoord.first;
         int endY = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY = fwd.endCoord.second;
         uint8_t thickness; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) thickness = fwd.thickness;
@@ -63,15 +63,15 @@ namespace pathfinder
         }
         int xy = x * gridWidth + y;
 
-        if (cellVal != -1)
+        if (anyVal != -1)
         { // && myUI.canvases[myUI.planner.destsToId[dest]].valType=="float"
           if (sim.bounds.find(dest) == sim.bounds.end())
           {
             sim.bounds[dest] = {std::numeric_limits<double>::max(), std::numeric_limits<double>::min()};
           }
           std::pair<double, double> cur = sim.bounds[dest];
-          cur.first = std::min(cur.first, cellVal);
-          cur.second = std::max(cur.second, cellVal);
+          cur.first = std::min(cur.first, anyVal);
+          cur.second = std::max(cur.second, anyVal);
           sim.bounds[dest] = cur;
         }
 
@@ -96,8 +96,8 @@ namespace pathfinder
 
         if (command == DrawSinglePixel)
         {
-          if (cellVal == -1)
-            cellVal = 1;
+          if (anyVal == -1)
+            anyVal = 1;
           // case 1: redraw the previous pixel
           if (sim.singlePixelCanvas.find(dest) != sim.singlePixelCanvas.end())
             steps[stepCnt]->revActions.push_back(packAction(DrawSinglePixel, dest, sim.singlePixelCanvas[dest], -1, -1, -1, -1, {}, 1));
@@ -108,24 +108,24 @@ namespace pathfinder
           sim.singlePixelCanvas[dest] = {x, y};
 // erase canvas and draw the pixel
           sim.activeCanvas[dest] = makeFlatGridf(gridHeight, gridWidth, defaultVal);
-          sim.activeCanvas[dest][xy] = cellVal;
+          sim.activeCanvas[dest][xy] = anyVal;
         }
         else if (command == SetPixel)
         {
           // reverse
           steps[stepCnt]->revActions.push_back(packAction(SetPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][xy]));
           // update
-          sim.activeCanvas[dest][xy] = cellVal;
+          sim.activeCanvas[dest][xy] = anyVal;
         }
         else if (command == DrawPixel)
         {
-          if (cellVal == -1)
-            cellVal = 1;
+          if (anyVal == -1)
+            anyVal = 1;
             // reverse
           if (sim.activeCanvas[dest][xy] == defaultVal)
             steps[stepCnt]->revActions.push_back(packAction(ErasePixel, dest, {x, y}));
             // update
-          sim.activeCanvas[dest][xy] = cellVal;
+          sim.activeCanvas[dest][xy] = anyVal;
         }
         else if (command == ErasePixel)
         {

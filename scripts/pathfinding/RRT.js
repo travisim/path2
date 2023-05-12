@@ -177,6 +177,27 @@ l        }
     return [f_cost, g_cost, h_cost];
   }
 
+  createStaticRow(dest, id, title){
+    if(this.staticTables === undefined) this.staticTables = {};
+    if(!(dest in this.staticTables)) this.staticTables[dest] = {count: 0};
+    const table = this.staticTables[dest];
+    table[id] = {rowNum: ++table.count, title: title, curVal: "-"};
+    this._create_action({command: STATIC.InsertRowAtIndex, dest: dest, infoTableRowIndex: -table.count, infoTableRowData: [title, "-"]});
+  }
+
+  editStaticRow(dest, id, val){
+    console.assert(this.staticTables && (dest in this.staticTables), "static row not created!!");
+    const ITRow = this.staticTables[dest][id];
+    ITRow.curVal = val;
+    this._create_action({command: STATIC.UpdateRowAtIndex, dest: dest, infoTableRowIndex: -ITRow.rowNum, infoTableRowData: [ITRow.title, val]});
+  }
+
+  incrementStaticRow(dest, id){
+    console.assert(this.staticTables && (dest in this.staticTables), "static row not created!!");
+    const ITRow = this.staticTables[dest][id];
+    this._create_action({command: STATIC.UpdateRowAtIndex, dest: dest, infoTableRowIndex: -ITRow.rowNum, infoTableRowData: [ITRow.title, ++ITRow.curVal]});
+  }
+
   generateNewMap(start = [0, 0], goal = [13, 13]) {
     
     this.prevGoalCoord = [];
@@ -198,10 +219,15 @@ l        }
    // myUI.nodeCanvas.drawCircle(start);
    
     // this._create_action({ command: STATIC.DrawEdge, dest: this.dests.intermediaryMapExpansion, nodeCoord: [2,2], endCoord: [8,8] });
-    this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "Number Of Nodes" });
-    this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "0" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "∞" });
+    // this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "Number Of Nodes" });
+    // this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
+    // this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "0" });
+    // this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "∞" });
+
+    this.createStaticRow(this.dests.ITStatistics, "NumberOfNodes", "Number Of Nodes");
+    this.createStaticRow(this.dests.ITStatistics, "PathDistance", "Path Distance");
+    this.editStaticRow(this.dests.ITStatistics, "NumberOfNodes", "0");
+    this.editStaticRow(this.dests.ITStatistics, "PathDistance", "∞");
     
     this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: start });
     this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 1 });
@@ -244,8 +270,9 @@ l        }
             this._create_action({ command: STATIC.DrawVertex, dest: this.dests.neighbors, nodeCoord: this.choosenCoordsNodes[element].value_XY }); 
           });
           this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: nextCoordToAdd_XY });
-          this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes",value:"++"});
-          this._create_action({command: STATIC.DrawVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,thickness: this.connectionDistance.toString()});
+          // this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes",value:"++"});
+          this.incrementStaticRow(this.dests.ITStatistics, "NumberOfNodes");
+          this._create_action({command: STATIC.DrawVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,anyVal: this.connectionDistance.toString()});
           this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 6});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 7});
           this._save_step(false);
@@ -351,7 +378,8 @@ l        }
           });
           this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: nextCoordToAdd_XY });
           this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes",value:"++"});
-          this._create_action({command: STATIC.DrawVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,thickness: this.connectionDistance.toString()});
+          this.incrementStaticRow(this.dests.ITStatistics, "NumberOfNodes");
+          this._create_action({command: STATIC.DrawVertex, dest: this.dests.intermediaryMapExpansion, nodeCoord: nextCoordToAdd_XY,anyVal: this.connectionDistance.toString()});
           this._create_action({command: STATIC.HighlightPseudoCodeRowSec, dest: this.dests.pseudocode, pseudoCodeRow: 6});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 7});
           this._save_step(false);
@@ -481,15 +509,16 @@ l        }
     var nodesNearby_Index = getNodesNearby(this.choosenCoordsNodes, coord_XY, "Closest Neighbours By Radius", this.goalRadius); 
     if (nodesNearby_Index == false) {
      
-      //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes","infinite");
-      this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"∞"});
+      // this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"∞"});
+      this.editStaticRow(this.dests.ITStatistics, "PathDistance", "∞");
       return;
     } 
     var selectedVertexIndex = this.getNeighbourIndexThatResultsInShortestPath(coord_XY, nodesNearby_Index).index;
     var selectedVertexCost = this.getNeighbourIndexThatResultsInShortestPath(coord_XY, nodesNearby_Index).cost;
-    //myUI.InfoTables["ITStatistics"].createStaticRowWithACellEditableById("NumberOfNodes", selectedVertexCost);
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "++" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:selectedVertexCost.toPrecision(5)});
+    // this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "++" });
+    // this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:selectedVertexCost.toPrecision(5)});
+    this.incrementStaticRow(this.dests.ITStatistics, "NumberOfNodes");
+    this.editStaticRow(this.dests.ITStatistics, "PathDistance", selectedVertexCost.toPrecision(5));
 
   
     const selected_XY = this.choosenCoordsNodes[selectedVertexIndex].value_XY;
@@ -678,9 +707,9 @@ l        }
           continue; // do not add to queue if closed list already has a lower cost node
         }
 //commented away next 3 lines for RRT_star
-        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
-       // this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
-        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, anyVal: f_cost});
+       // this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, anyVal: g_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, anyVal: h_cost});
         
         // since A* is a greedy algorithm, it requires visiting of nodes again even if it has already been added to the queue
         // see https://www.geeksforgeeks.org/a-search-algorithm/

@@ -228,7 +228,7 @@ myUI.initialize = function(){
       myUI.InfoTables[item.id] = new UIInfoTable(item.displayName, item.headers.length);
       myUI.InfoTables[item.id].setTableActive();
       myUI.InfoTables[item.id].setTableHeader(item.headers);
-      if(item.fixedContentOfFirstRowOfHeaders) item.fixedContentOfFirstRowOfHeaders.forEach(value => myUI.InfoTables[item.id].createStaticRowWithACellEditableById(value));
+      //if(item.fixedContentOfFirstRowOfHeaders) item.fixedContentOfFirstRowOfHeaders.forEach(value => myUI.InfoTables[item.id].createStaticRowWithACellEditableById(value));
       console.log("gs")
     }
   }

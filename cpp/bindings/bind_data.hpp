@@ -24,7 +24,7 @@ void bindAction(BindType myType){
       .property("pseudoCodeRow", &pathfinder::Action<coordInt_t>::pseudoCodeRow)
       .property("infoTableRowIndex", &pathfinder::Action<coordInt_t>::infoTableRowIndex)
       .property("infoTableRowData", &pathfinder::Action<coordInt_t>::infoTableRowData)
-      .property("cellVal", &pathfinder::Action<coordInt_t>::cellVal)
+      .property("anyVal", &pathfinder::Action<coordInt_t>::anyVal)
       .property("endCoord", &pathfinder::Action<coordInt_t>::endCoord)
       ;
 
@@ -33,7 +33,7 @@ void bindAction(BindType myType){
       .property("command", &pathfinder::BaseAction<coordInt_t>::command)
       .property("dest", &pathfinder::BaseAction<coordInt_t>::dest)
       .property("nodeCoord", &pathfinder::BaseAction<coordInt_t>::nodeCoord)
-      .property("cellVal", &pathfinder::BaseAction<coordInt_t>::cellVal)
+      .property("anyVal", &pathfinder::BaseAction<coordInt_t>::anyVal)
       ;
   }
   else if(myType == BindType::double_coord){
@@ -47,7 +47,7 @@ void bindAction(BindType myType){
       .property("pseudoCodeRow", &pathfinder::Action<coordDouble_t>::pseudoCodeRow)
       .property("infoTableRowIndex", &pathfinder::Action<coordDouble_t>::infoTableRowIndex)
       .property("infoTableRowData", &pathfinder::Action<coordDouble_t>::infoTableRowData)
-      .property("cellVal", &pathfinder::Action<coordDouble_t>::cellVal)
+      .property("anyVal", &pathfinder::Action<coordDouble_t>::anyVal)
       .property("endCoord", &pathfinder::Action<coordDouble_t>::endCoord)
       ;
 
@@ -56,7 +56,7 @@ void bindAction(BindType myType){
       .property("command", &pathfinder::BaseAction<coordDouble_t>::command)
       .property("dest", &pathfinder::BaseAction<coordDouble_t>::dest)
       .property("nodeCoord", &pathfinder::BaseAction<coordDouble_t>::nodeCoord)
-      .property("cellVal", &pathfinder::BaseAction<coordDouble_t>::cellVal)
+      .property("anyVal", &pathfinder::BaseAction<coordDouble_t>::anyVal)
       ;
   }
 }

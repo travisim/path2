@@ -66,13 +66,13 @@ namespace pathfinder
 
     // END OF STATE GENERATION
 
-    Action_t packAction(const Command &command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, Coord_t endCoord = {-1, -1})
+    Action_t packAction(const Command &command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
       Action_t ret;
       ret.command = command;
       ret.dest = (Dest)dest;
       ret.nodeCoord = nodeCoord;
-      ret.cellVal = cellVal;
+      ret.anyVal = anyVal;
       if constexpr(std::is_same<Action_t, Action<Coord_t>>::value){
         ret.colorIndex = colorIndex;
         ret.arrowIndex = arrowIndex;
@@ -127,10 +127,10 @@ namespace pathfinder
       batchInterval = 0;
     }
 
-    void createAction(Command command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, Coord_t endCoord = {-1, -1})
+    void createAction(Command command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
       fwdActionCnt++;
-      Action_t myAction = packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endCoord);
+      Action_t myAction = packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, anyVal, endCoord);
       // STEP STRUCT METHOD
       currentStep->fwdActions.push_back(myAction);
       

@@ -158,16 +158,16 @@ namespace pathfinder
     // Dest dest;
     uint8_t dest; // for binding
     Coord_t nodeCoord;
-    double cellVal;
+    double anyVal;
     BaseAction() {}
     BaseAction(Command command, Dest dest, Coord_t nodeCoord,
-           double cellVal)
-        : command(command), dest(dest), nodeCoord(nodeCoord), cellVal(cellVal) {}
+           double anyVal)
+        : command(command), dest(dest), nodeCoord(nodeCoord), anyVal(anyVal) {}
     friend std::ostream &operator<<(std::ostream &os, const BaseAction<Coord_t> &a){
       os<<"Command:         : "<<(Command)a.command<<std::endl;
       os<<"Dest:            : "<<(Dest)a.dest<<std::endl;
       os<<"x,y              : "<<a.nodeCoord.first<<' '<<a.nodeCoord.second<<std::endl;
-      os<<"cellVal          : "<<a.cellVal<<std::endl;
+      os<<"anyVal          : "<<a.anyVal<<std::endl;
       return os;
     }
   };
@@ -186,7 +186,7 @@ namespace pathfinder
     int8_t pseudoCodeRow;
     int infoTableRowIndex;
     std::vector<std::string> infoTableRowData;
-    double cellVal;
+    double anyVal;
     Coord_t endCoord;
     uint8_t thickness;
     std::string value;
@@ -194,9 +194,9 @@ namespace pathfinder
     Action() {}
     Action(Command command, Dest dest, Coord_t nodeCoord, int colorIndex, int arrowIndex,
            int pseudoCodeRow, int infoTableRowIndex, std::vector<std::string> infoTableRowData,
-           double cellVal, Coord_t endCoord, int thickness, std::string& value, std::string& id)
+           double anyVal, Coord_t endCoord, int thickness, std::string& value, std::string& id)
         : command(command), dest(dest), nodeCoord(nodeCoord), colorIndex(colorIndex), arrowIndex(arrowIndex), pseudoCodeRow(pseudoCodeRow), infoTableRowIndex(infoTableRowIndex),
-          infoTableRowData(infoTableRowData), cellVal(cellVal), endCoord(endCoord), thickness(thickness), value(value), id(id) {}
+          infoTableRowData(infoTableRowData), anyVal(anyVal), endCoord(endCoord), thickness(thickness), value(value), id(id) {}
     friend std::ostream &operator<<(std::ostream &os, const Action<Coord_t> &a){
       os<<"Command:         : "<<(Command)a.command<<std::endl;
       os<<"Dest:            : "<<(Dest)a.dest<<std::endl;
@@ -208,7 +208,7 @@ namespace pathfinder
       os<<"infoTableRowData : [";
       for(const std::string &s : a.infoTableRowData) os<<s<<' ';
       os<<"]\n";
-      os<<"cellVal          : "<<a.cellVal<<std::endl;
+      os<<"anyVal          : "<<a.anyVal<<std::endl;
       os<<"endCoord         : "<<a.endCoord.first<<' '<<a.endCoord.second<<std::endl;
       os<<"Thickness        : "<<a.thickness<<std::endl;
       os<<"ID               : "<<a.id<<std::endl;
