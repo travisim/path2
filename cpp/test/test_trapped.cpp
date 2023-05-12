@@ -25,7 +25,6 @@ int main(){
 
   uint64_t endSearch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
   std::cout<<"Search time: "<<endSearch - start<<"ms"<<std::endl;
-  path_t path = planner.path;
 
   finished = planner.generateReverseSteps(true, 2000);
   while(!finished){

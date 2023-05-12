@@ -114,13 +114,13 @@ class GridPathfinder extends Pathfinder{
 	}
 
 	isValidCellCoord(coord){
-		return coord[0] >= 0 && coord[1] >= 0 && coord[0] < this.bg_height && coord[1] < this.bg_width;
+		return coord[0] >= 0 && coord[1] >= 0 && coord[0] < this.grid_height && coord[1] < this.grid_width;
 	}
 
 	isDiagonalBlockedVertex(next_XY, current_XY, parent_XY){
 		if(parent_XY === undefined) return false; // assume able to pass through in ambiguous case
 		let blocked1 = current_XY, blocked2 = current_XY.map(x=>x-1);
-		if(this.isValidCellCoord(blocked2) && !this.isPassable(blocked1) && !this.isPassable(blocked2)){
+		if(this.isValidCellCoord(blocked1) && this.isValidCellCoord(blocked2) && !this.isPassable(blocked1) && !this.isPassable(blocked2)){
 			let sideOf = (XY) => XY[0] >= current_XY[0] && XY[1] <= current_XY[1];
 			if(sideOf(next_XY) != sideOf(parent_XY)) return true; // different sides, blocked
 		}
@@ -137,7 +137,6 @@ class GridPathfinder extends Pathfinder{
 			let parent_XY = this.current_node.parent ? this.current_node.parent.self_XY : undefined;
 			if(next_XY[0]!=this.current_node_XY[0] && next_XY[1]!=this.current_node_XY[1]){
 				// diagonal crossing
-				// consider [Math.min(next_XY[0], this.current_node_XY[0]), Math.min(next_XY[1], this.current_node_XY[1])];
 				let coord = [Math.min(next_XY[0], this.current_node_XY[0]), Math.min(next_XY[1], this.current_node_XY[1])];
 				if(!this.isPassable(coord)) return false; // not passable
 			}
@@ -149,7 +148,7 @@ class GridPathfinder extends Pathfinder{
 					var c2 = [Math.min(next_XY[0], this.current_node_XY[0]), next_XY[1]-1];
 
 					if(next_XY[1] == 0 && !this.isPassable(c1)) return false; // edges of map
-					else if(next_XY[1] == this.map_width - 1 && !this.isPassable(c2)) return false;
+					else if(next_XY[1] == this.grid_width && !this.isPassable(c2)) return false;
 				}
 				else{
 					// change in y, "E-W" movement
@@ -157,7 +156,7 @@ class GridPathfinder extends Pathfinder{
 					var c2 = [next_XY[0]-1, Math.min(next_XY[1], this.current_node_XY[1])];
 
 					if(next_XY[0] == 0 && !this.isPassable(c1)) return false; // edges of map
-					else if(next_XY[0] == this.map_height - 1&& !this.isPassable(c2)) return false;
+					else if(next_XY[0] == this.grid_height && !this.isPassable(c2)) return false;
 				}
 				if(!this.isPassable(c1) && !this.isPassable(c2)) return false; // not passable
 			}

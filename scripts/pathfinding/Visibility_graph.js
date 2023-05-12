@@ -347,8 +347,8 @@ class VisibilityGraph extends Pathfinder{
     if(this.showNetworkGraph) this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: goal});
     let kernelSize = 2;
 
-    for(let i = 0; i < this.bg_height - kernelSize + 1; ++i){
-      for(let j = 0; j < this.bg_width - kernelSize + 1; ++j){
+    for(let i = 0; i < this.grid_height - kernelSize + 1; ++i){
+      for(let j = 0; j < this.grid_width - kernelSize + 1; ++j){
         let coords = cornerCoords(this.map, kernelSize, i, j, this.vertexEnabled);
         if(coords == null) continue;
         for(const coord of coords){
@@ -514,9 +514,9 @@ class VisibilityGraph extends Pathfinder{
           continue; // do not add to queue if closed list already has a lower cost node
         }
 
-        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
-        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
-        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, anyVal: f_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, anyVal: g_cost});
+        //this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, anyVal: h_cost});
         
         // add to queue 
         if(this.timeOrder=="FIFO") this.queue.push(next_node); // FIFO

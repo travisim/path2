@@ -5,7 +5,7 @@ class wasm_A_star extends GridPathfinder{
   }
 
 	static get display_name(){
-		return "A star (wasm)";
+		return "A* (wasm)";
   }
   infoMapPlannerMode(){
     return "A_star";
@@ -77,17 +77,21 @@ class wasm_A_star extends GridPathfinder{
   }
 
   max_step(){
-    return myUI.planner.cppPlanner.maxStep();
+    return myUI.planner.wasmPlanner.maxStep();
   }
 
   constructor(num_neighbors = 8, diagonal_allow = true, first_neighbor = "N", search_direction = "anticlockwise") {
     super(num_neighbors, diagonal_allow, first_neighbor, search_direction);
   }
 
+  loadWasmPlanner(){
+    return this.bigMap ? new Module["BaseAStarPlanner"]() : new Module["AStarPlanner"]();
+  }
+
   search(start, goal) {
     this._init_search(start, goal); // for batch size and batch interval
-    let chosenCost = ["Manhattan",
-      "Euclidean",
+    let chosenCost = ["Euclidean",
+      "Manhattan",
       "Chebyshev",
       "Octile"].findIndex(cost=>{
         return cost == this.distance_metric;
@@ -95,9 +99,9 @@ class wasm_A_star extends GridPathfinder{
     let order = ["FIFO", "LIFO"].findIndex(cost=>{
         return cost == this.timeOrder;
       });
-    if(this.cppPlanner) this.cppPlanner.delete();
-    this.cppPlanner = this.bigMap ? new Module["BaseAStarPlanner"]() : new Module["AStarPlanner"]();
-    let finished = this.cppPlanner.wrapperSearch(this.map.copy_2d(),
+    if(this.wasmPlanner) this.wasmPlanner.delete();
+    this.wasmPlanner = this.loadWasmPlanner();
+    let finished = this.wasmPlanner.wrapperSearch(this.map.copy_2d(),
     ...start, ...goal,
     this.neighborsIndex,
     this.vertexEnabled, this.diagonal_allow, this.bigMap, this.hOptimized,
@@ -114,7 +118,7 @@ class wasm_A_star extends GridPathfinder{
   _run_next_search(){
     let finished;
     try{
-      finished = this.cppPlanner.runNextSearch(this.batch_size);
+      finished = this.wasmPlanner.runNextSearch(this.batch_size);
       if(finished){
         return this._finish_searching();
       }
@@ -125,11 +129,11 @@ class wasm_A_star extends GridPathfinder{
       });
     }
     catch(e){
-      console.log("ERROR WASM A* FAILED");
+      console.log(`ERROR ${this.constructor.display_name} FAILED`);
       console.log(e);
       let t = Date.now() - myUI.startTime;
       console.log(t);
-      let n = this.cppPlanner.stepIndex;
+      let n = this.wasmPlanner.stepIndex;
       console.log("Number of steps before error: ",n);
       console.log(n/t);
       alert("Something went wrong during searching");
@@ -142,12 +146,12 @@ class wasm_A_star extends GridPathfinder{
     console.log(Date.now() - myUI.startTime);
     
     console.log("getting cell map now");
-    this.cell_map = new Empty2D(0, 0, 0, myUI.planner.cppPlanner.cellMap);  // override using emscripten version
+    this.cell_map = new Empty2D(0, 0, 0, myUI.planner.wasmPlanner.cellMap);  // override using emscripten version
 
     console.log("getting arrow coords now");
     // since c++ cannot create arrows, we need to do it here
     // possible to export the javascript create_arrow function, will do so after the c++ A* is finalized
-    let arrows = myUI.planner.cppPlanner.arrowCoords;
+    let arrows = myUI.planner.wasmPlanner.arrowCoords;
     for(let i = 0; i < arrows.size(); ++i){
       let arrow_data = [...vector_values(arrows.get(i))];
       let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
@@ -157,39 +161,39 @@ class wasm_A_star extends GridPathfinder{
   }
 
   getStep(stepNo){
-    return myUI.planner.cppPlanner.getStep(stepNo);
+    return myUI.planner.wasmPlanner.getStep(stepNo);
   }
 }
 
 function test(){
-  myUI.planner.cppPlanner.pqSize();
+  myUI.planner.wasmPlanner.pqSize();
 
-  myUI.planner.cppPlanner.insertNode();
-  myUI.planner.cppPlanner.pqSize();
-  myUI.planner.cppPlanner.eraseNode();
-  myUI.planner.cppPlanner.pqSize();
+  myUI.planner.wasmPlanner.insertNode();
+  myUI.planner.wasmPlanner.pqSize();
+  myUI.planner.wasmPlanner.eraseNode();
+  myUI.planner.wasmPlanner.pqSize();
 
-  myUI.planner.cppPlanner.insertNode();
-  myUI.planner.cppPlanner.insertNode();
-  myUI.planner.cppPlanner.pqSize();
-  myUI.planner.cppPlanner.eraseNode();
-  myUI.planner.cppPlanner.eraseNode();
-  myUI.planner.cppPlanner.pqSize();
+  myUI.planner.wasmPlanner.insertNode();
+  myUI.planner.wasmPlanner.insertNode();
+  myUI.planner.wasmPlanner.pqSize();
+  myUI.planner.wasmPlanner.eraseNode();
+  myUI.planner.wasmPlanner.eraseNode();
+  myUI.planner.wasmPlanner.pqSize();
 
-  myUI.planner.cppPlanner.insertNode();
-  myUI.planner.cppPlanner.insertNode();
-  myUI.planner.cppPlanner.insertNode();
-  myUI.planner.cppPlanner.pqSize();
-  myUI.planner.cppPlanner.eraseNode();
-  myUI.planner.cppPlanner.eraseNode();
-  myUI.planner.cppPlanner.pqSize();
+  myUI.planner.wasmPlanner.insertNode();
+  myUI.planner.wasmPlanner.insertNode();
+  myUI.planner.wasmPlanner.insertNode();
+  myUI.planner.wasmPlanner.pqSize();
+  myUI.planner.wasmPlanner.eraseNode();
+  myUI.planner.wasmPlanner.eraseNode();
+  myUI.planner.wasmPlanner.pqSize();
 
-  myUI.planner.cppPlanner.insertNode();
-  myUI.planner.cppPlanner.insertNode();
-  myUI.planner.cppPlanner.pqSize();
-  myUI.planner.cppPlanner.eraseNode();
-  myUI.planner.cppPlanner.eraseNode();
-  myUI.planner.cppPlanner.eraseNode();
-  myUI.planner.cppPlanner.pqSize();
+  myUI.planner.wasmPlanner.insertNode();
+  myUI.planner.wasmPlanner.insertNode();
+  myUI.planner.wasmPlanner.pqSize();
+  myUI.planner.wasmPlanner.eraseNode();
+  myUI.planner.wasmPlanner.eraseNode();
+  myUI.planner.wasmPlanner.eraseNode();
+  myUI.planner.wasmPlanner.pqSize();
 
 }

@@ -7,7 +7,7 @@
 
 #include "../nadeau.hpp"
 
-pathfinder::A_star<pathfinder::BaseAction> planner;
+pathfinder::A_star<pathfinder::BaseAction<coordInt_t>> planner;
 
 int main(int argc, char* argv[]){
 
@@ -30,7 +30,6 @@ int main(int argc, char* argv[]){
   std::cout<<getCurrentRSS()<<std::endl;;
   uint64_t endSearch = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
   std::cout<<"Search time: "<<endSearch - start<<"ms"<<std::endl;
-  path_t path = planner.path;
 
   finished = planner.generateReverseSteps(true, 20000);
   while(!finished){

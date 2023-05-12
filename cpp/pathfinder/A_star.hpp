@@ -10,12 +10,11 @@
 #include <algorithm> // max, min
 #include <iomanip>   // std::setprecision
 #include <vector>    // any general iterable
-#include <deque>     // priority_queue
 #include <queue>
 
-#include "pathfinder.hpp"
+#include "grid_pathfinder.hpp"
 #include "step.hpp"
-#include "conversion.cpp"
+#include "conversion.hpp"
 
 #include "node.hpp"
 #include "rbt.hpp"
@@ -25,12 +24,13 @@
 
 namespace pathfinder{
 
+template <typename Coord_t>
 class PriorityQueue
 {
 public:
   PriorityQueue(timeOrder order = FIFO, bool hOptimized = false) : data(hOptimized, order) {}
   bool empty() { return data.empty(); }
-  int push(Node* n)
+  int push(Node<Coord_t>* n)
   {
     data.insert(n);
     return data.osRank(data.find(n)); // 1-indexed
@@ -39,7 +39,7 @@ public:
   {
     data.erase(data.minimumVal());
   }
-  Node* top()
+  Node<Coord_t>* top()
   {
     return data.minimumVal();
   }
@@ -49,39 +49,48 @@ public:
   void clear() { data.clear(); }
 
 private:
-  RedBlackTree data;
+  RedBlackTree<Coord_t> data;
 };
 
 template <typename Action_t>
-class A_star : public GridPathFinder<Action_t>
+class A_star : public GridPathfinder<Action_t>
 {
-private:
-  using GridPathFinder<Action_t>::currentNode;
-  using GridPathFinder<Action_t>::currentNodeXY;
-  using GridPathFinder<Action_t>::rootNodes;
-  using GridPathFinder<Action_t>::maxNodeDepth;
-  using GridPathFinder<Action_t>::goal;
-  using GridPathFinder<Action_t>::gridHeight;
-  using GridPathFinder<Action_t>::gridWidth;
-  using GridPathFinder<Action_t>::delta;
-  using GridPathFinder<Action_t>::deltaNWSE;
-  using GridPathFinder<Action_t>::deltaNWSEStr;
-  using GridPathFinder<Action_t>::start;
-  using GridPathFinder<Action_t>::batchSize;
-  using GridPathFinder<Action_t>::stepIndex;
-  using GridPathFinder<Action_t>::bigMap;
-  using GridPathFinder<Action_t>::diagonalAllow;
-  using GridPathFinder<Action_t>::neighborsIndex;
+protected:
+  using Coord_t = typename Action_t::CoordType;
+  // properties
+  using GridPathfinder<Action_t>::currentNode;
+  using GridPathfinder<Action_t>::currentNodeXY;
+  using GridPathfinder<Action_t>::rootNodes;
+  using GridPathfinder<Action_t>::maxNodeDepth;
+  using GridPathfinder<Action_t>::goal;
+  using GridPathfinder<Action_t>::gridHeight;
+  using GridPathfinder<Action_t>::gridWidth;
+  using GridPathfinder<Action_t>::delta;
+  using GridPathfinder<Action_t>::deltaNWSE;
+  using GridPathfinder<Action_t>::deltaNWSEStr;
+  using GridPathfinder<Action_t>::start;
+  using GridPathfinder<Action_t>::batchSize;
+  using GridPathfinder<Action_t>::stepIndex;
+  using GridPathfinder<Action_t>::bigMap;
+  using GridPathfinder<Action_t>::diagonalAllow;
+  using GridPathfinder<Action_t>::neighborsIndex;
 
-  using GridPathFinder<Action_t>::saveStep;
-  using GridPathFinder<Action_t>::terminateSearch;
-  using GridPathFinder<Action_t>::initSearch;
-  using GridPathFinder<Action_t>::createAction;
-  using GridPathFinder<Action_t>::handleArrow;
-  using GridPathFinder<Action_t>::assignCellIndex;
-  using GridPathFinder<Action_t>::foundGoal;
-  using GridPathFinder<Action_t>::nodeIsNeighbor;
-  PriorityQueue pq;
+  // methods
+  using GridPathfinder<Action_t>::saveStep;
+  using GridPathfinder<Action_t>::terminateSearch;
+  using GridPathfinder<Action_t>::initSearch;
+  using GridPathfinder<Action_t>::createAction;
+  using GridPathfinder<Action_t>::handleArrow;
+  using GridPathfinder<Action_t>::assignCellIndex;
+  using GridPathfinder<Action_t>::foundGoal;
+  using GridPathfinder<Action_t>::nodeIsNeighbor;
+
+  // required in Theta*
+  using GridPathfinder<Action_t>::grid;
+  using GridPathfinder<Action_t>::vertexEnabled;
+  Node<Coord_t> *parentNode;
+
+  PriorityQueue<Coord_t> pq;
   costType chosenCost;
   timeOrder order;
   int gCoeff;
@@ -99,12 +108,15 @@ private:
     return std::min(dx, dy) * M_SQRT2 + abs(dx - dy);
   }
 
-  std::array<double, 3> calcCost(coord_t nextXY)
+  virtual std::array<double, 3> calcCost(Coord_t nextXY)
   {
-    const int curX = currentNode->coordX, curY = currentNode->coordY;
+    parentNode = currentNode;
+    
+    // inherited in Theta_star
+    const int curX = parentNode->selfXY.first, curY = parentNode->selfXY.second;
     const int nextX = nextXY.first, nextY = nextXY.second;
     const int goalX = goal.first, goalY = goal.second;
-    const double curG = currentNode->gCost;
+    const double curG = parentNode->gCost;
 
     double gCost, hCost;
     if (chosenCost == Manhattan)
@@ -129,9 +141,11 @@ private:
       hCost = octile(nextX, nextY, goalX, goalY);
     }
     return {gCoeff * gCost + hCoeff * hCost, gCost, hCost};
+    //return new Node<Coord_t>(nextXY, currentNode, -1, gCoeff * gCost + hCoeff * hCost, gCost, hCost);
   }
+
+  Empty2D<Node<Coord_t>*, Coord_t> openList, closedList;
 public:
-  Empty2D<Node*> openList, closedList;
   A_star() {}
 
 #ifndef PURE_CPP
@@ -158,29 +172,28 @@ public:
     vectDigitPrint(neighborsIndex);
     std::cout<<vertexEnabled<<' '<<diagonalAllow<<' '<<bigMap<<' '<<hOptimized<<std::endl;
     std::cout<<chosenCost<<' '<<order<<std::endl;
-    initSearch(grid, {startX, startY}, {goalX, goalY}, neighborsIndex, vertexEnabled, diagonalAllow, bigMap);
+    initSearch(grid, {startX, startY}, {goalX, goalY}, diagonalAllow, bigMap, neighborsIndex, vertexEnabled);
     this->chosenCost = chosenCost;
     this->order = order;
     this->gCoeff = gCoeff;
     this->hCoeff = hCoeff;
-    pq = PriorityQueue(order, hOptimized);
-    closedList = Empty2D<Node*>(gridHeight, gridWidth);
-    openList = Empty2D<Node*>(gridHeight, gridWidth);
+    pq = PriorityQueue<Coord_t>(order, hOptimized);
+    closedList = Empty2D<Node<Coord_t>*, Coord_t>(gridHeight, gridWidth);
+    openList = Empty2D<Node<Coord_t>*, Coord_t>(gridHeight, gridWidth);
     openList.clear();
     closedList.clear();
 
     // std::cout << "Starting: " << start.first << ' ' << start.second << "->" << goal.first << ' ' << goal.second << std::endl;
 
     currentNodeXY = {startX, startY};
-    currentNode = new Node(startX, startY, nullptr, -1, 0, 0, 0);
+    currentNode = new Node<Coord_t>({startX, startY}, nullptr, -1, 0, 0, 0);
     rootNodes.push_back(currentNode);
 
-    // assign f, (g) and h cost to the starting node
     std::array<double, 3> trip = calcCost({startX, startY});
+    // currentNode = calcCost({startX, startY});
+    // rootNodes.push_back(currentNode);
     currentNode->fCost = trip[0];
     currentNode->hCost = trip[2]; // gCost is 0
-
-    //pq.clear();
 
     // pushes the starting node onto the queue
     pq.push(currentNode);
@@ -219,7 +232,7 @@ public:
       currentNode = pq.top();
       pq.pop();
       //std::cout<<"Size after: "<<pq.size()<<std::endl;
-      currentNodeXY = {currentNode->coordX, currentNode->coordY};
+      currentNodeXY = currentNode->selfXY;
       openList.set(currentNodeXY, nullptr);
       if (stepIndex % 10000 == 0)
         std::cout << "F: " << std::setprecision(5) << currentNode->fCost << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
@@ -237,7 +250,7 @@ public:
       {
         for (const int i : neighborsIndex)
         {
-          createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], "?", "?", "?", "?", "?"});
+          createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, -(i + 1), {deltaNWSEStr[deltaNWSE[i]], "?", "?", "?", "?", "?"});
         }
         createAction(EraseRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1);
         createAction(DrawSinglePixel, CanvasFocused, currentNodeXY);
@@ -253,7 +266,7 @@ public:
       if (foundGoal(currentNode))
         return terminateSearch();
 
-      std::vector<std::array<int, 2>> cardinalCoords(4);
+      std::vector<Coord_t> cardinalCoords(4);
       if (!diagonalAllow && neighborsIndex.size() == 8)
       {
         for (int i = 0; i < 8; ++i)
@@ -282,7 +295,7 @@ public:
 
       for (const int i : neighborsIndex)
       {
-        coord_t nextXY;
+        Coord_t nextXY;
         nextXY.first = currentNodeXY.first + delta[i][0];
         nextXY.second = currentNodeXY.second + delta[i][1];
         // std::cout << "next: " << nextXY.first << ' ' << nextXY.second << ' ' << std::endl;
@@ -312,8 +325,10 @@ public:
 
         std::array<double, 3> trip = calcCost(nextXY);
         const double fCost = trip[0], gCost = trip[1], hCost = trip[2];
+        // Node<Coord_t>* nextNode = calcCost(nextXY);
+        // const double fCost = nextNode->fCost, gCost = nextNode->gCost, hCost = nextNode->hCost;
 
-        Node* openNode = openList.get(nextXY);
+        Node<Coord_t>* openNode = openList.get(nextXY);
         if (openNode != NULL && openNode->fCost <= fCost)
         {
           if (!bigMap)
@@ -321,28 +336,28 @@ public:
             createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
             saveStep(false);
           }
+          // delete nextNode;
           continue;
         }
         //std::cout<<"node has lower fCost\n";
 
-        Node* closedNode = closedList.get(nextXY);
+        Node<Coord_t>* closedNode = closedList.get(nextXY);
         if (closedNode != NULL && closedNode->fCost <= fCost)
         {
           if (!bigMap)
           {
-            if (currentNode->parent && currentNode->parent->coordX == nextXY.first && currentNode->parent->coordY == nextXY.second)
+            if (currentNode->parent && currentNode->parent->selfXY.first == nextXY.first && currentNode->parent->selfXY.second == nextXY.second)
               createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Parent"});
             else
               createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
           }
           createAction(IncrementPixel, CanvasVisited, nextXY);
           saveStep(false);
+          // delete nextNode;
           continue;
         }
 
-        //std::cout<<"node not visited before\n";
-
-        Node* nextNode = new Node(nextXY.first, nextXY.second, currentNode, -1, fCost, gCost, hCost);
+        Node<Coord_t>* nextNode = new Node<Coord_t>(nextXY, parentNode, -1, fCost, gCost, hCost);
         if(currentNode->depth < maxNodeDepth){
           currentNode->addChild(nextNode);
         }
@@ -360,7 +375,7 @@ public:
         {
           createAction(DrawPixel, CanvasNeighbors, nextXY);
           //createAction(HighlightPseudoCodeRowSec, Pseudocode, {-1, -1}, -1, -1, 32);
-          handleArrow(nextXY, nextNode, openNode, closedNode);
+          handleArrow(nextNode, openNode, closedNode);
 
           createAction(DrawPixel, CanvasQueue, nextXY);
 
@@ -377,7 +392,6 @@ public:
       }
     }
     //std::cout<<"runNextSearch done! Step Index: "<<stepIndex<<std::endl;
-    // return runNextSearch();
     return false;
   }
 
@@ -385,7 +399,7 @@ public:
     int k = 2;
     std::cout<<"Inserting "<<k<<" nodes\n";
     while(k--){
-      Node* n = new Node(-1, -1, nullptr, -1, -1, -1, -1);
+      Node<Coord_t>* n = new Node<Coord_t>({-1, -1}, nullptr, -1, -1, -1, -1);
       rootNodes[0]->addChild(n);
       pq.push(n);
     }
@@ -404,9 +418,10 @@ public:
   }
 
   void createNodes(int num){
-    Node* prev = nullptr;
+    // 1e7 nodes in 3239ms in wasm
+    Node<Coord_t>* prev = nullptr;
     while(num--){
-      Node* node = new Node(0, 0, prev, 0, 0, 0, 0);
+      Node<Coord_t>* node = new Node<Coord_t>({0, 0}, prev, 0, 0, 0, 0);
       prev = node;
     }
   }

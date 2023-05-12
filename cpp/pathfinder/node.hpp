@@ -8,24 +8,24 @@
 namespace pathfinder
 {
 
+  template<typename Coord_t>
   class Node
   {
   public:
 #ifdef DEBUG
     inline static int count = 0; // c++17
 #endif
-    uint16_t coordX;
-    uint16_t coordY;
+    Coord_t selfXY;
     Node *parent;
-    std::vector<Node *> children;
+    std::vector<Node<Coord_t> *> children;
     uint32_t arrowIndex;
     double fCost;
     double gCost;
     double hCost;
     uint16_t depth = 0;
     uint64_t timeCreatedus;
-    Node(uint16_t x, uint16_t y, Node *p, int a, double f, double g, double h)
-        : coordX(x), coordY(y), parent(p), arrowIndex(a), fCost(f), gCost(g), hCost(h)
+    Node(Coord_t xy, Node *p, int a, double f, double g, double h)  // TOCHECK if passing ref is better : xy
+        : selfXY(xy), parent(p), arrowIndex(a), fCost(f), gCost(g), hCost(h)
     {
 #ifdef DEBUG
       Node::count++;
@@ -33,23 +33,21 @@ namespace pathfinder
       using namespace std::chrono;
       timeCreatedus = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
     }
-    //inline double fCost () const { return gCost + hCost; }
+    
     inline void addChild(Node *child) { child->depth = depth + 1; children.push_back(child); }
-    ~Node()
+    ~Node<Coord_t>()
     {
-      //std::cout << "deleting " << coordX << ' ' << coordY << ' ' << fCost << std::endl;
+      //std::cout << "deleting " << selfXY.first << ' ' << selfXY.second << ' ' << fCost << std::endl;
       for (auto child : children)
         delete child;
 #ifdef DEBUG
       Node::count--;
 #endif
     }
-    friend std::ostream &operator<<(std::ostream &os, const Node &n);
+    friend std::ostream &operator<<(std::ostream &os, const Node &n){
+      os<<n.selfXY.first<<' '<<n.selfXY.second<<' '<<n.fCost<<std::endl;
+      return os;
+    }
   };
-
-  std::ostream &operator<<(std::ostream &os, const Node &n){
-    os<<n.coordX<<' '<<n.coordY<<' '<<n.fCost<<std::endl;
-    return os;
-  }
 }
 #endif

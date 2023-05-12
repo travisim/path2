@@ -3,7 +3,7 @@ var myUI = {};
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [VisibilityGraph, RRT_star, PRM, A_star, Theta_star, wasm_A_star];
+  myUI.planners = [wasm_A_star, VisibilityGraph, RRT_star, PRM, A_star, Theta_star, wasm_Theta_star];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 
@@ -228,7 +228,7 @@ myUI.initialize = function(){
       myUI.InfoTables[item.id] = new UIInfoTable(item.displayName, item.headers.length);
       myUI.InfoTables[item.id].setTableActive();
       myUI.InfoTables[item.id].setTableHeader(item.headers);
-      if(item.fixedContentOfFirstRowOfHeaders) item.fixedContentOfFirstRowOfHeaders.forEach(value => myUI.InfoTables[item.id].createStaticRowWithACellEditableById(value));
+      //if(item.fixedContentOfFirstRowOfHeaders) item.fixedContentOfFirstRowOfHeaders.forEach(value => myUI.InfoTables[item.id].createStaticRowWithACellEditableById(value));
       console.log("gs")
     }
   }

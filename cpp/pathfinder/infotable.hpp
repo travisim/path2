@@ -15,6 +15,7 @@ struct InfoTableState{
 
 class InfoTable
 {
+    static const int null = -1;
 public:
     InfoTable(int rowSize) : rowSize(rowSize) {}
 
@@ -54,12 +55,18 @@ public:
         return highlightRow;
     }
 
-    int setHighlightAtIndex(int rowIndex)
-    {
-        rowIndex--;
-
+    int resetAllHighlight(){
         int prevHighlight = highlightRow;
-        highlightRow = rowIndex + 1;
+        highlightRow = null;
+        return prevHighlight;
+    }
+
+    int setHighlightAtIndex(int rowIndex = null)
+    {
+        int prevHighlight = resetAllHighlight();
+        if(rowIndex != null){
+            highlightRow = rowIndex;
+        }
         return prevHighlight;
     }
 
@@ -96,30 +103,32 @@ public:
             return setHighlightAtIndex(rowIndex + 1);
         }
 
+        int prevHighlight = highlightRow;
         if (rowIndex + 1 <= highlightRow)
         {
             ++highlightRow;
         }
-        return -1;
+        return prevHighlight;
     }
 
     std::vector<std::string> eraseRowAtIndex(int rowIndex)
     {
         rowIndex = abs(rowIndex) - 1;
-        if (rowIndex >= rows.size() || rowIndex < 0)
+        if (rowIndex >= rows.size() || rows.size() < 1)
         {
             return {};
         }
         std::vector<std::string> values = rows[rowIndex];
+
         bool highlighted = (highlightRow == rowIndex + 1);
+
+        if(rowIndex + 1 < highlightRow) highlightRow--;
+        else if(rowIndex + 1 == highlightRow) highlightRow = null;
+
         if (highlighted)
-            values.push_back(std::to_string(highlightRow));
+            values.push_back("1");
         else
-            values.push_back("-1");
-        if (rowIndex + 1 < highlightRow)
-            highlightRow--;
-        else if (rowIndex + 1 == highlightRow)
-            highlightRow = -1;
+            values.push_back("0");
         rows.erase(rows.begin() + rowIndex);
         return values;
     }
@@ -142,14 +151,16 @@ public:
         }
         std::vector<std::string> prevValues = rows[rowIndex];
         rows[rowIndex] = values;
+        int prevHighlight;
         if (toHighlight)
         {
-            int prevHighlight = setHighlightAtIndex(rowIndex + 1);
-            prevValues.push_back(std::to_string(prevHighlight));
+            prevHighlight = setHighlightAtIndex(rowIndex + 1);
         }
         else{
-            prevValues.push_back("-1");
+            prevHighlight = resetAllHighlight();
         }
+        prevValues.push_back(std::to_string(prevHighlight));
+
         return prevValues;
     }
 

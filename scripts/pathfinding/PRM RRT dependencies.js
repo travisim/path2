@@ -107,10 +107,10 @@ function CustomLOSChecker(src, tgt){
   
 
   var src_dynamic = [];
-  src[0] == myUI.map_width ? src_dynamic.push(src[0]-1):src_dynamic.push(src[0]);
+  src[0] == myUI.map_height ? src_dynamic.push(src[0]-1):src_dynamic.push(src[0]);
   src[1] == myUI.map_width ? src_dynamic.push(src[1]-1):src_dynamic.push(src[1]);
   var tgt_dynamic= [];
-  tgt[0] == myUI.map_width ? tgt_dynamic.push(tgt[0]-1):tgt_dynamic.push(tgt[0]);
+  tgt[0] == myUI.map_height ? tgt_dynamic.push(tgt[0]-1):tgt_dynamic.push(tgt[0]);
   tgt[1] == myUI.map_width ? tgt_dynamic.push(tgt[1]-1):tgt_dynamic.push(tgt[1]);
   
 
@@ -355,7 +355,7 @@ function CustomLOSGenerator(src, tgt, cons = false){
   
   /* addition to given algo */
   if(src.reduce(add, 0) < tgt.reduce(add, 0))
-  [src, tgt] = [tgt, src];  // swap the arrays
+    [src, tgt] = [tgt, src];  // swap the arrays
   /* end of addition */
   let diffX = tgt.map((x, i) => x - src[i]);    // i is index here
   let absX = diffX.map(Math.abs);
@@ -375,6 +375,7 @@ function CustomLOSGenerator(src, tgt, cons = false){
   let psiZ = dZ.map(x => x > 0 ? x : 0);
   let cmp = (floorZ[0] + psiZ[0] - srcZ[0]) * absZ[1] / diffZ[0] - dZ[1] * psiZ[1];
   let changeS = diffZ[1] / absZ[0];
+  if(cons) console.log(`diffZ[1]: ${diffZ[1]}, absZ[0]: ${absZ[0]}`);
 
   /* addition to given algo */
   let gradient = (tgt[1] - src[1]) / (tgt[0] - src[0]);
@@ -394,6 +395,7 @@ function CustomLOSGenerator(src, tgt, cons = false){
     step++;
 
     let S = changeS * step + srcZ[1];
+    if(cons) console.log(`S: ${S}, changeS: ${changeS}, step: ${step}, srcZ[1]: ${srcZ[1]}`);
     let floorS = Math.floor(S);
     if(cons) console.log(`floorS: ${floorS}`);
     if (floorS !== floorZ[1]) {
@@ -429,11 +431,17 @@ function CustomLOSGenerator(src, tgt, cons = false){
         // check if moving x reaches tgt
         let floorZ1 = [...floorZ];
         floorZ1[0] = floorZ1[0] + dZ[0];
-        if(equal(floorZ1, tgtFloorZ)) break;
+        if(equal(floorZ1, tgtFloorZ)){
+          if(cons) console.log(`eqx: out`);
+          break;
+        }
         // then check y
         let floorZ2 = [...floorZ];
         floorZ2[1] = floorZ2[1] + dZ[1];
-        if(equal(floorZ2, tgtFloorZ)) break;
+        if(equal(floorZ2, tgtFloorZ)){
+          if(cons) console.log(`eqy: out`);
+          break;
+        }
         /* end of addition */
         floorZ = floorZ.map((x, i) => x + dZ[i]);
         if(cons) console.log(`eq: [${conv(cflag, floorZ)}]`);
@@ -647,7 +655,6 @@ class SVGCanvas {
     var x2 = this.displayRatio*end_coord.y;
     var y2 = this.displayRatio * end_coord.x;
     var strokeWidth = Math.max(lineWidth*this.displayRatio, 1)
-    console.log("STROKEWIDTH", strokeWidth);
     var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
     var line_class = `SVGline_${destId}`;
     var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";

@@ -1,6 +1,6 @@
 class A_star extends GridPathfinder{
 
-	static get display_name(){ return "A star"; }
+	static get display_name(){ return "A*"; }
 
   infoMapPlannerMode(){ return "A_star"; }
 
@@ -112,7 +112,7 @@ class A_star extends GridPathfinder{
       var h_cost = octile(successor, this.goal);
     }
 
-    var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;//++ from bfs.js
+    var f_cost = this.gWeight*g_cost + this.hWeight*h_cost;
     return new Node(f_cost, g_cost, h_cost, chosen_parent, successor, undefined, this.step_index);
   }
 
@@ -136,7 +136,7 @@ class A_star extends GridPathfinder{
 
       // initialize the starting sequences
       this.deltaNWSE.slice().reverse().forEach(item=>
-        this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: 1, infoTableRowData: [item, "?", "?", "?", "?", "?"]})
+        this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: -1, infoTableRowData: [item, "?", "?", "?", "?", "?"]})
       );
 
       // for every node that is pushed onto the queue, it should be added to the queue infotable
@@ -185,7 +185,7 @@ class A_star extends GridPathfinder{
       
       if(!this.bigMap){
         for(const i of this.neighborsIndex){
-          this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [this.deltaNWSE[i], "?", "?", "?", "?", "?"]})
+          this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: -(i+1), infoTableRowData: [this.deltaNWSE[i], "?", "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1});
         //this._create_action({command: STATIC.EraseCanvas, dest: this.dests.focused, nodeCoord: this.current_node_XY});
@@ -253,9 +253,9 @@ class A_star extends GridPathfinder{
           continue; // do not add to queue if closed list already has a lower cost node
         }
 
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, cellVal: f_cost});
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, cellVal: g_cost});
-        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, cellVal: h_cost});
+        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.fCost, nodeCoord: next_XY, anyVal: f_cost});
+        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.gCost, nodeCoord: next_XY, anyVal: g_cost});
+        this._create_action({command: STATIC.SetPixelValue, dest: this.dests.hCost, nodeCoord: next_XY, anyVal: h_cost});
 
         // add to queue 
         if(this.timeOrder=="FIFO") this.queue.push(new_node); // FIFO

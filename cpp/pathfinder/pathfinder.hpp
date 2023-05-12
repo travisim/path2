@@ -24,15 +24,12 @@ namespace pathfinder
   extern int created, destroyed;
 
   template <typename Action_t>
-  class GridPathFinder
+  class Pathfinder
   {
   public:
-    std::vector<NWSE> deltaNWSE;
-    std::vector<std::string> deltaNWSEStr;
-    std::vector<std::vector<int>> delta;
+    using Coord_t = typename Action_t::CoordType;
 
     bool drawArrows;
-    bool vertexEnabled;
     bool diagonalAllow;
     bool bigMap;
     int bitOffset;
@@ -42,59 +39,41 @@ namespace pathfinder
     int gridHeight, gridWidth;
     int batchSize, batchInterval;
 
-    neighbors_t neighborsIndex;
-
-    coord_t start, goal, currentNodeXY;
-    path_t path;
+    Coord_t start, goal, currentNodeXY;
+    std::vector<Coord_t> path;
 
     int arrowCnt;
     int stepIndex;
     int lastStepIndex;
     int fwdActionCnt;
 
-    std::vector<std::vector<int>> cellMap;
-
-    Node *currentNode = nullptr;
-    std::vector<Node*> rootNodes;
+    Node<Coord_t> *currentNode = nullptr;
+    std::vector<Node<Coord_t>*> rootNodes;
     int maxNodeDepth = 500;
 
     // additional stuff that is not in js
-    std::vector<std::vector<std::string>> ITRowDataCache;
-    std::vector<double> cellVals;
     std::vector<std::vector<int>> arrowCoords;
 
-    // STEP STRUCT METHOD
     std::vector<std::unique_ptr<Step<Action_t>>> steps;
     std::unique_ptr<Step<Action_t>> currentStep;
 
     // FOR STATE GENERATION
-    RuntimeSimulation sim;
+    RuntimeSimulation<Coord_t> sim;
     bool genStates;
     int stateFreq;
     int stepCnt;
-    std::vector<std::unique_ptr<State>> states;
+    std::vector<std::unique_ptr<State<Coord_t>>> states;
 
     // END OF STATE GENERATION
 
-    static int managePacking(int numBits, int &bitOffset, std::vector<int> &actionCache)
-    {
-      bitOffset += numBits;
-      if (bitOffset > 31)
-      {
-        actionCache.push_back(0);
-        bitOffset = 1 + numBits;
-      }
-      return actionCache.size() - 1;
-    }
-
-    Action_t packAction(const Command &command, int dest = -1, coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, coord_t endCoord = {-1, -1})
+    Action_t packAction(const Command &command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
       Action_t ret;
       ret.command = command;
       ret.dest = (Dest)dest;
       ret.nodeCoord = nodeCoord;
-      ret.cellVal = cellVal;
-      if constexpr(std::is_same<Action_t, Action>::value){
+      ret.anyVal = anyVal;
+      if constexpr(std::is_same<Action_t, Action<Coord_t>>::value){
         ret.colorIndex = colorIndex;
         ret.arrowIndex = arrowIndex;
         ret.pseudoCodeRow = pseudoCodeRow;
@@ -105,49 +84,29 @@ namespace pathfinder
       return ret;
     }
 
-    ~GridPathFinder()
+    // generateDests?
+
+    ~Pathfinder()
     {
-      std::cout << "deleting GridPathFinder\n";
-      steps.clear();
+      std::cout << "deleting Pathfinder\n";
     }
 
-    void initSearch(grid_t &grid, coord_t start, coord_t goal, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap)
+    virtual inline bool showFreeVertex(){ return false; }
+    virtual inline bool gridPrecisionFloat(){ return false; }
+
+
+    virtual void initSearch(grid_t &grid, Coord_t start, Coord_t goal, bool diagonalAllow, bool bigMap)
     {
+      this->grid = grid;
+      this->start = start;
+      this->goal = goal;
+      this->diagonalAllow = diagonalAllow;
+      this->bigMap = bigMap;
       gridHeight = grid.size();
       gridWidth = grid[0].size();
       std::cout<<gridHeight<<' '<<gridWidth<<std::endl;
-      this->grid = grid;
-      this->start = start; // in array form [x,y]  [0,0] is top left  [512,512] is bottom right
-      this->goal = goal;
       path.clear();
 
-      if (neighborsIndex.size() == 8)
-      {
-        deltaNWSE = {N, NW, W, SW, S, SE, E, NE};
-        delta = {{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}};
-        deltaNWSEStr.resize(8);
-        deltaNWSEStr[N] = "N";
-        deltaNWSEStr[W] = "W";
-        deltaNWSEStr[S] = "E";
-        deltaNWSEStr[E] = "E";
-        deltaNWSEStr[NW] = "NW";
-        deltaNWSEStr[SW] = "SW";
-        deltaNWSEStr[SE] = "SE";
-        deltaNWSEStr[NE] = "NE";
-      }
-      else
-      {
-        deltaNWSE = {N, W, S, E};
-        delta = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-        deltaNWSEStr.resize(4);
-        deltaNWSEStr[N] = "N";
-        deltaNWSEStr[W] = "W";
-        deltaNWSEStr[S] = "E";
-        deltaNWSEStr[E] = "E";
-      }
-      this->neighborsIndex = neighborsIndex;
-      this->vertexEnabled = vertexEnabled;
-      this->bigMap = bigMap;
       if(bigMap) std::cout<<"BIGMAP IS ON\n";
       else std::cout<<"BIGMAP IS OFF\n";
 
@@ -155,7 +114,6 @@ namespace pathfinder
       arrowCnt = 0;
       stepIndex = -1;
       lastStepIndex = 0;
-      cellVals.clear();
       arrowCoords.clear();
       drawArrows = gridHeight <= 65 && gridWidth <= 65;
       fwdActionCnt = 0;
@@ -165,90 +123,14 @@ namespace pathfinder
       currentStep = std::make_unique<Step<Action_t>>();
       revActionCnt = 0;
 
-      // generate empty 2d array
-      cellMap = std::vector<std::vector<int>>(gridHeight, std::vector<int>(gridWidth, -1));
-
-      if (gridHeight <= 32)
-        batchSize = 1000; // 10
-      else if (gridHeight <= 64)
-        batchSize = 1000; // 40
-      else
-        batchSize = 1000;
+      batchSize = std::max(gridHeight * gridWidth / 20, 10000);
       batchInterval = 0;
     }
 
-    bool nodeIsNeighbor(coord_t &nextXY, NWSE nextNWSE, std::vector<std::array<int, 2>> &cardinalCoords)
+    void createAction(Command command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
-      if (vertexEnabled)
-      {
-        coord_t c1, c2;
-        // no diagonal blocking considered
-        if (nextXY.first != this->currentNodeXY.first && nextXY.second != this->currentNodeXY.second)
-        {
-          // diagonal crossing
-          // consider [std::min(nextXY.first, this->currentNodeXY.first), std::min(nextXY.second, this->currentNodeXY.second)];
-          int coord[2] = {std::min(nextXY.first, this->currentNodeXY.first), std::min(nextXY.second, this->currentNodeXY.second)};
-          if (grid[coord[0]][coord[1]] == 0)
-            return false; // not passable
-        }
-        else
-        {
-          // cardinal crossing
-          if (nextXY.first != this->currentNodeXY.first)
-          {
-            // consider [std::min(nextXY.first, this->currentNodeXY.first), nextXY.second]
-            // consider [std::min(nextXY.first, this->currentNodeXY.first), nextXY.second-1]
-            c1 = {std::min(nextXY.first, this->currentNodeXY.first), nextXY.second};
-            c2 = {std::min(nextXY.first, this->currentNodeXY.first), nextXY.second - 1};
-          }
-          else
-          {
-            // consider [nextXY.first, std::min(nextXY.second, this->currentNodeXY.second)]
-            // consider [nextXY.first-1, std::min(nextXY.second, this->currentNodeXY.second)]
-            c1 = {nextXY.first, std::min(nextXY.second, this->currentNodeXY.second)};
-            c2 = {nextXY.first - 1, std::min(nextXY.second, this->currentNodeXY.second)};
-          }
-          if (grid[c1.first][c1.second] == 0 && grid[c2.first][c2.second] == 0)
-            return false; // not passable
-        }
-      }
-      else
-      {
-        if (grid[nextXY.first][nextXY.second] == 0)
-          return false; // if neighbour is not passable
-        if (!diagonalAllow && neighborsIndex.size() == 8)
-        { // if diagonal blocking is enabled
-          // N: 0, W: 1, S: 2, E: 3
-          if (nextNWSE == NW)
-          {
-            if (grid[cardinalCoords[N][0]][cardinalCoords[N][1]] == 0 && grid[cardinalCoords[W][0]][cardinalCoords[W][1]] == 0)
-              return false;
-          }
-          else if (nextNWSE == SW)
-          {
-            if (grid[cardinalCoords[S][0]][cardinalCoords[S][1]] == 0 && grid[cardinalCoords[W][0]][cardinalCoords[W][1]] == 0)
-              return false;
-          }
-          else if (nextNWSE == SE)
-          {
-            if (grid[cardinalCoords[S][0]][cardinalCoords[S][1]] == 0 && grid[cardinalCoords[E][0]][cardinalCoords[E][1]] == 0)
-              return false;
-          }
-          else if (nextNWSE == NE)
-          {
-            if (grid[cardinalCoords[N][0]][cardinalCoords[N][1]] == 0 && grid[cardinalCoords[E][0]][cardinalCoords[E][1]] == 0)
-              return false;
-          }
-        }
-      }
-      return true;
-    }
-
-    void createAction(Command command, int dest = -1, coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double cellVal = -1, coord_t endCoord = {-1, -1})
-    {
-      
       fwdActionCnt++;
-      Action_t myAction = packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, cellVal, endCoord);
+      Action_t myAction = packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, anyVal, endCoord);
       // STEP STRUCT METHOD
       currentStep->fwdActions.push_back(myAction);
       
@@ -265,7 +147,9 @@ namespace pathfinder
       ++stepIndex;
     }
 
-    void handleArrow(coord_t nextXY, Node *&newNode, Node *&openNode, Node *&closedNode)
+    inline bool isPassable(Coord_t coord){ return grid[coord.first][coord.second]; }
+
+    void handleArrow(Node<Coord_t> *&newNode, Node<Coord_t> *&openNode, Node<Coord_t> *&closedNode)
     {
       if (!drawArrows)
         return;
@@ -278,41 +162,38 @@ namespace pathfinder
       { // need to remove the previous arrow drawn and switch it to the newNode
         createAction(EraseArrow, -1, {-1, -1}, -1, closedNode->arrowIndex);
       }
-      arrowCoords.push_back({nextXY.first, nextXY.second, currentNodeXY.first, currentNodeXY.second});
-      // newNode->arrowIndex = myUI.create_arrow(nextXY, currentNodeXY); // node is reference typed so properties can be modified after adding to queue or open list
+      arrowCoords.push_back({newNode->selfXY.first, newNode->selfXY.second, newNode->parent->selfXY.first, newNode->parent->selfXY.second});
+      // node is reference typed so properties can be modified after adding to queue or open list
       newNode->arrowIndex = arrowCnt++;
       // std::cout<<"Arrow: "<<arrowCnt<<' '<<nextXY.first<<' '<<nextXY.second<<' '<<currentNodeXY.first<<' '<<currentNodeXY.second<<std::endl;
       createAction(DrawArrow, -1, {-1, -1}, 0, newNode->arrowIndex);
       // END OF ARROW
     }
 
-    void assignCellIndex(coord_t xy)
-    {
-      // index is the step index for the first expansion of that cell
-      int x = xy.first;
-      int y = xy.second;
-      cellMap[x][y] = stepIndex;
-    }
-
-    bool foundGoal(Node *node)
+    virtual bool foundGoal(Node<Coord_t> *node)
     {
       // found the goal & exits the loop
-      if (node->coordX != goal.first || node->coordY != goal.second)
+      if (node->selfXY.first != goal.first || node->selfXY.second != goal.second)
         return false;
 
-      assignCellIndex(currentNodeXY);
       //  retraces the entire parent tree until start is found
-      Node *current = node;
+      Node<Coord_t> *current = node;
+      std::cout<<"showFreeVertex: "<<showFreeVertex()<<std::endl;
       while (current != nullptr)
       {
-        /* NEW */
-        createAction(DrawPixel, CanvasPath, {current->coordX, current->coordY});
-        path.push_back({current->coordX, current->coordY});
+        if(showFreeVertex()){
+          if(gridPrecisionFloat()) createAction(DrawVertex, CanvasPath, current->selfXY);
+          else createAction(DrawPixel, CanvasPath, current->selfXY);
+          
+          if(current->parent)
+            createAction(DrawEdge, CanvasPath, current->selfXY, -1, -1, -1, -1, {}, -1, current->parent->selfXY);
+        }
+        else createAction(DrawPixel, CanvasPath, current->selfXY);
+        path.push_back(current->selfXY);
         if (current->arrowIndex != -1)
           createAction(DrawArrow, -1, {-1, -1}, 1, current->arrowIndex);
         current = current->parent;
       }
-      // std::cout << "found" << std::endl;
       saveStep(true);
       saveStep(true);
       return true;
@@ -329,9 +210,9 @@ namespace pathfinder
       #ifdef PURE_CPP
       std::cout<<getCurrentRSS()<<std::endl;
       #endif
-      std::cout<<"Num nodes: "<<Node::count<<std::endl;
+      std::cout<<"Num nodes: "<<Node<Coord_t>::count<<std::endl;
       std::cout<<"Num root nodes: "<<rootNodes.size()<<std::endl;
-      for(const Node* ptr : rootNodes) delete ptr;
+      for(const Node<Coord_t>* ptr : rootNodes) delete ptr;
       std::cout<<"Deleted rootNodes!"<<std::endl;
       return true;
     }
@@ -349,8 +230,23 @@ namespace pathfinder
     int getNumStates(){
       return states.size();
     }
-    Step<Action_t> getStep(int stepNo);
-    State getState(int stepNo);
+    
+    Step<Action_t> getStep(int stepNo)
+    {
+      return Step(*steps[stepNo].get());
+    }
+
+    State<Coord_t> getState(int stepNo)
+    {
+      int stateNo = (stepNo + 1) / stateFreq;
+      std::cout<<"Getting state "<<stateNo<<" from wasm!\n";
+      if (stepNo < stateFreq){
+        std::cout<<0<<std::endl;
+        return State<Coord_t>{false};
+      }
+      State<Coord_t> s = *states[stateNo - 1].get();
+      return s;
+    }
   };
 }
 #endif
