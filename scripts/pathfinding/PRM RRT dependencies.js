@@ -640,7 +640,7 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
-  drawLine(start_XY, end_XY, destId = "networkGraph", id=false, colorIndex = 0, lineWidth = 0.05){
+  drawLine(start_XY, end_XY, destId = "networkGraph", id=false, colorIndex = 0, lineWidth = 1){
     if(myUI.planner.constructor.gridPrecision != "float" && myUI.vertex == false){
       // draw lines from centre of squares
       start_XY = start_XY.map(x => x + 0.5);
@@ -654,7 +654,7 @@ class SVGCanvas {
     var y1 = this.displayRatio*start_coord.x;
     var x2 = this.displayRatio*end_coord.y;
     var y2 = this.displayRatio * end_coord.x;
-    var strokeWidth = Math.max(lineWidth*this.displayRatio, 1)
+    var strokeWidth = Math.max(lineWidth/20*this.displayRatio, 1)
     var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
     var line_class = `SVGline_${destId}`;
     var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";

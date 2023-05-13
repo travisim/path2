@@ -50,9 +50,6 @@ namespace pathfinder
         double anyVal = fwd.anyVal;
         int endX = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX = fwd.endCoord.first;
         int endY = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY = fwd.endCoord.second;
-        uint8_t thickness; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) thickness = fwd.thickness;
-        std::string value; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) value = fwd.value;
-        std::string id; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) id = fwd.id;
         
         double defaultVal;
         if(dest == CanvasFCost || dest == CanvasGCost || dest == CanvasHCost){
@@ -233,19 +230,19 @@ namespace pathfinder
         }
         else if (command == DrawVertex)
         {
-          steps[stepCnt]->revActions.push_back(packAction(EraseVertex, dest, {x, y}));
-          sim.vertices[dest].insert({x, y});
+          steps[stepCnt]->revActions.push_back(packAction(EraseVertex, dest, {x, y}, colorIndex, -1, -1, 0, {}, anyVal));
+          sim.vertices[dest].insert({{x, y}, colorIndex, anyVal});
         }
         else if (command == EraseVertex)
         {
-          steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, {x, y}));
-          sim.vertices[dest].erase({x, y});
+          steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, {x, y}, colorIndex, -1, -1, 0, {}, anyVal));
+          sim.vertices[dest].erase({{x, y}, colorIndex, anyVal});
         }
         else if (command == EraseAllVertex)
         {
           for (auto &vert : sim.vertices[dest])
           {
-            steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, vert));
+            steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, vert.xy, vert.colorIndex, -1, -1, 0, {}, vert.radius));
           }
           sim.vertices[dest].clear();
         }
@@ -253,24 +250,24 @@ namespace pathfinder
         {
           for (auto &vert : sim.vertices[dest])
           {
-            steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, vert));
+            steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, vert.xy, vert.colorIndex, -1, -1, 0, {}, vert.radius));
           }
-          steps[stepCnt]->revActions.push_back(packAction(EraseVertex, dest, {x, y}));
+          steps[stepCnt]->revActions.push_back(packAction(EraseVertex, dest, {x, y}, colorIndex, -1, -1, 0, {}, anyVal));
           sim.vertices[dest].clear();
-          sim.vertices[dest].insert({x, y});
+          sim.vertices[dest].insert({{x, y}, colorIndex, anyVal});
         }
         else if (command == DrawEdge)
         {
           steps[stepCnt]->revActions.push_back(packAction(EraseEdge, dest, {x, y}, -1, -1, -1, -1, {}, -1, {endX, endY}));
-          sim.edges[dest].insert({x, y, endX, endY});
+          sim.edges[dest].insert({{x, y}, {endX, endY}, colorIndex, anyVal});
         }
         else if (command == EraseEdge)
         {
           steps[stepCnt]->revActions.push_back(packAction(DrawEdge, dest, {x, y}, -1, -1, -1, -1, {}, -1, {endX, endY}));
-          auto it = sim.edges[dest].find({x, y, endX, endY});
+          auto it = sim.edges[dest].find({{x, y}, {endX, endY}, colorIndex, anyVal});
           if (it != sim.edges[dest].end())
             sim.edges[dest].erase(it);
-          it = sim.edges[dest].find({endX, endY, x, y});
+          it = sim.edges[dest].find({{endX, endY}, {x, y}, colorIndex, anyVal});
           if (it != sim.edges[dest].end())
             sim.edges[dest].erase(it);
         }
@@ -278,7 +275,7 @@ namespace pathfinder
         {
           for (auto &e : sim.edges[dest])
           {
-            steps[stepCnt]->revActions.push_back(packAction(DrawEdge, dest, {e[0], e[1]}, -1, -1, -1, -1, {}, -1, {e[2], e[3]}));
+            steps[stepCnt]->revActions.push_back(packAction(DrawEdge, dest, e.startXY, e.colorIndex, -1, -1, -1, {}, e.lineWidth, e.endXY));
           }
           sim.edges[dest].clear();
         }

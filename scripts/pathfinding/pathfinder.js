@@ -289,6 +289,11 @@ class Pathfinder{
 
 	isPassable(coord){ return this.map.get_data(coord); }
 
+	initBatchInfo(){
+    this.batch_interval = 0;
+    this.batch_size = Math.max(Math.floor(this.map_height * this.map_width / 20), 10000);
+	}
+
 	_init_search(start, goal){
 		this.startTime = myUI.startTime;
     this.start = start; //in array form [x,y]  [0,0] is top left  [512,512] is bottom right
@@ -298,8 +303,7 @@ class Pathfinder{
     this.draw_arrows = this.map_height <= 65 && this.map_width <= 65;
 		this.current_node = undefined;
 		this.queue = [];
-    this.batch_interval = 0;
-    this.batch_size = Math.max(Math.floor(this.map_height * this.map_width / 20), 10000);
+		this.initBatchInfo();
 	}
 
 	_clear_steps(){
@@ -400,7 +404,7 @@ class Pathfinder{
 					this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
 
 				if(node.parent)
-					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: node.parent.self_XY, anyVal: 0.15});
+					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: node.parent.self_XY, anyVal: 3});
 				
 			}
 			else this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
@@ -421,8 +425,7 @@ class Pathfinder{
 	}
 
 	_terminate_search(){
-	
-		this._save_step(true);
+		if(this.step_index) this._save_step(true);
     if (this.path == null) console.log("path does not exist");
     return 0;
   }

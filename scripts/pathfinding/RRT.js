@@ -481,7 +481,7 @@ l        }
         }
         // console.log("after rewire p ",this.choosenCoordsNodes[formerParentOfNearbyNode_index].neighbours,this.choosenCoordsNodes[formerParentOfNearbyNode_index])
           this._create_action({command: STATIC.EraseEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[formerParentOfNearbyNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY });
-          this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colorIndex:1 });
+          this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: this.choosenCoordsNodes[currentNode_index].value_XY, endCoord: this.choosenCoordsNodes[nodeNearby_index].value_XY, colorIndex:1});
           this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 10});
           this._save_step(true);
         

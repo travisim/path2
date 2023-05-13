@@ -12,7 +12,7 @@ enum class BindType{
 };
 
 void bindAction(BindType myType){
-  using namespace emscripten;
+  
   if(myType == BindType::int_coord){
     emscripten::class_<pathfinder::Action<coordInt_t>>("ActionInt")
       .constructor<>()
@@ -62,7 +62,7 @@ void bindAction(BindType myType){
 }
 
 void bindStep(BindType myType){
-  using namespace emscripten;
+  
   if(myType == BindType::int_coord){
     emscripten::register_vector<pathfinder::Action<coordInt_t>>("vectorActionInt");
     emscripten::class_<pathfinder::Step<pathfinder::Action<coordInt_t>>>("StepInt")
@@ -100,46 +100,43 @@ void bindStep(BindType myType){
 }
 
 void bindState(BindType myType){
-  using namespace emscripten;
+  
   if(myType == BindType::int_coord){
     emscripten::class_<pathfinder::State<coordInt_t>>("State")
-    .constructor<>()
-    .property("valid", &pathfinder::State<coordInt_t>::valid)
-    .property("canvases", &pathfinder::State<coordInt_t>::canvases)
-    .property("infotables", &pathfinder::State<coordInt_t>::infotables)
-    .property("vertices", &pathfinder::State<coordInt_t>::vertices)
-    .property("edges", &pathfinder::State<coordInt_t>::edges)
-    .property("arrowColor", &pathfinder::State<coordInt_t>::arrowColor)
-    .property("pseudoCodeRowPri", &pathfinder::State<coordInt_t>::pseudoCodeRowPri)
-    .property("pseudoCodeRowSec", &pathfinder::State<coordInt_t>::pseudoCodeRowSec)
-    ;
+      .constructor<>()
+      .property("valid", &pathfinder::State<coordInt_t>::valid)
+      .property("canvases", &pathfinder::State<coordInt_t>::canvases)
+      .property("infotables", &pathfinder::State<coordInt_t>::infotables)
+      .property("vertices", &pathfinder::State<coordInt_t>::vertices)
+      .property("edges", &pathfinder::State<coordInt_t>::edges)
+      .property("arrowColor", &pathfinder::State<coordInt_t>::arrowColor)
+      .property("pseudoCodeRowPri", &pathfinder::State<coordInt_t>::pseudoCodeRowPri)
+      .property("pseudoCodeRowSec", &pathfinder::State<coordInt_t>::pseudoCodeRowSec)
+      ;
 
-    emscripten_extensions::register_unordered_map<int, std::vector<coordInt_t>>("verticesInt");
-    emscripten::register_vector<coordInt_t>("vectorCoordInt");
+    emscripten::class_<pathfinder::FreeVertex<coordInt_t>>("FreeVertexInt")
+      .constructor<>()
+      .property("xy", &pathfinder::FreeVertex<coordInt_t>::xy)
+      .property("colorIndex", &pathfinder::FreeVertex<coordInt_t>::colorIndex)
+      .property("radius", &pathfinder::FreeVertex<coordInt_t>::radius)
+      ;
 
-    emscripten_extensions::register_unordered_map<int, std::vector<lineInt_t>>("edgesInt");
-    emscripten::register_vector<lineInt_t>("vectorEdgeInt");
-    emscripten_extensions::register_array<int, 4>("lineInt_t");
+    emscripten_extensions::register_unordered_map<int, std::vector<pathfinder::FreeVertex<coordInt_t>>>("verticesInt");
+    emscripten::register_vector<pathfinder::FreeVertex<coordInt_t>>("vectorVertexInt");
+
+    emscripten::class_<pathfinder::FreeEdge<coordInt_t>>("FreeEdgeInt")
+      .constructor<>()
+      .property("startXY", &pathfinder::FreeEdge<coordInt_t>::startXY)
+      .property("endXY", &pathfinder::FreeEdge<coordInt_t>::endXY)
+      .property("colorIndex", &pathfinder::FreeEdge<coordInt_t>::colorIndex)
+      .property("lineWidth", &pathfinder::FreeEdge<coordInt_t>::lineWidth)
+      ;
+
+    emscripten_extensions::register_unordered_map<int, std::vector<pathfinder::FreeEdge<coordInt_t>>>("edgesInt");
+    emscripten::register_vector<pathfinder::FreeEdge<coordInt_t>>("vectorEdgeInt");
   }
   else if(myType == BindType::double_coord){
-    emscripten::class_<pathfinder::State<coordDouble_t>>("State")
-    .constructor<>()
-    .property("valid", &pathfinder::State<coordDouble_t>::valid)
-    .property("canvases", &pathfinder::State<coordDouble_t>::canvases)
-    .property("infotables", &pathfinder::State<coordDouble_t>::infotables)
-    .property("vertices", &pathfinder::State<coordDouble_t>::vertices)
-    .property("edges", &pathfinder::State<coordDouble_t>::edges)
-    .property("arrowColor", &pathfinder::State<coordDouble_t>::arrowColor)
-    .property("pseudoCodeRowPri", &pathfinder::State<coordDouble_t>::pseudoCodeRowPri)
-    .property("pseudoCodeRowSec", &pathfinder::State<coordDouble_t>::pseudoCodeRowSec)
-    ;
-
-    emscripten_extensions::register_unordered_map<int, std::vector<coordDouble_t>>("verticesDouble");
-    emscripten::register_vector<coordDouble_t>("vectorCoordDouble");
-
-    emscripten_extensions::register_unordered_map<int, std::vector<lineDouble_t>>("edgesDouble");
-    emscripten::register_vector<lineDouble_t>("vectorEdgeDouble");
-    emscripten_extensions::register_array<double, 4>("lineDouble_t");
+    // TO DO
   }
 
   /* STATE PROPERTIES BINDINGS */

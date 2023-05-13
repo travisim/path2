@@ -477,7 +477,7 @@ class PRM extends Pathfinder{
         this._create_action({command: STATIC.EraseAllRows, dest: this.dests.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
           const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
-          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [XY.toPrecision(5).join(", "), "?", "?", "?", "?"]})
+          this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: -(i+1), infoTableRowData: [XY.toPrecision(5).join(", "), "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1});
 

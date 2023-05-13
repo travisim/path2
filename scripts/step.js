@@ -660,7 +660,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         for(const [dest, edges] of Object.entries(mem.edges)){
           nextState.edges[dest] = [];
           for(const edge of edges)
-            nextState.edges[dest].push([edge[0], edge[1], edge[2], edge[3], edge[4]]);
+            nextState.edges[dest].push([edge[0], edge[1], edge[2], edge[3], edge[4], edge[5]]);
         }
 
         myUI.states.push(nextState);
@@ -790,13 +790,21 @@ myUI.jump_to_step = function(target_step){
     for(let [dest, vertexArray] of items){
       console.log(myUI.planner.destsToId[dest]);
       if(myUI.planner.constructor.wasm) vertexArray = [...vector_values(vertexArray)];
-      for(vert of vertexArray){
-        if(myUI.planner.constructor.wasm) vert = [vert.x, vert.y];
+      for(let vert of vertexArray){
+        if(myUI.planner.constructor.wasm){
+          // manual unpacking of c++ struct
+          vert = [
+            vert.xy.x,
+            vert.xy.y,
+            vert.colorIndex,
+            vert.radius
+          ];
+        }
         let coord = vert.slice(0, 2);
         console.log(coord);
         let colorIndex = vert[2];
-        let lineWidth = vert[3];
-        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, colorIndex, lineWidth);
+        let radius = vert[3];
+        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, colorIndex, radius);
       }
     }
 
@@ -806,9 +814,19 @@ myUI.jump_to_step = function(target_step){
     items.sort(orderCanvases);
     for(const [dest, edgeArray] of items){
       if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
-      for(line of edgeArray){
-        if(myUI.planner.constructor.wasm) line = [line.get(0), line.get(1), line.get(2), line.get(3)];
-        myUI.edgeCanvas.drawLine([line[0], line[1]], [line[2], line[3]], myUI.planner.destsToId[dest], false, line[4]);
+      for(let edge of edgeArray){
+        if(myUI.planner.constructor.wasm){
+          // manual unpacking of c++ struct
+          edge = [
+            edge.startXY.x,
+            edge.startXY.y,
+            edge.endXY.x,
+            edge.endXY.y,
+            edge.colorIndex,
+            edge.lineWidth,
+          ];
+        }
+        myUI.edgeCanvas.drawLine([edge[0], edge[1]], [edge[2], edge[3]], myUI.planner.destsToId[dest], false, edge[4], edge[5]);
       }
     }
     

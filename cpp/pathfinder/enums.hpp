@@ -156,7 +156,7 @@ namespace pathfinder
     // Command command;
     uint8_t command; // for binding
     // Dest dest;
-    uint8_t dest; // for binding
+    int8_t dest; // for binding
     Coord_t nodeCoord;
     double anyVal;
     BaseAction() {}
@@ -179,7 +179,7 @@ namespace pathfinder
     // Command command;
     uint8_t command; // for binding
     // Dest dest;
-    uint8_t dest; // for binding
+    int8_t dest; // for binding
     Coord_t nodeCoord;
     int8_t colorIndex;
     int arrowIndex;
@@ -188,15 +188,12 @@ namespace pathfinder
     std::vector<std::string> infoTableRowData;
     double anyVal;
     Coord_t endCoord;
-    uint8_t thickness;
-    std::string value;
-    std::string id;
     Action() {}
     Action(Command command, Dest dest, Coord_t nodeCoord, int colorIndex, int arrowIndex,
            int pseudoCodeRow, int infoTableRowIndex, std::vector<std::string> infoTableRowData,
-           double anyVal, Coord_t endCoord, int thickness, std::string& value, std::string& id)
+           double anyVal, Coord_t endCoord)
         : command(command), dest(dest), nodeCoord(nodeCoord), colorIndex(colorIndex), arrowIndex(arrowIndex), pseudoCodeRow(pseudoCodeRow), infoTableRowIndex(infoTableRowIndex),
-          infoTableRowData(infoTableRowData), anyVal(anyVal), endCoord(endCoord), thickness(thickness), value(value), id(id) {}
+          infoTableRowData(infoTableRowData), anyVal(anyVal), endCoord(endCoord) {}
     friend std::ostream &operator<<(std::ostream &os, const Action<Coord_t> &a){
       os<<"Command:         : "<<(Command)a.command<<std::endl;
       os<<"Dest:            : "<<(Dest)a.dest<<std::endl;
@@ -210,9 +207,6 @@ namespace pathfinder
       os<<"]\n";
       os<<"anyVal          : "<<a.anyVal<<std::endl;
       os<<"endCoord         : "<<a.endCoord.first<<' '<<a.endCoord.second<<std::endl;
-      os<<"Thickness        : "<<a.thickness<<std::endl;
-      os<<"ID               : "<<a.id<<std::endl;
-      os<<"Value            : "<<a.value<<std::endl;
       return os;
     }
   };
@@ -224,7 +218,7 @@ namespace pathfinder
     std::vector<Action_t> fwdActions = {};
     std::vector<Action_t> revActions = {};
     bool combined = false;
-    void addReverseAction(Action_t revAction){
+    void addReverseAction(Action_t& revAction){
       revActions.push_back(revAction);
     }
 
@@ -238,6 +232,51 @@ namespace pathfinder
       //   os<<a<<std::endl;
       // }
       return os;
+    }
+  };
+
+  template <typename Coord_t>
+  struct FreeVertex{
+    Coord_t xy;
+    int colorIndex;  // can ignore in hashing because it has a tiny range (<10)
+    double radius;
+  };
+  template <typename Coord_t>
+  inline bool operator==(const FreeVertex<Coord_t> &lhs, const FreeVertex<Coord_t> &rhs) {
+    return isEqualCoord<Coord_t>(lhs.xy, rhs.xy) && lhs.colorIndex == rhs.colorIndex && lhs.radius == rhs.radius;
+  }
+
+  auto doubleHash = CoordDoubleHash();
+
+  template <typename Coord_t>
+  struct VertexHash{
+    std::size_t operator()(const FreeVertex<Coord_t>& v) const {
+      auto radiusHash = std::hash<double>()(v.radius);
+      if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
+        return doubleHash(v.xy) ^ radiusHash;
+      return coord2uint32(v.xy) ^ radiusHash;
+    }
+  };
+
+  template <typename Coord_t>
+  struct FreeEdge{
+    Coord_t startXY;
+    Coord_t endXY;
+    int colorIndex;  // similar to FreeVertex, can ignore in hashing because it has a tiny range (<10)
+    double lineWidth;
+  };
+  template <typename Coord_t>
+  inline bool operator==(const FreeEdge<Coord_t> &lhs, const FreeEdge<Coord_t> &rhs) {
+    return isEqualCoord<Coord_t>(lhs.startXY, rhs.startXY) && isEqualCoord<Coord_t>(lhs.endXY, rhs.endXY) && lhs.colorIndex == rhs.colorIndex && lhs.lineWidth == rhs.lineWidth;
+  }
+
+  template <typename Coord_t>
+  struct EdgeHash{
+    std::size_t operator()(const FreeEdge<Coord_t>& e) const {
+      auto lineWidthHash = std::hash<double>()(e.lineWidth);
+      if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
+        return doubleHash(e.startXY) ^ doubleHash(e.endXY) ^ lineWidthHash;
+      return coord2uint32(e.startXY) ^ coord2uint32(e.endXY) ^ lineWidthHash;
     }
   };
 
@@ -257,8 +296,8 @@ namespace pathfinder
 
     std::unordered_map<int, rowf_t> canvases;
     std::unordered_map<int, InfoTableState> infotables;
-    std::unordered_map<int, std::vector<Coord_t>> vertices;
-    std::unordered_map<int, std::vector<lineInt_t>> edges;
+    std::unordered_map<int, std::vector<FreeVertex<Coord_t>>> vertices;
+    std::unordered_map<int, std::vector<FreeEdge<Coord_t>>> edges;
 
     std::unordered_map<int, uint8_t> arrowColor;
     int pseudoCodeRowPri;
@@ -278,11 +317,11 @@ namespace pathfinder
     std::unordered_map<int, bound_t> bounds;
 
     std::unordered_map<Dest,
-                       std::unordered_set<Coord_t, CoordIntHash>
+                       std::unordered_set<FreeVertex<Coord_t>, VertexHash<Coord_t>>
                        > vertices;
 
     std::unordered_map<Dest,
-                       std::unordered_set<lineInt_t, LineIntHash>
+                       std::unordered_set<FreeEdge<Coord_t>, EdgeHash<Coord_t>>
                        > edges;
     int pseudoCodeRowPri = -1;
     int pseudoCodeRowSec = -1;
