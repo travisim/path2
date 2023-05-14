@@ -11,10 +11,8 @@
 
 #include "pathfinder.hpp"
 #include "step.hpp"
-#include "conversion.hpp"
 
 #include "node.hpp"
-#include "rbt.hpp"
 
 #ifndef GRID_PATHFINDER_HPP
 #define GRID_PATHFINDER_HPP
@@ -36,6 +34,7 @@ namespace pathfinder{
     using Pathfinder<Action_t>::stepIndex;
     using Pathfinder<Action_t>::currentNodeXY;
     using Pathfinder<Action_t>::currentNode;
+    using Pathfinder<Action_t>::vertexEnabled;
 
     // methods
     using Pathfinder<Action_t>::isPassable;
@@ -46,7 +45,6 @@ namespace pathfinder{
     std::vector<std::vector<int>> delta;
 
     neighbors_t neighborsIndex;
-    bool vertexEnabled;
 
     std::vector<std::vector<int>> cellMap;
 

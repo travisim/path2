@@ -160,26 +160,15 @@ class PRM extends Pathfinder{
 
   generateNewMap(start = [0,0], goal=[13,13]){
      //[0,0],[13,13],this.seed,this.samplesSize, this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance
-   
-    this.exports = {coords:[],neighbours:[],edges:[]};
-   
-    //clears SVG canvas
-    myUI.nodeCanvas.reset()
-    myUI.edgeCanvas.reset()
 
-    this.exports.config = {seed:this.seed, sample_size: this.sampleSize, neighbor_selection_method: this.neighbourSelectionMethod, num_closest: this.numberOfTopClosestNeighbours, round_nodes: this.roundNodes};
+    function isCoordEqual(a, b){ return a.every((x, i) => x === b[i]); }
+
     var seed = cyrb128(this.seed);
     var rand = mulberry32(seed[0]);
-    this.randomCoordsNodes = []
+    this.mapNodes = [];
 
-    this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "Number Of Nodes" });
-    this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "0" });
-    this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance",value:"∞"});
     this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: start });
     this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 4 });
-  
-
     
     nextCoord: for (let i = 0; i < this.sampleSize; ++i) {
       
@@ -188,41 +177,30 @@ class PRM extends Pathfinder{
      // if (this.roundNodes) randomCoord_XY = randomCoord_XY.map(Math.round);
   
       if (CustomLOSChecker(randomCoord_XY, randomCoord_XY).boolean == false) {
-        continue
+        continue nextCoord;
       }
+
+      let foundIndex = this.mapNodes.findIndex(mapNode => isCoordEqual(mapNode.value_XY, randomCoord_XY));
+      if(foundIndex != -1) continue nextCoord; //dont add random coord that is already added into list of random coord
       
-      if (this.randomCoordsNodes.length != 0) {
-        for (let j = 0; j < this.randomCoordsNodes.length; ++j) {
-          if (this.randomCoordsNodes[j].value_XY[0] == randomCoord_XY[0] && this.randomCoordsNodes[j].value_XY[1] == randomCoord_XY[1]) {//dont add random coord that is already added into list of random coord
-            --i;
-            continue nextCoord;
-          }
-        }
-      }
-      this.exports.coords.push(randomCoord_XY);
-      
-      this.randomCoordsNodes.push(new MapNode(null, randomCoord_XY, []));
-      //this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: randomCoord_XY });
+      this.mapNodes.push(new MapNode(null, randomCoord_XY, []));
       this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: randomCoord_XY });
     }
     this._save_step(true);
     
-    //var otherRandomCoordsDistance = empty2D(randomCoordsNodes.length,randomCoordsNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
+    //var otherRandomCoordsDistance = empty2D(mapNodes.length,mapNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
     
-    var edgeAccumalator = [];
-    for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
-      let currentCoord = [...this.randomCoordsNodes[i].value_XY];
-      var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCorrdNodes, 
-      let otherRandomCoords = deep_copy_matrix(nodes_to_array(this.randomCoordsNodes,"value_XY")); // randomCoord passed by reference here
+    for (let i = 0; i < this.mapNodes.length; ++i) {
+      let currentCoord = [...this.mapNodes[i].value_XY];
+      var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of mapNodes, 
+      let otherRandomCoords = deep_copy_matrix(nodes_to_array(this.mapNodes,"value_XY")); // randomCoord passed by reference here
       
       for (let j = 0; j < otherRandomCoords.length; ++j) {
         if(i == j) continue;
-        //distancesBetweenACoordAndAllOthers.push( Math.sqrt((this.randomCoordsNodes[i].value_XY[0] - otherRandomCoords[j][0])**2 + (this.randomCoordsNodes[i].value_XY[1]  - otherRandomCoords[j][1])**2)); // could store as before sqrt form
-        // Math.sqrt -> Math.hypot
-        distancesBetweenACoordAndAllOthers.push( [Math.hypot(currentCoord[0] - otherRandomCoords[j][0], currentCoord[1]  - otherRandomCoords[j][1]), j]); // could store as before sqrt form
+        distancesBetweenACoordAndAllOthers.push( [Math.hypot(currentCoord[0] - otherRandomCoords[j][0], currentCoord[1]  - otherRandomCoords[j][1]), j]);
       }
       distancesBetweenACoordAndAllOthers.sort((a,b)=>{
-        return a[0] - b[0]; // sort by distance
+        return a[0] - b[0]; // sort by distance ascending
       });
 
 
@@ -253,47 +231,26 @@ class PRM extends Pathfinder{
         
         if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
           ++cnt;
-          // bidirectional
-          if(!this.randomCoordsNodes[i].neighbours.includes(jdx)) this.randomCoordsNodes[i].neighbours.push(jdx);
-          if(!this.randomCoordsNodes[jdx].neighbours.includes(i)) this.randomCoordsNodes[jdx].neighbours.push(i);
-          var temp = [currentCoord, otherRandomCoords[jdx]];
-          //next few lines prevents the addition of edges that were already added but with a origin from another node
-          var tempSwapped = [otherRandomCoords[jdx], currentCoord];
-          
-          for (let k = 0; k < edgeAccumalator.length; ++k){
-            if (isArraysEqual(edgeAccumalator[k].flat(),tempSwapped.flat())){
-              continue coordLoop;
-            } 
+          // every time we add an edge, it is bidirectional, so checking of of the neighbours is sufficient
+          if(!this.mapNodes[i].neighbours.includes(jdx)){
+            this.mapNodes[i].neighbours.push(jdx);
+            this.mapNodes[jdx].neighbours.push(i);
+            this._create_action({ command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: this.mapNodes[i].value_XY, endCoord: this.mapNodes[jdx].value_XY });
           }
-          edgeAccumalator.push(temp)//from,to
-          
         } 
         if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours" && cnt >= this.numberOfTopClosestNeighbours) break coordLoop;
       }
     }
-  
     
     this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 9 });
   
-    for (let i = 0; i < edgeAccumalator.length; ++i) {
-      this._create_action({ command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: edgeAccumalator[i][0], endCoord: edgeAccumalator[i][1] });
-    }
     this._save_step(true);
-
-    for(let i = 0; i < this.randomCoordsNodes.length; ++i){
-      this.exports.coords.push(this.randomCoordsNodes[i].value_XY);
-      this.exports.neighbours.push(this.randomCoordsNodes[i].neighbours);
-    }
-    for(let i = 0; i < edgeAccumalator.length; ++i){
-      this.exports.edges.push([edgeAccumalator[i][0],edgeAccumalator[i][1]]);
-    }
     
     this.addStartGoalNode("goal",goal);
     this.addStartGoalNode("start", start);
         
     this._create_action({ command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 10 });
      this._save_step(true);
-    //download("PRM Map.json", JSON.stringify(this.exports));
   }
 
 
@@ -312,41 +269,29 @@ class PRM extends Pathfinder{
       var prevCoord;
     }
 
-
      if(prevCoord){
       myUI.edgeCanvas.eraseLine(prevCoord, prevCoordConnectedto);
       myUI.nodeCanvas.eraseCircle(prevCoord);
     } 
-   
-
 
     if (isStartOrGoal == "start" && this.prevStartCoord){
       this.prevStartCoord = coord_XY;
-  
     }
     else if (isStartOrGoal == "goal" && this.prevGoalCoord){
       this.prevGoalCoord = coord_XY;
-     
     }
 
-    
-    //myUI.nodeCanvas.drawCircle(coord_XY);
-
-
-
-    var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of randomCoordNodes, 
+    var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of mapNodes, 
  
-    for (let i = 0; i < this.randomCoordsNodes.length; ++i) {
-        distancesBetweenACoordAndAllOthers.push( [Math.hypot(coord_XY[0] - this.randomCoordsNodes[i].value_XY[0], coord_XY[1]  - this.randomCoordsNodes[i].value_XY[1]), i]); // could store as before sqrt form
-    }
+    for (let i = 0; i < this.mapNodes.length; ++i)
+        distancesBetweenACoordAndAllOthers.push( [Math.hypot(coord_XY[0] - this.mapNodes[i].value_XY[0], coord_XY[1]  - this.mapNodes[i].value_XY[1]), i]);
     
     distancesBetweenACoordAndAllOthers.sort((a,b)=>{
       return a[0] - b[0]; // sort by first index/sort by distances shortest at start
     });
 
 
-    let indexOfSelectedRandomCoords;
-    indexOfSelectedRandomCoords = distancesBetweenACoordAndAllOthers // same as code for   if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours"")
+    let indexOfSelectedRandomCoords = distancesBetweenACoordAndAllOthers // same as code for   if(this.neighbourSelectionMethod == "Top Closest Visible Neighbours"")
       .map(p => p[1]);
   
     var selectedVertexIndex;
@@ -354,46 +299,31 @@ class PRM extends Pathfinder{
     coordLoop: for (let j = 0; j < indexOfSelectedRandomCoords.length; ++j) {
       let jdx = indexOfSelectedRandomCoords[j];
       if(i == jdx) continue; 
-      //var LOS = BresenhamLOSChecker(this.randomCoordsNodes[i].value_XY, otherRandomCoords[jdx]);
 
       //below currently takes the first vertex that passes LOS
-      var LOS = CustomLOSChecker(coord_XY, this.randomCoordsNodes[jdx].value_XY).boolean;
+      var LOS = CustomLOSChecker(coord_XY, this.mapNodes[jdx].value_XY).boolean;
       if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
         ++cnt;
-        // bidirectional
-      
         selectedVertexIndex = jdx
-
-          //var selectedParent_Index = this.determineParentWithLowestCost(nodesNearby_Index,nextCoordToAdd_XY,nearestNode_Index,this.choosenCoordsNodes);
-
-
-        
       } 
       if(cnt >= 1) break coordLoop; // hardcoded to take the closest node not least cost
     }
-    const selected_XY = this.randomCoordsNodes[selectedVertexIndex].value_XY;
-    var selectedIndexForStartEndVertex = this.randomCoordsNodes.length // determined before push to array below
+    const selected_XY = this.mapNodes[selectedVertexIndex].value_XY;
+    var selectedIndexForStartEndVertex = this.mapNodes.length // determined before push to array below
 
-    this.exports.coords.push(coord_XY);
-    this.exports.neighbours.push(new Array());
-    this.randomCoordsNodes.push(new MapNode(null,coord_XY,new Array()));
-    this.exports.edges.push([coord_XY,selected_XY]);
-    //myUI.edgeCanvas.drawLine(coord_XY,selected_XY);
+    this.mapNodes.push(new MapNode(null,coord_XY,new Array()));
 
     this._create_action({ command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: coord_XY, endCoord: selected_XY });
     this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: coord_XY });
-    
    
-    if(!this.randomCoordsNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.randomCoordsNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
-    if(!this.exports.neighbours[selectedVertexIndex].includes(selectedIndexForStartEndVertex)) this.exports.neighbours[selectedVertexIndex].push(selectedIndexForStartEndVertex);
-    if(!this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.randomCoordsNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
-    if(!this.exports.neighbours[selectedIndexForStartEndVertex].includes(selectedVertexIndex)) this.exports.neighbours[selectedIndexForStartEndVertex].push(selectedVertexIndex);
+    if(!this.mapNodes[selectedVertexIndex].neighbours.includes(selectedIndexForStartEndVertex)) this.mapNodes[selectedVertexIndex].neighbours.push(selectedIndexForStartEndVertex);
+    if(!this.mapNodes[selectedIndexForStartEndVertex].neighbours.includes(selectedVertexIndex)) this.mapNodes[selectedIndexForStartEndVertex].neighbours.push(selectedVertexIndex);
 
     if (isStartOrGoal == "start"){
-      console.log("Start:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);
+      console.log("Start:", this.mapNodes[selectedIndexForStartEndVertex]);
     }
     else{
-      console.log("Goal:", this.randomCoordsNodes[selectedIndexForStartEndVertex]);
+      console.log("Goal:", this.mapNodes[selectedIndexForStartEndVertex]);
     }
 
     if (isStartOrGoal == "start" && this.prevStartCoord){
@@ -414,7 +344,7 @@ class PRM extends Pathfinder{
     console.log("starting");
    
     // starting node
-    var nextNode = this.randomCoordsNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // PRM Node
+    var nextNode = this.mapNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // PRM Node
     this.current_node =  new Node(0, 0, 0, null, nextNode.value_XY, null, nextNode.neighbours); // Regular Node
     
     // assigns the F, G, H cost to the node
@@ -476,7 +406,7 @@ class PRM extends Pathfinder{
       if(!this.bigMap){
         this._create_action({command: STATIC.EraseAllRows, dest: this.dests.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
-          const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
+          const XY = this.mapNodes[this.current_node.neighbours[i]].value_XY;
           this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: -(i+1), infoTableRowData: [XY.toPrecision(5).join(", "), "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1});
@@ -507,14 +437,14 @@ class PRM extends Pathfinder{
       /* iterates through the neighbors and adds them to the queue & neighbour array */
        for (let i = 0; i < this.current_node.neighbours.length; ++i){
         const idx = this.current_node.neighbours[i];
-        var next_XY = this.randomCoordsNodes[idx].value_XY; // calculate the coordinates for the new neighbour
+        var next_XY = this.mapNodes[idx].value_XY; // calculate the coordinates for the new neighbour
 
         let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
         
         this._create_action({command: STATIC.EraseAllEdge, dest: this.dests.focused});
         this._create_action({command: STATIC.DrawEdge, dest: this.dests.focused, nodeCoord: next_XY, endCoord: this.current_node_XY});
         
-        let next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, null, this.randomCoordsNodes[idx].neighbours);
+        let next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, null, this.mapNodes[idx].neighbours);
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){

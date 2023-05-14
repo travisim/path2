@@ -471,6 +471,7 @@ class UICanvas{
         while(start < arrayData.length){
           let curr = arrayData[start];
           if(isNaN(prev)){
+            console.log(idx);
             idx = curr;
           }
           else if(!isNaN(curr)){

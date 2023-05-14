@@ -361,17 +361,17 @@ myUI.parseNodeMap = function(contents){
   if(document.getElementById("edge")){
     document.getElementById("edge").innerHTML = "";
   }
-  myUI.planner.randomCoordsNodes = [];
+  myUI.planner.mapNodes = [];
   for(const coord of data.coords){
-    myUI.planner.randomCoordsNodes.push(new MapNode(null, coord, []));
+    myUI.planner.mapNodes.push(new MapNode(null, coord, []));
   }
 
-  myUI.planner.randomCoordsNodes.forEach(node=>{
+  myUI.planner.mapNodes.forEach(node=>{
     myUI.nodeCanvas.drawCircle(node.value_XY);
   });
 
-  for(let i = 0; i < myUI.planner.randomCoordsNodes.length; ++i){
-    myUI.planner.randomCoordsNodes[i].neighbours.push(...data.neighbors[i]);
+  for(let i = 0; i < myUI.planner.mapNodes.length; ++i){
+    myUI.planner.mapNodes[i].neighbours.push(...data.neighbors[i]);
   }
 
   for (let i = 0; i < data.edges.length; ++i) {

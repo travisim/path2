@@ -97,7 +97,7 @@ myUI.run_steps = function(num_steps, step_direction){
         let endX = action.endCoord === undefined || action.endCoord.x == -1 ? undefined : action.endCoord.x;
         let endY = action.endCoord === undefined || action.endCoord.y == -1 ? undefined : action.endCoord.y;
 
-        let debug = true;
+        let debug = false;
         if(debug){
           console.log(`
           Command          : ${STATIC_COMMANDS[command]}

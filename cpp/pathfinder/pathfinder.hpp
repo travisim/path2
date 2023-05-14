@@ -30,6 +30,7 @@ namespace pathfinder
     using Coord_t = typename Action_t::CoordType;
 
     bool drawArrows;
+    bool vertexEnabled = false;  // used in step generation to determine canvas size
     bool diagonalAllow;
     bool bigMap;
     int bitOffset;
@@ -65,6 +66,20 @@ namespace pathfinder
     std::vector<std::unique_ptr<State<Coord_t>>> states;
 
     // END OF STATE GENERATION
+
+    // distance metrics defined here because they are universal
+    static double manhattan(int x1, int y1, int x2, int y2) { return abs(x1 - x2) + abs(y1 - y2); }
+
+    static double euclidean(int x1, int y1, int x2, int y2) { return hypot(x1 - x2, y1 - y2); }
+
+    static double chebyshev(int x1, int y1, int x2, int y2) { return std::max(abs(x1 - x2), abs(y1 - y2)); }
+
+    static double octile(int x1, int y1, int x2, int y2)
+    {
+      int dx = abs(x1 - x2);
+      int dy = abs(y1 - y2);
+      return std::min(dx, dy) * M_SQRT2 + abs(dx - dy);
+    }
 
     Action_t packAction(const Command &command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
@@ -129,6 +144,7 @@ namespace pathfinder
 
     void createAction(Command command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
+      
       fwdActionCnt++;
       Action_t myAction = packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, anyVal, endCoord);
       // STEP STRUCT METHOD

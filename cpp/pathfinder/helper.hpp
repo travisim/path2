@@ -17,7 +17,7 @@ using coordDouble_t = std::pair<double, double>;
 using lineInt_t = std::array<int, 4>;
 using lineDouble_t = std::array<double, 4>;
 
-using row_t = std::vector<int8_t>;
+using row_t = std::vector<uint8_t>;
 using grid_t = std::vector<row_t>;
 using rowf_t = std::vector<double>;
 using gridf_t = std::vector<rowf_t>;
@@ -124,10 +124,6 @@ grid_t makeGrid(int height, int width, int defVal = 0){
 
 gridf_t makeGridf(int height, int width, double defVal = 0){
   return gridf_t(height, rowf_t(width, defVal));
-}
-
-rowf_t makeFlatGridf(int height, int width, double defVal = 0){
-  return rowf_t(height * width, defVal);
 }
 
 uint32_t coord2uint32(coordInt_t c){ return ((uint32_t)(c.first) << 16) | (uint32_t)(c.second); }

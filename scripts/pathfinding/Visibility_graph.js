@@ -336,10 +336,10 @@ class VisibilityGraph extends Pathfinder{
       return null;
     }
 
-    this.randomCoordsNodes = [];
-    this.randomCoordsNodes.push(new MapNode(null, start, []));
+    this.mapNodes = [];
+    this.mapNodes.push(new MapNode(null, start, []));
     if(this.showNetworkGraph) this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: start});
-    this.randomCoordsNodes.push(new MapNode(null, goal, []));
+    this.mapNodes.push(new MapNode(null, goal, []));
     if(this.showNetworkGraph) this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: goal});
     let kernelSize = 2;
 
@@ -348,7 +348,7 @@ class VisibilityGraph extends Pathfinder{
         let coords = cornerCoords(this.map, kernelSize, i, j, this.vertexEnabled);
         if(coords == null) continue;
         for(const coord of coords){
-          this.randomCoordsNodes.push(new MapNode(null, coord, []));
+          this.mapNodes.push(new MapNode(null, coord, []));
           if(this.showNetworkGraph) this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: coord});
         }
       }
@@ -357,14 +357,14 @@ class VisibilityGraph extends Pathfinder{
 
     // iterate through coordinates & check for visbiliity between them
 
-    for(let i = 0; i < this.randomCoordsNodes.length; ++i){
+    for(let i = 0; i < this.mapNodes.length; ++i){
       for(let j = 0; j < i; ++j){
-        let n1 = this.randomCoordsNodes[i], n2 = this.randomCoordsNodes[j];
+        let n1 = this.mapNodes[i], n2 = this.mapNodes[j];
         let OFFSET = this.vertexEnabled ? 0 : 0.5;
         if(CustomLOSChecker(n1.value_XY.map(x=>x+OFFSET), n2.value_XY.map(x=>x+OFFSET)).boolean){
           if(this.showNetworkGraph) this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: n1.value_XY, endCoord: n2.value_XY});
-          this.randomCoordsNodes[i].neighbours.push(j);
-          this.randomCoordsNodes[j].neighbours.push(i);
+          this.mapNodes[i].neighbours.push(j);
+          this.mapNodes[j].neighbours.push(i);
         }
       }
     }
@@ -382,7 +382,7 @@ class VisibilityGraph extends Pathfinder{
     console.log("starting");
    
     // starting node
-    var nextNode = this.randomCoordsNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // PRM Node
+    var nextNode = this.mapNodes.filter(node => node.value_XY[0] == start[0] && node.value_XY[1] == start[1])[0]; // PRM Node
     this.current_node =  new Node(0, 0, 0, null, nextNode.value_XY, null, nextNode.neighbours); // Regular Node
     
     // assigns the F, G, H cost to the node
@@ -444,7 +444,7 @@ class VisibilityGraph extends Pathfinder{
       if(!this.bigMap){
         this._create_action({command: STATIC.EraseAllRows, dest: this.dests.ITNeighbors});
         for (let i = 0; i < this.current_node.neighbours.length; ++i){
-          const XY = this.randomCoordsNodes[this.current_node.neighbours[i]].value_XY;
+          const XY = this.mapNodes[this.current_node.neighbours[i]].value_XY;
           this._create_action({command: STATIC.InsertRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: -(i+1), infoTableRowData: [XY.toPrecision(5).join(", "), "?", "?", "?", "?"]})
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1});
@@ -475,7 +475,7 @@ class VisibilityGraph extends Pathfinder{
       /* iterates through the neighbors and adds them to the queue & neighbour array */
        for (let i = 0; i < this.current_node.neighbours.length; ++i){
         const idx = this.current_node.neighbours[i];
-        var next_XY = this.randomCoordsNodes[idx].value_XY; // calculate the coordinates for the new neighbour
+        var next_XY = this.mapNodes[idx].value_XY; // calculate the coordinates for the new neighbour
 
         let [f_cost, g_cost, h_cost] = this.calc_cost(next_XY);
         
@@ -485,7 +485,7 @@ class VisibilityGraph extends Pathfinder{
           this._create_action({command: STATIC.DrawEdge, dest: this.dests.focused, nodeCoord: next_XY, endCoord: this.current_node_XY});
         }
         
-        let next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, null, this.randomCoordsNodes[idx].neighbours);
+        let next_node = new Node(f_cost, g_cost, h_cost, this.current_node, next_XY, null, this.mapNodes[idx].neighbours);
         let open_node = this.open_list.get(next_XY);
         if(open_node !== undefined && open_node.f_cost<=f_cost){
           if(!this.bigMap){

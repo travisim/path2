@@ -17,40 +17,12 @@
 #include "conversion.hpp"
 
 #include "node.hpp"
-#include "rbt.hpp"
+#include "rbt_pq.hpp"
 
 #ifndef ASTAR_HPP
 #define ASTAR_HPP
 
 namespace pathfinder{
-
-template <typename Coord_t>
-class PriorityQueue
-{
-public:
-  PriorityQueue(timeOrder order = FIFO, bool hOptimized = false) : data(hOptimized, order) {}
-  bool empty() { return data.empty(); }
-  int push(Node<Coord_t>* n)
-  {
-    data.insert(n);
-    return data.osRank(data.find(n)); // 1-indexed
-  }
-  void pop()
-  {
-    data.erase(data.minimumVal());
-  }
-  Node<Coord_t>* top()
-  {
-    return data.minimumVal();
-  }
-  int size(){
-    return data.size();
-  }
-  void clear() { data.clear(); }
-
-private:
-  RedBlackTree<Coord_t> data;
-};
 
 template <typename Action_t>
 class A_star : public GridPathfinder<Action_t>
@@ -85,6 +57,11 @@ protected:
   using GridPathfinder<Action_t>::foundGoal;
   using GridPathfinder<Action_t>::nodeIsNeighbor;
 
+  using GridPathfinder<Action_t>::manhattan;
+  using GridPathfinder<Action_t>::euclidean;
+  using GridPathfinder<Action_t>::chebyshev;
+  using GridPathfinder<Action_t>::octile;
+
   // required in Theta*
   using GridPathfinder<Action_t>::grid;
   using GridPathfinder<Action_t>::vertexEnabled;
@@ -95,18 +72,6 @@ protected:
   timeOrder order;
   int gCoeff;
   int hCoeff;
-  double manhattan(int x1, int y1, int x2, int y2) { return abs(x1 - x2) + abs(y1 - y2); }
-
-  double euclidean(int x1, int y1, int x2, int y2) { return hypot(x1 - x2, y1 - y2); }
-
-  double chebyshev(int x1, int y1, int x2, int y2) { return std::max(abs(x1 - x2), abs(y1 - y2)); }
-
-  double octile(int x1, int y1, int x2, int y2)
-  {
-    int dx = abs(x1 - x2);
-    int dy = abs(y1 - y2);
-    return std::min(dx, dy) * M_SQRT2 + abs(dx - dy);
-  }
 
   virtual std::array<double, 3> calcCost(Coord_t nextXY)
   {

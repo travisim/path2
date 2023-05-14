@@ -25,6 +25,8 @@ namespace pathfinder
   {
     if (givenBatchSize == -1)
       givenBatchSize = batchSize; // use fwd step generation size
+    const int CANVAS_WIDTH = (vertexEnabled ? gridWidth + 1 : gridWidth);
+    const int CANVAS_DATA_SIZE = (vertexEnabled ? gridHeight + 1 : gridHeight) * CANVAS_WIDTH;
     while (givenBatchSize--)
     {
       if (stepCnt >= steps.size()){
@@ -58,10 +60,10 @@ namespace pathfinder
         else{
           defaultVal = 0;
         }
-        int xy = x * gridWidth + y;
+        int xy = x * CANVAS_WIDTH + y;
 
         if (anyVal != -1)
-        { // && myUI.canvases[myUI.planner.destsToId[dest]].valType=="float"
+        {
           if (sim.bounds.find(dest) == sim.bounds.end())
           {
             sim.bounds[dest] = {std::numeric_limits<double>::max(), std::numeric_limits<double>::min()};
@@ -76,7 +78,7 @@ namespace pathfinder
         if (!coordIsEqual({x, y}, {-1, -1}) || command == EraseCanvas)
         {
           if (sim.activeCanvas.find(dest) == sim.activeCanvas.end())
-            sim.activeCanvas[dest] = makeFlatGridf(gridHeight, gridWidth, defaultVal);
+            sim.activeCanvas[dest] = rowf_t(CANVAS_DATA_SIZE, defaultVal);
         }
         // adds table to activeTable if not exists
         else if (infoTableRowIndex != -1)
@@ -104,7 +106,7 @@ namespace pathfinder
           // update the canvas with the updated coordinate
           sim.singlePixelCanvas[dest] = {x, y};
 // erase canvas and draw the pixel
-          sim.activeCanvas[dest] = makeFlatGridf(gridHeight, gridWidth, defaultVal);
+          sim.activeCanvas[dest] = rowf_t(CANVAS_DATA_SIZE, defaultVal);
           sim.activeCanvas[dest][xy] = anyVal;
         }
         else if (command == SetPixel)
@@ -138,7 +140,7 @@ namespace pathfinder
             int y = i - (x * gridWidth);
             steps[stepCnt]->revActions.push_back(packAction(SetPixel, dest, {x, y}, -1, -1, -1, -1, {}, sim.activeCanvas[dest][i]));
           }
-          sim.activeCanvas[dest] = makeFlatGridf(gridHeight, gridWidth, defaultVal);
+          sim.activeCanvas[dest] = rowf_t(CANVAS_DATA_SIZE, defaultVal);
         }
         else if (command == IncrementPixel)
         {
@@ -304,6 +306,7 @@ namespace pathfinder
         // canvas
         for (const auto &p : sim.activeCanvas)
         {
+          std::cout << "P: " << p.second.size() << std::endl;
           #ifdef CANVAS_COMPRESSED
             const double NotANumber = std::nan("0");
             double defaultVal;
