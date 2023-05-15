@@ -108,7 +108,7 @@ myUI.run_steps = function(num_steps, step_direction){
           pseudoCodeRow    : ${pseudoCodeRow}
           infoTableRowIndex: ${infoTableRowIndex}
           infoTableRowData : ${infoTableRowData}
-          anyVal          : ${anyVal}
+          anyVal           : ${anyVal}
           endCoord         : ${endX + ", " + endY}
           `);
         }
@@ -220,7 +220,6 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   }
   else if(command == STATIC.EraseEdge){
     myUI.edgeCanvas.eraseLine([x,y], [endX,endY], destId);
-    console.log("removing EDGE");
   }
   else if(command == STATIC.EraseAllEdge){
     myUI.edgeCanvas.eraseAllLines(destId);
@@ -259,7 +258,7 @@ myUI.run_combined_step = function(step_direction){
 }
 
 myUI.generateReverseSteps = function({genStates=false}={}){
-  const batchSize = Math.min(50000, myUI.planner.max_step() * 0.2), batchInterval = 0;
+  const batchSize = Math.min(50000, Math.max(myUI.planner.max_step() * 0.2, 20)), batchInterval = 0;
   const stateFreq = myUI.stateFreq;
 
   const startTime = myUI.startTime;
@@ -290,7 +289,6 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           setTimeout(() => resolve(nextGenSteps(batchSize)), batchInterval);
         });
         console.log("finished generating wasm steps!");
-        //let bounds_cpp = Module["getBounds"]();
         let bounds_cpp = myUI.planner.wasmPlanner.getBounds();
         let bounds = map_to_obj(bounds_cpp);
         for(let k of Object.keys(bounds)) bounds[k] = [bounds[k].min, bounds[k].max];
@@ -298,7 +296,6 @@ myUI.generateReverseSteps = function({genStates=false}={}){
       }
       catch(e){
         let t = Date.now() - myUI.genStart;
-        //let n = Module["getNumStates"]();
         let n = myUI.planner.wasmPlanner.getNumStates();
         console.log(e);
         console.log(t);
@@ -796,15 +793,12 @@ myUI.jump_to_step = function(target_step){
           vert = [
             vert.xy.x,
             vert.xy.y,
-            vert.colorIndex,
-            vert.radius
+            vert.colorIndex == -1 ? undefined : vert.colorIndex,
+            vert.radius == -1 ? undefined : vert.radius
           ];
         }
         let coord = vert.slice(0, 2);
-        console.log(coord);
-        let colorIndex = vert[2];
-        let radius = vert[3];
-        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, colorIndex, radius);
+        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, vert[2], vert[3]);
       }
     }
 
@@ -812,18 +806,19 @@ myUI.jump_to_step = function(target_step){
     var edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges;
     var items = Object.entries(edges);
     items.sort(orderCanvases);
-    for(const [dest, edgeArray] of items){
+    for(let [dest, edgeArray] of items){
       if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
       for(let edge of edgeArray){
         if(myUI.planner.constructor.wasm){
+          myUI.edge = edge;
           // manual unpacking of c++ struct
           edge = [
             edge.startXY.x,
             edge.startXY.y,
             edge.endXY.x,
             edge.endXY.y,
-            edge.colorIndex,
-            edge.lineWidth,
+            edge.colorIndex == -1 ? undefined : edge.colorIndex,
+            edge.lineWidth == -1 ? undefined : edge.lineWidth,
           ];
         }
         myUI.edgeCanvas.drawLine([edge[0], edge[1]], [edge[2], edge[3]], myUI.planner.destsToId[dest], false, edge[4], edge[5]);

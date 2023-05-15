@@ -27,6 +27,7 @@ namespace pathfinder
       givenBatchSize = batchSize; // use fwd step generation size
     const int CANVAS_WIDTH = (vertexEnabled ? gridWidth + 1 : gridWidth);
     const int CANVAS_DATA_SIZE = (vertexEnabled ? gridHeight + 1 : gridHeight) * CANVAS_WIDTH;
+    // std::cout << "NEXT GEN STEPS\n";
     while (givenBatchSize--)
     {
       if (stepCnt >= steps.size()){
@@ -35,8 +36,6 @@ namespace pathfinder
         std::cout<<"Number of states: "<<states.size()<<std::endl;
         return true;
       }
-      // for(int i = 0; i < steps[stepCnt]->fwdActions.size(); ++i){
-      // Action fwd = *steps[stepCnt]->fwdActions[i].get();// get the underlying pointer and deference it
       for (auto &fwd : steps[stepCnt]->fwdActions)
       {
         // unpack all the properties
@@ -50,11 +49,16 @@ namespace pathfinder
         int infoTableRowIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowIndex = fwd.infoTableRowIndex;
         std::vector<std::string> infoTableRowData; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowData = fwd.infoTableRowData;
         double anyVal = fwd.anyVal;
-        int endX = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX = fwd.endCoord.first;
-        int endY = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY = fwd.endCoord.second;
+        int endX/* = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX*/ = fwd.endCoord.first;
+        int endY/* = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY*/ = fwd.endCoord.second;
+
+        // std::cout << command << std::endl;
         
+        // std::cout << "UNPACKED ACTION\n";
         double defaultVal;
-        if(dest == CanvasFCost || dest == CanvasGCost || dest == CanvasHCost){
+        if((dests.find("fCost") != dests.end() && dest == dests["fCost"])
+         || (dests.find("gCost") != dests.end() && dest == dests["gCost"])
+         || (dests.find("hCost") != dests.end() && dest == dests["hCost"])){
           defaultVal = std::numeric_limits<double>::infinity();
         }
         else{
@@ -62,17 +66,18 @@ namespace pathfinder
         }
         int xy = x * CANVAS_WIDTH + y;
 
+        // std::cout << "PASSED DEFAULTVAL\n";
+
         if (anyVal != -1)
         {
           if (sim.bounds.find(dest) == sim.bounds.end())
           {
             sim.bounds[dest] = {std::numeric_limits<double>::max(), std::numeric_limits<double>::min()};
           }
-          std::pair<double, double> cur = sim.bounds[dest];
-          cur.first = std::min(cur.first, anyVal);
-          cur.second = std::max(cur.second, anyVal);
-          sim.bounds[dest] = cur;
+          sim.bounds[dest].first = std::min(sim.bounds[dest].first, anyVal);
+          sim.bounds[dest].second = std::max(sim.bounds[dest].second, anyVal);
         }
+        // std::cout << "PASSED BOUNDS\n";
 
         // adds canvas to activeTable if not exists
         if (!coordIsEqual({x, y}, {-1, -1}) || command == EraseCanvas)
@@ -80,8 +85,10 @@ namespace pathfinder
           if (sim.activeCanvas.find(dest) == sim.activeCanvas.end())
             sim.activeCanvas[dest] = rowf_t(CANVAS_DATA_SIZE, defaultVal);
         }
+        // std::cout << "PASSED ERASECANVAS\n";
+
         // adds table to activeTable if not exists
-        else if (infoTableRowIndex != -1)
+        if (infoTableRowIndex != 0 && command == InsertRowAtIndex)
         {
           if (sim.activeTable.find(dest) == sim.activeTable.end())
           {
@@ -92,6 +99,8 @@ namespace pathfinder
             sim.activeTable[dest] = std::make_unique<InfoTable>(infoTableRowData.size());
           }
         }
+
+        // std::cout << "INIT PREREQS\n";
 
         if (command == DrawSinglePixel)
         {
@@ -173,15 +182,22 @@ namespace pathfinder
         }
         else if (command == InsertRowAtIndex)
         {
+          // std::cout << command << ' ' << infoTableRowIndex << ' ';
+          //for(auto s : infoTableRowData) std::cout << s << ' ';
+          // std::cout << std::endl;
           int prevHighlight = sim.activeTable[dest]->insertRowAtIndex(infoTableRowIndex, infoTableRowData);
+          // std::cout << "INSERTED INTO INFOTABLE\n";
           if (prevHighlight != -1)
           {
             steps[stepCnt]->revActions.push_back(packAction(SetHighlightAtIndex, dest, {-1, -1}, -1, -1, -1, prevHighlight));
           }
+          // std::cout << "PACKED REVERSE HIGHLIGHT (IF ANY)\n";
           steps[stepCnt]->revActions.push_back(packAction(EraseRowAtIndex, dest, {-1, -1}, -1, -1, -1, infoTableRowIndex));
+          // std::cout << "PACKED REVERSE ERASE\n";
         }
         else if (command == EraseRowAtIndex)
         {
+          if(sim.activeTable.find(dest) == sim.activeTable.end()) continue;
           std::vector<std::string> data = sim.activeTable[dest]->eraseRowAtIndex(infoTableRowIndex);
 
           int toHighlight = stoi(data.back());
@@ -193,10 +209,12 @@ namespace pathfinder
         }
         else if (command == EraseAllRows)
         {
+          if(sim.activeTable.find(dest) == sim.activeTable.end()) continue;
           while (!sim.activeTable[dest]->empty())
           {
             infoTableRowIndex = 1;
             std::vector<std::string> data = sim.activeTable[dest]->eraseRowAtIndex(infoTableRowIndex);
+            // std::cout << "ERASED ROW\n";
 
             int toHighlight = stoi(data.back());
             data.pop_back();
@@ -204,18 +222,20 @@ namespace pathfinder
             if (!toHighlight)
               infoTableRowIndex *= -1;
             steps[stepCnt]->revActions.push_back(packAction(InsertRowAtIndex, dest, {-1, -1}, -1, -1, -1, infoTableRowIndex, data));
+
+            // std::cout << "PACKED REV ACTION\n";
           }
         }
         else if (command == UpdateRowAtIndex)
         {
-          // if(dest == ITNeighbors && (infoTableRowData[1] == "13,12" || infoTableRowData[1] == "13,13")) std::cout<<infoTableRowData[1]<<": "<<infoTableRowData[5]<<": "<<sim.activeTable[dest]->getHiglightIndex()<<std::endl;
-
+          if(sim.activeTable.find(dest) == sim.activeTable.end()){
+            std::cout << "ERR: Called update on infotable without inserting\n";
+            continue;
+          }
           std::vector<std::string> data = sim.activeTable[dest]->updateRowAtIndex(infoTableRowIndex, infoTableRowData);
 
           int prevHighlight = stoi(data.back());
           data.pop_back();
-          
-          // if(dest == ITNeighbors && (infoTableRowData[1] == "13,12" || infoTableRowData[1] == "13,13")) std::cout<<infoTableRowData[1]<<": "<<infoTableRowData[5]<<": "<<sim.activeTable[dest]->getHiglightIndex()<<std::endl<<"OLD: "<<prevHighlight<<std::endl;
 
           if (prevHighlight != -1)
           {
@@ -227,7 +247,7 @@ namespace pathfinder
         }
         else if (command == HighlightPseudoCodeRowPri)
         {
-          steps[stepCnt]->revActions.push_back(packAction(HighlightPseudoCodeRowPri, Pseudocode, {-1, -1}, -1, -1, sim.pseudoCodeRowPri));
+          steps[stepCnt]->revActions.push_back(packAction(HighlightPseudoCodeRowPri, dest, {-1, -1}, -1, -1, sim.pseudoCodeRowPri));
           sim.pseudoCodeRowPri = pseudoCodeRow;
         }
         else if (command == DrawVertex)
@@ -282,12 +302,15 @@ namespace pathfinder
           sim.edges[dest].clear();
         }
       }
+      // std::cout << "DONE W ACTION\n";
       
       revActionCnt += steps[stepCnt++]->revActions.size();
       if(!genStates){
         if (stepCnt % stateFreq == 0 && stepCnt / stateFreq == 100){
           std::cout << "State 100" << std::endl;
+          #ifdef PURE_CPP
           std::cout << "CURRENT RSS at state 100: "<<getCurrentRSS() <<std::endl;
+          #endif
         }
         if(stepCnt % 1000000 == 0) std::cout << "Step " << stepCnt << std::endl;
         continue;
@@ -306,11 +329,12 @@ namespace pathfinder
         // canvas
         for (const auto &p : sim.activeCanvas)
         {
-          std::cout << "P: " << p.second.size() << std::endl;
           #ifdef CANVAS_COMPRESSED
             const double NotANumber = std::nan("0");
             double defaultVal;
-            if(p.first == CanvasFCost || p.first == CanvasGCost || p.first == CanvasHCost){
+            if((dests.find("fCost") != dests.end() && p.first == dests["fCost"])
+            || (dests.find("gCost") != dests.end() && p.first == dests["gCost"])
+            || (dests.find("hCost") != dests.end() && p.first == dests["hCost"])){
               defaultVal = std::numeric_limits<double>::infinity();
             }
             else{

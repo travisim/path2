@@ -26,18 +26,40 @@ using bound_t = std::pair<double, double>;
 
 const double THRESH = 1e-8;
 
-struct CoordDoubleHash {
-  std::size_t operator()(const std::pair<double, double>& p) const {
-    return std::hash<double>()(p.first) ^ std::hash<double>()(p.second);
+int32_t coord2int32(coordInt_t c){ return ((int32_t)(c.first) << 16) | (int32_t)(c.second); }
+
+// struct CoordDoubleHash {
+//   std::size_t operator()(const std::pair<double, double>& p) const {
+//     return std::hash<double>()(p.first) ^ std::hash<double>()(p.second);
+//   }
+// };
+// struct CoordIntHash {
+//   std::size_t operator()(const coordInt_t& p) const {
+//     size_t a = std::hash<int>()(p.first);
+//     size_t b = std::hash<int>()(p.second);
+//     return a >= b ? a * a + a + b : a + b * b;
+//   }
+// };
+
+template <typename Coord_t>
+struct CoordHash{
+  std::size_t operator()(const Coord_t c) const { 
+    if constexpr(std::is_same<Coord_t, coordInt_t>::value){
+      return std::hash<int>()(coord2int32(c));
+    }
+    else{
+      static_assert(std::is_same<Coord_t, coordDouble_t>::value, "INVALID COORD TYPE PROVIDED");
+      return std::hash<double>()(c.first) ^ std::hash<double>()(c.second);
+    }
   }
 };
-struct CoordIntHash {
-  std::size_t operator()(const coordInt_t& p) const {
-    size_t a = std::hash<int>()(p.first);
-    size_t b = std::hash<int>()(p.second);
-    return a >= b ? a * a + a + b : a + b * b;
-  }
-};
+
+inline std::string coord2String(coordInt_t coord, int precision = -1){ return std::to_string(coord.first) + ", " + std::to_string(coord.second); }
+
+inline std::string coord2String(coordDouble_t coord, int precision = -1){ 
+  if(precision == -1) precision = 6;
+  return std::to_string(coord.first).substr(0, precision + 1) + ", " + std::to_string(coord.second).substr(0, precision + 1); 
+}
 
 template<typename Coord_t>
 bool isEqualCoord(const Coord_t& a, const Coord_t& b){ return a.first == b.first && a.second == b.second; }
@@ -62,37 +84,44 @@ struct LineDoubleHash
 template <class T, typename Coord_t>
 class Empty2D{
   std::vector<std::vector<T>> data;
-  std::map<Coord_t, T> dataHashMap;
+  std::unordered_map<Coord_t, T, CoordHash<Coord_t>> dataHashMap;
   bool allowFloat;
 public:
   Empty2D(){
     data = std::vector<std::vector<T>>(0, std::vector<T>(0, NULL));
   }
     
-  Empty2D(int height, int width, bool allowFloat = false) : allowFloat(allowFloat){
-    if(!allowFloat)
-      data = std::vector<std::vector<T>>(height, std::vector<T>(width, NULL));
+  Empty2D(int height, int width){
+    data = std::vector<std::vector<T>>(height, std::vector<T>(width, NULL));
   }
 
   void set(Coord_t &xy, T item){
-    if(allowFloat) dataHashMap[{xy.first, xy.second}] = item;
-    else data[xy.first][xy.second] = item;
+    if constexpr(std::is_same<Coord_t, coordDouble_t>::value) dataHashMap[xy] = item;
+    else{
+      static_assert(std::is_same<Coord_t, coordInt_t>::value, "INVALID COORD TYPE PROVIDED");
+      data[xy.first][xy.second] = item;
+    }
   }
 
   T get(Coord_t &xy){
-    if(allowFloat) return dataHashMap[{xy.first, xy.second}];
-    return data[xy.first][xy.second];
+    if constexpr(std::is_same<Coord_t, coordDouble_t>::value){
+      // if(is_unique_ptr<std::remove_cv_t<T>>::value) return std::move(dataHashMap[xy]);
+      return dataHashMap[xy];
+    }
+    else{
+      static_assert(std::is_same<Coord_t, coordInt_t>::value, "INVALID COORD TYPE PROVIDED");
+      // if(is_unique_ptr<std::remove_cv_t<T>>::value) return std::move(data[xy.first][xy.second]);
+      return data[xy.first][xy.second];
+    }
   }
 
   void clear(){
-    if(allowFloat){
-      for(auto it : dataHashMap) delete it.second;
+    if constexpr(std::is_same<Coord_t, coordDouble_t>::value){
       dataHashMap.clear();
     }
     else{
       for(int i = 0; i < data.size(); ++i){
         for(int j = 0; j < data[i].size(); ++j){
-          delete data[i][j];
           data[i][j] = NULL;
         }
       }
@@ -126,8 +155,6 @@ gridf_t makeGridf(int height, int width, double defVal = 0){
   return gridf_t(height, rowf_t(width, defVal));
 }
 
-uint32_t coord2uint32(coordInt_t c){ return ((uint32_t)(c.first) << 16) | (uint32_t)(c.second); }
-// uint32_t coord2uint32(uint32_t x, uint32_t y){ return ((x) << 16) | (y); }
 
 // Coord_t uint322coord(uint32_t c){
 //   return {c>>16, c & ((1 << 16) - 1)};

@@ -46,6 +46,7 @@ protected:
   using GridPathfinder<Action_t>::bigMap;
   using GridPathfinder<Action_t>::diagonalAllow;
   using GridPathfinder<Action_t>::neighborsIndex;
+  using GridPathfinder<Action_t>::dests;
 
   // methods
   using GridPathfinder<Action_t>::saveStep;
@@ -67,6 +68,7 @@ protected:
   using GridPathfinder<Action_t>::vertexEnabled;
   Node<Coord_t> *parentNode;
 
+  Empty2D<Node<Coord_t>*, Coord_t> openList, closedList;
   PriorityQueue<Coord_t> pq;
   costType chosenCost;
   timeOrder order;
@@ -109,7 +111,6 @@ protected:
     //return new Node<Coord_t>(nextXY, currentNode, -1, gCoeff * gCost + hCoeff * hCost, gCost, hCost);
   }
 
-  Empty2D<Node<Coord_t>*, Coord_t> openList, closedList;
 public:
   A_star() {}
 
@@ -120,12 +121,23 @@ public:
     emscripten::val neighborsIndexArr,
     bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized,
     int chosenCostInt, int orderInt, // implicit type conversion (?)
-    int gCoeff = 1, int hCoeff = 1
+    int gCoeff, int hCoeff,
+    emscripten::val jsDestsToId // Array of strings in JS
   ){
     pathfinder::costType chosenCost = (pathfinder::costType)chosenCostInt;
     pathfinder::timeOrder order = (pathfinder::timeOrder)orderInt;
     grid_t grid = js2DtoVect2D(gridArr);
     std::vector<uint8_t> neighborsIndex = js1DtoVect1D(neighborsIndexArr);
+
+    // related: https://stackoverflow.com/questions/16141178/is-it-possible-to-map-string-to-int-faster-than-using-hashmap
+    int len = jsDestsToId["length"].as<uint32_t>();
+    if(len != 0){
+      dests.clear();
+      for(int i = 0; i < len; ++i){
+        std::string s = jsDestsToId[i].as<std::string>();
+        dests[s] = i;
+      }
+    }
     
     return search(grid, startX, startY, goalX, goalY, neighborsIndex, vertexEnabled, diagonalAllow, bigMap, hOptimized, chosenCost, order, gCoeff, hCoeff);
   }
@@ -133,10 +145,10 @@ public:
 
   bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1)
   {
-    std::cout<<startX<<' '<<startY<<' '<<goalX<<' '<<goalY<<std::endl;
+    std::cout <<startX<<' '<<startY<<' '<<goalX<<' '<<goalY<<std::endl;
     vectDigitPrint(neighborsIndex);
-    std::cout<<vertexEnabled<<' '<<diagonalAllow<<' '<<bigMap<<' '<<hOptimized<<std::endl;
-    std::cout<<chosenCost<<' '<<order<<std::endl;
+    std::cout <<vertexEnabled<<' '<<diagonalAllow<<' '<<bigMap<<' '<<hOptimized<<std::endl;
+    std::cout <<chosenCost<<' '<<order<<std::endl;
     initSearch(grid, {startX, startY}, {goalX, goalY}, diagonalAllow, bigMap, neighborsIndex, vertexEnabled);
     this->chosenCost = chosenCost;
     this->order = order;
@@ -145,8 +157,6 @@ public:
     pq = PriorityQueue<Coord_t>(order, hOptimized);
     closedList = Empty2D<Node<Coord_t>*, Coord_t>(gridHeight, gridWidth);
     openList = Empty2D<Node<Coord_t>*, Coord_t>(gridHeight, gridWidth);
-    openList.clear();
-    closedList.clear();
 
     // std::cout << "Starting: " << start.first << ' ' << start.second << "->" << goal.first << ' ' << goal.second << std::endl;
 
@@ -155,8 +165,6 @@ public:
     rootNodes.push_back(currentNode);
 
     std::array<double, 3> trip = calcCost({startX, startY});
-    // currentNode = calcCost({startX, startY});
-    // rootNodes.push_back(currentNode);
     currentNode->fCost = trip[0];
     currentNode->hCost = trip[2]; // gCost is 0
 
@@ -167,10 +175,10 @@ public:
       // initialize the starting sequences
       for (auto itr = deltaNWSE.rbegin(); itr != deltaNWSE.rend(); ++itr)
       {
-        createAction(InsertRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, 1, {deltaNWSEStr[*itr], "?", "?", "?", "?", "?"});
+        createAction(InsertRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, 1, {deltaNWSEStr[*itr], "?", "?", "?", "?", "?"});
       }
-      createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1, {std::to_string(start.first) + "," + std::to_string(start.second), "-", std::to_string(currentNode->fCost).substr(0, 6), std::to_string(currentNode->gCost).substr(0, 6), std::to_string(currentNode->hCost).substr(0, 6)});
-      createAction(DrawPixel, CanvasQueue, start);
+      createAction(InsertRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, 1, {std::to_string(start.first) + "," + std::to_string(start.second), "-", std::to_string(currentNode->fCost).substr(0, 6), std::to_string(currentNode->gCost).substr(0, 6), std::to_string(currentNode->hCost).substr(0, 6)});
+      createAction(DrawPixel, dests["queue"], start);
       saveStep(true);
     }
 
@@ -178,58 +186,63 @@ public:
 
     currentNode = nullptr;
 
-    // return runNextSearch();
     return false;
   }
 
   bool runNextSearch(int givenBatchSize = -1)
   {
-    //std::cout<<"starting runNextSearch! Step Index: "<<stepIndex<<std::endl;
+    // std::cout <<"starting runNextSearch! Step Index: "<<stepIndex<<std::endl;
     if (givenBatchSize == -1)
       givenBatchSize = batchSize;
     int num = givenBatchSize;
     while (num--)
     {
-      //std::cout<<num<<' '<<stepIndex<<std::endl;
-      if (pq.empty())
+      // std::cout <<num<<' '<<stepIndex<<std::endl;
+      if (pq.empty()){
+        // std::cout << "TERMINATE: PQ EMPTY\n";
         return terminateSearch(false);
-      //std::cout<<"Size before: "<<pq.size()<<' ';
+      }
+      // std::cout <<"Size before: "<<pq.size()<<' ';
       currentNode = pq.top();
       pq.pop();
-      //std::cout<<"Size after: "<<pq.size()<<std::endl;
+      // std::cout <<"Size after: "<<pq.size()<<std::endl;
       currentNodeXY = currentNode->selfXY;
       openList.set(currentNodeXY, nullptr);
       if (stepIndex % 10000 == 0)
         std::cout << "F: " << std::setprecision(5) << currentNode->fCost << ", H: " << std::setprecision(5) << currentNode->hCost << std::endl;
       
-      //std::cout<<currentNode->fCost<<' '<<*closedList.get(currentNodeXY);
+      if(closedList.get(currentNodeXY) != nullptr) // std::cout <<"THERE EXISTS A NODE\n";
+
+      // std::cout <<currentNode->fCost<<' '<<*closedList.get(currentNodeXY);
 
       if (closedList.get(currentNodeXY) != nullptr && closedList.get(currentNodeXY)->fCost <= currentNode->fCost)
         continue;
-      //std::cout<<"visiting new node!\n";
+      // std::cout <<"visiting new node!\n";
 
       closedList.set(currentNodeXY, currentNode);
 
-      createAction(IncrementPixel, CanvasVisited, currentNodeXY);
+      createAction(IncrementPixel, dests["visited"], currentNodeXY);
       if (!bigMap)
       {
         for (const int i : neighborsIndex)
         {
-          createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, -(i + 1), {deltaNWSEStr[deltaNWSE[i]], "?", "?", "?", "?", "?"});
+          createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, -(i + 1), {deltaNWSEStr[deltaNWSE[i]], "?", "?", "?", "?", "?"});
         }
-        createAction(EraseRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1);
-        createAction(DrawSinglePixel, CanvasFocused, currentNodeXY);
-        createAction(EraseCanvas, CanvasNeighbors);
-        createAction(DrawSinglePixel, CanvasExpanded, currentNodeXY);
-        createAction(ErasePixel, CanvasQueue, currentNodeXY);
+        createAction(EraseRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, 1);
+        createAction(DrawSinglePixel, dests["focused"], currentNodeXY);
+        createAction(EraseCanvas, dests["neighbors"]);
+        createAction(DrawSinglePixel, dests["expanded"], currentNodeXY);
+        createAction(ErasePixel, dests["queue"], currentNodeXY);
         //createAction(HighlightPseudoCodeRowPri, Pseudocode, {-1, -1}, -1, -1, 12);
       }
       saveStep(true);
 
       assignCellIndex(currentNodeXY);
 
-      if (foundGoal(currentNode))
+      if (foundGoal(currentNode)){
+        // std::cout << "TERMINATE: FOUND GOAL\n";
         return terminateSearch();
+      }
 
       std::vector<Coord_t> cardinalCoords(4);
       if (!diagonalAllow && neighborsIndex.size() == 8)
@@ -268,43 +281,41 @@ public:
         {
           // std::cout << "pass" << std::endl;
           if (!bigMap)
-            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Out of Bounds"});
+            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Out of Bounds"});
           continue;
         }
-        //std::cout<<"node is in bounds\n";
+        // std::cout <<"node is in bounds\n";
         if (!bigMap)
         {
-          createAction(DrawSinglePixel, CanvasFocused, nextXY);
+          createAction(DrawSinglePixel, dests["focused"], nextXY);
         }
 
         if (!nodeIsNeighbor(nextXY, deltaNWSE[i], cardinalCoords))
         {
           if (!bigMap)
           {
-            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Obstacle"});
+            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Obstacle"});
             saveStep(false);
           }
           continue;
         }
-        //std::cout<<"node is not obs\n";
+        // std::cout <<"node is not obs\n";
 
         std::array<double, 3> trip = calcCost(nextXY);
         const double fCost = trip[0], gCost = trip[1], hCost = trip[2];
-        // Node<Coord_t>* nextNode = calcCost(nextXY);
-        // const double fCost = nextNode->fCost, gCost = nextNode->gCost, hCost = nextNode->hCost;
 
         Node<Coord_t>* openNode = openList.get(nextXY);
         if (openNode != NULL && openNode->fCost <= fCost)
         {
           if (!bigMap)
           {
-            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
+            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
             saveStep(false);
           }
           // delete nextNode;
           continue;
         }
-        //std::cout<<"node has lower fCost\n";
+        // std::cout <<"node has lower fCost\n";
 
         Node<Coord_t>* closedNode = closedList.get(nextXY);
         if (closedNode != NULL && closedNode->fCost <= fCost)
@@ -312,13 +323,12 @@ public:
           if (!bigMap)
           {
             if (currentNode->parent && currentNode->parent->selfXY.first == nextXY.first && currentNode->parent->selfXY.second == nextXY.second)
-              createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Parent"});
+              createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Parent"});
             else
-              createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
+              createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
           }
-          createAction(IncrementPixel, CanvasVisited, nextXY);
+          createAction(IncrementPixel, dests["visited"], nextXY);
           saveStep(false);
-          // delete nextNode;
           continue;
         }
 
@@ -330,39 +340,39 @@ public:
           rootNodes.push_back(nextNode);
         }
 
-        createAction(SetPixel, CanvasFCost, nextXY, -1, -1, -1, 0, {}, fCost);
-        createAction(SetPixel, CanvasGCost, nextXY, -1, -1, -1, 0, {}, gCost);
-        createAction(SetPixel, CanvasHCost, nextXY, -1, -1, -1, 0, {}, hCost);
+        createAction(SetPixel, dests["fCost"], nextXY, -1, -1, -1, 0, {}, fCost);
+        createAction(SetPixel, dests["gCost"], nextXY, -1, -1, -1, 0, {}, gCost);
+        createAction(SetPixel, dests["hCost"], nextXY, -1, -1, -1, 0, {}, hCost);
 
         int posInQueue = pq.push(nextNode);
 
         if (!bigMap)
         {
-          createAction(DrawPixel, CanvasNeighbors, nextXY);
+          createAction(DrawPixel, dests["neighbors"], nextXY);
           //createAction(HighlightPseudoCodeRowSec, Pseudocode, {-1, -1}, -1, -1, 32);
           handleArrow(nextNode, openNode, closedNode);
 
-          createAction(DrawPixel, CanvasQueue, nextXY);
+          createAction(DrawPixel, dests["queue"], nextXY);
 
-          createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, posInQueue, {std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(currentNodeXY.first) + "," + std::to_string(currentNodeXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5))});
+          createAction(InsertRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, posInQueue, {std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(currentNodeXY.first) + "," + std::to_string(currentNodeXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5))});
 
           if (openNode == nullptr && closedNode == nullptr)
-            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "New encounter"});
+            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "New encounter"});
           else if (openNode != nullptr)
-            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Replace parent"});
+            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Replace parent"});
         }
         saveStep(false);
 
         openList.set(nextXY, nextNode);
       }
     }
-    //std::cout<<"runNextSearch done! Step Index: "<<stepIndex<<std::endl;
+    //std::cout <<"runNextSearch done! Step Index: "<<stepIndex<<std::endl;
     return false;
   }
 
   void insertNode(){
     int k = 2;
-    std::cout<<"Inserting "<<k<<" nodes\n";
+    std::cout <<"Inserting "<<k<<" nodes\n";
     while(k--){
       Node<Coord_t>* n = new Node<Coord_t>({-1, -1}, nullptr, -1, -1, -1, -1);
       rootNodes[0]->addChild(n);
@@ -372,13 +382,13 @@ public:
 
   void eraseNode(){
     int k = 2;
-    std::cout<<"Erasing "<<k<<" nodes\n";
+    std::cout <<"Erasing "<<k<<" nodes\n";
     while(k--)
       pq.pop();
   }
 
   int pqSize(){
-    std::cout<<"Num nodes: "<<pq.size()<<std::endl;
+    std::cout <<"Num nodes: "<<pq.size()<<std::endl;
     return pq.size();
   }
 

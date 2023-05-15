@@ -30,7 +30,7 @@ namespace pathfinder
     using Coord_t = typename Action_t::CoordType;
 
     bool drawArrows;
-    bool vertexEnabled = false;  // used in step generation to determine canvas size
+    bool vertexEnabled = false;  // used in step generation to determine canvas size, despite only being relevant in grid_pathfinder
     bool diagonalAllow;
     bool bigMap;
     int bitOffset;
@@ -40,6 +40,8 @@ namespace pathfinder
     int gridHeight, gridWidth;
     int batchSize, batchInterval;
 
+    std::unordered_map<std::string, int> dests;
+
     Coord_t start, goal, currentNodeXY;
     std::vector<Coord_t> path;
 
@@ -48,7 +50,7 @@ namespace pathfinder
     int lastStepIndex;
     int fwdActionCnt;
 
-    Node<Coord_t> *currentNode = nullptr;
+    Node<Coord_t>* currentNode = nullptr;
     std::vector<Node<Coord_t>*> rootNodes;
     int maxNodeDepth = 500;
 
@@ -88,13 +90,13 @@ namespace pathfinder
       ret.dest = (Dest)dest;
       ret.nodeCoord = nodeCoord;
       ret.anyVal = anyVal;
+      ret.endCoord = endCoord;
       if constexpr(std::is_same<Action_t, Action<Coord_t>>::value){
         ret.colorIndex = colorIndex;
         ret.arrowIndex = arrowIndex;
         ret.pseudoCodeRow = pseudoCodeRow;
         ret.infoTableRowIndex = infoTableRowIndex;
         ret.infoTableRowData = infoTableRowData;
-        ret.endCoord = endCoord;
       }
       return ret;
     }
@@ -142,14 +144,15 @@ namespace pathfinder
       batchInterval = 0;
     }
 
-    void createAction(Command command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = -1, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
+    void createAction(Command command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
       
       fwdActionCnt++;
       Action_t myAction = packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, anyVal, endCoord);
-      // STEP STRUCT METHOD
+      if constexpr(std::is_same<Action_t, BaseAction<Coord_t>>::value){
+        //if(endCoord.first != -1 && endCoord.second != -1) std::cout<<"ENDCOORD: "<<coord2String(endCoord)<<std::endl;
+      }
       currentStep->fwdActions.push_back(myAction);
-      
     }
 
     void saveStep(bool combined)
@@ -194,17 +197,16 @@ namespace pathfinder
 
       //  retraces the entire parent tree until start is found
       Node<Coord_t> *current = node;
-      std::cout<<"showFreeVertex: "<<showFreeVertex()<<std::endl;
       while (current != nullptr)
       {
         if(showFreeVertex()){
-          if(gridPrecisionFloat()) createAction(DrawVertex, CanvasPath, current->selfXY);
-          else createAction(DrawPixel, CanvasPath, current->selfXY);
+          if(gridPrecisionFloat()) createAction(DrawVertex, dests["path"], current->selfXY);
+          else createAction(DrawPixel, dests["path"], current->selfXY);
           
           if(current->parent)
-            createAction(DrawEdge, CanvasPath, current->selfXY, -1, -1, -1, -1, {}, -1, current->parent->selfXY);
+            createAction(DrawEdge, dests["path"], current->selfXY, -1, -1, -1, -1, {}, 3, current->parent->selfXY);
         }
-        else createAction(DrawPixel, CanvasPath, current->selfXY);
+        else createAction(DrawPixel, dests["path"], current->selfXY);
         path.push_back(current->selfXY);
         if (current->arrowIndex != -1)
           createAction(DrawArrow, -1, {-1, -1}, 1, current->arrowIndex);

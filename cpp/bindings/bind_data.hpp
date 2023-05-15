@@ -34,6 +34,7 @@ void bindAction(BindType myType){
       .property("dest", &pathfinder::BaseAction<coordInt_t>::dest)
       .property("nodeCoord", &pathfinder::BaseAction<coordInt_t>::nodeCoord)
       .property("anyVal", &pathfinder::BaseAction<coordInt_t>::anyVal)
+      .property("endCoord", &pathfinder::BaseAction<coordInt_t>::endCoord)
       ;
   }
   else if(myType == BindType::double_coord){
@@ -57,6 +58,7 @@ void bindAction(BindType myType){
       .property("dest", &pathfinder::BaseAction<coordDouble_t>::dest)
       .property("nodeCoord", &pathfinder::BaseAction<coordDouble_t>::nodeCoord)
       .property("anyVal", &pathfinder::BaseAction<coordDouble_t>::anyVal)
+      .property("endCoord", &pathfinder::BaseAction<coordDouble_t>::endCoord)
       ;
   }
 }

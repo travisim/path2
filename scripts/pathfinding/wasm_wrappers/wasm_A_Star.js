@@ -61,7 +61,6 @@ class wasm_A_star extends wasm_GridPathfinder{
   }
 
   setConfig(uid, value){
-		super.setConfig(uid, value);
     switch(uid){
       case "distance_metric":
 				this.distance_metric = value; break;
@@ -73,6 +72,8 @@ class wasm_A_star extends wasm_GridPathfinder{
 				this.hOptimized = value=="On"; break;
       case "time_ordering":
 				this.timeOrder = value; break;
+      default:
+		    super.setConfig(uid, value);
     }
   }
 
@@ -105,9 +106,11 @@ class wasm_A_star extends wasm_GridPathfinder{
     ...start, ...goal,
     this.neighborsIndex,
     this.vertexEnabled, this.diagonal_allow, this.bigMap, this.hOptimized,
-    chosenCost, order, this.gWeight, this.hWeight);
+    chosenCost, order, this.gWeight, this.hWeight, this.destsToId);
 
-    if(finished) return this._finish_searching();
+    console.log("FINISHED: ", finished);
+
+    if(finished){ return this._finish_searching(); }
 
     let planner = this;
     return new Promise((resolve, reject) => {

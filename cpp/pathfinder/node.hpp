@@ -59,6 +59,8 @@ struct MapNode{
   MapNode(Coord_t xy) : valueXY(xy){}
   inline int numberOfNeighbours(){ return neighbours.size(); }
   inline int hasNeighbours(){ return numberOfNeighbours() > 0; }
+  inline void addNeighbor(int x){ neighbours.push_back(x); }
+  inline std::vector<int> getNeighbors(){ return neighbours; }
 };
 
 

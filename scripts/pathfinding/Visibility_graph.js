@@ -449,16 +449,12 @@ class VisibilityGraph extends Pathfinder{
         }
         this._create_action({command: STATIC.EraseRowAtIndex, dest: this.dests.ITQueue, infoTableRowIndex: 1});
 
-        //this._create_action({command: STATIC.EraseCanvas, dest: this.dests.neighbors});// erase all neighbours
-        this._create_action({command: STATIC.EraseCanvas, dest: this.dests.neighbors});
+        this._create_action({command: STATIC.EraseCanvas, dest: this.dests.neighbors});// erase all neighbours
 
-        //this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.expanded, nodeCoord: this.current_node_XY}); //draw current
         this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.expanded, nodeCoord: this.current_node_XY});
 
-        //this._create_action({command: STATIC.ErasePixel, dest: this.dests.queue, nodeCoord: this.current_node_XY}); // erase vertex in queue
         this._create_action({command: STATIC.ErasePixel, dest: this.dests.queue, nodeCoord: this.current_node_XY}); // erase vertex in queue
 
-        //this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.focused, nodeCoord: this.current_node_XY});
         this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.focused, nodeCoord: this.current_node_XY});
         this._create_action({command: STATIC.EraseAllEdge, dest: this.dests.focused});
 
@@ -541,7 +537,7 @@ class VisibilityGraph extends Pathfinder{
             this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "New encounter"]});
           else if(open_node)
             this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Replace parent"]});
-            this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.focused, nodeCoord: next_XY});
+          this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.focused, nodeCoord: next_XY});
         }
         this._save_step(false);
 

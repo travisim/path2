@@ -1,3 +1,0 @@
-C++: pathfinding and steps generation
-JS: reverse step generation & optimization (takes the bulk of the memory)
-

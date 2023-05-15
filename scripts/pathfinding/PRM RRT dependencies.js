@@ -564,7 +564,7 @@ class SVGCanvas {
     return svg;
   }
   drawLine(start_XY, end_XY, destId = "networkGraph", id=false, colorIndex = 0, lineWidth = 1){
-    if(myUI.planner.constructor.gridPrecision != "float" && myUI.vertex == false){
+    if(myUI.planner.constructor.gridPrecision != "float" && myUI.vertex == false && myUI.planner.constructor.showFreeVertex){
       // draw lines from centre of squares
       start_XY = start_XY.map(x => x + 0.5);
       end_XY = end_XY.map(x => x + 0.5);
@@ -586,6 +586,11 @@ class SVGCanvas {
     document.getElementById(this.canvas_id).appendChild(line);
   }
   eraseLine(start_XY, end_XY, destId){
+    if(myUI.planner.constructor.gridPrecision != "float" && myUI.vertex == false){
+      // draw lines from centre of squares
+      start_XY = start_XY.map(x => x + 0.5);
+      end_XY = end_XY.map(x => x + 0.5);
+    }
     const start_coord = {y:start_XY[1], x:start_XY[0]};
     const end_coord = {y:end_XY[1], x:end_XY[0]};
     var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
@@ -593,6 +598,7 @@ class SVGCanvas {
       line_id = `SVGline_${end_coord.x}_${end_coord.y}_${start_coord.x}_${start_coord.y}_${destId}`;
       try{this.EraseSvgById(line_id);}catch{
         console.error("LINE DOES NOT EXIST");
+        debugger;
       }
     }
   }

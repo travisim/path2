@@ -72,6 +72,7 @@ public:
 
     int insertRowAtIndex(int rowIndex, std::vector<std::string> values)
     {
+        // std::cout << "given size: " << values.size() << ", correct size: " << rowSize << std::endl;
         if (values.size() != this->rowSize)
         {
             wrongRowSizeHandler(values.size());
@@ -80,6 +81,7 @@ public:
 
         bool toHighlight = (rowIndex > 0);
         rowIndex = abs(rowIndex) - 1;
+        // std::cout << "row index: " << rowIndex << std::endl;
 
         if (rowIndex == 0)
         {

@@ -58,21 +58,6 @@ namespace pathfinder
     EditStaticRow,
   };
 
-  enum Dest
-  {
-    Pseudocode,
-    CanvasFocused,
-    CanvasExpanded,
-    CanvasPath,
-    CanvasNeighbors,
-    CanvasQueue,
-    CanvasVisited,
-    CanvasFCost,
-    CanvasGCost,
-    CanvasHCost,
-    ITNeighbors,
-    ITQueue,
-  };
 
   std::ostream &operator<<(std::ostream &out, const Command value)
   {
@@ -91,6 +76,7 @@ namespace pathfinder
           INSERT_ELEMENT(EraseArrow),                  // erase arrow (arrow index)
           INSERT_ELEMENT(InsertRowAtIndex),            // dest, rowIndex
           INSERT_ELEMENT(EraseRowAtIndex),             // dest, rowIndex
+          INSERT_ELEMENT(EraseAllRows),             // dest, rowIndex
           INSERT_ELEMENT(UpdateRowAtIndex),            // dest, rowIndex
           INSERT_ELEMENT(HighlightPseudoCodeRowPri),   // highlight Pseudo
           INSERT_ELEMENT(HighlightPseudoCodeRowSec),   // highlight Pseudo
@@ -111,6 +97,22 @@ namespace pathfinder
     }
     return out << myStrings[value];
   }
+
+  enum Dest
+  {
+    Pseudocode,
+    CanvasFocused,
+    CanvasExpanded,
+    CanvasPath,
+    CanvasNeighbors,
+    CanvasQueue,
+    CanvasVisited,
+    CanvasFCost,
+    CanvasGCost,
+    CanvasHCost,
+    ITNeighbors,
+    ITQueue,
+  };
 
   std::ostream &operator<<(std::ostream &out, const Dest value)
   {
@@ -159,15 +161,17 @@ namespace pathfinder
     int8_t dest; // for binding
     Coord_t nodeCoord;
     double anyVal;
+    Coord_t endCoord;
     BaseAction() {}
-    BaseAction(Command command, Dest dest, Coord_t nodeCoord,
-           double anyVal)
-        : command(command), dest(dest), nodeCoord(nodeCoord), anyVal(anyVal) {}
+    BaseAction(Command command, int8_t dest, Coord_t nodeCoord,
+           double anyVal, Coord_t endCoord)
+        : command(command), dest(dest), nodeCoord(nodeCoord), anyVal(anyVal), endCoord(endCoord) {}
     friend std::ostream &operator<<(std::ostream &os, const BaseAction<Coord_t> &a){
       os<<"Command:         : "<<(Command)a.command<<std::endl;
       os<<"Dest:            : "<<(Dest)a.dest<<std::endl;
       os<<"x,y              : "<<a.nodeCoord.first<<' '<<a.nodeCoord.second<<std::endl;
-      os<<"anyVal          : "<<a.anyVal<<std::endl;
+      os<<"anyVal           : "<<a.anyVal<<std::endl;
+      os<<"endCoord         : "<<a.endCoord.first<<' '<<a.endCoord.second<<std::endl;
       return os;
     }
   };
@@ -189,7 +193,7 @@ namespace pathfinder
     double anyVal;
     Coord_t endCoord;
     Action() {}
-    Action(Command command, Dest dest, Coord_t nodeCoord, int colorIndex, int arrowIndex,
+    Action(Command command, int8_t dest, Coord_t nodeCoord, int colorIndex, int arrowIndex,
            int pseudoCodeRow, int infoTableRowIndex, std::vector<std::string> infoTableRowData,
            double anyVal, Coord_t endCoord)
         : command(command), dest(dest), nodeCoord(nodeCoord), colorIndex(colorIndex), arrowIndex(arrowIndex), pseudoCodeRow(pseudoCodeRow), infoTableRowIndex(infoTableRowIndex),
@@ -246,15 +250,15 @@ namespace pathfinder
     return isEqualCoord<Coord_t>(lhs.xy, rhs.xy) && lhs.colorIndex == rhs.colorIndex && lhs.radius == rhs.radius;
   }
 
-  auto doubleHash = CoordDoubleHash();
-
   template <typename Coord_t>
   struct VertexHash{
     std::size_t operator()(const FreeVertex<Coord_t>& v) const {
       auto radiusHash = std::hash<double>()(v.radius);
-      if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
-        return doubleHash(v.xy) ^ radiusHash;
-      return coord2uint32(v.xy) ^ radiusHash;
+      auto hash = CoordHash<Coord_t>();
+      
+      // if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
+      //   return doubleHash(v.xy) ^ radiusHash;
+      return hash(v.xy) ^ radiusHash;
     }
   };
 
@@ -274,9 +278,11 @@ namespace pathfinder
   struct EdgeHash{
     std::size_t operator()(const FreeEdge<Coord_t>& e) const {
       auto lineWidthHash = std::hash<double>()(e.lineWidth);
-      if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
-        return doubleHash(e.startXY) ^ doubleHash(e.endXY) ^ lineWidthHash;
-      return coord2uint32(e.startXY) ^ coord2uint32(e.endXY) ^ lineWidthHash;
+      auto hash = CoordHash<Coord_t>();
+      // if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
+      //   return doubleHash(e.startXY) ^ doubleHash(e.endXY) ^ lineWidthHash;
+      // return coord2int32(e.startXY) ^ coord2int32(e.endXY) ^ lineWidthHash;
+      return hash(e.startXY) ^ hash(e.endXY) ^ lineWidthHash;
     }
   };
 
