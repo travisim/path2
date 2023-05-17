@@ -159,7 +159,6 @@ public:
     if(showNetworkGraph) createAction(DrawPixel, dests["networkGraph"], goal);
     const int KERNEL_SIZE = 2;
 
-
     for(int i = 0; i < gridHeight - KERNEL_SIZE + 1; ++i){
       for(int j = 0; j < gridWidth - KERNEL_SIZE + 1; ++j){
         auto coords = cornerCoords(grid, KERNEL_SIZE, i, j, vertexEnabled);

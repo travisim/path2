@@ -282,6 +282,7 @@ class Pathfinder{
 			++this.map_width;
 		}
 		this.map = BitMatrix.compress_bit_matrix(map); // 2d array; each 1d array is a row
+		this.map_arr = map;
 		this.coord_bit_len = Math.ceil(Math.log2(this.map_height * this.map_width - 1));
 		this.static_bit_len = Math.ceil(Math.log2(STATIC.max_val+1));
 		this.color_bit_len = Math.ceil(Math.log2(myUI.arrow.colors.length));
@@ -291,10 +292,12 @@ class Pathfinder{
 
 	initBatchInfo(){
     this.batch_interval = 0;
-    this.batch_size = Math.max(Math.floor(this.map_height * this.map_width / 20), 10000);
+    this.batch_size = Math.min(Math.floor(this.map_height * this.map_width), 10000);
+		if(this.constructor.display_name.startsWith("Visibility Graph")) this.batch_size = 1000;
 	}
 
 	_init_search(start, goal){
+		this.add_map(myUI.map_arr);
 		this.startTime = myUI.startTime;
     this.start = start; //in array form [x,y]  [0,0] is top left  [512,512] is bottom right
     this.goal = goal;
@@ -304,6 +307,8 @@ class Pathfinder{
 		this.current_node = undefined;
 		this.queue = [];
 		this.initBatchInfo();
+		this.edges = {};
+		this.vertices = {};
 	}
 
 	_clear_steps(){
@@ -336,10 +341,55 @@ class Pathfinder{
 		anyVal,
 		endCoord
 	} = {}){
+
+		if(command == STATIC.DrawEdge){
+			if(!this.edges.hasOwnProperty(dest)) this.edges[dest] = [];
+			arrowIndex = myUI.edgeCanvas.drawLine(nodeCoord, endCoord, this.destsToId[dest], false, colorIndex, anyVal);
+			this.edges[dest].push([...nodeCoord, ...endCoord, colorIndex, anyVal, arrowIndex]);
+			nodeCoord = undefined; endCoord = undefined; colorIndex = undefined; anyVal = undefined;
+
+			if(this.edges[dest].length > myUI.edgeCanvas.maxLines){
+				// limit maximum of lines shown on screen by erasing the oldest-drawn line
+				let oldest = this.edges[dest].shift();
+				this.actionCache = this.constructor.packAction({command: STATIC.EraseEdge, dest: dest, arrowIndex: oldest[6],});
+				Array.prototype.push.apply(this.step_cache, this.actionCache);
+			}
+		}
+		else if(command == STATIC.EraseEdge){
+			let idx = this.edges[dest].findIndex(edge=>edge[0] == nodeCoord[0] && edge[1] == nodeCoord[1] && edge[2] == endCoord[0] && edge[3] == endCoord[3] && edge[4] == colorIndex);
+			if(idx == -1) idx = this.edges[dest].findIndex(edge=>edge[0] == endCoord[0] && edge[1] == endCoord[1] && edge[2] == nodeCoord[0] && edge[3] == nodeCoord[3] && edge[4] == colorIndex);
+			if(idx != -1) arrowIndex = this.edges[dest][idx][6];
+			nodeCoord = undefined; endCoord = undefined; colorIndex = undefined; anyVal = undefined;
+		}
+		else if(command == STATIC.EraseAllEdge){
+			this.edges[dest] = [];
+		}
+		else if(command == STATIC.DrawVertex){
+			if(!this.vertices.hasOwnProperty(dest)) this.vertices[dest] = [];
+			arrowIndex = myUI.nodeCanvas.drawCircle(nodeCoord, this.destsToId[dest], false, colorIndex, anyVal);
+			console.log(arrowIndex);
+			this.vertices[dest].push([...nodeCoord, colorIndex, anyVal, arrowIndex]);
+			nodeCoord = undefined; colorIndex = undefined; anyVal = undefined;
+
+			// check of max number of nodes?
+		}
+		else if(command == STATIC.EraseVertex){
+			let idx = this.vertices[dest].findIndex(vert=>vert[0] == nodeCoord[0] && vert[1] == nodeCoord[1] && vert[2] == colorIndex);
+			if(idx != -1) arrowIndex = this.vertices[dest][idx][4];
+			nodeCoord = undefined; colorIndex = undefined; anyVal = undefined;
+		}
+		else if(command == STATIC.EraseAllVertex){
+			this.vertices[dest] = [];
+		}
+		else if(command == STATIC.DrawSingleVertex){
+			this.vertices[dest] = [];
+			arrowIndex = myUI.nodeCanvas.drawCircle(nodeCoord, this.destsToId[dest], false, colorIndex, anyVal);
+			this.vertices[dest].push([...nodeCoord, colorIndex, anyVal, arrowIndex]);
+			nodeCoord = undefined; colorIndex = undefined; anyVal = undefined;
+		}
+
+
 		this.actionCache = this.constructor.packAction({command: command, dest: dest, nodeCoord: nodeCoord, colorIndex: colorIndex, arrowIndex: arrowIndex, pseudoCodeRow: pseudoCodeRow, infoTableRowIndex: infoTableRowIndex, infoTableRowData: infoTableRowData, anyVal: anyVal, endCoord: endCoord});
-		if(command == STATIC.DrawEdge) this.drawEdgeCnt++;
-		else if(command == STATIC.EraseEdge) this.eraseEdgeCnt++;
-		if(this.step_index == 0) console.log(STATIC_COMMANDS[command], this.dests[dest]);
 		Array.prototype.push.apply(this.step_cache, this.actionCache);
 		return this.actionCache.length;
 	}
@@ -393,13 +443,9 @@ class Pathfinder{
 		console.log("RETRACING PATH");
 		while (node != null) {
 			this.path.unshift(node.self_XY);
-			/* OLD *//*
-			this._create_action(STATIC.DrawPixel, this.dests.path, node.self_XY);
-			this._create_action(STATIC.DrawArrow, node.arrow_index, 1);
-			/* NEW */
 			if(this.constructor.showFreeVertex){
 				if(this.constructor.gridPrecision == "float")
-					this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: node.self_X});
+					this._create_action({command: STATIC.DrawVertex, dest: this.dests.path, nodeCoord: node.self_XY});
 				else
 					this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
 
@@ -425,8 +471,9 @@ class Pathfinder{
 	}
 
 	_terminate_search(){
+		myUI.nodeCanvas.finishDrawing();
+		myUI.edgeCanvas.finishDrawing();
 		if(this.step_index) this._save_step(true);
-    if (this.path == null) console.log("path does not exist");
     return 0;
   }
 

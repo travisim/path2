@@ -35,13 +35,17 @@ class VisibilityGraph extends Pathfinder{
   static get configs(){
 		let configs = Pathfinder.configs;
 		configs.push(
+      {uid: "generate_visbility_graph", displayName: "Generate Visibility Graph", options: "button", description: `Generates the visibility graph without searching.`},
+      {uid: "download_visbility_data", displayName: "Download Visibility Data", options: "button", description: `Download the generated visibility data`},
 			{uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
       {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`},  
-      {uid: "show_network_graph", displayName: "Show network graph:", options: ["Off", "On"], description: `Every corner and corner-pair will be shown in the first two steps if set to "On".`});
+      {uid: "show_network_graph", displayName: "Show network graph:", options: ["Off", "On"], description: `Every corner and corner-pair will be shown in the first two steps if set to "On".`},
+      {uid: "set_max_lines", displayName: "Maximum number of lines:", options: "number", defaultVal: 500, description: `Maximum number of lines (of each type) to be shown on the screen at any time.`},
+    );
 		return configs;
   }
 
@@ -52,6 +56,10 @@ class VisibilityGraph extends Pathfinder{
 
   setConfig(uid, value){
     switch(uid){
+      case "generate_visbility_graph":
+        this.generateNewMap(); break;
+      case "download_visbility_data":
+        this.downloadMapNodes(); break;
       case "mapType":
 				if(value=="Grid Vertex"){
 					this.vertexEnabled = true;
@@ -74,6 +82,8 @@ class VisibilityGraph extends Pathfinder{
 				this.timeOrder = value; break;
       case "show_network_graph":
         this.showNetworkGraph = value=="On"; break;
+      case "set_max_lines":
+        myUI.edgeCanvas.setMaxLines(Number(value)); break;
       default:
         super.setConfig(uid, value);
     }
@@ -100,6 +110,18 @@ class VisibilityGraph extends Pathfinder{
     return canvases;
   }
 
+  downloadMapNodes(){
+    let text = `type,mapnode`;
+    for(let node of this.mapNodes){
+      text += `\n${node.value_XY},${node.getNeighbors()}`;
+    }
+    text += `\ntype,mapedge`
+    for(let edge of this.mapEdges){
+      text += `\n${edge}`;
+    }
+    download("saved.mapnode", text);
+  }
+
   calc_cost(successor){
 
     function euclidean(c1, c2){
@@ -115,9 +137,8 @@ class VisibilityGraph extends Pathfinder{
     return [f_cost, g_cost, h_cost];
   }
 
-  generateNewMap(start, goal){
-    // iterate through entire map
-    // find vertices
+  generateNewMap(){
+    this.add_map(myUI.map_arr);
 
     function cornerCoords(gridObj, kernelSize, startX, startY, vertex = true){
 
@@ -337,47 +358,77 @@ class VisibilityGraph extends Pathfinder{
     }
 
     this.mapNodes = [];
-    this.mapNodes.push(new MapNode(null, start, []));
-    if(this.showNetworkGraph) this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: start});
-    this.mapNodes.push(new MapNode(null, goal, []));
-    if(this.showNetworkGraph) this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: goal});
+    
     let kernelSize = 2;
 
     for(let i = 0; i < this.grid_height - kernelSize + 1; ++i){
       for(let j = 0; j < this.grid_width - kernelSize + 1; ++j){
         let coords = cornerCoords(this.map, kernelSize, i, j, this.vertexEnabled);
         if(coords == null) continue;
-        for(const coord of coords){
+        for(const coord of coords)
           this.mapNodes.push(new MapNode(null, coord, []));
-          if(this.showNetworkGraph) this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: coord});
-        }
       }
     }
-    if(this.showNetworkGraph) this._save_step(true);
 
     // iterate through coordinates & check for visbiliity between them
-
+    this.mapEdges = [];
+    const OFFSET = this.vertexEnabled ? 0 : 0.5;
     for(let i = 0; i < this.mapNodes.length; ++i){
       for(let j = 0; j < i; ++j){
         let n1 = this.mapNodes[i], n2 = this.mapNodes[j];
-        let OFFSET = this.vertexEnabled ? 0 : 0.5;
         if(CustomLOSChecker(n1.value_XY.map(x=>x+OFFSET), n2.value_XY.map(x=>x+OFFSET)).boolean){
-          if(this.showNetworkGraph) this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: n1.value_XY, endCoord: n2.value_XY});
+          this.mapEdges.push([...n1.value_XY, ...n2.value_XY]);
           this.mapNodes[i].neighbours.push(j);
           this.mapNodes[j].neighbours.push(i);
         }
       }
     }
-    if(this.showNetworkGraph) this._save_step(true);
+    console.log(`Generated map! Time taken = ${Date.now() - myUI.startTime}`);
+  }
+
+  addStartGoalNodes(start, goal){
+    const OFFSET = this.vertexEnabled ? 0 : 0.5;
+    for(let coord of [start, goal]){
+      // check if coordinate is already a mapnode
+      let idx = this.mapNodes.findIndex(node => node.value_XY[0] == coord[0] && node.value_XY[1] == coord[1]);
+      if(idx != -1) continue;
+      const nodeToAdd = new MapNode(null, coord, []);
+      for(let i = 0; i < this.mapNodes.length; ++i){
+        const node = this.mapNodes[i];
+        if(CustomLOSChecker(coord.map(x=>x+OFFSET), node.value_XY.map(x=>x+OFFSET)).boolean){
+          nodeToAdd.neighbours.push(i);
+          node.neighbours.push(this.mapNodes.length);
+          this.mapEdges.push([...coord, ...node.value_XY]);
+        }
+      }
+      this.mapNodes.push(nodeToAdd);
+    }
+  }
+
+  drawVisibilityGraph(){
+    if(!this.showNetworkGraph) return;
+
+    for(const node of this.mapNodes)
+      this._create_action({command: STATIC.DrawPixel, dest: this.dests.networkGraph, nodeCoord: node.value_XY});
+    this._save_step(true);
+
+    for(const edge of this.mapEdges)
+      this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: [edge[0], edge[1]], endCoord: [edge[2], edge[3]]});
+    this._save_step(true);
   }
 
   search(start, goal) {
     // this method finds the path using the prescribed map, start & goal coordinates
+
+    if(this.mapNodes === undefined && this.map_arr != myUI.map_arr) this.generateNewMap();
+    this.addStartGoalNodes(start, goal);
     this._init_search(start, goal);
     
 		this.closed_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
 		this.open_list =  new Empty2D(this.map_height, this.map_width, !this.roundNodes);
-    this.generateNewMap(start, goal);
+    this.drawVisibilityGraph();
+    this.startSearchTime = Date.now();
+    
     // return new Promise((r,_)=>r());
     console.log("starting");
    
@@ -425,7 +476,6 @@ class VisibilityGraph extends Pathfinder{
       this.current_node = this.queue.shift(); // remove the first node in queue
       this.current_node_XY = this.current_node.self_XY; // first node in queue XY
       this.open_list.set(this.current_node_XY, undefined);
-      console.log(this.current_node_XY);
 
       //if(this.current_node_XY[0] == 8 && this.current_node_XY[1] == 2) debugger;
 

@@ -90,6 +90,7 @@ class wasm_A_star extends wasm_GridPathfinder{
   }
 
   search(start, goal) {
+    this.add_map(myUI.map_arr);
     this.initBatchInfo();
     let chosenCost = ["Euclidean",
       "Manhattan",
@@ -107,8 +108,6 @@ class wasm_A_star extends wasm_GridPathfinder{
     this.neighborsIndex,
     this.vertexEnabled, this.diagonal_allow, this.bigMap, this.hOptimized,
     chosenCost, order, this.gWeight, this.hWeight, this.destsToId);
-
-    console.log("FINISHED: ", finished);
 
     if(finished){ return this._finish_searching(); }
 

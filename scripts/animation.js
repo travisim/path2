@@ -82,8 +82,6 @@ myUI.create_arrow = function(start_XY, end_XY, head_pc=0.7){
 
 myUI.reset_arrow = function(clear_data=false){
   if(clear_data){
-    myUI.arrow.data = [];
-    myUI.arrow.coords = [];
     myUI.arrow.elems.forEach(el=>el.remove());
     myUI.arrow.elems = [];
   }

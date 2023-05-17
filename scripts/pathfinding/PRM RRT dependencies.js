@@ -73,8 +73,8 @@ function BresenhamLOSChecker(start_XY, end_XY) {//return 0 if no LOS return 1 if
         x0 += sx;
     }
 
-    if (e2 < dx) { 
-        err += dx; 
+    if (e2 < dx) {
+        err += dx;
         Prev_y = y0;
         y0 += sy;
     }
@@ -104,7 +104,7 @@ function CustomLOSChecker(src, tgt){
       return {  boolean: true };
     }
   }
-  
+
 
   var src_dynamic = [];
   src[0] == myUI.map_height ? src_dynamic.push(src[0]-1):src_dynamic.push(src[0]);
@@ -112,15 +112,15 @@ function CustomLOSChecker(src, tgt){
   var tgt_dynamic= [];
   tgt[0] == myUI.map_height ? tgt_dynamic.push(tgt[0]-1):tgt_dynamic.push(tgt[0]);
   tgt[1] == myUI.map_width ? tgt_dynamic.push(tgt[1]-1):tgt_dynamic.push(tgt[1]);
-  
+
 
 
   if((src[0] == tgt[0] && Number.isInteger(src[0])) || (src[1] == tgt[1] && Number.isInteger(src[1]))){
     // cardinal crossing(horizontal/vertical)
-    
-    
+
+
     let x1 = src[0], x0 = src[0] - 1;
-    if(src[0] == tgt[0]){                      
+    if(src[0] == tgt[0]){
       if(src[0]-1 < 0){                 //at top edge of canvas     //if(x0 == 0 || x1 == myUI.map_height){
         // travelling along edge of map/ top or bottom of map
         // accept or reject depending on the map configuration
@@ -131,13 +131,13 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [src[0],y+1],
-              } 
-            } 
-          }  
+              }
+            }
+          }
           return{
             boolean: true,
-          } 
-          
+          }
+
         }
         if (src[1]<tgt[1]){
           for (let y = src_dynamic[1]; y < tgt_dynamic[1]; ++y){
@@ -145,15 +145,15 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [src[0],y],
-              } 
-            } 
-          } 
+              }
+            }
+          }
           return{
             boolean: true,
-          } 
-          
-        }  
-        
+          }
+
+        }
+
       }
       else if(src[0] == myUI.map_height){ // at bottom edge of canvas need check index 16 of grid which is not there so check index 15 instead
         if (src[1]>tgt[1]){
@@ -162,13 +162,13 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [src[0],y+1],
-              } 
-            } 
-          } 
+              }
+            }
+          }
           return{
             boolean: true,
-          }  
-          
+          }
+
         }
         if (src[1]<tgt[1]){
           for (let y = src_dynamic[1]; y < tgt_dynamic[1]; ++y){
@@ -176,30 +176,30 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [src[0],y],
-              } 
-            } 
-          } 
+              }
+            }
+          }
           return{
             boolean: true,
-          } 
-        }  
-          
+          }
+        }
+
 
       }
       else{//below is the case for LOS is not at the edge of canvas
-        
+
         if (src[1]>tgt[1]){
           for (let y = src_dynamic[1]; y > tgt_dynamic[1]-1; --y){
             if (grid[src[0]-1][y] && (grid[src[0]][y] == undefined || grid[src[0]][y])){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [src[0],y+1],
-              } 
-            } 
+              }
+            }
           }
           return{
             boolean: true,
-          } 
+          }
         }
         if (src[1]<tgt[1]){
           for (let y = src_dynamic[1]; y < tgt_dynamic[1]; ++y){
@@ -207,8 +207,8 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [src[0],y],
-              } 
-            } 
+              }
+            }
           }
           return{
             boolean: true,
@@ -216,9 +216,9 @@ function CustomLOSChecker(src, tgt){
         }
       }
     }
-    let y1 = src[1], y0 = src[1] - 1; 
+    let y1 = src[1], y0 = src[1] - 1;
     if(src[1] == tgt[1]){
-      
+
       if(src[1]-1 < 0 ){
         // travelling along edge of map
         // accept or reject depending on the map configuration
@@ -229,13 +229,13 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [x+1,src[1]],
-              } 
-            } 
+              }
+            }
           }
           return{
             boolean: true,
           }
-          
+
         }
         if (src[0]<tgt[0]){
           for (let x = src_dynamic[0]; x < tgt_dynamic[0]; ++x){
@@ -243,13 +243,13 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [x,src[1]],
-              } 
-            } 
+              }
+            }
           }
           return{
             boolean: true,
           }
-          
+
         }
       }
       else if( src[1] == myUI.map_width){
@@ -259,14 +259,14 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [x+1,src[1]],
-              } 
-            } 
+              }
+            }
           }
           return{
             boolean: true,
           }
-          
-          
+
+
         }
         if (src[0]<tgt[0]){
           for (let x = src_dynamic[0]; x < tgt_dynamic[0]; ++x){
@@ -274,30 +274,30 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [x,src[1]],
-              } 
-            } 
+              }
+            }
           }
           return{
             boolean: true,
           }
-        
+
         }
       }
-      
-      else{ 
+
+      else{
         if (src[0]>tgt[0]){
           for (let x = src_dynamic[0]; x > tgt_dynamic[0]-1; --x){
             if (grid[x][src[1]-1] && (grid[x][src[1]] == undefined || grid[x][[src[1]]])){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [x+1,src[1]],
-              } 
-            } 
+              }
+            }
           }
           return{
             boolean: true,
           }
-          
+
         }
         if (src[0]<tgt[0]){
           for (let x = src_dynamic[0]; x < tgt_dynamic[0]; ++x){
@@ -305,13 +305,13 @@ function CustomLOSChecker(src, tgt){
               return{
                 boolean: false,
                 lastPassableCoordBeforeUnpassable: [x,src[1]],
-              } 
-            } 
+              }
+            }
           }
           return{
             boolean: true,
           }
-        
+
         }
       }
 
@@ -324,12 +324,11 @@ function CustomLOSChecker(src, tgt){
     for(coord of path){
       let x = coord[0];
       let y = coord[1];
-      
+
       if(myUI.planner && !myUI.planner.diagonal_allow
         && prevX !== undefined && prevY !== undefined
         && x != prevX && y != prevY){
-        console.log(x, y, prevX, prevY);
-        // diagonal crossing 
+        // diagonal crossing
         if(grid[x][prevY] && grid[prevX][y]){
           // diagonal blocked
           return false;
@@ -339,8 +338,8 @@ function CustomLOSChecker(src, tgt){
       if(grid[x][y]){
         return{
           boolean: false,
-        } 
-      } 
+        }
+      }
       prevX = x;
       prevY = y;
     }
@@ -352,7 +351,7 @@ function CustomLOSChecker(src, tgt){
 
 function CustomLOSGenerator(src, tgt, cons = false){
   const THRES = 1e-3;
-  
+
   /* addition to given algo */
   if(src.reduce(add, 0) < tgt.reduce(add, 0))
     [src, tgt] = [tgt, src];  // swap the arrays
@@ -360,7 +359,7 @@ function CustomLOSGenerator(src, tgt, cons = false){
   let diffX = tgt.map((x, i) => x - src[i]);    // i is index here
   let absX = diffX.map(Math.abs);
 
-  let cflag = absX[0] > absX[1];   
+  let cflag = absX[0] > absX[1];
 
   let diffZ = conv(cflag, diffX);
   let absZ = diffZ.map(Math.abs);
@@ -413,7 +412,7 @@ function CustomLOSGenerator(src, tgt, cons = false){
         }
         floorZ[1] = floorZ[1] + dZ[1];
         if(cons)console.log(`small2: [${conv(cflag, floorZ)}]`);
-      } 
+      }
       else if (cmpS + THRES < cmp) {
         // pass thru small first
         floorZ[1] = floorZ[1] + dZ[1];
@@ -424,7 +423,7 @@ function CustomLOSGenerator(src, tgt, cons = false){
         }
         floorZ[0] = floorZ[0] + dZ[0];
         if(cons) console.log(`long2: [${conv(cflag, floorZ)}]`);
-      } 
+      }
       else {
         // pass thru both at same time
         /* addition to given algo */
@@ -465,14 +464,14 @@ function CustomLOSGenerator(src, tgt, cons = false){
     prevS = S;
     if(cons) console.log("current path: ", coords2String(path));
   }
-      
+
   if(cons) console.log(path);
   return path;
-  
+
   function conv(absDx_Gt_absDy, B) {
     return absDx_Gt_absDy ? [B[0], B[1]] : [B[1], B[0]];
   }
-  
+
   function equal(A, B) {
     return A.every((x, i) => x === B[i]);
   }
@@ -511,6 +510,8 @@ class MapNode {
   hasNeighbours() {
     return (this.numberOfNeighbours > 0);
   }
+
+  getNeighbors(){ return this.neighbours; }
 }
 
 class SVGCanvas {
@@ -518,7 +519,11 @@ class SVGCanvas {
     this.canvas_id = canvas_id;
     this.createSvgCanvas(this.canvas_id, drawOrder);
     this.isGrid = true
-   // this.reset(this.canvas_id);
+    this.lines = {};
+    this.circles = {};
+    this.frag = document.createDocumentFragment();
+    this.shownLines = {};
+    this.shownCircles = {};
   }
 
   isDisplayRatioGrid(isGrid=true){
@@ -535,6 +540,8 @@ class SVGCanvas {
   }
 
   getSvgNode(n, v) {
+    // see https://stackoverflow.com/questions/26034314/document-createelement-performance
+    // see https://howchoo.com/code/learn-the-slow-and-fast-way-to-append-elements-to-the-dom
     n = document.createElementNS("http://www.w3.org/2000/svg", n);
     for (var p in v)
       n.setAttributeNS(null, p.replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
@@ -544,7 +551,7 @@ class SVGCanvas {
     var svg = this.getSvgNode("svg",{width:472/*myUI.canvases.bg.canvas.clientWidth*/,height:472/*myUI.canvases.bg.canvas.clientHeight*/,id:canvas_id});
    // svg.width = myUI.canvases.bg.canvas.clientWidth;
    // svg.height = myUI.canvases.bg.canvas.clientHeight;
-   
+
     const documentStyle = getComputedStyle(document.body)
     const canvas_length = documentStyle.getPropertyValue('--canvas-length'); // #336699
     svg.setAttribute('id',canvas_id)
@@ -555,7 +562,13 @@ class SVGCanvas {
     const CANVAS_OFFSET = getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top');
     svg.setAttribute('viewBox', `-${CANVAS_OFFSET.slice(0,-2)} -${CANVAS_OFFSET.slice(0,-2)} ${canvas_length.slice(0,-2)} ${canvas_length.slice(0,-2)}`);
     svg.style.zIndex = Number(documentStyle.getPropertyValue('--canvas-z-index')) - drawOrder;
-    
+
+
+    svg.addEventListener("load", () => {
+      "makeDraggable(evt)"
+    });
+
+
     svg.addEventListener("load", () => {
       "makeDraggable(evt)"
     });
@@ -563,62 +576,84 @@ class SVGCanvas {
     document.getElementById("canvas_container").append(svg);
     return svg;
   }
+
+  setMaxLines(numberOfLines){
+    this.maxLines = Number(numberOfLines);
+  }
+
+  showLine(destId, index){
+    this.lines[destId][index].classList.remove("hidden");
+    this.shownLines[destId].push(this.lines[destId][index]);
+  }
+
+  hideLine(destId, index){
+    this.lines[destId][index].classList.add("hidden");
+    let idx = this.shownLines[destId].findIndex(el => el == this.lines[destId][index]);
+    if(idx != -1) this.shownLines[destId].splice(idx, 1);
+  }
+
+  hideAllLines(destId){
+    this.lines[destId].forEach(line=>line.classList.add("hidden"));
+    this.shownLines[destId] = [];
+  }
+
   drawLine(start_XY, end_XY, destId = "networkGraph", id=false, colorIndex = 0, lineWidth = 1){
     if(myUI.planner.constructor.gridPrecision != "float" && myUI.vertex == false && myUI.planner.constructor.showFreeVertex){
       // draw lines from centre of squares
       start_XY = start_XY.map(x => x + 0.5);
       end_XY = end_XY.map(x => x + 0.5);
     }
+    if(!this.lines.hasOwnProperty(destId)){
+      this.lines[destId] = [];
+      this.shownLines[destId] = [];
+    }
 
-    const start_coord = {y:start_XY[1], x:start_XY[0]};
-    const end_coord = {y:end_XY[1], x:end_XY[0]};
- 
-    var x1 = this.displayRatio*start_coord.y;
-    var y1 = this.displayRatio*start_coord.x;
-    var x2 = this.displayRatio*end_coord.y;
-    var y2 = this.displayRatio * end_coord.x;
+    var [y1, x1] = start_XY.map(t => t * this.displayRatio);
+    var [y2, x2] = end_XY.map(t => t * this.displayRatio);
     var strokeWidth = Math.max(lineWidth/20*this.displayRatio, 1)
-    var line_id = id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
-    var line_class = `SVGline_${destId}`;
+    var line_id = id?id:`SVGLine_${destId}_${this.lines[destId].length}`;
+    var line_class = `SVGline_${destId} hidden`;
     var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";
     var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:strokeWidth, class:line_class, stroke: color,});
     if(myUI.canvases[destId].drawType == "svgDotted") line.style.strokeDasharray = 5;
-    document.getElementById(this.canvas_id).appendChild(line);
+    this.frag.appendChild(line);
+
+    this.lines[destId].push(line);
+    return this.lines[destId].length - 1;
   }
-  eraseLine(start_XY, end_XY, destId){
-    if(myUI.planner.constructor.gridPrecision != "float" && myUI.vertex == false){
-      // draw lines from centre of squares
-      start_XY = start_XY.map(x => x + 0.5);
-      end_XY = end_XY.map(x => x + 0.5);
-    }
-    const start_coord = {y:start_XY[1], x:start_XY[0]};
-    const end_coord = {y:end_XY[1], x:end_XY[0]};
-    var line_id = `SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`;
-    try{this.EraseSvgById(line_id);}catch{
-      line_id = `SVGline_${end_coord.x}_${end_coord.y}_${start_coord.x}_${start_coord.y}_${destId}`;
-      try{this.EraseSvgById(line_id);}catch{
-        console.error("LINE DOES NOT EXIST");
-        debugger;
-      }
-    }
+
+  showCircle(destId, index){
+    this.circles[destId][index].classList.remove("hidden");
+    this.shownCircles[destId].push(this.circles[destId][index]);
   }
-  
-  eraseAllLines(destId){
-    this.EraseSvgsbyClass(`SVGline_${destId}`);
+
+  hideCircle(destId, index){
+    this.circles[destId][index].classList.add("hidden");
+    let idx = this.shownCircles[destId].findIndex(el => el == this.circles[destId][index]);
+    if(idx != -1) this.shownCircles[destId].splice(idx, 1);
   }
+
+  hideAllCircles(destId){
+    this.circles[destId].forEach(circle=>circle.classList.add("hidden"));
+    this.shownCircles[destId] = [];
+  }
+
   drawCircle(circle_XY, destId = "networkGraph",id=false, colorIndex = 0, radius = undefined, opacityValue = false){
-    const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
+
+    if(!this.circles.hasOwnProperty(destId)){
+      this.circles[destId] = [];
+      this.shownCircles[destId] = [];
+    }
+
     var r = radius?radius:Math.max(0.25*this.displayRatio, 4);
-    var cx = this.displayRatio*circle_coord.y;
-    var cy = this.displayRatio*circle_coord.x; 
-    //console.log("DP",this.displayRatio)
-    var circle_id = id?id:`SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}_${colorIndex}_${radius}`;
-    var circle_class = `SVGcircle_${destId}`;
+    var [cy, cx] = circle_XY.map(t => t * this.displayRatio);
+    var circle_id = id?id:`SVGcircle_${destId}_${this.circles[destId].length}`;
+    var circle_class = `SVGcircle_${destId} hidden`;
 
     var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";
     var drawType = myUI.canvases[destId] ? myUI.canvases[destId].drawType : "cell";
     var opacity = opacityValue ? opacityValue : "100%";
-    
+
     let config = { cx: cx, cy: cy, r: r,  strokeWidth:2, id:circle_id, class:circle_class, fill:color,opacity:opacity};
     if(drawType == "dotted" || drawType == "svgDotted"){
       config.fill = "none";
@@ -628,53 +663,35 @@ class SVGCanvas {
       config.strokeWidth = 2;
     }
     var cir = this.getSvgNode('circle', config);
-    //var toAppend =`<circle cx=${cx} cy=${cy} r=${r} id=${circle_id} stroke-width="2" fill="grey" />`
-    document.getElementById(this.canvas_id).appendChild(cir);
+
+    this.frag.appendChild(cir);
+    this.circles[destId].push(cir);
+    return this.circles[destId].length - 1;
   }
 
-
-  eraseCircle(circle_XY, destId, colorIndex = 0, radius = undefined){
-    const circle_coord = {y:circle_XY[1], x:circle_XY[0]};
-    var circle_id = `SVGcircle_${circle_coord.x}_${circle_coord.y}_${destId}_${colorIndex}_${radius}`;
-    try{this.EraseSvgById(circle_id);}catch{
-      console.error(`CIRCLE DOES NOT EXIST ${circle_id}`);
-    }
-  }
   EraseSvgById(svg_id){
     document.getElementById(this.canvas_id).getElementById(svg_id).remove();
   }
-  EraseSvgsbyClass(svg_class){
-    const classElements = document.querySelectorAll("."+svg_class);
-    classElements.forEach(element => {
-      element.remove();
-    });
-  }
-  eraseAllandDrawCircle(circle_XY, r, color ,circle_id, circle_class ,canvas_id){
-    EraseSvgsbyClass(circle_class,canvas_id);
-    drawCircle(circle_XY, r, color ,circle_id, circle_class ,canvas_id);
+
+  finishDrawing(){
+    document.getElementById(this.canvas_id).appendChild(this.frag);
   }
 
-  //myUI.SVGCanvas.EraseSvgsbyClass(`SVGClass_1`);
   reset(eraseMap = false){
     if(!document.getElementById(this.canvas_id)) return;
-    
-      document.getElementById(this.canvas_id).innerHTML = "";
-  
-  }
 
-  eraseAllSvgExceptClass(className = "tmp_svg") {
-      let tmp_doc = this.createSvgCanvas(className, 0);
-      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGcircle_${STATIC.networkGraph}`))
-        tmp_doc.appendChild(el.cloneNode());
-      
-      for(const el of document.getElementById(this.canvas_id).getElementsByClassName(`SVGline_${STATIC.networkGraph}`))
-        tmp_doc.appendChild(el.cloneNode());
-      
+    if(eraseMap){
+      this.lines = {};
+      this.circles = {};
+      this.shownLines = {};
+      this.shownCircles = {};
+      this.frag = document.createDocumentFragment();
       document.getElementById(this.canvas_id).innerHTML = "";
-      for(const el of tmp_doc.children)
-        document.getElementById(this.canvas_id).appendChild(el.cloneNode());
-
-      tmp_doc.remove();
+    }
+    else{
+      Object.keys(this.lines).forEach(destId => this.hideAllLines(destId));
+      Object.keys(this.circles).forEach(destId => this.hideAllCircles(destId));
+    }
   }
 
   show(){
@@ -684,42 +701,37 @@ class SVGCanvas {
   hide(){
     document.getElementById(this.canvas_id).classList.add("none");
   }
+
 }
 
 function toggleHideSVGCircleByClassIdentifier(className, checked){
-  var divsToHide = document.getElementsByClassName(`SVGcircle_${className}`); //divsToHide is an array
-  for (var i = 0; i < divsToHide.length; i++) {
-    if(checked) divsToHide[i].classList.remove("hidden");
-    else divsToHide[i].classList.add("hidden");
-  }
+  if(checked) myUI.nodeCanvas.shownCircles[className].forEach(el => el.classList.remove("hidden"));
+  else myUI.nodeCanvas.shownCircles[className].forEach(el => el.classList.add("hidden"));
 }
 function toggleHideSVGLineByClassIdentifier(className, checked){
-  var divsToHide = document.getElementsByClassName(`SVGline_${className}`); //divsToHide is an array
-  for (var i = 0; i < divsToHide.length; i++) {
-    if(checked) divsToHide[i].classList.remove("hidden");
-    else divsToHide[i].classList.add("hidden");
-  }
+  if(checked) myUI.edgeCanvas.shownLines[className].forEach(el => el.classList.remove("hidden"));
+  else myUI.edgeCanvas.shownLines[className].forEach(el => el.classList.add("hidden"));
 }
 
 function isArraysEqual(arr1, arr2)
     {
         let N = arr1.length;
         let M = arr2.length;
- 
+
         // If lengths of array are not equal means
         // array are not equal
         if (N != M)
             return false;
- 
+
         // Sort both arrays
         arr1.sort();
         arr2.sort();
- 
+
         // Linearly compare elements
         for (let i = 0; i < N; i++)
             if (arr1[i] != arr2[i])
                 return false;
- 
+
         // If all elements were same.
         return true;
     }
@@ -741,7 +753,7 @@ function deepCopy(src) {
   return target;
 }
 
-// for explanation https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point 
+// for explanation https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point
 function getCoordinatesofPointsXAwayFromSource(src,tgt,x){
   var distanceBetween2Points = Math.sqrt(Math.pow((src[0]-tgt[0]), 2) + Math.pow((src[1]-tgt[1]), 2));
   if(distanceBetween2Points<x){
@@ -753,8 +765,8 @@ function getCoordinatesofPointsXAwayFromSource(src,tgt,x){
     var coordinatesXAwayFromSource = [(1-(ratioOfDistance))*src[0] + ratioOfDistance*tgt[0],(1-(ratioOfDistance))*src[1] + ratioOfDistance*tgt[1]];
     return coordinatesXAwayFromSource;
   }
- 
-  
+
+
 }
 
 function distanceBetween2Points2(src,tgt){
@@ -780,17 +792,17 @@ function distanceBetween2Points(src,tgt){
       if (distanceOfClosestCoordInTreeToRandomCoord>distanceOfPotentialClosestCoordInTreeToRandomCoord){
         k = x;
         var distanceOfClosestCoordInTreeToRandomCoord = distanceBetween2Points(mapNodes[k].value_XY,randomCoord_XY)
-        
+
       }
-  }  
+  }
   return k;
 }
 
 function getNodesNearby(mapNodes ,nextCoordToAdd_XY,neighbourSelectionMethod, connectionDistance,numberOfTopClosestNeighbours ){
   var distancesBetweenACoordAndAllOthers =[];
   for (let i = 0; i < mapNodes.length; ++i) {
-  
-    
+
+
     distancesBetweenACoordAndAllOthers.push([distanceBetween2Points(mapNodes[i].value_XY ,nextCoordToAdd_XY),i]); // could store as before sqrt form
   }
   distancesBetweenACoordAndAllOthers.sort((a,b)=>{
@@ -801,7 +813,7 @@ function getNodesNearby(mapNodes ,nextCoordToAdd_XY,neighbourSelectionMethod, co
   var indexOfSelectedOtherRandomCoords;
 
   if(neighbourSelectionMethod == "Top Closest Neighbours"){
-    // checks LOS between the the top X closes neighbours 
+    // checks LOS between the the top X closes neighbours
     indexOfSelectedOtherRandomCoords = distancesBetweenACoordAndAllOthers
       .slice(0, numberOfTopClosestNeighbours)//this.numberOfTopClosestNeighbours)
       .map(p => p[1]);
@@ -821,7 +833,7 @@ for (let i = 0; i < nodesNearby_Index.length; ++i) {
   //console.log(nodesNearby_Index,i,"i",selectedParent_index,mapNodes)
   if(mapNodes[nodesNearby_Index[i]].g_cost + distanceBetween2Points(mapNodes[nodesNearby_Index[i]].value_XY,nextCoordToAdd_XY)<mapNodes[selectedParent_index].g_cost+distanceBetween2Points(mapNodes[selectedParent_index].value_XY,nextCoordToAdd_XY) &&  CustomLOSChecker(mapNodes[nodesNearby_Index[i]].value_XY , nextCoordToAdd_XY).boolean){
     selectedParent_index = nodesNearby_Index[i];
-    
+
   }
 }
 return selectedParent_index;

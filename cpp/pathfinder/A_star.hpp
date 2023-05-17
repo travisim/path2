@@ -13,10 +13,8 @@
 #include <queue>
 
 #include "grid_pathfinder.hpp"
-#include "step.hpp"
 #include "conversion.hpp"
 
-#include "node.hpp"
 #include "rbt_pq.hpp"
 
 #ifndef ASTAR_HPP
@@ -332,7 +330,7 @@ public:
           continue;
         }
 
-        Node<Coord_t>* nextNode = new Node<Coord_t>(nextXY, parentNode, -1, fCost, gCost, hCost);
+        auto nextNode = new Node<Coord_t>(nextXY, parentNode, -1, fCost, gCost, hCost);
         if(currentNode->depth < maxNodeDepth){
           currentNode->addChild(nextNode);
         }

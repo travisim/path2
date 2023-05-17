@@ -3,7 +3,7 @@ var myUI = {};
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [wasm_A_star, wasm_Theta_star, wasm_Visibility_graph, A_star, Theta_star, VisibilityGraph, PRM, RRT_star];
+  myUI.planners = [PRM, VisibilityGraph, wasm_A_star, wasm_Theta_star, wasm_Visibility_graph, A_star, Theta_star, PRM, RRT_star];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 
@@ -207,7 +207,6 @@ myUI.initialize = function(){
   myUI.arrow = {
     colors: ["#acaabb", "#1000FF"],//
     elems: [],//
-    step: -1
   }
   // END OF ARROW
 

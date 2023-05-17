@@ -13,7 +13,7 @@ void bindAStar(){
   emscripten::class_<A_star<Action<coordInt_t>>, emscripten::base<GridPathfinder<Action<coordInt_t>>>>("AStarPlanner")
     .constructor<>()
     .function("wrapperSearch", &A_star<Action<coordInt_t>>::wrapperSearch)
-    .function("wrapperSearch", &A_star<Action<coordInt_t>>::search)
+    .function("search", &A_star<Action<coordInt_t>>::search)
     .function("runNextSearch", &A_star<Action<coordInt_t>>::runNextSearch)
     .function("insertNode", &A_star<Action<coordInt_t>>::insertNode)
     .function("eraseNode", &A_star<Action<coordInt_t>>::eraseNode)

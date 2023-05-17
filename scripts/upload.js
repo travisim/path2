@@ -48,7 +48,7 @@ myUI.fileHandler = {}
 
 myUI.fileHandler.handleFiles = function (){
 	// takes first map, scen & path file
-	let found = {map: false, scen: false, pathf: false, json: false, pseudo: false}
+	let found = {map: false, scen: false, pathf: false, mapnode: false, pseudo: false}
 	Object.keys(found).forEach(key=>{
 		for(let i=0;i<this.files.length;++i){
 			if(this.files[i].name.endsWith(`.${key}`)){
@@ -78,7 +78,7 @@ myUI.fileHandler.handleFiles = function (){
 			else if(fileType=="pathf"){ // pathf
 				myUI.showPlanners();
 			}
-			else if(fileType=="json"){
+			else if(fileType=="mapnode"){
 				myUI.parseNodeMap(contents);
 			}
       else if(fileType=="pseudo"){

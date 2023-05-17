@@ -202,27 +202,26 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
   }
     
   else if(command == STATIC.DrawVertex){
-    myUI.nodeCanvas.drawCircle([x,y],destId,false,colorIndex, anyVal);//id generated from coord and type
+    myUI.nodeCanvas.showCircle(destId, arrowIndex);
   }
-
   else if(command == STATIC.EraseVertex){
-    myUI.nodeCanvas.eraseCircle([x,y], destId, colorIndex, anyVal);
+    myUI.nodeCanvas.hideCircle(destId, arrowIndex);
   } 
   else if(command == STATIC.EraseAllVertex){
-    myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${destId}`);
+    myUI.nodeCanvas.hideAllCircles(destId);
   } 
   else if(command == STATIC.DrawSingleVertex){
-    myUI.nodeCanvas.EraseSvgsbyClass(`SVGcircle_${destId}`);
-    myUI.nodeCanvas.drawCircle([x,y],destId,false,colorIndex, anyVal);//id generated from coord and type
+    myUI.nodeCanvas.hideAllCircles(destId);
+    myUI.nodeCanvas.showCircle(destId, arrowIndex);
   }
   else if(command == STATIC.DrawEdge){
-    myUI.edgeCanvas.drawLine([x,y], [endX,endY], destId,false,colorIndex,anyVal);
+    myUI.edgeCanvas.showLine(destId, arrowIndex);
   }
   else if(command == STATIC.EraseEdge){
-    myUI.edgeCanvas.eraseLine([x,y], [endX,endY], destId);
+    myUI.edgeCanvas.hideLine(destId, arrowIndex);
   }
   else if(command == STATIC.EraseAllEdge){
-    myUI.edgeCanvas.eraseAllLines(destId);
+    myUI.edgeCanvas.hideAllLines(destId);
   }
 
   }catch(e){
@@ -337,15 +336,14 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   });
 
   function finishGenerating(bounds, clearUpdate = true){
-    console.log(bounds);
-    console.log(myUI.planner.destsToId);
+    console.log("Finished generating states");
+    console.log(`Bounds:`, bounds);
     for(const [dest, bound] of Object.entries(bounds)){
       console.log(dest);
       myUI.canvases[myUI.planner.destsToId[dest]].setValueBounds("min", bound[0]);
       myUI.canvases[myUI.planner.destsToId[dest]].setValueBounds("max", bound[1]);
     }
     document.querySelector("#info-tables-dynamic").style.display = "flex";
-    myUI.reset_animation();
     if(clearUpdate)
       clearInterval(statusUpdate);
   }
@@ -528,73 +526,51 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           mem.pseudoCodeRowSec = pseudoCodeRow;
         }
         else if(command == STATIC.DrawVertex){
-          action = Pathfinder.packAction({command: STATIC.EraseVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, anyVal: anyVal});
-          if(!mem.vertices.hasOwnProperty(dest))
-            mem.vertices[dest] = [];
-          mem.vertices[dest].push([x,y,colorIndex,anyVal]);
+          action = Pathfinder.packAction({command: STATIC.EraseVertex, dest: dest, arrowIndex: arrowIndex});
+          if(!mem.vertices.hasOwnProperty(dest)) mem.vertices[dest] = [];
+          mem.vertices[dest].push(arrowIndex);
         }
         else if(command == STATIC.EraseVertex){
           console.assert(mem.vertices.hasOwnProperty(dest), "ERROR: VERTEX DEST NOT FOUND");
-          let flag = false;
-          for(let i = 0; i < mem.vertices[dest].length; ++i){
-            if(mem.vertices[dest][i][0] == x && mem.vertices[dest][i][1] == y && mem.vertices[dest][i][2] == colorIndex && mem.vertices[dest][i][3] == anyVal){
-              mem.vertices[dest].splice(i, 1);
-              flag = true;
-              action = Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [x,y], colorIndex: colorIndex, anyVal: anyVal});
-              break;
-            }
-          }
-          console.assert(flag, "ERROR: VERTEX NOT FOUND");
+          let idx = mem.vertices[dest].indexOf(arrowIndex);
+          mem.vertices[dest].splice(idx, 1);
+          action = Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, arrowIndex: arrowIndex});
         }
-        
         else if(command == STATIC.EraseAllVertex){
           action = [];
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], anyVal: coordData[3]})));
+          mem.vertices[dest].forEach(index=>{
+            Array.prototype.push.apply(action, Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, arrowIndex: index}));
+          });
           mem.vertices[dest] = [];
         }
-        else if(command == STATIC.DrawSingleVertex){ //now hard coded for current vertex
-          action = [];
+        else if(command == STATIC.DrawSingleVertex){
+          action = Pathfinder.packAction({command: STATIC.EraseVertex, dest: dest, arrowIndex: arrowIndex});
           if(!mem.vertices.hasOwnProperty(dest))
             mem.vertices[dest] = [];
-          mem.vertices[dest].forEach(coordData => Array.prototype.push.apply(action,Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, nodeCoord: [coordData[0], coordData[1]], colorIndex: coordData[2], anyVal: coordData[3]})));
+          mem.vertices[dest].forEach(index=>{
+            Array.prototype.push.apply(action, Pathfinder.packAction({command: STATIC.DrawVertex, dest: dest, arrowIndex: index}));
+          });
           mem.vertices[dest] = [];
-          mem.vertices[dest].push([x,y,colorIndex,anyVal]);
-          action = Pathfinder.packAction({command: STATIC.EraseAllVertex, dest: dest});
+          mem.vertices[dest].push(arrowIndex);
         } 
         else if(command == STATIC.DrawEdge){
-          action = Pathfinder.packAction({command: STATIC.EraseEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY]});
-          if(!mem.edges.hasOwnProperty(dest))
-            mem.edges[dest] = [];
-          let edge = [x,y,endX,endY,colorIndex];
-          if(anyVal !== undefined) edge.push(anyVal);
-          mem.edges[dest].push(edge);
+          action = Pathfinder.packAction({command: STATIC.EraseEdge, dest: dest, arrowIndex: arrowIndex});
+          if(!mem.edges.hasOwnProperty(dest)) mem.edges[dest] = [];
+          mem.edges[dest].push(arrowIndex);
         }
         else if(command == STATIC.EraseEdge){
-          if(!mem.edges.hasOwnProperty(dest)){
-            console.error("ERROR: EDGE NOT FOUND");
-            Array.prototype.unshift.apply(curStep, action);
-            i=j;
-            continue;
-          }
-          for(let i = 0; i < mem.edges[dest].length; ++i){
-            let a = mem.edges[dest][i][0] == x && mem.edges[dest][i][1] == y && mem.edges[dest][i][2] == endX && mem.edges[dest][i][3] == endY;
-            let b = mem.edges[dest][i][2] == x && mem.edges[dest][i][3] == y && mem.edges[dest][i][0] == endX && mem.edges[dest][i][1] == endY;
-            if(a || b){
-              let colorIdx = mem.edges[dest][i][4];
-              let anyVal = mem.edges[dest][i][5];
-              action = Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [x,y], endCoord: [endX,endY], colorIndex: colorIdx, anyVal: anyVal});
-              mem.edges[dest].splice(i, 1);
-              break;
-            }
-          }
+          let idx = mem.edges[dest].indexOf(arrowIndex);
+          mem.edges[dest].splice(idx, 1);
+          action = Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, arrowIndex: arrowIndex});
         }
         else if(command == STATIC.EraseAllEdge){
+          if(!mem.edges.hasOwnProperty(dest)) mem.edges[dest] = [];
           action = [];
-          if(!mem.edges.hasOwnProperty(dest))
-            mem.edges[dest] = [];
-          mem.edges[dest].forEach(quad => Array.prototype.push.apply(action, Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, nodeCoord: [quad[0], quad[1]], endCoord: [quad[2], quad[3]], colorIndex: quad[4], anyVal: quad[5]})));
+          mem.edges[dest].forEach(index=>{
+            Array.prototype.push.apply(action, Pathfinder.packAction({command: STATIC.DrawEdge, dest: dest, arrowIndex: index}));
+          });
           mem.edges[dest] = [];
         }
         else{
@@ -647,18 +623,10 @@ myUI.generateReverseSteps = function({genStates=false}={}){
         // pseudoCode
         nextState.pseudoCodeRowPri = mem.pseudoCodeRowPri;
         nextState.pseudoCodeRowSec = mem.pseudoCodeRowSec;
-        
-        for(const [dest, vertices] of Object.entries(mem.vertices)){
-          nextState.vertices[dest] = [];
-          for(const vert of vertices)
-            nextState.vertices[dest].push([vert[0], vert[1], vert[2], vert[3]]);
-        }
 
-        for(const [dest, edges] of Object.entries(mem.edges)){
-          nextState.edges[dest] = [];
-          for(const edge of edges)
-            nextState.edges[dest].push([edge[0], edge[1], edge[2], edge[3], edge[4], edge[5]]);
-        }
+        nextState.vertices = deepCopy(mem.vertices);
+
+        nextState.edges = deepCopy(mem.edges);
 
         myUI.states.push(nextState);
       }
@@ -709,13 +677,7 @@ myUI.jump_to_step = function(target_step){
   target_step = target_step===undefined ? myUI.animation.step : Number(target_step);
   myUI.target_step = target_step;
   let idx = 0;
-  for(const table of Object.values(myUI.InfoTables)) table.removeAllTableRows();
-  for(const canvas of Object.values(myUI.dynamicCanvas)) canvas.erase_canvas();
-  for(const elem of myUI.arrow.elems)
-    elem.classList.add("hidden");
-  
-  myUI.nodeCanvas.reset(false);
-  myUI.edgeCanvas.reset(false);
+  myUI.reset_animation(false, false);
 
   const stateFreq = myUI.states[0];
 
@@ -781,47 +743,67 @@ myUI.jump_to_step = function(target_step){
     }
 
     // free vertices
-    var vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices;
-    var items = Object.entries(vertices);
+    // var vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices;
+    // var items = Object.entries(vertices);
+    // items.sort(orderCanvases);
+    // for(let [dest, vertexArray] of items){
+    //   console.log(myUI.planner.destsToId[dest]);
+    //   if(myUI.planner.constructor.wasm) vertexArray = [...vector_values(vertexArray)];
+    //   for(let vert of vertexArray){
+    //     if(myUI.planner.constructor.wasm){
+    //       // manual unpacking of c++ struct
+    //       vert = [
+    //         vert.xy.x,
+    //         vert.xy.y,
+    //         vert.colorIndex == -1 ? undefined : vert.colorIndex,
+    //         vert.radius == -1 ? undefined : vert.radius
+    //       ];
+    //     }
+    //     let coord = vert.slice(0, 2);
+    //     myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, vert[2], vert[3]);
+    //   }
+    // }
+
+    // free edge
+    // var edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges;
+    // var items = Object.entries(edges);
+    // items.sort(orderCanvases);
+    // for(let [dest, edgeArray] of items){
+    //   if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
+    //   for(let edge of edgeArray){
+    //     if(myUI.planner.constructor.wasm){
+    //       myUI.edge = edge;
+    //       // manual unpacking of c++ struct
+    //       edge = [
+    //         edge.startXY.x,
+    //         edge.startXY.y,
+    //         edge.endXY.x,
+    //         edge.endXY.y,
+    //         edge.colorIndex == -1 ? undefined : edge.colorIndex,
+    //         edge.lineWidth == -1 ? undefined : edge.lineWidth,
+    //       ];
+    //     }
+    //     myUI.edgeCanvas.drawLine([edge[0], edge[1]], [edge[2], edge[3]], myUI.planner.destsToId[dest], false, edge[4], edge[5]);
+    //   }
+    // }
+
+    // free vertex 2.0
+    var items = Object.entries(state.vertices);
     items.sort(orderCanvases);
-    for(let [dest, vertexArray] of items){
-      console.log(myUI.planner.destsToId[dest]);
-      if(myUI.planner.constructor.wasm) vertexArray = [...vector_values(vertexArray)];
-      for(let vert of vertexArray){
-        if(myUI.planner.constructor.wasm){
-          // manual unpacking of c++ struct
-          vert = [
-            vert.xy.x,
-            vert.xy.y,
-            vert.colorIndex == -1 ? undefined : vert.colorIndex,
-            vert.radius == -1 ? undefined : vert.radius
-          ];
-        }
-        let coord = vert.slice(0, 2);
-        myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, vert[2], vert[3]);
+    for(let [dest, vertices] of items){
+      let destId = myUI.planner.destsToId[dest];
+      for(let index of vertices){
+        myUI.nodeCanvas.showCircle(destId, index);
       }
     }
 
-    // free edge
-    var edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges;
-    var items = Object.entries(edges);
+    // free edge 2.0
+    var items = Object.entries(state.edges);
     items.sort(orderCanvases);
-    for(let [dest, edgeArray] of items){
-      if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
-      for(let edge of edgeArray){
-        if(myUI.planner.constructor.wasm){
-          myUI.edge = edge;
-          // manual unpacking of c++ struct
-          edge = [
-            edge.startXY.x,
-            edge.startXY.y,
-            edge.endXY.x,
-            edge.endXY.y,
-            edge.colorIndex == -1 ? undefined : edge.colorIndex,
-            edge.lineWidth == -1 ? undefined : edge.lineWidth,
-          ];
-        }
-        myUI.edgeCanvas.drawLine([edge[0], edge[1]], [edge[2], edge[3]], myUI.planner.destsToId[dest], false, edge[4], edge[5]);
+    for(let [dest, edges] of items){
+      let destId = myUI.planner.destsToId[dest];
+      for(let index of edges){
+        myUI.edgeCanvas.showLine(destId, index);
       }
     }
     

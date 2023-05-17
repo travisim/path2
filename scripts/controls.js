@@ -12,11 +12,10 @@ document.getElementById("compute_btn").addEventListener("click", compute_path);
 
 function compute_path(){
 	clearTimeout(myUI.finalTimeout);
-	myUI.reset_animation(true);
+	myUI.reset_animation(true, true);
 	if(!myUI.planner_choice) return alert("no planner loaded!");
 	if(!myUI.map_arr) return alert("no map loaded!");
 	if(!myUI.map_start) return alert("no scene loaded!");
-	myUI.planner.add_map(myUI.map_arr);
 	myUI.updateInfoMap(...myUI.map_start);
 	Object.values(myUI.canvases).forEach(function(uiCanvas){
 		if(uiCanvas.valType=="float")uiCanvas.minVal = uiCanvas.maxVal = null;
@@ -90,25 +89,25 @@ myUI.sliders.state_freq_slider.label.addEventListener("input",function(){
 	myUI.sliders.state_freq_slider.elem.value = this.value;
 });
 
-myUI.reset_animation = function(clear_data = false){
+myUI.reset_animation = function(clear_data = false, updateSlider = false){
 	myUI.stop_animation(myUI.animation.running); //stop animation if scen changed halfway while still animating
-	myUI.update_search_slider(-1);
+	if(updateSlider) myUI.update_search_slider(-1);
 	if(myUI.dynamicCanvas)
 		myUI.dynamicCanvas.forEach(uiCanvas=>{
 			uiCanvas.erase_canvas();
 		});
 	if(myUI.InfoTables) Object.values(myUI.InfoTables).forEach(IT=>IT.removeAllTableRows());
 	myUI.reset_arrow(clear_data);
-	myUI.resetMapAnimations();
+	myUI.resetMapAnimations(clear_data);
 }
 
 myUI.reset_animation_callback = function(e){
-	myUI.reset_animation(false);
+	myUI.reset_animation(false, true);
 }
 
-myUI.resetMapAnimations = () => {
-	myUI.nodeCanvas.reset();
-	myUI.edgeCanvas.reset();
+myUI.resetMapAnimations = (clear_data = false) => {
+	myUI.nodeCanvas.reset(clear_data);
+	myUI.edgeCanvas.reset(clear_data);
 }
 
 myUI.buttons.clear_btn.btn.addEventListener("click", myUI.reset_animation_callback);

@@ -188,8 +188,6 @@ class PRM extends Pathfinder{
     }
     this._save_step(true);
     
-    //var otherRandomCoordsDistance = empty2D(mapNodes.length,mapNodes.length-1); // this contains the distance between a Coord and all other coord in a 2d array with the index of otherRandomCoordDistance corresponding to coord in  randomCoord
-    
     for (let i = 0; i < this.mapNodes.length; ++i) {
       let currentCoord = [...this.mapNodes[i].value_XY];
       var distancesBetweenACoordAndAllOthers=[]; // index corresponds to index of mapNodes, 
@@ -231,7 +229,7 @@ class PRM extends Pathfinder{
         
         if(LOS){//if there is lOS then add neighbours(out of 5) to neighbours of node
           ++cnt;
-          // every time we add an edge, it is bidirectional, so checking of of the neighbours is sufficient
+          // every time we add an edge, it is bidirectional, so checking of one neighbour is sufficient
           if(!this.mapNodes[i].neighbours.includes(jdx)){
             this.mapNodes[i].neighbours.push(jdx);
             this.mapNodes[jdx].neighbours.push(i);

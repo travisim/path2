@@ -113,7 +113,8 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
   }
 
   search(start, goal){
-    this._init_search(start, goal); // for batch size and batch interval
+    this.add_map(myUI.map_arr);
+    this.initBatchInfo();
     let chosenCost = ["Euclidean",
       "Manhattan",
       "Chebyshev",

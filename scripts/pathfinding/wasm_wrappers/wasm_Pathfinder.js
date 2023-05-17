@@ -59,7 +59,6 @@ class wasm_GridPathfinder extends GridPathfinder{
       if(finished){
         return this._finish_searching();
       }
-      
       let planner = this;
       return new Promise((resolve, reject) => {
         setTimeout(() => resolve(planner._run_next_search()), planner.batch_interval);

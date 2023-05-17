@@ -56,7 +56,7 @@ myUI.parse2DArrayToMap = (map_array) => {
 myUI.displayMap = function(){
   console.log("Map Arr below:");
 	console.log(myUI.map_arr);
-	myUI.reset_animation();
+	myUI.reset_animation(true, true);
   
 	myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
@@ -191,7 +191,7 @@ document.querySelectorAll(".scen_controls").forEach(elem=>{
 myUI.displayScen = function(update=false, reset_zero=false){
 	//myUI.canvases.start.erase_canvas();
 	//myUI.canvases.goal.erase_canvas();
-	myUI.reset_animation();
+	myUI.reset_animation(true, true);
 	if(myUI.planner) myUI.planner.cell_map = undefined;
 	myUI.sliders.search_progress_slider.elem.disabled = true;
 	myUI.scenFail = false;
@@ -290,7 +290,7 @@ myUI.loadPlanner = function(create_planner = true) {
     myUI.setPlannerConfig();
   }
 
-	myUI.reset_animation();
+	myUI.reset_animation(true, true);
   myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
   myUI.buttons.planner_config_btn.btn.children[0].innerHTML = myUI.planner.constructor.display_name;
   myUI.displayMap();
@@ -353,37 +353,28 @@ myUI.toggleVertex = function(enable=true){
 }
 
 myUI.parseNodeMap = function(contents){
-  let data = JSON.parse(contents);
-  console.log(data);  
-  if(document.getElementById("node")){
-    document.getElementById("node").innerHTML = "";
+  let lines = contents.split("\n");
+  
+  myUI.mapNodes = [];
+  let idx = 0;
+  console.assert(lines[idx++].endsWith("mapnode"), "INVALID NODE MAP FILE UPLOADED");
+  while(idx < lines.length && !lines[idx].startsWith("type")){
+    let items = lines[idx++].split(",").map(x=>Number(x));
+    let coord = [items[0], items[1]];
+    let neighbors = items.slice(2);
+    myUI.mapNodes.push(new MapNode(null, coord, neighbors));
   }
-  if(document.getElementById("edge")){
-    document.getElementById("edge").innerHTML = "";
-  }
-  myUI.planner.mapNodes = [];
-  for(const coord of data.coords){
-    myUI.planner.mapNodes.push(new MapNode(null, coord, []));
-  }
+  myUI.planner.mapNodes = myUI.mapNodes;
+  console.log(myUI.mapNodes[0]);
 
-  myUI.planner.mapNodes.forEach(node=>{
-    myUI.nodeCanvas.drawCircle(node.value_XY);
-  });
-
-  for(let i = 0; i < myUI.planner.mapNodes.length; ++i){
-    myUI.planner.mapNodes[i].neighbours.push(...data.neighbors[i]);
+  myUI.mapEdges = [];
+  console.assert(lines[idx++].endsWith("mapedge"), "INVALID NODE MAP FILE UPLOADED");
+  while(idx < lines.length){
+    myUI.mapEdges.push(lines[idx++].split(",").map(x=>Number(x)));
   }
+  myUI.planner.mapEdges = myUI.mapEdges;
+  console.log(myUI.mapEdges[0]);
 
-  for (let i = 0; i < data.edges.length; ++i) {
-    myUI.edgeCanvas.drawLine(data.edges[i][0],data.edges[i][1]);
-  }
-
-  for(const coord of data.coords){
-    if(!(Number.isInteger(coord[0]) && Number.isInteger(coord[0]))){
-      myUI.planner.roundNodes = false;
-      break;
-    }
-  }
 }
 
 
@@ -411,8 +402,7 @@ myUI.sliders.map_width_slider.label.addEventListener("focusout", updateMapBasedO
 
 function updateMapBasedOnMapConfig() {
   
-  myUI.reset_animation()
-  myUI.resetMapAnimations()
+  myUI.reset_animation(true, true)
   let MapNames = getStaticMethodNames(predefinedMaps);
   MapNames.forEach(n => { 
     if (document.getElementById("map_config").value == n) {

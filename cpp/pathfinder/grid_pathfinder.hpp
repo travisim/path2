@@ -10,9 +10,6 @@
 #include <queue>
 
 #include "pathfinder.hpp"
-#include "step.hpp"
-
-#include "node.hpp"
 
 #ifndef GRID_PATHFINDER_HPP
 #define GRID_PATHFINDER_HPP
