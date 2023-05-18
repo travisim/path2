@@ -247,7 +247,7 @@ namespace pathfinder
   };
   template <typename Coord_t>
   inline bool operator==(const FreeVertex<Coord_t> &lhs, const FreeVertex<Coord_t> &rhs) {
-    return isEqualCoord<Coord_t>(lhs.xy, rhs.xy) && lhs.colorIndex == rhs.colorIndex && lhs.radius == rhs.radius;
+    return isCoordEqual<Coord_t>(lhs.xy, rhs.xy) && lhs.colorIndex == rhs.colorIndex && lhs.radius == rhs.radius;
   }
 
   template <typename Coord_t>
@@ -271,7 +271,7 @@ namespace pathfinder
   };
   template <typename Coord_t>
   inline bool operator==(const FreeEdge<Coord_t> &lhs, const FreeEdge<Coord_t> &rhs) {
-    return isEqualCoord<Coord_t>(lhs.startXY, rhs.startXY) && isEqualCoord<Coord_t>(lhs.endXY, rhs.endXY) && lhs.colorIndex == rhs.colorIndex && lhs.lineWidth == rhs.lineWidth;
+    return isCoordEqual<Coord_t>(lhs.startXY, rhs.startXY) && isCoordEqual<Coord_t>(lhs.endXY, rhs.endXY) && lhs.colorIndex == rhs.colorIndex && lhs.lineWidth == rhs.lineWidth;
   }
 
   template <typename Coord_t>
@@ -343,4 +343,37 @@ namespace pathfinder
     }
   };
 }
+
+template <typename Coord_t>
+struct VertexSim{
+  Coord_t nodeCoord;
+  int8_t colorIndex;
+  double anyVal;
+  int arrowIndex;
+};
+
+template <typename Coord_t>
+struct EdgeSim{
+  Coord_t nodeCoord;
+  Coord_t endCoord;
+  int8_t colorIndex;
+  double anyVal;
+  int arrowIndex;
+};
+
+template <typename Coord_t>
+struct StoredVertex{
+  Coord_t nodeCoord;
+  int8_t colorIndex;
+  double anyVal;
+};
+
+template <typename Coord_t>
+struct StoredEdge{
+  Coord_t nodeCoord;
+  Coord_t endCoord;
+  int8_t colorIndex;
+  double anyVal;
+};
+
 #endif

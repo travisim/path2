@@ -1,5 +1,6 @@
 #include <emscripten/bind.h>
 #include "../pathfinder/pathfinder.hpp"
+#include "../pathfinder/step.hpp"
 #include "../pathfinder/grid_pathfinder.hpp"
 #include "../bindings/bind_data.hpp"
 
@@ -14,6 +15,8 @@ void bindPathfinder(BindType myType){
       .constructor()
       .property("stepIndex", &Pathfinder<Action<coordInt_t>>::stepIndex)
       .property("arrowCoords", &Pathfinder<Action<coordInt_t>>::arrowCoords)
+      .property("vertexStore", &Pathfinder<Action<coordInt_t>>::vertexStore)
+      .property("edgeStore", &Pathfinder<Action<coordInt_t>>::edgeStore)
       .function("maxStep", &Pathfinder<Action<coordInt_t>>::maxStep)
     
       .function("generateReverseSteps", &Pathfinder<Action<coordInt_t>>::generateReverseSteps)
@@ -22,12 +25,16 @@ void bindPathfinder(BindType myType){
       .function("getStep", &Pathfinder<Action<coordInt_t>>::getStep)
       .function("getState", &Pathfinder<Action<coordInt_t>>::getState)
       .function("getNumStates", &Pathfinder<Action<coordInt_t>>::getNumStates)
+      .function("getEdgeStoreSize", &Pathfinder<Action<coordInt_t>>::getEdgeStoreSize)
+      .function("getEdgeStore", &Pathfinder<Action<coordInt_t>>::getEdgeStore)
       ;
 
     emscripten::class_<Pathfinder<BaseAction<coordInt_t>>>("BasePathfinderInt")
       .constructor()
       .property("stepIndex", &Pathfinder<BaseAction<coordInt_t>>::stepIndex)
       .property("arrowCoords", &Pathfinder<BaseAction<coordInt_t>>::arrowCoords)
+      .property("vertexStore", &Pathfinder<BaseAction<coordInt_t>>::vertexStore)
+      .property("edgeStore", &Pathfinder<BaseAction<coordInt_t>>::edgeStore)
       .function("maxStep", &Pathfinder<BaseAction<coordInt_t>>::maxStep)
     
       .function("generateReverseSteps", &Pathfinder<BaseAction<coordInt_t>>::generateReverseSteps)

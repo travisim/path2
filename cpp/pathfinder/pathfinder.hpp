@@ -7,6 +7,7 @@
 #include <cmath>     // M_SQRT2
 #include <algorithm> // max, min
 #include <vector>    // steps, any general iterable
+#include <deque>    // steps, any general iterable
 #include <map>       // ostream operator<< overloading
 #include <set>       // storing of node children
 #include <iterator>
@@ -41,6 +42,11 @@ namespace pathfinder
     int batchSize, batchInterval;
 
     std::unordered_map<std::string, int> dests;
+    std::unordered_map<int, std::deque<VertexSim<Coord_t>>> vertices;
+    std::unordered_map<int, std::deque<EdgeSim<Coord_t>>> edges;
+    std::unordered_map<int, std::vector<StoredVertex<Coord_t>>> vertexStore;
+    std::unordered_map<int, std::vector<StoredEdge<Coord_t>>> edgeStore;
+    int maxLines = 500;
 
     Coord_t start, goal, currentNodeXY;
     std::vector<Coord_t> path;
@@ -144,8 +150,63 @@ namespace pathfinder
       batchInterval = 0;
     }
 
-    void createAction(Command command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
+    void createAction(Command command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int8_t colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
+      if(command == DrawEdge){
+        if(edges.find(dest) == edges.end()) edges[dest] = {};
+        int arrowIndex = edgeStore[dest].size();  // simulates myUI.edgeCanvas
+        edges[dest].push_back({nodeCoord, endCoord, colorIndex, anyVal, arrowIndex});
+        edgeStore[dest].push_back({nodeCoord, endCoord, colorIndex, anyVal});
+        std::cout<<"EDGESTORE SIZE "<<edgeStore[dest].size()<<std::endl;
+        nodeCoord = {-1, -1}; endCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
+
+        if(edges[dest].size() > maxLines){
+          fwdActionCnt++;
+          auto oldest = edges[dest].front(); edges[dest].pop_front();
+          Action_t myAction = packAction(command, dest, {-1, -1}, -1, oldest.arrowIndex);
+          currentStep->fwdActions.push_back(myAction);
+        }
+      }
+      else if(command == EraseEdge){
+        for(auto &e : edges[dest]){
+          bool a = isCoordEqual<Coord_t>(e.nodeCoord, nodeCoord) && isCoordEqual<Coord_t>(e.endCoord, endCoord) && e.colorIndex == colorIndex;
+          bool b = isCoordEqual<Coord_t>(e.nodeCoord, endCoord) && isCoordEqual<Coord_t>(e.endCoord, nodeCoord) && e.colorIndex == colorIndex;
+          if(a || b){
+            arrowIndex = e.arrowIndex;
+            break;
+          }
+        }
+        nodeCoord = {-1, -1}; endCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
+      }
+      else if(command == EraseAllEdge){
+        edges[dest].clear();
+      }
+      else if(command == DrawVertex){
+        if(vertices.find(dest) == vertices.end()) vertices[dest] = {};
+        int arrowindex = vertexStore[dest].size();  // simulates myUI.nodeCanvas
+        vertices[dest].push_back({nodeCoord, colorIndex, anyVal, arrowIndex});
+        vertexStore[dest].push_back({nodeCoord, colorIndex, anyVal});
+        nodeCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
+      }
+      else if(command == EraseVertex){
+        for(auto &v : vertices[dest]){
+          if(isCoordEqual<Coord_t>(v.nodeCoord, nodeCoord) && v.colorIndex == colorIndex){
+            arrowIndex = v.arrowIndex;
+            break;
+          }
+        }
+        nodeCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
+      }
+      else if(command == EraseAllVertex){
+        vertices[dest].clear();
+      }
+      else if(command == DrawSingleVertex){
+        vertices[dest].clear();
+        int arrowindex = vertexStore[dest].size();  // simulates myUI.nodeCanvas
+        vertices[dest].push_back({nodeCoord, colorIndex, anyVal, arrowIndex});
+        vertexStore[dest].push_back({nodeCoord, colorIndex, anyVal});
+        nodeCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
+      }
       
       fwdActionCnt++;
       Action_t myAction = packAction(command, dest, nodeCoord, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, anyVal, endCoord);
@@ -223,6 +284,7 @@ namespace pathfinder
       {
         // std::cout<<"Unable to find goal at "<<goal.first<<' '<<goal.second<<std::endl;
       }
+      std::cout<<"EDGESTORE KEY SIZE: "<<edgeStore.size()<<std::endl;
       std::cout << "Num steps: " << steps.size() << std::endl;
       std::cout << "Num actions: " << fwdActionCnt << std::endl;
       #ifdef PURE_CPP
@@ -264,6 +326,14 @@ namespace pathfinder
       }
       State<Coord_t> s = *states[stateNo - 1].get();
       return s;
+    }
+
+    int getEdgeStoreSize(){
+      return edgeStore.size();
+    }
+
+    std::unordered_map<int, std::vector<StoredEdge<Coord_t>>> getEdgeStore(){
+      return edgeStore;
     }
   };
 }

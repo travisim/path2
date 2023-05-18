@@ -23,6 +23,7 @@ namespace pathfinder
   template <typename Action_t>
   bool Pathfinder<Action_t>::nextGenSteps(int givenBatchSize)
   {
+    // using Coord_t = typename Action_t::CoordType;
     if (givenBatchSize == -1)
       givenBatchSize = batchSize; // use fwd step generation size
     const int CANVAS_WIDTH = (vertexEnabled ? gridWidth + 1 : gridWidth);
@@ -80,7 +81,7 @@ namespace pathfinder
         // std::cout << "PASSED BOUNDS\n";
 
         // adds canvas to activeTable if not exists
-        if (!coordIsEqual({x, y}, {-1, -1}) || command == EraseCanvas)
+        if ((x != -1 && y != -1) || command == EraseCanvas)
         {
           if (sim.activeCanvas.find(dest) == sim.activeCanvas.end())
             sim.activeCanvas[dest] = rowf_t(CANVAS_DATA_SIZE, defaultVal);

@@ -331,7 +331,7 @@ public:
 
         if(closedNode != nullptr && closedNode->fCost <= fCost){
           if(!bigMap){
-            if(currentNode->parent && isEqualCoord(currentNode->parent->selfXY, nextXY))
+            if(currentNode->parent && isCoordEqual(currentNode->parent->selfXY, nextXY))
               createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Parent"});
             else
               createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Not a child"});

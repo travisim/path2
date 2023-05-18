@@ -367,7 +367,6 @@ class Pathfinder{
 		else if(command == STATIC.DrawVertex){
 			if(!this.vertices.hasOwnProperty(dest)) this.vertices[dest] = [];
 			arrowIndex = myUI.nodeCanvas.drawCircle(nodeCoord, this.destsToId[dest], false, colorIndex, anyVal);
-			console.log(arrowIndex);
 			this.vertices[dest].push([...nodeCoord, colorIndex, anyVal, arrowIndex]);
 			nodeCoord = undefined; colorIndex = undefined; anyVal = undefined;
 

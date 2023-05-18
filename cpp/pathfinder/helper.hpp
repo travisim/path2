@@ -62,7 +62,7 @@ inline std::string coord2String(coordDouble_t coord, int precision = -1){
 }
 
 template<typename Coord_t>
-bool isEqualCoord(const Coord_t& a, const Coord_t& b){ return a.first == b.first && a.second == b.second; }
+bool isCoordEqual(const Coord_t& a, const Coord_t& b){ return a.first == b.first && a.second == b.second; }
 
 // Hash function
 struct LineIntHash
@@ -137,10 +137,6 @@ double roundDP(double n, int dp){
 double roundSF(double n, int sf){
   const int dp = sf - floor(log10(n + 1));
   return roundDP(n, dp);
-}
-
-bool coordIsEqual(const coordInt_t &c1, const coordInt_t &c2){
-  return c1.first == c2.first && c1.second == c2.second;
 }
 
 bool isArrayEqual(const lineInt_t &e1, const lineInt_t &e2){
