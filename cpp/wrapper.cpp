@@ -57,7 +57,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
     .constructor<>()
     .property("nodeCoord", &StoredVertex<coordInt_t>::nodeCoord)
     .property("colorIndex", &StoredVertex<coordInt_t>::colorIndex)
-    .property("anyVal", &StoredVertex<coordInt_t>::anyVal)
+    .property("radius", &StoredVertex<coordInt_t>::radius)
     ;
   
   emscripten::class_<StoredEdge<coordInt_t>>("StoredEdgeInt")
@@ -65,7 +65,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
     .property("nodeCoord", &StoredEdge<coordInt_t>::nodeCoord)
     .property("endCoord", &StoredEdge<coordInt_t>::endCoord)
     .property("colorIndex", &StoredEdge<coordInt_t>::colorIndex)
-    .property("anyVal", &StoredEdge<coordInt_t>::anyVal)
+    .property("lineWidth", &StoredEdge<coordInt_t>::lineWidth)
     ;
 
   
@@ -73,7 +73,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
     .constructor<>()
     .property("nodeCoord", &StoredVertex<coordDouble_t>::nodeCoord)
     .property("colorIndex", &StoredVertex<coordDouble_t>::colorIndex)
-    .property("anyVal", &StoredVertex<coordDouble_t>::anyVal)
+    .property("radius", &StoredVertex<coordDouble_t>::radius)
     ;
   
   emscripten::class_<StoredEdge<coordDouble_t>>("StoredEdgeDouble")
@@ -81,7 +81,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
     .property("nodeCoord", &StoredEdge<coordDouble_t>::nodeCoord)
     .property("endCoord", &StoredEdge<coordDouble_t>::endCoord)
     .property("colorIndex", &StoredEdge<coordDouble_t>::colorIndex)
-    .property("anyVal", &StoredEdge<coordDouble_t>::anyVal)
+    .property("lineWidth", &StoredEdge<coordDouble_t>::lineWidth)
     ;
 
   emscripten::register_vector<StoredVertex<coordInt_t>>("vectorStoredVertexInt");

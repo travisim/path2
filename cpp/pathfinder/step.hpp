@@ -253,19 +253,19 @@ namespace pathfinder
         }
         else if (command == DrawVertex)
         {
-          steps[stepCnt]->revActions.push_back(packAction(EraseVertex, dest, {x, y}, colorIndex, -1, -1, 0, {}, anyVal));
-          sim.vertices[dest].insert({{x, y}, colorIndex, anyVal});
+          steps[stepCnt]->revActions.push_back(packAction(EraseVertex, dest, {-1, -1}, -1, arrowIndex));
+          sim.vertices[dest].insert(arrowIndex);
         }
         else if (command == EraseVertex)
         {
-          steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, {x, y}, colorIndex, -1, -1, 0, {}, anyVal));
-          sim.vertices[dest].erase({{x, y}, colorIndex, anyVal});
+          steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, {-1, -1}, -1, arrowIndex));
+          sim.vertices[dest].erase(arrowIndex);
         }
         else if (command == EraseAllVertex)
         {
           for (auto &vert : sim.vertices[dest])
           {
-            steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, vert.xy, vert.colorIndex, -1, -1, 0, {}, vert.radius));
+            steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, {-1, -1}, -1, vert));
           }
           sim.vertices[dest].clear();
         }
@@ -273,32 +273,27 @@ namespace pathfinder
         {
           for (auto &vert : sim.vertices[dest])
           {
-            steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, vert.xy, vert.colorIndex, -1, -1, 0, {}, vert.radius));
+            steps[stepCnt]->revActions.push_back(packAction(DrawVertex, dest, {-1, -1}, -1, vert));
           }
-          steps[stepCnt]->revActions.push_back(packAction(EraseVertex, dest, {x, y}, colorIndex, -1, -1, 0, {}, anyVal));
+          steps[stepCnt]->revActions.push_back(packAction(EraseVertex, dest, {-1, -1}, -1, arrowIndex));
           sim.vertices[dest].clear();
-          sim.vertices[dest].insert({{x, y}, colorIndex, anyVal});
+          sim.vertices[dest].insert(arrowIndex);
         }
         else if (command == DrawEdge)
         {
-          steps[stepCnt]->revActions.push_back(packAction(EraseEdge, dest, {x, y}, -1, -1, -1, -1, {}, -1, {endX, endY}));
-          sim.edges[dest].insert({{x, y}, {endX, endY}, colorIndex, anyVal});
+          steps[stepCnt]->revActions.push_back(packAction(EraseEdge, dest, {-1, -1}, -1, arrowIndex));
+          sim.edges[dest].insert(arrowIndex);
         }
         else if (command == EraseEdge)
         {
-          steps[stepCnt]->revActions.push_back(packAction(DrawEdge, dest, {x, y}, -1, -1, -1, -1, {}, -1, {endX, endY}));
-          auto it = sim.edges[dest].find({{x, y}, {endX, endY}, colorIndex, anyVal});
-          if (it != sim.edges[dest].end())
-            sim.edges[dest].erase(it);
-          it = sim.edges[dest].find({{endX, endY}, {x, y}, colorIndex, anyVal});
-          if (it != sim.edges[dest].end())
-            sim.edges[dest].erase(it);
+          steps[stepCnt]->revActions.push_back(packAction(DrawEdge, dest, {-1, -1}, -1, arrowIndex));
+          sim.edges[dest].erase(arrowIndex);
         }
         else if (command == EraseAllEdge)
         {
-          for (auto &e : sim.edges[dest])
+          for (auto &eIndex : sim.edges[dest])
           {
-            steps[stepCnt]->revActions.push_back(packAction(DrawEdge, dest, e.startXY, e.colorIndex, -1, -1, -1, {}, e.lineWidth, e.endXY));
+            steps[stepCnt]->revActions.push_back(packAction(DrawEdge, dest, {-1, -1}, -1, eIndex));
           }
           sim.edges[dest].clear();
         }

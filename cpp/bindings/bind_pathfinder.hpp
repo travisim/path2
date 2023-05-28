@@ -25,8 +25,6 @@ void bindPathfinder(BindType myType){
       .function("getStep", &Pathfinder<Action<coordInt_t>>::getStep)
       .function("getState", &Pathfinder<Action<coordInt_t>>::getState)
       .function("getNumStates", &Pathfinder<Action<coordInt_t>>::getNumStates)
-      .function("getEdgeStoreSize", &Pathfinder<Action<coordInt_t>>::getEdgeStoreSize)
-      .function("getEdgeStore", &Pathfinder<Action<coordInt_t>>::getEdgeStore)
       ;
 
     emscripten::class_<Pathfinder<BaseAction<coordInt_t>>>("BasePathfinderInt")

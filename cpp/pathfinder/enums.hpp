@@ -239,52 +239,52 @@ namespace pathfinder
     }
   };
 
-  template <typename Coord_t>
-  struct FreeVertex{
-    Coord_t xy;
-    int colorIndex;  // can ignore in hashing because it has a tiny range (<10)
-    double radius;
-  };
-  template <typename Coord_t>
-  inline bool operator==(const FreeVertex<Coord_t> &lhs, const FreeVertex<Coord_t> &rhs) {
-    return isCoordEqual<Coord_t>(lhs.xy, rhs.xy) && lhs.colorIndex == rhs.colorIndex && lhs.radius == rhs.radius;
-  }
+  // template <typename Coord_t>
+  // struct FreeVertex{
+  //   Coord_t xy;
+  //   int colorIndex;  // can ignore in hashing because it has a tiny range (<10)
+  //   double radius;
+  // };
+  // template <typename Coord_t>
+  // inline bool operator==(const FreeVertex<Coord_t> &lhs, const FreeVertex<Coord_t> &rhs) {
+  //   return isCoordEqual<Coord_t>(lhs.xy, rhs.xy) && lhs.colorIndex == rhs.colorIndex && lhs.radius == rhs.radius;
+  // }
 
-  template <typename Coord_t>
-  struct VertexHash{
-    std::size_t operator()(const FreeVertex<Coord_t>& v) const {
-      auto radiusHash = std::hash<double>()(v.radius);
-      auto hash = CoordHash<Coord_t>();
+  // template <typename Coord_t>
+  // struct VertexHash{
+  //   std::size_t operator()(const FreeVertex<Coord_t>& v) const {
+  //     auto radiusHash = std::hash<double>()(v.radius);
+  //     auto hash = CoordHash<Coord_t>();
       
-      // if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
-      //   return doubleHash(v.xy) ^ radiusHash;
-      return hash(v.xy) ^ radiusHash;
-    }
-  };
+  //     // if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
+  //     //   return doubleHash(v.xy) ^ radiusHash;
+  //     return hash(v.xy) ^ radiusHash;
+  //   }
+  // };
 
-  template <typename Coord_t>
-  struct FreeEdge{
-    Coord_t startXY;
-    Coord_t endXY;
-    int colorIndex;  // similar to FreeVertex, can ignore in hashing because it has a tiny range (<10)
-    double lineWidth;
-  };
-  template <typename Coord_t>
-  inline bool operator==(const FreeEdge<Coord_t> &lhs, const FreeEdge<Coord_t> &rhs) {
-    return isCoordEqual<Coord_t>(lhs.startXY, rhs.startXY) && isCoordEqual<Coord_t>(lhs.endXY, rhs.endXY) && lhs.colorIndex == rhs.colorIndex && lhs.lineWidth == rhs.lineWidth;
-  }
+  // template <typename Coord_t>
+  // struct FreeEdge{
+  //   Coord_t startXY;
+  //   Coord_t endXY;
+  //   int colorIndex;  // similar to FreeVertex, can ignore in hashing because it has a tiny range (<10)
+  //   double lineWidth;
+  // };
+  // template <typename Coord_t>
+  // inline bool operator==(const FreeEdge<Coord_t> &lhs, const FreeEdge<Coord_t> &rhs) {
+  //   return isCoordEqual<Coord_t>(lhs.startXY, rhs.startXY) && isCoordEqual<Coord_t>(lhs.endXY, rhs.endXY) && lhs.colorIndex == rhs.colorIndex && lhs.lineWidth == rhs.lineWidth;
+  // }
 
-  template <typename Coord_t>
-  struct EdgeHash{
-    std::size_t operator()(const FreeEdge<Coord_t>& e) const {
-      auto lineWidthHash = std::hash<double>()(e.lineWidth);
-      auto hash = CoordHash<Coord_t>();
-      // if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
-      //   return doubleHash(e.startXY) ^ doubleHash(e.endXY) ^ lineWidthHash;
-      // return coord2int32(e.startXY) ^ coord2int32(e.endXY) ^ lineWidthHash;
-      return hash(e.startXY) ^ hash(e.endXY) ^ lineWidthHash;
-    }
-  };
+  // template <typename Coord_t>
+  // struct EdgeHash{
+  //   std::size_t operator()(const FreeEdge<Coord_t>& e) const {
+  //     auto lineWidthHash = std::hash<double>()(e.lineWidth);
+  //     auto hash = CoordHash<Coord_t>();
+  //     // if constexpr(std::is_same<Coord_t, coordDouble_t>::value)
+  //     //   return doubleHash(e.startXY) ^ doubleHash(e.endXY) ^ lineWidthHash;
+  //     // return coord2int32(e.startXY) ^ coord2int32(e.endXY) ^ lineWidthHash;
+  //     return hash(e.startXY) ^ hash(e.endXY) ^ lineWidthHash;
+  //   }
+  // };
 
   template <typename Coord_t>
   struct State
@@ -302,8 +302,8 @@ namespace pathfinder
 
     std::unordered_map<int, rowf_t> canvases;
     std::unordered_map<int, InfoTableState> infotables;
-    std::unordered_map<int, std::vector<FreeVertex<Coord_t>>> vertices;
-    std::unordered_map<int, std::vector<FreeEdge<Coord_t>>> edges;
+    std::unordered_map<int, std::vector<int>> vertices;
+    std::unordered_map<int, std::vector<int>> edges;
 
     std::unordered_map<int, uint8_t> arrowColor;
     int pseudoCodeRowPri;
@@ -321,14 +321,8 @@ namespace pathfinder
     std::unordered_map<int, uint8_t> arrowColor;
     // std::unordered_map<Dest, std::pair<double, double>> bounds;
     std::unordered_map<int, bound_t> bounds;
-
-    std::unordered_map<Dest,
-                       std::unordered_set<FreeVertex<Coord_t>, VertexHash<Coord_t>>
-                       > vertices;
-
-    std::unordered_map<Dest,
-                       std::unordered_set<FreeEdge<Coord_t>, EdgeHash<Coord_t>>
-                       > edges;
+    std::unordered_map<Dest, std::unordered_set<int>> vertices;
+    std::unordered_map<Dest, std::unordered_set<int>> edges;
     int pseudoCodeRowPri = -1;
     int pseudoCodeRowSec = -1;
     void clear()
@@ -348,7 +342,7 @@ template <typename Coord_t>
 struct VertexSim{
   Coord_t nodeCoord;
   int8_t colorIndex;
-  double anyVal;
+  double radius;
   int arrowIndex;
 };
 
@@ -357,7 +351,7 @@ struct EdgeSim{
   Coord_t nodeCoord;
   Coord_t endCoord;
   int8_t colorIndex;
-  double anyVal;
+  double lineWidth;
   int arrowIndex;
 };
 
@@ -365,7 +359,7 @@ template <typename Coord_t>
 struct StoredVertex{
   Coord_t nodeCoord;
   int8_t colorIndex;
-  double anyVal;
+  double radius;
 };
 
 template <typename Coord_t>
@@ -373,7 +367,7 @@ struct StoredEdge{
   Coord_t nodeCoord;
   Coord_t endCoord;
   int8_t colorIndex;
-  double anyVal;
+  double lineWidth;
 };
 
 #endif

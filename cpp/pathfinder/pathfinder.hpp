@@ -154,10 +154,11 @@ namespace pathfinder
     {
       if(command == DrawEdge){
         if(edges.find(dest) == edges.end()) edges[dest] = {};
-        int arrowIndex = edgeStore[dest].size();  // simulates myUI.edgeCanvas
+        arrowIndex = edgeStore[dest].size();  // simulates myUI.edgeCanvas
+        if(colorIndex == -1) colorIndex = 0;
+        if(anyVal == -1) anyVal = 1;
         edges[dest].push_back({nodeCoord, endCoord, colorIndex, anyVal, arrowIndex});
         edgeStore[dest].push_back({nodeCoord, endCoord, colorIndex, anyVal});
-        std::cout<<"EDGESTORE SIZE "<<edgeStore[dest].size()<<std::endl;
         nodeCoord = {-1, -1}; endCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
 
         if(edges[dest].size() > maxLines){
@@ -183,7 +184,9 @@ namespace pathfinder
       }
       else if(command == DrawVertex){
         if(vertices.find(dest) == vertices.end()) vertices[dest] = {};
-        int arrowindex = vertexStore[dest].size();  // simulates myUI.nodeCanvas
+        arrowIndex = vertexStore[dest].size();  // simulates myUI.nodeCanvas
+        if(colorIndex == -1) colorIndex = 0;
+        if(anyVal == -1) anyVal = 1;
         vertices[dest].push_back({nodeCoord, colorIndex, anyVal, arrowIndex});
         vertexStore[dest].push_back({nodeCoord, colorIndex, anyVal});
         nodeCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
@@ -326,14 +329,6 @@ namespace pathfinder
       }
       State<Coord_t> s = *states[stateNo - 1].get();
       return s;
-    }
-
-    int getEdgeStoreSize(){
-      return edgeStore.size();
-    }
-
-    std::unordered_map<int, std::vector<StoredEdge<Coord_t>>> getEdgeStore(){
-      return edgeStore;
     }
   };
 }

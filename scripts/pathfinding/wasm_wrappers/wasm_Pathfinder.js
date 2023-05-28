@@ -42,6 +42,23 @@ class wasm_Pathfinder extends Pathfinder{
       let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
       myUI.create_arrow(start, end);
     }
+
+    // draw vertices and edges from vertex and edge stores
+    let obj = map_to_obj(this.wasmPlanner.vertexStore);
+    for(const [dest, vertices] of Object.entries(obj)){
+      for(const vertex of vec_to_arr(vertices)){
+        myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[dest], false, vertex.colorIndex, vertex.radius);
+      }
+    }
+
+    console.log("WASM EDGESTORE:", this.wasmPlanner.edgeStore);
+    obj = map_to_obj(this.wasmPlanner.edgeStore);
+    for(const [dest, edges] of Object.entries(obj)){
+      for(const edge of vec_to_arr(edges)){
+        myUI.edgeCanvas.drawLine([edge.nodeCoord.x, edge.nodeCoord.y], [edge.endCoord.x, edge.endCoord.y], this.destsToId[dest], false, edge.colorIndex, edge.lineWidth);
+      }
+    }
+
     return this._terminate_search();
   }
 
@@ -93,6 +110,22 @@ class wasm_GridPathfinder extends GridPathfinder{
       let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
       myUI.create_arrow(start, end);
     }
+
+    // draw vertices and edges from vertex and edge stores
+    let obj = map_to_obj(this.wasmPlanner.vertexStore);
+    for(const [dest, vertices] of Object.entries(obj)){
+      for(const vertex of vec_to_arr(vertices)){
+        myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[dest], false, vertex.colorIndex, vertex.radius);
+      }
+    }
+
+    obj = map_to_obj(this.wasmPlanner.edgeStore);
+    for(const [dest, edges] of Object.entries(obj)){
+      for(const edge of vec_to_arr(edges)){
+        myUI.edgeCanvas.drawLine([edge.nodeCoord.x, edge.nodeCoord.y], [edge.endCoord.x, edge.endCoord.y], this.destsToId[dest], false, edge.colorIndex, edge.lineWidth);
+      }
+    }
+    
     return this._terminate_search();
   }
 

@@ -788,20 +788,24 @@ myUI.jump_to_step = function(target_step){
     // }
 
     // free vertex 2.0
-    var items = Object.entries(state.vertices);
+    var vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices;
+    var items = Object.entries(vertices);
     items.sort(orderCanvases);
     for(let [dest, vertices] of items){
       let destId = myUI.planner.destsToId[dest];
+      if(myUI.planner.constructor.wasm) vertices = [...vector_values(vertices)];
       for(let index of vertices){
         myUI.nodeCanvas.showCircle(destId, index);
       }
     }
 
     // free edge 2.0
-    var items = Object.entries(state.edges);
+    var edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges;
+    var items = Object.entries(edges);
     items.sort(orderCanvases);
     for(let [dest, edges] of items){
       let destId = myUI.planner.destsToId[dest];
+      if(myUI.planner.constructor.wasm) edges = [...vector_values(edges)];
       for(let index of edges){
         myUI.edgeCanvas.showLine(destId, index);
       }

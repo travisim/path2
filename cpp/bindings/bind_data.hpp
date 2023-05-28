@@ -116,26 +116,26 @@ void bindState(BindType myType){
       .property("pseudoCodeRowSec", &pathfinder::State<coordInt_t>::pseudoCodeRowSec)
       ;
 
-    emscripten::class_<pathfinder::FreeVertex<coordInt_t>>("FreeVertexInt")
-      .constructor<>()
-      .property("xy", &pathfinder::FreeVertex<coordInt_t>::xy)
-      .property("colorIndex", &pathfinder::FreeVertex<coordInt_t>::colorIndex)
-      .property("radius", &pathfinder::FreeVertex<coordInt_t>::radius)
-      ;
+    // emscripten::class_<pathfinder::FreeVertex<coordInt_t>>("FreeVertexInt")
+    //   .constructor<>()
+    //   .property("xy", &pathfinder::FreeVertex<coordInt_t>::xy)
+    //   .property("colorIndex", &pathfinder::FreeVertex<coordInt_t>::colorIndex)
+    //   .property("radius", &pathfinder::FreeVertex<coordInt_t>::radius)
+    //   ;
 
-    emscripten_extensions::register_unordered_map<int, std::vector<pathfinder::FreeVertex<coordInt_t>>>("verticesInt");
-    emscripten::register_vector<pathfinder::FreeVertex<coordInt_t>>("vectorVertexInt");
+    // emscripten_extensions::register_unordered_map<int, std::vector<pathfinder::FreeVertex<coordInt_t>>>("verticesInt");
+    // emscripten::register_vector<pathfinder::FreeVertex<coordInt_t>>("vectorVertexInt");
 
-    emscripten::class_<pathfinder::FreeEdge<coordInt_t>>("FreeEdgeInt")
-      .constructor<>()
-      .property("startXY", &pathfinder::FreeEdge<coordInt_t>::startXY)
-      .property("endXY", &pathfinder::FreeEdge<coordInt_t>::endXY)
-      .property("colorIndex", &pathfinder::FreeEdge<coordInt_t>::colorIndex)
-      .property("lineWidth", &pathfinder::FreeEdge<coordInt_t>::lineWidth)
-      ;
+    // emscripten::class_<pathfinder::FreeEdge<coordInt_t>>("FreeEdgeInt")
+    //   .constructor<>()
+    //   .property("startXY", &pathfinder::FreeEdge<coordInt_t>::startXY)
+    //   .property("endXY", &pathfinder::FreeEdge<coordInt_t>::endXY)
+    //   .property("colorIndex", &pathfinder::FreeEdge<coordInt_t>::colorIndex)
+    //   .property("lineWidth", &pathfinder::FreeEdge<coordInt_t>::lineWidth)
+    //   ;
 
-    emscripten_extensions::register_unordered_map<int, std::vector<pathfinder::FreeEdge<coordInt_t>>>("edgesInt");
-    emscripten::register_vector<pathfinder::FreeEdge<coordInt_t>>("vectorEdgeInt");
+    // emscripten_extensions::register_unordered_map<int, std::vector<pathfinder::FreeEdge<coordInt_t>>>("edgesInt");
+    // emscripten::register_vector<pathfinder::FreeEdge<coordInt_t>>("vectorEdgeInt");
   }
   else if(myType == BindType::double_coord){
     // TO DO
@@ -151,6 +151,7 @@ void bindState(BindType myType){
     .property("rows", &InfoTableState::rows); //vectorVectorString
 
   emscripten_extensions::register_unordered_map<int, uint8_t>("arrowColor");
+  emscripten_extensions::register_unordered_map<int, std::vector<int>>("uMapVectorInt");
   /* END OF STATE PROPERTIES BINDINGS */
 }
 
