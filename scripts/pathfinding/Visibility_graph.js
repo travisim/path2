@@ -370,20 +370,40 @@ class VisibilityGraph extends Pathfinder{
       }
     }
 
+    let thisPlanner = this;
+    let numNodes = this.mapNodes.length;
+    let loopLength = 20000;
+
+    function runNextLoop(a){
+      let chg = Math.floor((Math.sqrt(8*loopLength + 4*a*a - 4*a + 1) - 2*a + 1)/2);
+      // console.log(`a: ${a}, loopLenFloor: ${a*chg + chg*chg/2 - chg/2}`);
+      for(let i = a; i < a + chg; ++i){
+        if(numNodes == i){
+          console.log(`Generated map! Time taken = ${Date.now() - myUI.startTime}ms`);
+          return;
+        }
+        for(let j = 0; j < i; ++j){
+          let n1 = thisPlanner.mapNodes[i], n2 = thisPlanner.mapNodes[j];
+          if(CustomLOSChecker(n1.value_XY.map(x=>x+OFFSET), n2.value_XY.map(x=>x+OFFSET)).boolean){
+            // console.log(`${n1.value_XY[0]} ${n1.value_XY[1]} ${n2.value_XY[0]} ${n2.value_XY[1]} HAVE LOS`);
+            thisPlanner.mapEdges.push([...n1.value_XY, ...n2.value_XY]);
+            thisPlanner.mapNodes[i].neighbours.push(j);
+            thisPlanner.mapNodes[j].neighbours.push(i);
+          }
+          // else console.log(`${n1.value_XY[0]} ${n1.value_XY[1]} ${n2.value_XY[0]} ${n2.value_XY[1]} NO LOS`);
+        }
+      }
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve(runNextLoop(a + chg)), 0);
+      });
+    }
+
     // iterate through coordinates & check for visbiliity between them
     this.mapEdges = [];
     const OFFSET = this.vertexEnabled ? 0 : 0.5;
-    for(let i = 0; i < this.mapNodes.length; ++i){
-      for(let j = 0; j < i; ++j){
-        let n1 = this.mapNodes[i], n2 = this.mapNodes[j];
-        if(CustomLOSChecker(n1.value_XY.map(x=>x+OFFSET), n2.value_XY.map(x=>x+OFFSET)).boolean){
-          this.mapEdges.push([...n1.value_XY, ...n2.value_XY]);
-          this.mapNodes[i].neighbours.push(j);
-          this.mapNodes[j].neighbours.push(i);
-        }
-      }
-    }
-    console.log(`Generated map! Time taken = ${Date.now() - myUI.startTime}`);
+    return new Promise((resolve, reject) => {
+      setTimeout(() => resolve(runNextLoop(0)), 0);
+    });
   }
 
   addStartGoalNodes(start, goal){
@@ -396,10 +416,12 @@ class VisibilityGraph extends Pathfinder{
       for(let i = 0; i < this.mapNodes.length; ++i){
         const node = this.mapNodes[i];
         if(CustomLOSChecker(coord.map(x=>x+OFFSET), node.value_XY.map(x=>x+OFFSET)).boolean){
+          // console.log(`${coord[0]} ${coord[1]} ${node.value_XY[0]} ${node.value_XY[1]} HAVE LOS`);
           nodeToAdd.neighbours.push(i);
           node.neighbours.push(this.mapNodes.length);
           this.mapEdges.push([...coord, ...node.value_XY]);
         }
+        // else console.log(`${coord[0]} ${coord[1]} ${node.value_XY[0]} ${node.value_XY[1]} NO LOS`);
       }
       this.mapNodes.push(nodeToAdd);
     }
@@ -417,10 +439,14 @@ class VisibilityGraph extends Pathfinder{
     this._save_step(true);
   }
 
-  search(start, goal) {
+  async search(start, goal) {
     // this method finds the path using the prescribed map, start & goal coordinates
 
-    if(this.mapNodes === undefined && this.map_arr != myUI.map_arr) this.generateNewMap();
+    if(this.mapNodes === undefined && this.map_arr != myUI.map_arr){
+      await this.generateNewMap();
+      console.log("MAP GENERATED");
+    }
+    else console.log("NO MAP GENERATED");
     this.addStartGoalNodes(start, goal);
     this._init_search(start, goal);
     

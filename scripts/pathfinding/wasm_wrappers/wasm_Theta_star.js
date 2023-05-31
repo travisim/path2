@@ -15,16 +15,4 @@ class wasm_Theta_star extends wasm_A_star{
   loadWasmPlanner(){
     return this.bigMap ? new Module["BaseThetaStarPlanner"]() : new Module["ThetaStarPlanner"]();
   }
-
-  pick_parent(successor){
-    if(this.current_node.parent){
-      let OFFSET = this.vertexEnabled ? 0 : 0.5;
-      let src = [this.current_node.parent.self_XY[0] + OFFSET, this.current_node.parent.self_XY[1] + OFFSET];
-      let tgt = [successor[0] + OFFSET, successor[1] + OFFSET];
-      if(CustomLOSChecker(src, tgt).boolean)
-        return this.current_node.parent;
-      return this.current_node;
-    }
-    return this.current_node;
-  }
 }

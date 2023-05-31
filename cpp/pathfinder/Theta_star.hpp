@@ -10,6 +10,8 @@ namespace pathfinder{
   private:
     using Coord_t = typename Action_t::CoordType;
     using A_star<Action_t>::currentNode;
+    using A_star<Action_t>::currentNodeXY;
+    using A_star<Action_t>::stepIndex;
     using A_star<Action_t>::goal;
     using A_star<Action_t>::chosenCost;
     using A_star<Action_t>::grid;
@@ -18,6 +20,12 @@ namespace pathfinder{
     using A_star<Action_t>::parentNode;
     using A_star<Action_t>::gCoeff;
     using A_star<Action_t>::hCoeff;
+    using A_star<Action_t>::CanvasPath;
+    using A_star<Action_t>::path;
+
+    using A_star<Action_t>::assignCellIndex;
+    using A_star<Action_t>::createAction;
+    using A_star<Action_t>::saveStep;
 
     using A_star<Action_t>::manhattan;
     using A_star<Action_t>::euclidean;
@@ -25,6 +33,31 @@ namespace pathfinder{
     using A_star<Action_t>::octile;
 
     inline bool showFreeVertex(){ return true; }
+
+    bool foundGoal(Node<Coord_t> *node){
+      // every planner now has to define their own implementation of foundGoal because of enum-binding
+      // found the goal & exits the loop
+      if (node->selfXY.first != goal.first || node->selfXY.second != goal.second)
+        return false;
+      assignCellIndex(currentNodeXY, stepIndex);
+
+      //  retraces the entire parent tree until start is found
+      Node<Coord_t> *current = node;
+      while (current != nullptr)
+      {
+        createAction(DrawPixel, CanvasPath, current->selfXY);
+        if(current->parent)
+          createAction(DrawEdge, CanvasPath, current->selfXY, -1, -1, -1, -1, {}, 3, current->parent->selfXY);
+
+        path.push_back(current->selfXY);
+        if (current->arrowIndex != -1)
+          createAction(DrawArrow, -1, {-1, -1}, 1, current->arrowIndex);
+        current = current->parent;
+      }
+      saveStep(true);
+      saveStep(true);
+      return true;
+    }
     
     std::array<double, 3> calcCost(Coord_t nextXY)
     {

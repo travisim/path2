@@ -41,7 +41,6 @@ namespace pathfinder
     int gridHeight, gridWidth;
     int batchSize, batchInterval;
 
-    std::unordered_map<std::string, int> dests;
     std::unordered_map<int, std::deque<VertexSim<Coord_t>>> vertices;
     std::unordered_map<int, std::deque<EdgeSim<Coord_t>>> edges;
     std::unordered_map<int, std::vector<StoredVertex<Coord_t>>> vertexStore;
@@ -253,33 +252,36 @@ namespace pathfinder
       // END OF ARROW
     }
 
-    virtual bool foundGoal(Node<Coord_t> *node)
-    {
-      // found the goal & exits the loop
-      if (node->selfXY.first != goal.first || node->selfXY.second != goal.second)
-        return false;
+    virtual double getDestDefaultVal(int dest){ return 0; }
 
-      //  retraces the entire parent tree until start is found
-      Node<Coord_t> *current = node;
-      while (current != nullptr)
-      {
-        if(showFreeVertex()){
-          if(gridPrecisionFloat()) createAction(DrawVertex, dests["path"], current->selfXY);
-          else createAction(DrawPixel, dests["path"], current->selfXY);
+    // keep this implementation until all planners are made
+    // virtual bool foundGoal(Node<Coord_t> *node)
+    // {
+    //   // found the goal & exits the loop
+    //   if (node->selfXY.first != goal.first || node->selfXY.second != goal.second)
+    //     return false;
+
+    //   //  retraces the entire parent tree until start is found
+    //   Node<Coord_t> *current = node;
+    //   while (current != nullptr)
+    //   {
+    //     if(showFreeVertex()){
+    //       if(gridPrecisionFloat()) createAction(DrawVertex, dests["path"], current->selfXY);
+    //       else createAction(DrawPixel, dests["path"], current->selfXY);
           
-          if(current->parent)
-            createAction(DrawEdge, dests["path"], current->selfXY, -1, -1, -1, -1, {}, 3, current->parent->selfXY);
-        }
-        else createAction(DrawPixel, dests["path"], current->selfXY);
-        path.push_back(current->selfXY);
-        if (current->arrowIndex != -1)
-          createAction(DrawArrow, -1, {-1, -1}, 1, current->arrowIndex);
-        current = current->parent;
-      }
-      saveStep(true);
-      saveStep(true);
-      return true;
-    }
+    //       if(current->parent)
+    //         createAction(DrawEdge, dests["path"], current->selfXY, -1, -1, -1, -1, {}, 3, current->parent->selfXY);
+    //     }
+    //     else createAction(DrawPixel, dests["path"], current->selfXY);
+    //     path.push_back(current->selfXY);
+    //     if (current->arrowIndex != -1)
+    //       createAction(DrawArrow, -1, {-1, -1}, 1, current->arrowIndex);
+    //     current = current->parent;
+    //   }
+    //   saveStep(true);
+    //   saveStep(true);
+    //   return true;
+    // }
 
     bool terminateSearch(bool found = true)
     {

@@ -13,6 +13,7 @@
 #include <queue>
 
 #include "grid_pathfinder.hpp"
+#include "step.hpp"
 #include "conversion.hpp"
 
 #include "rbt_pq.hpp"
@@ -44,7 +45,7 @@ protected:
   using GridPathfinder<Action_t>::bigMap;
   using GridPathfinder<Action_t>::diagonalAllow;
   using GridPathfinder<Action_t>::neighborsIndex;
-  using GridPathfinder<Action_t>::dests;
+  using GridPathfinder<Action_t>::path;
 
   // methods
   using GridPathfinder<Action_t>::saveStep;
@@ -53,7 +54,6 @@ protected:
   using GridPathfinder<Action_t>::createAction;
   using GridPathfinder<Action_t>::handleArrow;
   using GridPathfinder<Action_t>::assignCellIndex;
-  using GridPathfinder<Action_t>::foundGoal;
   using GridPathfinder<Action_t>::nodeIsNeighbor;
 
   using GridPathfinder<Action_t>::manhattan;
@@ -109,6 +109,26 @@ protected:
     //return new Node<Coord_t>(nextXY, currentNode, -1, gCoeff * gCost + hCoeff * hCost, gCost, hCost);
   }
 
+  enum Dest{
+    PseudoCode,
+    CanvasFocused,
+    CanvasExpanded,
+    CanvasPath,
+    CanvasNeighbors,
+    CanvasQueue,
+    CanvasVisited,
+    CanvasFCost,
+    CanvasGCost,
+    CanvasHCost,
+    ITNeighbors,
+    ITQueue,
+  };
+
+  double getDestDefaultVal(int dest){
+    if(dest == CanvasFCost || dest == CanvasGCost || dest == CanvasHCost) return std::numeric_limits<double>::infinity();
+    return 0;
+  }
+
 public:
   A_star() {}
 
@@ -119,27 +139,38 @@ public:
     emscripten::val neighborsIndexArr,
     bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized,
     int chosenCostInt, int orderInt, // implicit type conversion (?)
-    int gCoeff, int hCoeff,
-    emscripten::val jsDestsToId // Array of strings in JS
+    int gCoeff, int hCoeff
   ){
     pathfinder::costType chosenCost = (pathfinder::costType)chosenCostInt;
     pathfinder::timeOrder order = (pathfinder::timeOrder)orderInt;
     grid_t grid = js2DtoVect2D(gridArr);
     std::vector<uint8_t> neighborsIndex = js1DtoVect1D(neighborsIndexArr);
-
-    // related: https://stackoverflow.com/questions/16141178/is-it-possible-to-map-string-to-int-faster-than-using-hashmap
-    int len = jsDestsToId["length"].as<uint32_t>();
-    if(len != 0){
-      dests.clear();
-      for(int i = 0; i < len; ++i){
-        std::string s = jsDestsToId[i].as<std::string>();
-        dests[s] = i;
-      }
-    }
     
     return search(grid, startX, startY, goalX, goalY, neighborsIndex, vertexEnabled, diagonalAllow, bigMap, hOptimized, chosenCost, order, gCoeff, hCoeff);
   }
   #endif
+
+  virtual bool foundGoal(Node<Coord_t> *node){
+    // every planner now has to define their own implementation of foundGoal because of enum-binding
+    // found the goal & exits the loop
+    if (node->selfXY.first != goal.first || node->selfXY.second != goal.second)
+      return false;
+    assignCellIndex(currentNodeXY, stepIndex);
+
+    //  retraces the entire parent tree until start is found
+    Node<Coord_t> *current = node;
+    while (current != nullptr)
+    {
+      createAction(DrawPixel, CanvasPath, current->selfXY);
+      path.push_back(current->selfXY);
+      if (current->arrowIndex != -1)
+        createAction(DrawArrow, -1, {-1, -1}, 1, current->arrowIndex);
+      current = current->parent;
+    }
+    saveStep(true);
+    saveStep(true);
+    return true;
+  }
 
   bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1)
   {
@@ -173,10 +204,10 @@ public:
       // initialize the starting sequences
       for (auto itr = deltaNWSE.rbegin(); itr != deltaNWSE.rend(); ++itr)
       {
-        createAction(InsertRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, 1, {deltaNWSEStr[*itr], "?", "?", "?", "?", "?"});
+        createAction(InsertRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, 1, {deltaNWSEStr[*itr], "?", "?", "?", "?", "?"});
       }
-      createAction(InsertRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, 1, {std::to_string(start.first) + "," + std::to_string(start.second), "-", std::to_string(currentNode->fCost).substr(0, 6), std::to_string(currentNode->gCost).substr(0, 6), std::to_string(currentNode->hCost).substr(0, 6)});
-      createAction(DrawPixel, dests["queue"], start);
+      createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1, {std::to_string(start.first) + "," + std::to_string(start.second), "-", std::to_string(currentNode->fCost).substr(0, 6), std::to_string(currentNode->gCost).substr(0, 6), std::to_string(currentNode->hCost).substr(0, 6)});
+      createAction(DrawPixel, CanvasQueue, start);
       saveStep(true);
     }
 
@@ -219,18 +250,18 @@ public:
 
       closedList.set(currentNodeXY, currentNode);
 
-      createAction(IncrementPixel, dests["visited"], currentNodeXY);
+      createAction(IncrementPixel, CanvasVisited, currentNodeXY);
       if (!bigMap)
       {
         for (const int i : neighborsIndex)
         {
-          createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, -(i + 1), {deltaNWSEStr[deltaNWSE[i]], "?", "?", "?", "?", "?"});
+          createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, -(i + 1), {deltaNWSEStr[deltaNWSE[i]], "?", "?", "?", "?", "?"});
         }
-        createAction(EraseRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, 1);
-        createAction(DrawSinglePixel, dests["focused"], currentNodeXY);
-        createAction(EraseCanvas, dests["neighbors"]);
-        createAction(DrawSinglePixel, dests["expanded"], currentNodeXY);
-        createAction(ErasePixel, dests["queue"], currentNodeXY);
+        createAction(EraseRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1);
+        createAction(DrawSinglePixel, CanvasFocused, currentNodeXY);
+        createAction(EraseCanvas, CanvasNeighbors);
+        createAction(DrawSinglePixel, CanvasExpanded, currentNodeXY);
+        createAction(ErasePixel, CanvasQueue, currentNodeXY);
         //createAction(HighlightPseudoCodeRowPri, Pseudocode, {-1, -1}, -1, -1, 12);
       }
       saveStep(true);
@@ -279,20 +310,20 @@ public:
         {
           // std::cout << "pass" << std::endl;
           if (!bigMap)
-            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Out of Bounds"});
+            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Out of Bounds"});
           continue;
         }
         // std::cout <<"node is in bounds\n";
         if (!bigMap)
         {
-          createAction(DrawSinglePixel, dests["focused"], nextXY);
+          createAction(DrawSinglePixel, CanvasFocused, nextXY);
         }
 
         if (!nodeIsNeighbor(nextXY, deltaNWSE[i], cardinalCoords))
         {
           if (!bigMap)
           {
-            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Obstacle"});
+            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), "inf", "inf", "inf", "Obstacle"});
             saveStep(false);
           }
           continue;
@@ -307,7 +338,7 @@ public:
         {
           if (!bigMap)
           {
-            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
+            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
             saveStep(false);
           }
           // delete nextNode;
@@ -321,11 +352,11 @@ public:
           if (!bigMap)
           {
             if (currentNode->parent && currentNode->parent->selfXY.first == nextXY.first && currentNode->parent->selfXY.second == nextXY.second)
-              createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Parent"});
+              createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Parent"});
             else
-              createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
+              createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Not a child"});
           }
-          createAction(IncrementPixel, dests["visited"], nextXY);
+          createAction(IncrementPixel, CanvasVisited, nextXY);
           saveStep(false);
           continue;
         }
@@ -338,30 +369,31 @@ public:
           rootNodes.push_back(nextNode);
         }
 
-        createAction(SetPixel, dests["fCost"], nextXY, -1, -1, -1, 0, {}, fCost);
-        createAction(SetPixel, dests["gCost"], nextXY, -1, -1, -1, 0, {}, gCost);
-        createAction(SetPixel, dests["hCost"], nextXY, -1, -1, -1, 0, {}, hCost);
+        createAction(SetPixel, CanvasFCost, nextXY, -1, -1, -1, 0, {}, fCost);
+        createAction(SetPixel, CanvasGCost, nextXY, -1, -1, -1, 0, {}, gCost);
+        createAction(SetPixel, CanvasHCost, nextXY, -1, -1, -1, 0, {}, hCost);
 
         int posInQueue = pq.push(nextNode);
+        openList.set(nextXY, nextNode);
 
         if (!bigMap)
         {
-          createAction(DrawPixel, dests["neighbors"], nextXY);
+          createAction(DrawPixel, CanvasNeighbors, nextXY);
           //createAction(HighlightPseudoCodeRowSec, Pseudocode, {-1, -1}, -1, -1, 32);
           handleArrow(nextNode, openNode, closedNode);
 
-          createAction(DrawPixel, dests["queue"], nextXY);
+          createAction(DrawPixel, CanvasQueue, nextXY);
 
-          createAction(InsertRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, posInQueue, {std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(currentNodeXY.first) + "," + std::to_string(currentNodeXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5))});
+          createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, posInQueue, {std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(currentNodeXY.first) + "," + std::to_string(currentNodeXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5))});
 
           if (openNode == nullptr && closedNode == nullptr)
-            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "New encounter"});
+            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "New encounter"});
           else if (openNode != nullptr)
-            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Replace parent"});
+            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {deltaNWSEStr[deltaNWSE[i]], std::to_string(nextXY.first) + "," + std::to_string(nextXY.second), std::to_string(roundSF(fCost, 5)), std::to_string(roundSF(gCost, 5)), std::to_string(roundSF(hCost, 5)), "Replace parent"});
         }
         saveStep(false);
 
-        openList.set(nextXY, nextNode);
+        if(foundGoal(nextNode)) return terminateSearch(true);
       }
     }
     //std::cout <<"runNextSearch done! Step Index: "<<stepIndex<<std::endl;

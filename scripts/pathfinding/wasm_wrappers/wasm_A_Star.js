@@ -107,7 +107,7 @@ class wasm_A_star extends wasm_GridPathfinder{
     ...start, ...goal,
     this.neighborsIndex,
     this.vertexEnabled, this.diagonal_allow, this.bigMap, this.hOptimized,
-    chosenCost, order, this.gWeight, this.hWeight, this.destsToId);
+    chosenCost, order, this.gWeight, this.hWeight);
 
     if(finished){ return this._finish_searching(); }
 

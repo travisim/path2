@@ -87,15 +87,15 @@ namespace pathfinder{
       int y = xy.second;
       cellMap[x][y] = givenStepIndex;
     }
-
-    bool foundGoal(Node<Coord_t> *node){
-      // polymorphed
-      int savedStepIndex = stepIndex;
-      bool res = Pathfinder<Action_t>::foundGoal(node);
-      if(res)
-        assignCellIndex(currentNodeXY, savedStepIndex);
-      return res;
-    }
+    // keep this implementation until all planners are made
+    // bool foundGoal(Node<Coord_t> *node){
+    //   // polymorphed
+    //   int savedStepIndex = stepIndex;
+    //   bool res = Pathfinder<Action_t>::foundGoal(node);
+    //   if(res)
+    //     assignCellIndex(currentNodeXY, savedStepIndex);
+    //   return res;
+    // }
 
     bool isValidCellCoord(Coord_t coord){
       return coord.first >= 0 && coord.second >= 0 && coord.first < gridHeight && coord.second < gridWidth;

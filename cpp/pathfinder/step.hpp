@@ -41,7 +41,7 @@ namespace pathfinder
       {
         // unpack all the properties
         Command command = (Command)fwd.command;
-        Dest dest = (Dest)fwd.dest;
+        int dest = fwd.dest;
         int x = fwd.nodeCoord.first;
         int y = fwd.nodeCoord.second;
         int colorIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) colorIndex = fwd.colorIndex;
@@ -56,15 +56,16 @@ namespace pathfinder
         // std::cout << command << std::endl;
         
         // std::cout << "UNPACKED ACTION\n";
-        double defaultVal;
-        if((dests.find("fCost") != dests.end() && dest == dests["fCost"])
-         || (dests.find("gCost") != dests.end() && dest == dests["gCost"])
-         || (dests.find("hCost") != dests.end() && dest == dests["hCost"])){
-          defaultVal = std::numeric_limits<double>::infinity();
-        }
-        else{
-          defaultVal = 0;
-        }
+        double defaultVal = getDestDefaultVal(dest);
+        
+        // if((dests.find("fCost") != dests.end() && dest == dests["fCost"])
+        //  || (dests.find("gCost") != dests.end() && dest == dests["gCost"])
+        //  || (dests.find("hCost") != dests.end() && dest == dests["hCost"])){
+        //   defaultVal = std::numeric_limits<double>::infinity();
+        // }
+        // else{
+        //   defaultVal = 0;
+        // }
         int xy = x * CANVAS_WIDTH + y;
 
         // std::cout << "PASSED DEFAULTVAL\n";
@@ -327,15 +328,15 @@ namespace pathfinder
         {
           #ifdef CANVAS_COMPRESSED
             const double NotANumber = std::nan("0");
-            double defaultVal;
-            if((dests.find("fCost") != dests.end() && p.first == dests["fCost"])
-            || (dests.find("gCost") != dests.end() && p.first == dests["gCost"])
-            || (dests.find("hCost") != dests.end() && p.first == dests["hCost"])){
-              defaultVal = std::numeric_limits<double>::infinity();
-            }
-            else{
-              defaultVal = 0;
-            }
+            double defaultVal = getDestDefaultVal(p.first);
+            // if((dests.find("fCost") != dests.end() && p.first == dests["fCost"])
+            // || (dests.find("gCost") != dests.end() && p.first == dests["gCost"])
+            // || (dests.find("hCost") != dests.end() && p.first == dests["hCost"])){
+            //   defaultVal = std::numeric_limits<double>::infinity();
+            // }
+            // else{
+            //   defaultVal = 0;
+            // }
             for(int i = 0; i < p.second.size(); ++i){
               if(p.second[i] == defaultVal){
                 if(nextState->canvases[p.first].size() > 0 && !std::isnan(nextState->canvases[p.first].back())){
@@ -370,7 +371,7 @@ namespace pathfinder
         
         for (const auto &p : sim.vertices)
         {
-          const Dest &d = p.first;
+          const int &d = p.first;  // Dest
           for (const auto &v : p.second)
           {
             nextState->vertices[d].push_back(v);
@@ -379,7 +380,7 @@ namespace pathfinder
 
         for (const auto &p : sim.edges)
         {
-          Dest d = p.first;
+          int d = p.first;
           for (const auto &e : p.second)
           {
             nextState->edges[d].push_back(e);

@@ -1,5 +1,8 @@
+#include <assert.h>
 #include <vector>
+#include <chrono>
 #include "pathfinder.hpp"
+#include "step.hpp"
 #include "rbt_pq.hpp"
 #include "LOS.hpp"
 
@@ -83,7 +86,6 @@ class VisibilityGraph : public Pathfinder<Action_t>{
   using Pathfinder<Action_t>::rootNodes;
   using Pathfinder<Action_t>::batchSize;
   using Pathfinder<Action_t>::goal;
-  using Pathfinder<Action_t>::dests;
   using Pathfinder<Action_t>::gridHeight;
   using Pathfinder<Action_t>::gridWidth;
   using Pathfinder<Action_t>::grid;
@@ -91,12 +93,12 @@ class VisibilityGraph : public Pathfinder<Action_t>{
   using Pathfinder<Action_t>::stepIndex;
   using Pathfinder<Action_t>::maxNodeDepth;
   using Pathfinder<Action_t>::diagonalAllow;
+  using Pathfinder<Action_t>::path;
 
   using Pathfinder<Action_t>::createAction;
   using Pathfinder<Action_t>::saveStep;
   using Pathfinder<Action_t>::initSearch;
   using Pathfinder<Action_t>::terminateSearch;
-  using Pathfinder<Action_t>::foundGoal;
 
   using Pathfinder<Action_t>::manhattan;
   using Pathfinder<Action_t>::euclidean;
@@ -147,6 +149,20 @@ class VisibilityGraph : public Pathfinder<Action_t>{
     }
     return {gCoeff * gCost + hCoeff * hCost, gCost, hCost};
   }
+
+  enum Dest{
+    PseudoCode,
+    CanvasFocused,
+    CanvasExpanded,
+    CanvasPath,
+    CanvasNeighbors,
+    CanvasQueue,
+    CanvasVisited,
+    CanvasNetworkGraph,
+    ITNeighbors,
+    ITQueue,
+  };
+
 public:
 
   inline int getNumMapNodes(){ return mapNodes.size(); }
@@ -154,9 +170,9 @@ public:
   void generateNewMap(Coord_t start, Coord_t goal){
     mapNodes.clear();
     mapNodes.push_back(MapNode(start));
-    if(showNetworkGraph) createAction(DrawPixel, dests["networkGraph"], start);
+    if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, start);
     mapNodes.push_back(MapNode(goal));
-    if(showNetworkGraph) createAction(DrawPixel, dests["networkGraph"], goal);
+    if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, goal);
     const int KERNEL_SIZE = 2;
 
     for(int i = 0; i < gridHeight - KERNEL_SIZE + 1; ++i){
@@ -165,22 +181,32 @@ public:
         if(coords.size() == 0) continue;
         for(const auto coord : coords){
           mapNodes.push_back(MapNode(coord));
-          if(showNetworkGraph) createAction(DrawPixel, dests["networkGraph"], coord);
+          if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, coord);
         }
       }
     }
+    std::cout<<"Done with finding corners; number of corners = "<<mapNodes.size()<<std::endl;
     if(showNetworkGraph) saveStep(true);
 
+    int cnt = 0;
+
+    const double OFFSET = vertexEnabled ? 0 : 0.5;
+    auto offsetCoord = [&](Coord_t coord){ return coordDouble_t{(double)coord.first + OFFSET, (double)coord.second + OFFSET}; };
     for(int i = 0; i < mapNodes.size(); ++i){
       for(int j = 0; j < i; ++j){
         auto n1 = mapNodes[i], n2 = mapNodes[j];
-        const double OFFSET = vertexEnabled ? 0 : 0.5;
-        auto offsetCoord = [&](Coord_t coord){ return Coord_t{coord.first + OFFSET, coord.second + OFFSET}; };
+        cnt++;
+        if(cnt % 10000 == 0) std::cout<<cnt<<std::endl;
         if(CustomLOSChecker(offsetCoord(n1.valueXY), offsetCoord(n2.valueXY), grid, diagonalAllow).boolean){
-          if(showNetworkGraph) createAction(DrawEdge, dests["networkGraph"], n1.valueXY, -1, -1, -1, 0, {}, -1, n2.valueXY);
+          // std::cout<<n1.valueXY.first<<' '<<n1.valueXY.second<<' '<<n2.valueXY.first<<' '<<n2.valueXY.second<<": HAVE LOS\n";
+          // auto xy1 = offsetCoord(n1.valueXY);
+          // auto xy2 = offsetCoord(n2.valueXY);
+          // std::cout<<xy1.first<<' '<<xy1.second<<' '<<xy2.first<<' '<<xy2.second<<": HAVE LOS\n";
+          if(showNetworkGraph) createAction(DrawEdge, CanvasNetworkGraph, n1.valueXY, -1, -1, -1, 0, {}, -1, n2.valueXY);
           mapNodes[i].addNeighbor(j);
           mapNodes[j].addNeighbor(i);
         }
+        // else std::cout<<n1.valueXY.first<<' '<<n1.valueXY.second<<' '<<n2.valueXY.first<<' '<<n2.valueXY.second<<": NO LOS\n";
       }
     }
     if(showNetworkGraph) saveStep(true);
@@ -193,28 +219,40 @@ public:
     bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized,
     int chosenCostInt, int orderInt, // implicit type conversion (?)
     int gCoeff, int hCoeff,
-    bool showNetworkGraph,
-    emscripten::val jsDestsToId // Array of strings in JS
+    bool showNetworkGraph
   ){
     costType chosenCost = (costType)chosenCostInt;
     timeOrder order = (timeOrder)orderInt;
     grid_t grid = js2DtoVect2D(gridArr);
-
-    // related: https://stackoverflow.com/questions/16141178/is-it-possible-to-map-string-to-int-faster-than-using-hashmap
-    int len = jsDestsToId["length"].as<uint32_t>();
-    if(len != 0){
-      dests.clear();
-      for(int i = 0; i < len; ++i){
-        std::string s = jsDestsToId[i].as<std::string>();
-        dests[s] = i;
-      }
-    }
     
     return search(grid, startX, startY, goalX, goalY, vertexEnabled, diagonalAllow, bigMap, hOptimized, chosenCost, order, gCoeff, hCoeff, showNetworkGraph);
   }
 
   #endif
 
+  bool foundGoal(Node<Coord_t> *node){
+    // every planner now has to define their own implementation of foundGoal because of enum-binding
+    // found the goal & exits the loop
+    if (node->selfXY.first != goal.first || node->selfXY.second != goal.second)
+      return false;
+
+    //  retraces the entire parent tree until start is found
+    Node<Coord_t> *current = node;
+    while (current != nullptr)
+    {
+      createAction(DrawPixel, CanvasPath, current->selfXY);
+      if(current->parent)
+        createAction(DrawEdge, CanvasPath, current->selfXY, -1, -1, -1, -1, {}, 3, current->parent->selfXY);
+      
+      path.push_back(current->selfXY);
+      if (current->arrowIndex != -1)
+        createAction(DrawArrow, -1, {-1, -1}, 1, current->arrowIndex);
+      current = current->parent;
+    }
+    saveStep(true);
+    saveStep(true);
+    return true;
+  }
 
   bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1, bool showNetworkGraph = false){
     std::cout<<startX<<' '<<startY<<' '<<goalX<<' '<<goalY<<std::endl;
@@ -252,8 +290,8 @@ public:
     if(!bigMap)
     {
       // for every node that is pushed onto the queue, it should be added to the queue infotable
-      createAction(InsertRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, 1, {std::to_string(startX) + ", " + std::to_string(startY), "-", std::to_string(currentNode->fCost).substr(0, 6), std::to_string(currentNode->gCost).substr(0, 6), std::to_string(currentNode->hCost).substr(0, 6)});
-      createAction(DrawPixel, dests["queue"], currentNode->selfXY);
+      createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1, {std::to_string(startX) + ", " + std::to_string(startY), "-", std::to_string(currentNode->fCost).substr(0, 6), std::to_string(currentNode->gCost).substr(0, 6), std::to_string(currentNode->hCost).substr(0, 6)});
+      createAction(DrawPixel, CanvasQueue, currentNode->selfXY);
       saveStep(true);
     }
 
@@ -283,19 +321,19 @@ public:
       closedList.set(currentNodeXY, currentNode);
       auto currentNeighbors = matchMapNode[currentNodeXY]->getNeighbors();
 
-      createAction(IncrementPixel, dests["visited"], currentNodeXY);
+      createAction(IncrementPixel, CanvasVisited, currentNodeXY);
       if(!bigMap){
-        createAction(EraseAllRows, dests["ITNeighbors"]);
+        createAction(EraseAllRows, ITNeighbors);
         for(int i = 0; i < currentNeighbors.size(); ++i){
           const auto XY = mapNodes[currentNeighbors[i]].valueXY;
-          createAction(InsertRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, -(i + 1), {coord2String(XY, 5), "?", "?", "?", "?"});
+          createAction(InsertRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, -(i + 1), {coord2String(XY, 5), "?", "?", "?", "?"});
         }
-        createAction(EraseRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, 1);
-        createAction(DrawSinglePixel, dests["focused"], currentNodeXY);
-        createAction(EraseCanvas, dests["neighbors"]);
-        createAction(DrawSinglePixel, dests["expanded"], currentNodeXY);
-        createAction(ErasePixel, dests["queue"], currentNodeXY);
-        createAction(EraseAllEdge, dests["focused"]);
+        createAction(EraseRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, 1);
+        createAction(DrawSinglePixel, CanvasFocused, currentNodeXY);
+        createAction(EraseCanvas, CanvasNeighbors);
+        createAction(DrawSinglePixel, CanvasExpanded, currentNodeXY);
+        createAction(ErasePixel, CanvasQueue, currentNodeXY);
+        createAction(EraseAllEdge, CanvasFocused);
       }
       saveStep(true);
 
@@ -310,18 +348,18 @@ public:
         std::array<double, 3> trip = calcCost(nextXY);
         double fCost = trip[0], gCost = trip[1], hCost = trip[2];
 
-        if(!showNetworkGraph) createAction(DrawEdge, dests["networkGraph"], nextXY, -1, -1, -1, 0, {}, -1, currentNodeXY);
+        if(!showNetworkGraph) createAction(DrawEdge, CanvasNetworkGraph, nextXY, -1, -1, -1, 0, {}, -1, currentNodeXY);
         if(!bigMap){
-          createAction(EraseAllEdge, dests["focused"]);
-          createAction(DrawEdge, dests["focused"], nextXY, -1, -1, -1, 0, {}, -1, currentNodeXY);
+          createAction(EraseAllEdge, CanvasFocused);
+          createAction(DrawEdge, CanvasFocused, nextXY, -1, -1, -1, 0, {}, -1, currentNodeXY);
         }
         
         auto openNode = openList.get(nextXY);
         
         if(openNode != nullptr && openNode->fCost <= fCost){
           if(!bigMap){
-            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Not a child"});
-            createAction(DrawSinglePixel, dests["focused"], nextXY);
+            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Not a child"});
+            createAction(DrawSinglePixel, CanvasFocused, nextXY);
             saveStep(false);
           }
           continue;
@@ -332,20 +370,20 @@ public:
         if(closedNode != nullptr && closedNode->fCost <= fCost){
           if(!bigMap){
             if(currentNode->parent && isCoordEqual(currentNode->parent->selfXY, nextXY))
-              createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Parent"});
+              createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Parent"});
             else
-              createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Not a child"});
-            createAction(DrawSinglePixel, dests["focused"], nextXY);
+              createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Not a child"});
+            createAction(DrawSinglePixel, CanvasFocused, nextXY);
           }
 
-          /*createAction(IncrementPixel, dests["visited"], nextXY);*///add on
+          /*createAction(IncrementPixel, CanvasVisited, nextXY);*///add on
           saveStep(false);
           continue;
         }
 
-        // createAction(SetPixel, dests["fCost"], nextXY, -1, -1, -1, 0, {}, fCost);
-        // createAction(SetPixel, dests["gCost"], nextXY, -1, -1, -1, 0, {}, gCost);
-        // createAction(SetPixel, dests["hCost"], nextXY, -1, -1, -1, 0, {}, hCost);
+        // createAction(SetPixel, CanvasFCost, nextXY, -1, -1, -1, 0, {}, fCost);
+        // createAction(SetPixel, CanvasGCost, nextXY, -1, -1, -1, 0, {}, gCost);
+        // createAction(SetPixel, CanvasHCost, nextXY, -1, -1, -1, 0, {}, hCost);
 
         auto nextNode = new Node<Coord_t>(nextXY, currentNode, -1, fCost, gCost, hCost);
         if(currentNode->depth < maxNodeDepth){
@@ -359,18 +397,18 @@ public:
         openList.set(nextXY, nextNode);
 
         if(!bigMap){
-          createAction(HighlightPseudoCodeRowPri, dests["pseudocode"], {-1, -1}, -1, -1, 32);
-          createAction(DrawPixel, dests["queue"], nextXY);
-          createAction(DrawPixel, dests["neighbors"], nextXY);
+          createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 32);
+          createAction(DrawPixel, CanvasQueue, nextXY);
+          createAction(DrawPixel, CanvasNeighbors, nextXY);
 
-          createAction(InsertRowAtIndex, dests["ITQueue"], {-1, -1}, -1, -1, -1, posInQueue, {coord2String(nextXY, 5), coord2String(currentNodeXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6)});
+          createAction(InsertRowAtIndex, ITQueue, {-1, -1}, -1, -1, -1, posInQueue, {coord2String(nextXY, 5), coord2String(currentNodeXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6)});
 
           if(openNode == nullptr && closedNode == nullptr)
-            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "New encounter"});
+            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "New encounter"});
           else if(openNode)
-            createAction(UpdateRowAtIndex, dests["ITNeighbors"], {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Replace parent"});
+            createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Replace parent"});
 
-          createAction(DrawSinglePixel, dests["focused"], nextXY);
+          createAction(DrawSinglePixel, CanvasFocused, nextXY);
         }
         saveStep(false);
 

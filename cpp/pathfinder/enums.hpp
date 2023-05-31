@@ -168,7 +168,7 @@ namespace pathfinder
         : command(command), dest(dest), nodeCoord(nodeCoord), anyVal(anyVal), endCoord(endCoord) {}
     friend std::ostream &operator<<(std::ostream &os, const BaseAction<Coord_t> &a){
       os<<"Command:         : "<<(Command)a.command<<std::endl;
-      os<<"Dest:            : "<<(Dest)a.dest<<std::endl;
+      os<<"Dest:            : "<<a.dest<<std::endl;
       os<<"x,y              : "<<a.nodeCoord.first<<' '<<a.nodeCoord.second<<std::endl;
       os<<"anyVal           : "<<a.anyVal<<std::endl;
       os<<"endCoord         : "<<a.endCoord.first<<' '<<a.endCoord.second<<std::endl;
@@ -200,7 +200,7 @@ namespace pathfinder
           infoTableRowData(infoTableRowData), anyVal(anyVal), endCoord(endCoord) {}
     friend std::ostream &operator<<(std::ostream &os, const Action<Coord_t> &a){
       os<<"Command:         : "<<(Command)a.command<<std::endl;
-      os<<"Dest:            : "<<(Dest)a.dest<<std::endl;
+      os<<"Dest:            : "<<a.dest<<std::endl;
       os<<"x,y              : "<<a.nodeCoord.first<<' '<<a.nodeCoord.second<<std::endl;
       os<<"colorIndex       : "<<a.colorIndex<<std::endl;
       os<<"arrowIndex       : "<<a.arrowIndex<<std::endl;
@@ -314,15 +314,15 @@ namespace pathfinder
   struct RuntimeSimulation
   {
     // RuntimeSimulation keeps an active record of the current state of all items (canvases, infotables, single pixel values, arrows shown, bounds for values on canvas to track min and max values, vertices, edges)
-
-    std::unordered_map<Dest, rowf_t> activeCanvas;
-    std::unordered_map<Dest, std::unique_ptr<InfoTable>> activeTable;
-    std::unordered_map<Dest, Coord_t> singlePixelCanvas;
+    // use int in favor of Dest because Dest is now planner-specific, so the enum is not visible to RuntimeSimulation
+    std::unordered_map<int, rowf_t> activeCanvas;
+    std::unordered_map<int, std::unique_ptr<InfoTable>> activeTable;
+    std::unordered_map<int, Coord_t> singlePixelCanvas;
     std::unordered_map<int, uint8_t> arrowColor;
     // std::unordered_map<Dest, std::pair<double, double>> bounds;
     std::unordered_map<int, bound_t> bounds;
-    std::unordered_map<Dest, std::unordered_set<int>> vertices;
-    std::unordered_map<Dest, std::unordered_set<int>> edges;
+    std::unordered_map<int, std::unordered_set<int>> vertices;
+    std::unordered_map<int, std::unordered_set<int>> edges;
     int pseudoCodeRowPri = -1;
     int pseudoCodeRowSec = -1;
     void clear()

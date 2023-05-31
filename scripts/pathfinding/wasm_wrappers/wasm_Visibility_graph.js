@@ -130,7 +130,7 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
     let finished = this.wasmPlanner.wrapperSearch(this.map.copy_2d(),
     ...start, ...goal,
     this.vertexEnabled, this.diagonal_allow, this.bigMap, this.hOptimized,
-    chosenCost, order, this.gWeight, this.hWeight, this.showNetworkGraph, this.destsToId);
+    chosenCost, order, this.gWeight, this.hWeight, this.showNetworkGraph);
 
     if(finished) return this._finish_searching();
 
