@@ -644,26 +644,20 @@ myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
   }
   else{
     
-    /*
-    1) clear info map
-    */
-    myUI.InfoMap.reset();
-    /*
-    2) update current position
-    */
-    myUI.InfoMap.drawObstacle(x,y);
-    myUI.InfoMap.drawOutOfBound(x,y);
-    for(uiCanvas of myUI.dynamicCanvas){
-      if(uiCanvas.infoMapBorder) myUI.InfoMap.drawCanvasBorder(x,y,uiCanvas.id);
-      if(uiCanvas.infoMapValue) myUI.InfoMap.drawCanvasValue(x,y,uiCanvas.id);
-    }
-    /*
-    myUI.InfoMap.drawVisited(x,y);
-    myUI.InfoMap.drawQueue(x,y);
-    myUI.InfoMap.drawNeighbors(x,y);
-    myUI.InfoMap.drawFGH(x,y);
-    /* */
-    myUI.InfoCurrent.DrawCurrent(x,y);
+    
+    // 1) clear info map
+    
+    // myUI.InfoMap.reset();
+    
+    // 2) update current position
+    
+    // myUI.InfoMap.drawObstacle(x,y);
+    // myUI.InfoMap.drawOutOfBound(x,y);
+    // for(uiCanvas of myUI.dynamicCanvas){
+    //   if(uiCanvas.infoMapBorder) myUI.InfoMap.drawCanvasBorder(x,y,uiCanvas.id);
+    //   if(uiCanvas.infoMapValue) myUI.InfoMap.drawCanvasValue(x,y,uiCanvas.id);
+    // }
+    // myUI.InfoCurrent.DrawCurrent(x,y);
   }
 }
 

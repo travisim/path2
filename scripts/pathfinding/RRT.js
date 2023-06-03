@@ -15,7 +15,7 @@ class RRT_star extends Pathfinder{
   }
 
   static get indexOfCollapsiblesToExpand() {
-    return [ 1, 2, 3, 4];
+    return [0, 1, 2, 3];
   }
   static get pseudoCode() {
     return {

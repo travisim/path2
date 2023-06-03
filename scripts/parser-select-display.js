@@ -291,7 +291,7 @@ myUI.loadPlanner = function(create_planner = true) {
   }
 
 	myUI.reset_animation(true, true);
-  myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
+  // myUI.InfoMap.CanvasMode(myUI.planner.infoMapPlannerMode(), myUI.dynamicCanvas);
   myUI.buttons.planner_config_btn.btn.children[0].innerHTML = myUI.planner.constructor.display_name;
   myUI.displayMap();
   myUI.initHover(myUI.planner.constructor.hoverData);

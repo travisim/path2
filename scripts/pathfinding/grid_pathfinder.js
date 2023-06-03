@@ -22,7 +22,7 @@ class GridPathfinder extends Pathfinder{
       case "num_neighbors":
         let num = value=="Octal (8-directions)" ? 8 : 4;
         this.init_neighbors(num);
-        myUI.InfoMap.NumneighborsMode(num);
+        // myUI.InfoMap.NumneighborsMode(num);
         break;
       case "first_neighbor":
 				this.init_first_neighbor(value);

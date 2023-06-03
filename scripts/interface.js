@@ -78,41 +78,26 @@ myUI.initialize = function(){
 
  //initialise info
   
-  [
-    ["N"],
-		["NE"],
-    ["E"],
-    ["SE"],
-    ["S"],
-    ["SW"],
-    ["W"],
-    ["NW"] 
-  ].forEach(item=>{
-    let infoNWSE_Id = item[0];
-    myUI.InfoNWSE[infoNWSE_Id] = new UIInfoNWSE(infoNWSE_Id);
-    document.getElementById(infoNWSE_Id).innerHTML = '  <section>F:<span class="F"></span>G:<span class="G"></span>H:<span class="H"></span>Type:<span class="type"></span></section>';
-  //initialise html for info squares as well
-  });
+  // [
+  //   ["N"],
+	// 	["NE"],
+  //   ["E"],
+  //   ["SE"],
+  //   ["S"],
+  //   ["SW"],
+  //   ["W"],
+  //   ["NW"] 
+  // ].forEach(item=>{
+  //   let infoNWSE_Id = item[0];
+  //   myUI.InfoNWSE[infoNWSE_Id] = new UIInfoNWSE(infoNWSE_Id);
+  //   document.getElementById(infoNWSE_Id).innerHTML = '  <section>F:<span class="F"></span>G:<span class="G"></span>H:<span class="H"></span>Type:<span class="type"></span></section>';
+  // //initialise html for info squares as well
+  // });
   
-  myUI.InfoCurrent = UIInfoCurrent;
+  // myUI.InfoCurrent = UIInfoCurrent;
 
-  
-	/*[ 
-		["edit_map_modal", "edit_map_close"],
-		["planner_config_modal", "planner_config_close"],
-    ["about_modal", "about_close"],
-    ["team_modal", "team_close"],
-    ["terms_modal", "terms_close"],
-    ["privacy_modal", "privacy_close"],
+  // myUI.InfoMap  = new UIInfoMap();6
 
-	].forEach(item=>{
-		myUI.modals[item[0].slice(0, -6)] = {
-			elem: document.getElementById(item[0]),
-			close_btn: document.getElementById(item[1]),
-			show: null,
-			close: null // show and close modal function is bound to itself
-		};
-	});*/
 
   [ 
 		["edit_map_modal", "edit_map_btn", "edit_map_close", edit_map_open, edit_map_close],
@@ -231,10 +216,6 @@ myUI.initialize = function(){
       console.log("gs")
     }
   }
-
-
-
-  myUI.InfoMap  = new UIInfoMap();
   myUI.PseudoCode = new UIInfoPseudoCode();
  
 

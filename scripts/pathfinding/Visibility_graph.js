@@ -7,7 +7,7 @@ class VisibilityGraph extends Pathfinder{
   static get showFreeVertex(){ return true; }
   
   static get indexOfCollapsiblesToExpand() {
-    return [1, 2, 3, 4];
+    return [0, 1, 2, 3];
   }
   static get pseudoCode() {
     return {
@@ -141,6 +141,7 @@ class VisibilityGraph extends Pathfinder{
     this.add_map(myUI.map_arr);
 
     function cornerCoords(gridObj, kernelSize, startX, startY, vertex = true){
+      const N = null;
 
       function checkAgainstPresets(presets){
         presetLoop: for(const preset of presets){
@@ -196,7 +197,6 @@ class VisibilityGraph extends Pathfinder{
         }
       }
       else if(kernelSize == 3){
-        const N = null;
         // 3x3 data
         let presets = [
           // squares & L-shapes (centered)

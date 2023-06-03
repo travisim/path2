@@ -4,7 +4,7 @@ class A_star extends GridPathfinder{
 
   infoMapPlannerMode(){ return "A_star"; }
 
-  static get indexOfCollapsiblesToExpand(){ return [0,1, 2, 3, 4]; }
+  static get indexOfCollapsiblesToExpand(){ return [0, 1, 2, 3]; }
 
   static get pseudoCode() {
     return {
