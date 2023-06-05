@@ -3,7 +3,7 @@ var myUI = {};
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [PRM, VisibilityGraph, wasm_A_star, wasm_Theta_star, wasm_Visibility_graph, A_star, Theta_star, PRM, RRT_star];
+  myUI.planners = [wasm_Visibility_graph, VisibilityGraph, PRM, wasm_A_star, wasm_Theta_star, A_star, Theta_star, PRM, RRT_star];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 
@@ -40,7 +40,7 @@ myUI.initialize = function(){
   myUI.canvasGenerator = function(arr){
     let ref = [];
     arr.forEach(item=>{
-      myUI.canvases[item.id] = new UICanvas(item.id, item.drawOrder, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal, true, item.minVal, item.maxVal, item.infoMapBorder, item.infoMapValue);
+      myUI.canvases[item.id] = new UICanvas(item.id, item.drawOrder, item.colors, item.drawType, item.fixedResVal, item.valType, item.defaultVal, true, item.minVal, item.maxVal, item.infoMapBorder, item.infoMapValue, item.lineWidth);
       ref.push(myUI.canvases[item.id]);
       if(item.toggle!="off"){
         appendCheckbox(`show_${item.id}`, item.checked, camelToNormal(item.id), "", item.toggle);

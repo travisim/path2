@@ -57,6 +57,7 @@ struct MapNode{
   int parent; // index of parent node
   double gCost;
   MapNode(Coord_t xy) : valueXY(xy){}
+  MapNode(Coord_t xy, std::vector<int> neighbours) : valueXY(xy), neighbours(neighbours) {}
   inline int numberOfNeighbours(){ return neighbours.size(); }
   inline int hasNeighbours(){ return numberOfNeighbours() > 0; }
   inline void addNeighbor(int x){ neighbours.push_back(x); }

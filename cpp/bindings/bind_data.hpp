@@ -33,8 +33,8 @@ void bindAction(BindType myType){
       .property("command", &pathfinder::BaseAction<coordInt_t>::command)
       .property("dest", &pathfinder::BaseAction<coordInt_t>::dest)
       .property("nodeCoord", &pathfinder::BaseAction<coordInt_t>::nodeCoord)
+      .property("arrowIndex", &pathfinder::BaseAction<coordInt_t>::arrowIndex)
       .property("anyVal", &pathfinder::BaseAction<coordInt_t>::anyVal)
-      .property("endCoord", &pathfinder::BaseAction<coordInt_t>::endCoord)
       ;
   }
   else if(myType == BindType::double_coord){
@@ -57,8 +57,8 @@ void bindAction(BindType myType){
       .property("command", &pathfinder::BaseAction<coordDouble_t>::command)
       .property("dest", &pathfinder::BaseAction<coordDouble_t>::dest)
       .property("nodeCoord", &pathfinder::BaseAction<coordDouble_t>::nodeCoord)
+      .property("arrowIndex", &pathfinder::BaseAction<coordDouble_t>::arrowIndex)
       .property("anyVal", &pathfinder::BaseAction<coordDouble_t>::anyVal)
-      .property("endCoord", &pathfinder::BaseAction<coordDouble_t>::endCoord)
       ;
   }
 }
@@ -115,27 +115,6 @@ void bindState(BindType myType){
       .property("pseudoCodeRowPri", &pathfinder::State<coordInt_t>::pseudoCodeRowPri)
       .property("pseudoCodeRowSec", &pathfinder::State<coordInt_t>::pseudoCodeRowSec)
       ;
-
-    // emscripten::class_<pathfinder::FreeVertex<coordInt_t>>("FreeVertexInt")
-    //   .constructor<>()
-    //   .property("xy", &pathfinder::FreeVertex<coordInt_t>::xy)
-    //   .property("colorIndex", &pathfinder::FreeVertex<coordInt_t>::colorIndex)
-    //   .property("radius", &pathfinder::FreeVertex<coordInt_t>::radius)
-    //   ;
-
-    // emscripten_extensions::register_unordered_map<int, std::vector<pathfinder::FreeVertex<coordInt_t>>>("verticesInt");
-    // emscripten::register_vector<pathfinder::FreeVertex<coordInt_t>>("vectorVertexInt");
-
-    // emscripten::class_<pathfinder::FreeEdge<coordInt_t>>("FreeEdgeInt")
-    //   .constructor<>()
-    //   .property("startXY", &pathfinder::FreeEdge<coordInt_t>::startXY)
-    //   .property("endXY", &pathfinder::FreeEdge<coordInt_t>::endXY)
-    //   .property("colorIndex", &pathfinder::FreeEdge<coordInt_t>::colorIndex)
-    //   .property("lineWidth", &pathfinder::FreeEdge<coordInt_t>::lineWidth)
-    //   ;
-
-    // emscripten_extensions::register_unordered_map<int, std::vector<pathfinder::FreeEdge<coordInt_t>>>("edgesInt");
-    // emscripten::register_vector<pathfinder::FreeEdge<coordInt_t>>("vectorEdgeInt");
   }
   else if(myType == BindType::double_coord){
     // TO DO
@@ -153,6 +132,54 @@ void bindState(BindType myType){
   emscripten_extensions::register_unordered_map<int, uint8_t>("arrowColor");
   emscripten_extensions::register_unordered_map<int, std::vector<int>>("uMapVectorInt");
   /* END OF STATE PROPERTIES BINDINGS */
+}
+
+void bindFreeStores(BindType myType){
+  // bind stores
+  if(myType == BindType::int_coord){
+    emscripten::class_<StoredVertex<coordInt_t>>("StoredVertexInt")
+      .constructor<>()
+      .property("nodeCoord", &StoredVertex<coordInt_t>::nodeCoord)
+      .property("colorIndex", &StoredVertex<coordInt_t>::colorIndex)
+      .property("radius", &StoredVertex<coordInt_t>::radius)
+      ;
+    
+    emscripten::class_<StoredEdge<coordInt_t>>("StoredEdgeInt")
+      .constructor<>()
+      .property("nodeCoord", &StoredEdge<coordInt_t>::nodeCoord)
+      .property("endCoord", &StoredEdge<coordInt_t>::endCoord)
+      .property("colorIndex", &StoredEdge<coordInt_t>::colorIndex)
+      .property("lineWidth", &StoredEdge<coordInt_t>::opacity)
+      ;
+    
+    emscripten::register_vector<StoredVertex<coordInt_t>>("vectorStoredVertexInt");
+    emscripten::register_vector<StoredEdge<coordInt_t>>("vectorStoredEdgeInt");
+
+    emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordInt_t>>>("vertexStoreInt");
+    emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordInt_t>>>("edgeStoreInt");
+  }
+  else if(myType == BindType::double_coord){
+    emscripten::class_<StoredVertex<coordDouble_t>>("StoredVertexDouble")
+      .constructor<>()
+      .property("nodeCoord", &StoredVertex<coordDouble_t>::nodeCoord)
+      .property("colorIndex", &StoredVertex<coordDouble_t>::colorIndex)
+      .property("radius", &StoredVertex<coordDouble_t>::radius)
+      ;
+    
+    emscripten::class_<StoredEdge<coordDouble_t>>("StoredEdgeDouble")
+      .constructor<>()
+      .property("nodeCoord", &StoredEdge<coordDouble_t>::nodeCoord)
+      .property("endCoord", &StoredEdge<coordDouble_t>::endCoord)
+      .property("colorIndex", &StoredEdge<coordDouble_t>::colorIndex)
+      .property("lineWidth", &StoredEdge<coordDouble_t>::opacity)
+      ;
+
+    emscripten::register_vector<StoredVertex<coordDouble_t>>("vectorStoredVertexDouble");
+    emscripten::register_vector<StoredEdge<coordDouble_t>>("vectorStoredEdgeDouble");
+    
+    emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordDouble_t>>>("vertexStoreDouble");
+    emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordDouble_t>>>("edgeStoreDouble"); 
+  }
 }
 
 #endif

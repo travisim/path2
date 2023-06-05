@@ -31,7 +31,7 @@ class UICanvas{
       y: (containerHeight - targetHeight) / 2
     };
   }
-  constructor(canvas_id, drawOrder, colors, drawType="cell", fixedResVal=1024, valType="int", defaultVal=0, create=true, minVal=null, maxVal=null, infoMapBorder=true, infoMapValue=false){
+  constructor(canvas_id, drawOrder, colors, drawType="cell", fixedResVal=1024, valType="int", defaultVal=0, create=true, minVal=null, maxVal=null, infoMapBorder=true, infoMapValue=false, lineWidth = 1){
     this.id = canvas_id;
     if(create){
       this.canvas = document.createElement("canvas");// getElementById(canvas_id);
@@ -58,6 +58,7 @@ class UICanvas{
     this.maxVal = maxVal;
     this.infoMapBorder = infoMapBorder;
     this.infoMapValue = infoMapValue;
+    this.lineWidth = lineWidth;  //  for svg lines
     this.canvas_cache = zero2D(height, width, this.defaultVal, this.defaultVal, this.valType);  // initialise a matrix of 0s (zeroes), height x width
 
     this.data_height = this.canvas.height;

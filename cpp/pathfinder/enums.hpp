@@ -160,18 +160,18 @@ namespace pathfinder
     // Dest dest;
     int8_t dest; // for binding
     Coord_t nodeCoord;
+    int arrowIndex;
     double anyVal;
-    Coord_t endCoord;
     BaseAction() {}
-    BaseAction(Command command, int8_t dest, Coord_t nodeCoord,
-           double anyVal, Coord_t endCoord)
-        : command(command), dest(dest), nodeCoord(nodeCoord), anyVal(anyVal), endCoord(endCoord) {}
+    BaseAction(Command command, int8_t dest, Coord_t nodeCoord, int arrowIndex,
+           double anyVal)
+        : command(command), dest(dest), nodeCoord(nodeCoord), arrowIndex(arrowIndex), anyVal(anyVal){ }
     friend std::ostream &operator<<(std::ostream &os, const BaseAction<Coord_t> &a){
       os<<"Command:         : "<<(Command)a.command<<std::endl;
       os<<"Dest:            : "<<a.dest<<std::endl;
       os<<"x,y              : "<<a.nodeCoord.first<<' '<<a.nodeCoord.second<<std::endl;
+      os<<"arrowIndex       : "<<a.arrowIndex<<std::endl;
       os<<"anyVal           : "<<a.anyVal<<std::endl;
-      os<<"endCoord         : "<<a.endCoord.first<<' '<<a.endCoord.second<<std::endl;
       return os;
     }
   };
@@ -351,7 +351,7 @@ struct EdgeSim{
   Coord_t nodeCoord;
   Coord_t endCoord;
   int8_t colorIndex;
-  double lineWidth;
+  double opacity;
   int arrowIndex;
 };
 
@@ -367,7 +367,7 @@ struct StoredEdge{
   Coord_t nodeCoord;
   Coord_t endCoord;
   int8_t colorIndex;
-  double lineWidth;
+  double opacity;
 };
 
 #endif

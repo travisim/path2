@@ -122,7 +122,7 @@ class wasm_GridPathfinder extends GridPathfinder{
     obj = map_to_obj(this.wasmPlanner.edgeStore);
     for(const [dest, edges] of Object.entries(obj)){
       for(const edge of vec_to_arr(edges)){
-        myUI.edgeCanvas.drawLine([edge.nodeCoord.x, edge.nodeCoord.y], [edge.endCoord.x, edge.endCoord.y], this.destsToId[dest], false, edge.colorIndex, edge.lineWidth);
+        myUI.edgeCanvas.drawLine([edge.nodeCoord.x, edge.nodeCoord.y], [edge.endCoord.x, edge.endCoord.y], this.destsToId[dest], false, edge.colorIndex, edge.opacity);
       }
     }
     

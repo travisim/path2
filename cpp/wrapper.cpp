@@ -18,6 +18,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
   bindAction(BindType::int_coord);
   bindStep(BindType::int_coord);
   bindState(BindType::int_coord);
+  bindFreeStores(BindType::int_coord);
   bindPathfinder(BindType::int_coord);
   bindGridPathfinder(BindType::int_coord);
   bindAStar();
@@ -52,45 +53,4 @@ EMSCRIPTEN_BINDINGS(myModule) {
   emscripten::register_vector<std::vector<std::string>>("vectorVectorString");
   emscripten::register_vector<double>("vectorDouble");
 
-  // bind stores
-  emscripten::class_<StoredVertex<coordInt_t>>("StoredVertexInt")
-    .constructor<>()
-    .property("nodeCoord", &StoredVertex<coordInt_t>::nodeCoord)
-    .property("colorIndex", &StoredVertex<coordInt_t>::colorIndex)
-    .property("radius", &StoredVertex<coordInt_t>::radius)
-    ;
-  
-  emscripten::class_<StoredEdge<coordInt_t>>("StoredEdgeInt")
-    .constructor<>()
-    .property("nodeCoord", &StoredEdge<coordInt_t>::nodeCoord)
-    .property("endCoord", &StoredEdge<coordInt_t>::endCoord)
-    .property("colorIndex", &StoredEdge<coordInt_t>::colorIndex)
-    .property("lineWidth", &StoredEdge<coordInt_t>::lineWidth)
-    ;
-
-  
-  emscripten::class_<StoredVertex<coordDouble_t>>("StoredVertexDouble")
-    .constructor<>()
-    .property("nodeCoord", &StoredVertex<coordDouble_t>::nodeCoord)
-    .property("colorIndex", &StoredVertex<coordDouble_t>::colorIndex)
-    .property("radius", &StoredVertex<coordDouble_t>::radius)
-    ;
-  
-  emscripten::class_<StoredEdge<coordDouble_t>>("StoredEdgeDouble")
-    .constructor<>()
-    .property("nodeCoord", &StoredEdge<coordDouble_t>::nodeCoord)
-    .property("endCoord", &StoredEdge<coordDouble_t>::endCoord)
-    .property("colorIndex", &StoredEdge<coordDouble_t>::colorIndex)
-    .property("lineWidth", &StoredEdge<coordDouble_t>::lineWidth)
-    ;
-
-  emscripten::register_vector<StoredVertex<coordInt_t>>("vectorStoredVertexInt");
-  emscripten::register_vector<StoredEdge<coordInt_t>>("vectorStoredEdgeInt");
-  emscripten::register_vector<StoredVertex<coordDouble_t>>("vectorStoredVertexDouble");
-  emscripten::register_vector<StoredEdge<coordDouble_t>>("vectorStoredEdgeDouble");
-  
-  emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordInt_t>>>("vertexStoreInt");
-  emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordInt_t>>>("edgeStoreInt");
-  emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordDouble_t>>>("vertexStoreDouble");
-  emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordDouble_t>>>("edgeStoreDouble");
 }

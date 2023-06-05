@@ -579,25 +579,39 @@ class SVGCanvas {
 
   setMaxLines(numberOfLines){
     this.maxLines = Number(numberOfLines);
+    this.opacityStep = 100/this.maxLines;
   }
 
   showLine(destId, index){
+    this.shownLines[destId].forEach(line=>{
+      let nextOpacity = line.getAttributeNS(null, "stroke-opacity").slice(0, -1) - this.opacityStep;
+      line.setAttributeNS(null, "stroke-opacity", `${nextOpacity}%`);
+    });
     this.lines[destId][index].classList.remove("hidden");
     this.shownLines[destId].push(this.lines[destId][index]);
   }
 
   hideLine(destId, index){
+    console.log(`HIDING LINE ${index}`);
+    this.shownLines[destId].forEach(line=>{
+      let nextOpacity = Number(line.getAttributeNS(null, "stroke-opacity").slice(0, -1)) + this.opacityStep;
+      line.setAttributeNS(null, "stroke-opacity", `${nextOpacity}%`);
+    });
     this.lines[destId][index].classList.add("hidden");
     let idx = this.shownLines[destId].findIndex(el => el == this.lines[destId][index]);
     if(idx != -1) this.shownLines[destId].splice(idx, 1);
+    
   }
 
   hideAllLines(destId){
-    this.lines[destId].forEach(line=>line.classList.add("hidden"));
+    this.lines[destId].forEach(line=>{
+      line.classList.add("hidden")
+      line.setAttributeNS(null, "stroke-opacity", line.dataset.opacity);
+    });
     this.shownLines[destId] = [];
   }
 
-  drawLine(start_XY, end_XY, destId = "networkGraph", id=false, colorIndex = 0, lineWidth = 1){
+  drawLine(start_XY, end_XY, destId = "networkGraph", id=false, colorIndex = 0, opacity = 100){
     if(myUI.planner.constructor.gridPrecision != "float" && myUI.vertex == false && myUI.planner.constructor.showFreeVertex){
       // draw lines from centre of squares
       start_XY = start_XY.map(x => x + 0.5);
@@ -610,12 +624,14 @@ class SVGCanvas {
 
     var [y1, x1] = start_XY.map(t => t * this.displayRatio);
     var [y2, x2] = end_XY.map(t => t * this.displayRatio);
-    var strokeWidth = Math.max(lineWidth/20*this.displayRatio, 1)
+    var strokeWidth = myUI.canvases[destId] ? Math.max(myUI.canvases[destId].lineWidth/20*this.displayRatio, 1) : 1;
     var line_id = id?id:`SVGLine_${destId}_${this.lines[destId].length}`;
     var line_class = `SVGline_${destId} hidden`;
     var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";
-    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:strokeWidth, class:line_class, stroke: color,});
+    var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:strokeWidth, class:line_class, stroke: color});
     if(myUI.canvases[destId].drawType == "svgDotted") line.style.strokeDasharray = 5;
+    line.setAttributeNS(null, "stroke-opacity", `${opacity}%`);
+    line.setAttribute("data-opacity", `${opacity}%`);
     this.frag.appendChild(line);
 
     this.lines[destId].push(line);

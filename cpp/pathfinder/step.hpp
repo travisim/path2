@@ -45,13 +45,13 @@ namespace pathfinder
         int x = fwd.nodeCoord.first;
         int y = fwd.nodeCoord.second;
         int colorIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) colorIndex = fwd.colorIndex;
-        int arrowIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) arrowIndex = fwd.arrowIndex;
+        int arrowIndex = /* -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) arrowIndex =  */fwd.arrowIndex;
         int pseudoCodeRow = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) pseudoCodeRow = fwd.pseudoCodeRow;
         int infoTableRowIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowIndex = fwd.infoTableRowIndex;
         std::vector<std::string> infoTableRowData; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowData = fwd.infoTableRowData;
         double anyVal = fwd.anyVal;
-        int endX/* = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX*/ = fwd.endCoord.first;
-        int endY/* = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY*/ = fwd.endCoord.second;
+        int endX = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX = fwd.endCoord.first;
+        int endY = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY = fwd.endCoord.second;
 
         // std::cout << command << std::endl;
         

@@ -736,51 +736,6 @@ myUI.jump_to_step = function(target_step){
       return 1;
     }
 
-    // free vertices
-    // var vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices;
-    // var items = Object.entries(vertices);
-    // items.sort(orderCanvases);
-    // for(let [dest, vertexArray] of items){
-    //   console.log(myUI.planner.destsToId[dest]);
-    //   if(myUI.planner.constructor.wasm) vertexArray = [...vector_values(vertexArray)];
-    //   for(let vert of vertexArray){
-    //     if(myUI.planner.constructor.wasm){
-    //       // manual unpacking of c++ struct
-    //       vert = [
-    //         vert.xy.x,
-    //         vert.xy.y,
-    //         vert.colorIndex == -1 ? undefined : vert.colorIndex,
-    //         vert.radius == -1 ? undefined : vert.radius
-    //       ];
-    //     }
-    //     let coord = vert.slice(0, 2);
-    //     myUI.nodeCanvas.drawCircle(coord, myUI.planner.destsToId[dest], false, vert[2], vert[3]);
-    //   }
-    // }
-
-    // free edge
-    // var edges = myUI.planner.constructor.wasm ? map_to_obj(state.edges) : state.edges;
-    // var items = Object.entries(edges);
-    // items.sort(orderCanvases);
-    // for(let [dest, edgeArray] of items){
-    //   if(myUI.planner.constructor.wasm) edgeArray = [...vector_values(edgeArray)];
-    //   for(let edge of edgeArray){
-    //     if(myUI.planner.constructor.wasm){
-    //       myUI.edge = edge;
-    //       // manual unpacking of c++ struct
-    //       edge = [
-    //         edge.startXY.x,
-    //         edge.startXY.y,
-    //         edge.endXY.x,
-    //         edge.endXY.y,
-    //         edge.colorIndex == -1 ? undefined : edge.colorIndex,
-    //         edge.lineWidth == -1 ? undefined : edge.lineWidth,
-    //       ];
-    //     }
-    //     myUI.edgeCanvas.drawLine([edge[0], edge[1]], [edge[2], edge[3]], myUI.planner.destsToId[dest], false, edge[4], edge[5]);
-    //   }
-    // }
-
     // free vertex 2.0
     var vertices = myUI.planner.constructor.wasm ? map_to_obj(state.vertices) : state.vertices;
     var items = Object.entries(vertices);

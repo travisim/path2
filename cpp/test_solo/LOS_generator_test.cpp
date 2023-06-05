@@ -5,9 +5,9 @@
 
 bool equal(const std::pair<double, double>& A, const std::pair<double, double>& B) {
     return A.first == B.first && A.second == B.second;
-  };
+};
 
-std::string coord2String(const std::pair<double, double>& coord) {
+std::string coord2StringBracket(const std::pair<double, double>& coord) {
     return "[" + std::to_string(coord.first) + ", " + std::to_string(coord.second) + "]";
   };
 
@@ -78,19 +78,19 @@ int main() {
     for (int t = 0; t < tests.size();) {
         const auto test = tests[t++];
         // std::cout << "Test no. " << t << std::endl;
-        if (!compareCoords(test[1], CustomLOSGenerator(test[0][0], test[0][1], test[1].size()))) {
+        if (!compareCoords(test[1], pathfinder::CustomLOSGenerator(test[0][0], test[0][1], test[1].size()))) {
             std::cout << "Test " << t << " failed:\n";
             std::cout << "Question: ";
-            std::cout << "(" << coord2String(test[0][0]) << ", " << coord2String(test[0][1]) << "), ";
+            std::cout << "(" << coord2StringBracket(test[0][0]) << ", " << coord2StringBracket(test[0][1]) << "), ";
             std::cout << std::endl;
             std::cout << "Given answer: ";
             for (const auto& coord : test[1]) {
-                std::cout << coord2String(coord)<<' ';
+                std::cout << coord2StringBracket(coord)<<' ';
             }
             std::cout << std::endl;
             std::cout << "\nComputed answer: ";
-            for (const auto& coord : CustomLOSGenerator(test[0][0], test[0][1])) {
-                std::cout << coord2String(coord)<<' ';
+            for (const auto& coord : pathfinder::CustomLOSGenerator(test[0][0], test[0][1])) {
+                std::cout << coord2StringBracket(coord)<<' ';
             }
             std::cout << std::endl;
             std::cout << std::endl;

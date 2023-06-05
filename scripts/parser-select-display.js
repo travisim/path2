@@ -355,24 +355,31 @@ myUI.toggleVertex = function(enable=true){
 myUI.parseNodeMap = function(contents){
   let lines = contents.split("\n");
   
-  myUI.mapNodes = [];
+  myUI.planner.mapNodes = [];
   let idx = 0;
   console.assert(lines[idx++].endsWith("mapnode"), "INVALID NODE MAP FILE UPLOADED");
   while(idx < lines.length && !lines[idx].startsWith("type")){
     let items = lines[idx++].split(",").map(x=>Number(x));
     let coord = [items[0], items[1]];
     let neighbors = items.slice(2);
-    myUI.mapNodes.push(new MapNode(null, coord, neighbors));
+    if(myUI.planner.constructor.wasm){
+      if(!myUI.planner.wasmPlanner) myUI.planner.loadWasmPlanner();
+      myUI.planner.wasmPlanner.addMapNode(coord, neighbors);
+    }
+    else myUI.planner.mapNodes.push(new MapNode(null, coord, neighbors));
+    
   }
-  myUI.planner.mapNodes = myUI.mapNodes;
-  console.log(myUI.mapNodes[0]);
 
-  myUI.mapEdges = [];
+  myUI.planner.mapEdges = [];
   console.assert(lines[idx++].endsWith("mapedge"), "INVALID NODE MAP FILE UPLOADED");
   while(idx < lines.length){
-    myUI.mapEdges.push(lines[idx++].split(",").map(x=>Number(x)));
+    let edge = lines[idx++].split(",").map(x=>Number(x));
+    if(myUI.planner.constructor.wasm){
+      if(!myUI.planner.wasmPlanner) myUI.planner.loadWasmPlanner();
+      myUI.planner.wasmPlanner.addMapEdge(edge);
+    }
+    else myUI.planner.mapEdges.push(edge);
   }
-  myUI.planner.mapEdges = myUI.mapEdges;
   console.log(myUI.mapEdges[0]);
 
 }

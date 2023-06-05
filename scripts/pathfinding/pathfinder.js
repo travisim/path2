@@ -185,22 +185,22 @@ class Pathfinder{
 		return [
 			
 			{
-				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#8F00FF"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+				id:"focused", drawType:"dotted", drawOrder: 1, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#8F00FF"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null, lineWidth: 1,
 			},
 			{
-				id:"expanded", drawType:"cell", drawOrder: 2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+				id:"expanded", drawType:"cell", drawOrder: 2, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null, lineWidth: 1,
 			},
 			{
-				id:"path", drawType:"cell", drawOrder: 5, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null,
+				id:"path", drawType:"cell", drawOrder: 5, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#34d1ea"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: false, infoMapValue: null, lineWidth: 3,
 			},
 			{
-				id:"neighbors", drawType:"cell", drawOrder: 6, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"neighbors", drawType:"cell", drawOrder: 6, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(0,130,105)"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null, lineWidth: 1,
 			},
 			{
-				id:"queue", drawType:"cell", drawOrder: 7, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null,
+				id:"queue", drawType:"cell", drawOrder: 7, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(116, 250, 76)"], toggle: "multi", checked: true, bigMap: false, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null, lineWidth: 1,
 			},
 			{
-				id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 8, infoMapBorder: true, infoMapValue: null,
+				id:"visited", drawType:"cell", drawOrder: 8, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["hsl(5,74%,85%)", "hsl(5,74%,75%)", "hsl(5,74%,65%)", "hsl(5,74%,55%)", "hsl(5,74%,45%)", "hsl(5,74%,35%)", "hsl(5,74%,25%)", "hsl(5,74%,15%)"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 8, infoMapBorder: true, infoMapValue: null, lineWidth: 1,
 			},
 			
 		];
@@ -248,7 +248,7 @@ class Pathfinder{
 	static get configs(){
     return [
 			{uid: "diagonal_block", displayName: "Diagonal Blocking:", options: ["Blocked", "Unblocked"], description: `Block connection to an ordinal neighbor (e.g. NW) if there are obstacles in its applicable cardinal directions (e.g. N, W). <br>Unblock to ignore this constraint`},
-      {uid: "big_map", displayName: "Big Map Optimization:", options: ["Disabled","Enabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
+      {uid: "big_map", displayName: "Big Map Optimization:", options: ["Enabled","Disabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
     ];
 	}
 
@@ -344,16 +344,10 @@ class Pathfinder{
 
 		if(command == STATIC.DrawEdge){
 			if(!this.edges.hasOwnProperty(dest)) this.edges[dest] = [];
+
 			arrowIndex = myUI.edgeCanvas.drawLine(nodeCoord, endCoord, this.destsToId[dest], false, colorIndex, anyVal);
 			this.edges[dest].push([...nodeCoord, ...endCoord, colorIndex, anyVal, arrowIndex]);
 			nodeCoord = undefined; endCoord = undefined; colorIndex = undefined; anyVal = undefined;
-
-			if(this.edges[dest].length > myUI.edgeCanvas.maxLines){
-				// limit maximum of lines shown on screen by erasing the oldest-drawn line
-				let oldest = this.edges[dest].shift();
-				this.actionCache = this.constructor.packAction({command: STATIC.EraseEdge, dest: dest, arrowIndex: oldest[6],});
-				Array.prototype.push.apply(this.step_cache, this.actionCache);
-			}
 		}
 		else if(command == STATIC.EraseEdge){
 			let idx = this.edges[dest].findIndex(edge=>edge[0] == nodeCoord[0] && edge[1] == nodeCoord[1] && edge[2] == endCoord[0] && edge[3] == endCoord[3] && edge[4] == colorIndex);
@@ -418,11 +412,9 @@ class Pathfinder{
     if (!this.draw_arrows) return;
     // ARROW
     if(open_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-      //this._create_action(STATIC.EraseArrow, open_node.arrow_index);
       this._create_action({command: STATIC.EraseArrow, arrowIndex: open_node.arrow_index});
     }
     if(closed_node!==undefined){ // need to remove the previous arrow drawn and switch it to the new_node
-      //this._create_action(STATIC.EraseArrow, closed_node.arrow_index);
       this._create_action({command: STATIC.EraseArrow, arrowIndex: closed_node.arrow_index});
     }
     new_node.arrow_index = myUI.create_arrow(next_XY, new_node.parent.self_XY); // node is reference typed so properties can be modified after adding to queue or open list
@@ -449,7 +441,7 @@ class Pathfinder{
 					this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
 
 				if(node.parent)
-					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: node.parent.self_XY, anyVal: 3});
+					this._create_action({command: STATIC.DrawEdge, dest: this.dests.path, nodeCoord: node.self_XY, endCoord: node.parent.self_XY});
 				
 			}
 			else this._create_action({command: STATIC.DrawPixel, dest: this.dests.path, nodeCoord: node.self_XY});
