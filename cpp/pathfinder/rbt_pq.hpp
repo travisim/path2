@@ -3,6 +3,7 @@
 //  CPWorkSpace
 //
 //  Created by Rajveer Singh on 23/09/21.
+//  Credit to https://codeforces.com/blog/entry/95575
 //
 
 #include <iostream>

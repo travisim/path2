@@ -12,7 +12,7 @@ class wasm_A_star extends wasm_GridPathfinder{
   }
   
   static get indexOfCollapsiblesToExpand() {
-    return [0,1, 2, 3, 4];
+    return [0, 1, 2, 3];
   }
 
   static get pseudoCode() {
@@ -34,13 +34,13 @@ class wasm_A_star extends wasm_GridPathfinder{
   get canvases(){
     let canvases = super.canvases.concat([
 			{
-				id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "F",
+				id:"fCost", drawType:"cell", drawOrder: 9, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "F", lineWidth: 1,
 			},
 			{
-				id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "G",
+				id:"gCost", drawType:"cell", drawOrder: 10, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "G", lineWidth: 1,
 			},
 			{
-				id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
+				id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H", lineWidth: 1,
 			},
     ])
     if(this.bigMap){
@@ -86,7 +86,7 @@ class wasm_A_star extends wasm_GridPathfinder{
   }
 
   loadWasmPlanner(){
-    return this.bigMap ? new Module["BaseAStarPlanner"]() : new Module["AStarPlanner"]();
+    this.wasmPlanner = this.bigMap ? new Module["BaseAStarPlanner"]() : new Module["AStarPlanner"]();
   }
 
   search(start, goal) {
@@ -102,7 +102,7 @@ class wasm_A_star extends wasm_GridPathfinder{
         return cost == this.timeOrder;
       });
     if(this.wasmPlanner) this.wasmPlanner.delete();
-    this.wasmPlanner = this.loadWasmPlanner();
+    this.loadWasmPlanner();
     let finished = this.wasmPlanner.wrapperSearch(this.map.copy_2d(),
     ...start, ...goal,
     this.neighborsIndex,

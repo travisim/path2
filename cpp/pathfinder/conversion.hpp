@@ -25,6 +25,14 @@ grid_t js2DtoVect2D(const emscripten::val &js2D){
   return grid;
 }
 
+std::vector<int> jsInttoVectInt(const emscripten::val &jsInt){
+  unsigned int len = jsInt["length"].as<unsigned int>();
+  std::vector<int> vec(len);
+  for(int i = 0; i < len; ++i){
+    vec[i] = jsInt[i].as<int>();
+  }
+  return vec;
+}
 #endif
 
 void vectDigitPrint(std::vector<uint8_t> v){

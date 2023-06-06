@@ -22,7 +22,7 @@ int main(){
     {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
   };
 
-  std::cout<<CustomLOSChecker({4.5, 14.5}, {13.5, 13.5}, grid, false).boolean<<std::endl;
+  std::cout<<pathfinder::CustomLOSChecker({4.5, 14.5}, {13.5, 13.5}, grid, false).boolean<<std::endl;
 
   return 0;
 }

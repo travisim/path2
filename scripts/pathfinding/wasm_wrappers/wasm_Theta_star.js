@@ -13,6 +13,6 @@ class wasm_Theta_star extends wasm_A_star{
   }
 
   loadWasmPlanner(){
-    return this.bigMap ? new Module["BaseThetaStarPlanner"]() : new Module["ThetaStarPlanner"]();
+    this.wasmPlanner = this.bigMap ? new Module["BaseThetaStarPlanner"]() : new Module["ThetaStarPlanner"]();
   }
 }

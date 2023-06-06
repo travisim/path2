@@ -94,14 +94,14 @@ namespace pathfinder
       ret.command = command;
       ret.dest = (Dest)dest;
       ret.nodeCoord = nodeCoord;
+      ret.arrowIndex = arrowIndex;
       ret.anyVal = anyVal;
-      ret.endCoord = endCoord;
       if constexpr(std::is_same<Action_t, Action<Coord_t>>::value){
         ret.colorIndex = colorIndex;
-        ret.arrowIndex = arrowIndex;
         ret.pseudoCodeRow = pseudoCodeRow;
         ret.infoTableRowIndex = infoTableRowIndex;
         ret.infoTableRowData = infoTableRowData;
+        ret.endCoord = endCoord;
       }
       return ret;
     }
@@ -155,17 +155,10 @@ namespace pathfinder
         if(edges.find(dest) == edges.end()) edges[dest] = {};
         arrowIndex = edgeStore[dest].size();  // simulates myUI.edgeCanvas
         if(colorIndex == -1) colorIndex = 0;
-        if(anyVal == -1) anyVal = 1;
+        if(anyVal == -1) anyVal = 100;
         edges[dest].push_back({nodeCoord, endCoord, colorIndex, anyVal, arrowIndex});
         edgeStore[dest].push_back({nodeCoord, endCoord, colorIndex, anyVal});
         nodeCoord = {-1, -1}; endCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
-
-        if(edges[dest].size() > maxLines){
-          fwdActionCnt++;
-          auto oldest = edges[dest].front(); edges[dest].pop_front();
-          Action_t myAction = packAction(command, dest, {-1, -1}, -1, oldest.arrowIndex);
-          currentStep->fwdActions.push_back(myAction);
-        }
       }
       else if(command == EraseEdge){
         for(auto &e : edges[dest]){

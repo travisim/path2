@@ -106,7 +106,9 @@ class VisibilityGraph : public Pathfinder<Action_t>{
   using Pathfinder<Action_t>::octile;
 
   std::vector<MapNode<Coord_t>> mapNodes;
+  std::vector<std::array<Coord_t, 2>> mapEdges;//std::pair<Coord_t, Coord_t>> mapEdges;
   bool showNetworkGraph;  // config var
+  bool toGenerateMap = true;  // config var
   std::unordered_map<Coord_t, MapNode<Coord_t>*, CoordHash<Coord_t>> matchMapNode;
 
   Empty2D<Node<Coord_t>*, Coord_t> openList, closedList;
@@ -115,6 +117,10 @@ class VisibilityGraph : public Pathfinder<Action_t>{
   timeOrder order;
   int gCoeff;
   int hCoeff;
+
+  int loopLength;
+  int loopStart;
+  int cnt;
 
   bool showFreeVertex(){ return true; }
 
@@ -167,12 +173,34 @@ public:
 
   inline int getNumMapNodes(){ return mapNodes.size(); }
 
-  void generateNewMap(Coord_t start, Coord_t goal){
+  bool wrapperGNM(emscripten::val gridArr, bool diagonalAllow){
+    grid = js2DtoVect2D(gridArr);
+    gridHeight = grid.size();
+    gridWidth = grid.size() ? grid[0].size() : 0;
+    this->diagonalAllow = diagonalAllow;
+
+    std::cout<<"STARTING MAP GENERATION, GRID SIZE = "<<grid.size()<<"×"<<grid[0].size()<<std::endl;
+
+    return generateNewMap();
+  }
+
+  void addMapNode(emscripten::val coordJS, emscripten::val neighborsJS){
+    Coord_t coord = {coordJS[0].as<double>(), coordJS[1].as<double>()};
+    auto neighbors = jsInttoVectInt(neighborsJS);
+
+    mapNodes.push_back(MapNode(coord, neighbors));
+  }
+
+  void addMapEdge(emscripten::val edgeJS){
+    Coord_t start = {edgeJS[0].as<double>(), edgeJS[1].as<double>()};
+    Coord_t end = {edgeJS[2].as<double>(), edgeJS[3].as<double>()};
+
+    mapEdges.push_back({start, end});
+  }
+
+  bool generateNewMap(){
+    cnt = 0;
     mapNodes.clear();
-    mapNodes.push_back(MapNode(start));
-    if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, start);
-    mapNodes.push_back(MapNode(goal));
-    if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, goal);
     const int KERNEL_SIZE = 2;
 
     for(int i = 0; i < gridHeight - KERNEL_SIZE + 1; ++i){
@@ -181,36 +209,76 @@ public:
         if(coords.size() == 0) continue;
         for(const auto coord : coords){
           mapNodes.push_back(MapNode(coord));
-          if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, coord);
         }
       }
     }
     std::cout<<"Done with finding corners; number of corners = "<<mapNodes.size()<<std::endl;
-    if(showNetworkGraph) saveStep(true);
 
-    int cnt = 0;
+    loopStart = 0;
+    loopLength = 10000;
+    return false;
+  }
 
+  bool nextGNM(){
     const double OFFSET = vertexEnabled ? 0 : 0.5;
     auto offsetCoord = [&](Coord_t coord){ return coordDouble_t{(double)coord.first + OFFSET, (double)coord.second + OFFSET}; };
-    for(int i = 0; i < mapNodes.size(); ++i){
+    int chg = floor((sqrt(8*loopLength + 4*loopStart*loopStart - 4*loopStart + 1) - 2 * loopStart + 1) / 2);
+    std::cout<<"loopStart: "<<loopStart<<", loopLenFloor: "<<loopStart*chg + chg*chg/2 - chg/2<<std::endl;
+    for(int i = loopStart; i < loopStart + chg; ++i){
+      if(i == mapNodes.size()){
+        std::cout<<"Generated map! Node count: "<<mapNodes.size()<<", Edge count: "<<mapEdges.size()<<std::endl;
+        std::cout<<cnt<<" calls to CustomLOSChecker(C++) made!\n";
+        return true;
+      }
       for(int j = 0; j < i; ++j){
-        auto n1 = mapNodes[i], n2 = mapNodes[j];
+        auto &n1 = mapNodes[i], &n2 = mapNodes[j];
         cnt++;
-        if(cnt % 10000 == 0) std::cout<<cnt<<std::endl;
         if(CustomLOSChecker(offsetCoord(n1.valueXY), offsetCoord(n2.valueXY), grid, diagonalAllow).boolean){
           // std::cout<<n1.valueXY.first<<' '<<n1.valueXY.second<<' '<<n2.valueXY.first<<' '<<n2.valueXY.second<<": HAVE LOS\n";
           // auto xy1 = offsetCoord(n1.valueXY);
           // auto xy2 = offsetCoord(n2.valueXY);
           // std::cout<<xy1.first<<' '<<xy1.second<<' '<<xy2.first<<' '<<xy2.second<<": HAVE LOS\n";
-          if(showNetworkGraph) createAction(DrawEdge, CanvasNetworkGraph, n1.valueXY, -1, -1, -1, 0, {}, -1, n2.valueXY);
           mapNodes[i].addNeighbor(j);
           mapNodes[j].addNeighbor(i);
+          mapEdges.push_back({n1.valueXY, n2.valueXY});
         }
-        // else std::cout<<n1.valueXY.first<<' '<<n1.valueXY.second<<' '<<n2.valueXY.first<<' '<<n2.valueXY.second<<": NO LOS\n";
       }
     }
-    if(showNetworkGraph) saveStep(true);
-  };
+    loopStart += chg;
+    return false;
+  }
+
+  void addStartGoalNodes(Coord_t start, Coord_t goal){
+    const auto OFFSET = vertexEnabled ? 0 : 0.5;
+    auto offsetCoord = [&](Coord_t coord){ return coordDouble_t{(double)coord.first + OFFSET, (double)coord.second + OFFSET}; };
+    Coord_t arr[2] = {start, goal};
+    for(auto coord : {start, goal}){
+      // check if coordinate is already a mapnode
+      auto nodeToAdd = MapNode(coord);
+      for(const auto node : mapNodes) if(isCoordEqual<Coord_t>(coord, node.valueXY)) goto nextIteration;
+      for(int i = 0; i < mapNodes.size(); ++i){
+        auto &node = mapNodes[i];
+        if(CustomLOSChecker(offsetCoord(coord), offsetCoord(node.valueXY), grid, diagonalAllow).boolean){
+          mapNodes[i].addNeighbor(mapNodes.size());
+          nodeToAdd.addNeighbor(i);
+          mapEdges.push_back({coord, node.valueXY});
+        }
+      }
+      mapNodes.push_back(nodeToAdd);
+      nextIteration:;
+    }
+  }
+
+  void drawVisibilityGraph(){
+    if(!showNetworkGraph) return;
+
+    for(const auto node : mapNodes)
+      createAction(DrawPixel, CanvasNetworkGraph, node.valueXY);
+    saveStep(true);
+
+    for(const auto edge : mapEdges)
+      createAction(DrawEdge, CanvasNetworkGraph, edge[0], -1, -1, -1, 0, {}, -1, edge[1]);
+  }
 
   #ifndef PURE_CPP
   bool wrapperSearch(
@@ -224,6 +292,8 @@ public:
     costType chosenCost = (costType)chosenCostInt;
     timeOrder order = (timeOrder)orderInt;
     grid_t grid = js2DtoVect2D(gridArr);
+
+    toGenerateMap = false;
     
     return search(grid, startX, startY, goalX, goalY, vertexEnabled, diagonalAllow, bigMap, hOptimized, chosenCost, order, gCoeff, hCoeff, showNetworkGraph);
   }
@@ -242,7 +312,7 @@ public:
     {
       createAction(DrawPixel, CanvasPath, current->selfXY);
       if(current->parent)
-        createAction(DrawEdge, CanvasPath, current->selfXY, -1, -1, -1, -1, {}, 3, current->parent->selfXY);
+        createAction(DrawEdge, CanvasPath, current->selfXY, -1, -1, -1, -1, {}, -1, current->parent->selfXY);
       
       path.push_back(current->selfXY);
       if (current->arrowIndex != -1)
@@ -274,7 +344,12 @@ public:
     openList.clear();
     closedList.clear();
 
-    generateNewMap({startX, startY}, {goalX, goalY});
+    if(toGenerateMap){
+      bool finished = generateNewMap();
+      while(!finished) finished = nextGNM();
+    }
+    addStartGoalNodes({startX, startY}, {goalX, goalY});
+    drawVisibilityGraph();
     // instead of adding neighbors to struct Node, link the coordinates to the original mapNode
     for(auto& mapNode : mapNodes) matchMapNode[mapNode.valueXY] = &mapNode;
 
@@ -348,7 +423,9 @@ public:
         std::array<double, 3> trip = calcCost(nextXY);
         double fCost = trip[0], gCost = trip[1], hCost = trip[2];
 
-        if(!showNetworkGraph) createAction(DrawEdge, CanvasNetworkGraph, nextXY, -1, -1, -1, 0, {}, -1, currentNodeXY);
+        if(!showNetworkGraph){
+          createAction(DrawEdge, CanvasNetworkGraph, nextXY, -1, -1, -1, 0, {}, -1, currentNodeXY);
+        }
         if(!bigMap){
           createAction(EraseAllEdge, CanvasFocused);
           createAction(DrawEdge, CanvasFocused, nextXY, -1, -1, -1, 0, {}, -1, currentNodeXY);
