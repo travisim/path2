@@ -1,13 +1,13 @@
 #define PURE_CPP
 
 #include <iostream>
-#include "../pathfinder/VisibilityGraph.hpp"
+#include "../pathfinder/PRMGraph.hpp"
 #include "../parseMap.hpp"
 #include <string>
 
 #include "../nadeau.hpp"
 
-pathfinder::VisibilityGraph<pathfinder::BaseAction<coordInt_t>> planner;
+pathfinder::PRMGraph<pathfinder::BaseAction<coordDouble_t>> planner;
 
 int main(int argc, char* argv[]){
 
