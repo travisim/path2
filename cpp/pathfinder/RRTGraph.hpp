@@ -5,10 +5,10 @@
 #include "step.hpp"
 #include "rbt_pq.hpp"
 #include "LOS.hpp"
-#include "kdtree.hpp"
 
-#ifndef PRMGRAPH_HPP
-#define PRMGRAPH_HPP
+
+#ifndef RRTGRAPH_HPP
+#define RRTGRAPH_HPP
 
 namespace pathfinder{
 
@@ -82,7 +82,7 @@ std::vector<coordInt_t> cornerCoords(grid_t& gridObj, int kernelSize, int startX
 }
 
 template <typename Action_t>
-class PRMGraph : public Pathfinder<Action_t>{
+class RRTGraph : public Pathfinder<Action_t>{
   using Coord_t = typename Action_t::CoordType;
   using Pathfinder<Action_t>::vertexEnabled;
   using Pathfinder<Action_t>::currentNode;
@@ -163,6 +163,8 @@ class PRMGraph : public Pathfinder<Action_t>{
     CanvasQueue,
     CanvasVisited,
     CanvasNetworkGraph,
+    CanvasNetworkGraphNeighbours,
+    CanvasNetworkGraphIntermediaryMapExpansion,
     ITNeighbors,
     ITQueue,
   };
@@ -171,91 +173,167 @@ public:
 
   inline int getNumMapNodes(){ return mapNodes.size(); }
   // -----------------------------------------------------------------
-struct CoordDoubleXY_t{
-    double x;
-    double y;
-    CoordDoubleXY_t(double x, double y) : x(x), y(y) {};
-    };
-
-
-
-
-
-
-
-
-
-// helper
-CoordDoubleXY_t randomDoubleCoordGenerator(const int &gridHeight,const int &gridWidth ){ //requires initialisation of seed
+Coord_t randomDoubleCoordGenerator(const int &gridHeight,const int &gridWidth ){ //requires initialisation of seed
     //std::cout<<RAND_MAX<<std::endl;
     //std::cout<<rand()<<std::endl;
     double rx = static_cast< double >(rand()) / static_cast< double >(RAND_MAX) * gridHeight  ;// rx in the range 0 to grid height;
     double ry = static_cast< double >(rand())  / static_cast< double >(RAND_MAX) * gridWidth ; // ry in the range 0 to grid height;
     
-    CoordDoubleXY_t randomCoord_XY (rx, ry);
+    Coord_t randomCoord_XY (rx, ry);
     return randomCoord_XY;
 }
-
-// helper
-double distanceBetween2Points(const CoordDoubleXY_t a,const CoordDoubleXY_t b){
+double distanceBetween2Points(const Coord_t a,const Coord_t b){
     // Calculating distance
-    return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y , 2));
+    return sqrt(pow(a.first - b.first, 2) + pow(a.second - b.second , 2));
 }
 
-// helper
-//del getNearestNodeIndexInTreeToRandomCoord
+int getNearestNodeIndexInTreeToRandomCoord(const std::vector<MapNode<Coord_t>>& MapNodes,const Coord_t& randomCoord_XY){
+    //std::cout<< randomCoord_XY.first<<" "<<randomCoord_XY.second<<"\n";
+    int size  = static_cast<int>(MapNodes.size());
+    
+    int NearestNodeIndex = 0;
+    double NearestNodeDistance = 9999999;
+    for (int i = 0 ; i < size; ++i) {
+        double newdistanceDistanceBetween2Points = distanceBetween2Points(randomCoord_XY,MapNodes[i].valueXY);
+        if ( newdistanceDistanceBetween2Points < NearestNodeDistance) {
+            NearestNodeDistance = newdistanceDistanceBetween2Points;
+            NearestNodeIndex = i;
+        }
+    }
+    
+    return NearestNodeIndex;
+}
 
 
-// helper
-//del getCoordinatesofPointsXAwayFromSource
 
-// helper
-//del getNodesNearbyIndex
+Coord_t getCoordinatesofPointsXAwayFromSource(const Coord_t& src, const Coord_t& dest, double& distance) {
+    
+    // Calculate the distance between srcCoord and destCoord
+    double distanceBetween2Points = std::sqrt(std::pow(dest.first - src.first, 2) + std::pow(dest.second - src.second, 2));
 
-std::pair<double, double> offsetCoord(std::pair<double, double> coord,const double OFFSET){
+    if(distanceBetween2Points<distance){
+        return dest;
+    }
+    // Calculate the ratio of the distance to be covered
+    double ratio = distance / distanceBetween2Points;
+
+    // Calculate the coordinates of the intermediate point
+    Coord_t intermediateCoord(src.first + ratio * (dest.first - src.first),src.second + ratio * (dest.second - src.second));
+
+
+    return intermediateCoord;
+}
+std::vector<int> getNodesNearbyIndex( std::vector<MapNode<Coord_t>>& mapNodes,  Coord_t& nextCoordToAdd_XY, std::string& neighbourSelectionMethod, double& connectionDistance,int& numberOfTopClosestNeighbours){
+    
+    std::vector<int> indexes;
+
+    // Iterate over each struct in the vector
+    for (int i = 0; i < mapNodes.size(); i++) {
+        const MapNode<Coord_t>& MapNode = mapNodes[i];
+
+        // Calculate the Euclidean distance between the source coordinate and the struct's coordinate
+        double distance = std::sqrt(std::pow(MapNode.valueXY.first - nextCoordToAdd_XY.first, 2) + std::pow(MapNode.valueXY.second - nextCoordToAdd_XY.second, 2));
+
+        // Check if the distance is within the specified radius
+        if (distance <= connectionDistance) {
+            indexes.push_back(i); // Add the index to the result vector
+        }
+    }
+
+    return indexes;
+
+}
+
+std::pair<double, double> offsetCoord(Coord_t coord,const double OFFSET){
     return std::pair<double, double>(coord.first + OFFSET, coord.second + OFFSET);
 }
 
-// helper
-//del determineParentWithLowestCost
+
+int determineParentWithLowestCost(const std::vector<int>& nodesNearby_Indexes,const Coord_t& nextCoordToAdd_XY,const int& nearestNode_Index,const std::vector<MapNode<Coord_t>>& mapNodes,const grid_t grid, const bool& diagonalAllow, const double OFFSET){
+   // int selectedParent_Index = determineParentWithLowestCost(nodesNearby_Indexes,nextCoordToAdd_XY,nearestNode_Index,mapNodes,grid, diagonalAllow,&offsetCoord);
+    int selectedParent_index = nearestNode_Index;
+    
+    
+    
+    for (int i = 0; i < nodesNearby_Indexes.size(); ++i) {
+      //console.log(nodesNearby_Index,i,"i",selectedParent_index,mapNodes)
+      if(mapNodes[nodesNearby_Indexes[i]].gCost + distanceBetween2Points(mapNodes[nodesNearby_Indexes[i]].valueXY,nextCoordToAdd_XY)<mapNodes[selectedParent_index].gCost+distanceBetween2Points(mapNodes[selectedParent_index].valueXY,nextCoordToAdd_XY) &&  CustomLOSChecker(offsetCoord(mapNodes[selectedParent_index].valueXY,OFFSET) , offsetCoord(nextCoordToAdd_XY,OFFSET),grid, diagonalAllow).boolean){
+        selectedParent_index = nodesNearby_Indexes[i];
+
+      }
+    }
+    return selectedParent_index;
+}
 
 
 
-// helper
-void insertNodeToTree(const int Parent_Index,const CoordDoubleXY_t nextCoordToAdd_XY, const std::vector<int>&  neighbours_IndexArray, std::vector<MapNode<Coord_t>>& mapNodes,const std::vector<std::vector<uint8_t>> grid, const bool& diagonalAllow, const double OFFSET){
+
+
+
+void insertNodeToTree(const int Parent_Index,const Coord_t nextCoordToAdd_XY, const std::vector<int>&  neighbours_IndexArray, std::vector<MapNode<Coord_t>>& mapNodes,const grid_t grid, const bool& diagonalAllow, const double OFFSET){
     if (CustomLOSChecker(offsetCoord(mapNodes[Parent_Index].valueXY,OFFSET) , offsetCoord(nextCoordToAdd_XY,OFFSET),grid, diagonalAllow).boolean){
         double gCost = mapNodes[Parent_Index].gCost+distanceBetween2Points(nextCoordToAdd_XY,mapNodes[Parent_Index].valueXY);
         //add neighbours for parents
         int newNode_index = static_cast<int>(mapNodes.size()); // position of this matters
-        std::pair<double, double> tempconvert;
-        tempconvert.first = nextCoordToAdd_XY.x;
-        tempconvert.second = nextCoordToAdd_XY.y;
-        mapNodes.push_back(tempconvert); // create new node
+        mapNodes.push_back(nextCoordToAdd_XY); // create new node
         mapNodes[Parent_Index].addNeighbor(newNode_index);
         //mapNodes[newNode_index].addNeighbor(Parent_Index); //
         mapNodes[newNode_index].gCost = gCost;
         mapNodes[newNode_index].parent = Parent_Index;
         mapNodes[newNode_index].neighbours = neighbours_IndexArray;
-        
+       
         //mapNodes.push_back(new MapNode(Parent_Index,nextCoordToAdd_XY,neighbours_IndexArray,additionalCoord_XY,additionalEdge_XYXY,gCost));
-    }
+      }
 }
-// helper
-void print_nodes(const Kdtree::KdNodeVector &nodes) {
-    size_t i,j;
-    for (i = 0; i < nodes.size(); ++i) {
-        if (i > 0)
-            std::cout << " ";
-        std::cout << "(";
-        for (j = 0; j < nodes[i].point.size(); j++) {
-            if (j > 0)
-                std::cout << ",";
-            std::cout << nodes[i].point[j];
+
+
+void  rewireTree( std::vector<MapNode<Coord_t>>& mapNodes,int& currentNode_Index, const std::vector<int>& nodesNearby_Indexes,const grid_t grid, const bool& diagonalAllow, const double OFFSET){// rewires neighbouring nodes within radius of current node to current node as parent if it results in a lower g cost
+    for (int i = 0; i < nodesNearby_Indexes.size(); ++i) {
+      int nodeNearby_index  = nodesNearby_Indexes[i];
+
+      if(nodeNearby_index == mapNodes[currentNode_Index].parent) continue;
+        double newConnection_gCost = distanceBetween2Points(mapNodes[currentNode_Index].valueXY, mapNodes[nodeNearby_index].valueXY) + mapNodes[currentNode_Index].gCost;
+      
+        bool LOS =CustomLOSChecker(offsetCoord(mapNodes[currentNode_Index].valueXY,OFFSET) , offsetCoord(mapNodes[nodeNearby_index].valueXY,OFFSET),grid, diagonalAllow).boolean;
+        
+      if (mapNodes[nodeNearby_index].gCost > newConnection_gCost && LOS) { // yes rewire
+        //console.log("before rewire",currentNode_Index,mapNodes[currentNode_Index].neighbours,mapNodes[currentNode_Index].parent,nodeNearby_index, mapNodes[nodeNearby_index].neighbours,mapNodes[nodeNearby_index].parent)
+        mapNodes[nodeNearby_index].neighbours.push_back(currentNode_Index);// forms edge between nearby node and current
+        mapNodes[currentNode_Index].neighbours.push_back(nodeNearby_index);
+       // console.log("before 1rewire",currentNode_Index,mapNodes[currentNode_Index].neighbours,mapNodes[currentNode_Index].parent,nodeNearby_index, mapNodes[nodeNearby_index].neighbours,mapNodes[nodeNearby_index].parent)
+
+        int formerParentOfNearbyNode_index; // to fixscopingissueforsecond loop
+        for (int j = 0; j < mapNodes[nodeNearby_index].neighbours.size(); ++j) { // remove edge between nearby node and parent of nearby node
+          if(mapNodes[nodeNearby_index].neighbours[j] == mapNodes[nodeNearby_index].parent){
+               formerParentOfNearbyNode_index = mapNodes[nodeNearby_index].neighbours[j];
+            mapNodes[nodeNearby_index].neighbours.erase(mapNodes[nodeNearby_index].neighbours.begin() + j); // removes parent as a neighbour
+            continue;
+          }
         }
-        std::cout << ")";
+        mapNodes[nodeNearby_index].parent = currentNode_Index;
+       
+
+       // console.log("after rewire",currentNode_Index,mapNodes[currentNode_Index].neighbours,mapNodes[currentNode_Index].parent,nodeNearby_index, mapNodes[nodeNearby_index].neighbours,mapNodes[nodeNearby_index].parent)
+       // console.log("after rewire p1 ",mapNodes[formerParentOfNearbyNode_index].neighbours,mapNodes[formerParentOfNearbyNode_index])
+        //console.log("rewire", mapNodes[formerParentOfNearbyNode_index].valueXY, mapNodes[nodeNearby_index].valueXY, "nodeNearby_index", nodeNearby_index, "formerParentOfNearbyNode_index", formerParentOfNearbyNode_index)
+        for (int j = 0; j < mapNodes[formerParentOfNearbyNode_index].neighbours.size(); ++j) {
+          if(mapNodes[formerParentOfNearbyNode_index].neighbours[j] == nodeNearby_index){
+            mapNodes[formerParentOfNearbyNode_index].neighbours.erase(mapNodes[formerParentOfNearbyNode_index].neighbours.begin()+j); // removes nearby node as a neighbour of (nearby node parent)
+          }
+        }
+        // console.log("after rewire p ",mapNodes[formerParentOfNearbyNode_index].neighbours,mapNodes[formerParentOfNearbyNode_index])
+//          this._create_action({command: STATIC.EraseEdge, dest: this.dests.networkGraph, nodeCoord: mapNodes[formerParentOfNearbyNode_index].valueXY, endCoord: mapNodes[nodeNearby_index].valueXY });
+//          this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: mapNodes[currentNode_Index].valueXY, endCoord: mapNodes[nodeNearby_index].valueXY, colorIndex:1});
+//          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 10});
+//          this._save_step(true);
+//
+       // myUI.edgeCanvas.eraseLine(mapNodes[formerParentOfNearbyNode_index].valueXY, mapNodes[nodeNearby_index].valueXY, this.dests.networkGraph);
+        //myUI.edgeCanvas.drawLine(mapNodes[currentNode_Index].valueXY,mapNodes[nodeNearby_index].valueXY);
+      }
     }
-    std::cout << std::endl;
+      
 }
+
 // helper
 void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const std::pair<double, double> &coord2, std::vector<std::vector<std::pair<double, double>>> &edgeAccumalator){
     bool flag = true;
@@ -281,6 +359,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
 // -----------------------------------------------------------------
 
   void generateNewMap(Coord_t start, Coord_t goal){
+    mapNodes.clear();
 
     int x1 = start.first; // start coord
     int y1 = start.second;
@@ -291,24 +370,33 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     int sampleSize = 30;
     // grid_t grid;
 
+
     unsigned int seed = 123;
     double  pointXawayFromSource = 4;
     bool vertexEnabled = true;
+    srand(seed);
+    Coord_t randomCoord_XY = randomDoubleCoordGenerator(gridHeight, gridWidth);
+   // std::cout <<"firstcoord selected:"<< randomCoord_XY.first << ", " << randomCoord_XY.second << std::endl;
+ 
+    mapNodes.push_back(Coord_t(x1,y1));  // start and end not connected
+    mapNodes[0].gCost = 0;
+    mapNodes[0].parent = 999999;
     const double OFFSET = vertexEnabled ? 0 : 0.5;
+    auto offsetCoord = [&](Coord_t coord){ return std::pair<double, double>{coord.first + OFFSET, coord.second + OFFSET}; };
     bool diagonalAllow = true;
     std::string neighbourSelectionMethod = "Closest Neighbours By Radius";
     double connectionDistance=4;
     int numberOfTopClosestNeighbours=3;
 
-    std::vector<std::vector<std::pair<double, double>>> edgeAccumalator;
+  
+   if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, randomCoord_XY);
+   if(showNetworkGraph) saveStep(true);
 
 
-    mapNodes.clear();
+
     
-    // if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, start);
-    // mapNodes.push_back(MapNode(goal));
-    // if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, goal);
-    
+  
+   
 
 
     // if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, coord);
@@ -319,96 +407,33 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     // if(showNetworkGraph) createAction(DrawEdge, CanvasNetworkGraph, n1.valueXY, -1, -1, -1, 0, {}, -1, n2.valueXY);
    
     // if(showNetworkGraph) saveStep(true);
-
-    srand(seed);
-    CoordDoubleXY_t randomCoord_XY = randomDoubleCoordGenerator(gridHeight, gridWidth);
-    // std::cout <<"firstcoord selected:"<< randomCoord_XY.x << ", " << randomCoord_XY.y << std::endl;
-    std::pair<double, double> tempconvert;
-    tempconvert.first = x1;
-    tempconvert.second = y1;
-    mapNodes.push_back(tempconvert); // start and end not connected
-    mapNodes[0].gCost = 0;
-    mapNodes[0].parent = 999999;
-    if (showNetworkGraph)createAction(DrawPixel, CanvasNetworkGraph, tempconvert);
-    if (showNetworkGraph)saveStep(true);
+ 
     
     
-    auto offsetCoord = [&](std::pair<double, double> coord){ return std::pair<double, double>{coord.first + OFFSET, coord.second + OFFSET}; };
-    
-    
-    
-    
-    std::vector<CoordDoubleXY_t> ArrayOfRandomPoints;
-    // mapNodes[0].parent = null;
+   // mapNodes[0].parent = null;
     for (int i = 0; i < sampleSize; ++i) {
+       
         randomCoord_XY = randomDoubleCoordGenerator(gridHeight, gridWidth);
-        std::pair<double, double> tempconvert;
-        tempconvert.first = randomCoord_XY.x;
-        tempconvert.second = randomCoord_XY.y;
-        if(CustomLOSChecker(offsetCoord(tempconvert), offsetCoord(tempconvert), grid, diagonalAllow).boolean){ // filters out random points that are on obsacles verified to work
-            ArrayOfRandomPoints.push_back(randomCoord_XY);
-            std::pair<double, double> tempconvert;
-            tempconvert.first = randomCoord_XY.x;
-            tempconvert.second = randomCoord_XY.y;
-            if (showNetworkGraph)createAction(DrawPixel, CanvasNetworkGraph, tempconvert);
-            if (showNetworkGraph)saveStep(true);
-
+       // std::cout <<"randomcoord "<<randomCoord_XY.first<<","<<randomCoord_XY.second<<std::endl;;
+        if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, randomCoord_XY);
+        if(showNetworkGraph) saveStep(true);
+        int nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(mapNodes, randomCoord_XY);
+        Coord_t nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(randomCoord_XY,mapNodes[nearestNode_Index].valueXY,pointXawayFromSource);
+       // std::cout <<"1 "<<randomCoord_XY.first<<","<<randomCoord_XY.second<<" "<<nextCoordToAdd_XY.first<<","<<nextCoordToAdd_XY.second<<std::endl;
+     
+       // std::cout <<randomCoord_XY.first<<","<<randomCoord_XY.second<<" "<<nextCoordToAdd_XY.first<<","<<nextCoordToAdd_XY.second<<std::endl;
+        if(CustomLOSChecker(offsetCoord(randomCoord_XY), offsetCoord(nextCoordToAdd_XY), grid, diagonalAllow).boolean){ // last argument is diagonalAllow
+            std::vector<int>  nodesNearby_Indexes = getNodesNearbyIndex(mapNodes, nextCoordToAdd_XY, neighbourSelectionMethod, connectionDistance,numberOfTopClosestNeighbours);
+            int selectedParent_Index = determineParentWithLowestCost(nodesNearby_Indexes,nextCoordToAdd_XY,nearestNode_Index,mapNodes,grid, diagonalAllow,OFFSET);
+        
+            insertNodeToTree(selectedParent_Index, nextCoordToAdd_XY, std::vector<int>(1,selectedParent_Index),  mapNodes, grid, diagonalAllow, OFFSET);
+            int index = static_cast<int>(mapNodes.size()-1);
+            rewireTree(mapNodes,index, nodesNearby_Indexes, grid, diagonalAllow, OFFSET);
+     
         }
+    }
+    
         
-        
-    }
-    
-    Kdtree::KdNodeVector nodes; // init kd nodes
-    for (int i = 0; i < ArrayOfRandomPoints.size(); ++i) {//load valid random points to kd nodes and mapnodes
-        std::vector<double> point(2);
-        point[0] = ArrayOfRandomPoints[i].x;
-        point[1] = ArrayOfRandomPoints[i].y;
-        nodes.push_back(Kdtree::KdNode(point));
-        std::pair<double, double> tempconvert;
-        tempconvert.first = ArrayOfRandomPoints[i].x;
-        tempconvert.second = ArrayOfRandomPoints[i].y;
-        mapNodes.push_back(MapNode(tempconvert));
-    }
-    Kdtree::KdTree tree(&nodes); //load valid random points to kd tree
-    int  k_nearest_neighbors_int = 4;
-    
-    for (int i = 0; i < ArrayOfRandomPoints.size(); ++i) {
-        std::vector<double> test_point(2);
-        test_point[0] = ArrayOfRandomPoints[i].x;
-        test_point[1] = ArrayOfRandomPoints[i].y;
-        Kdtree::KdNodeVector result;
-        tree.k_nearest_neighbors(test_point, k_nearest_neighbors_int, &result); //calculate k nearest neighbours
-        //convert array or coord to array of indexes in ArrayOfRandomPoints
-        std::vector<int>  neighbours_IndexArray;
-        for (int j = 0; j < ArrayOfRandomPoints.size(); ++j) {
-            for (int k = 0; k < result.size(); ++k) {
-                if (ArrayOfRandomPoints[j].x == result[k].point[0] && ArrayOfRandomPoints[j].y == result[k].point[1]){
-                    if(CustomLOSChecker(offsetCoord(mapNodes[i].valueXY) , offsetCoord(coordDouble_t(result[k].point[0],result[k].point[1])),grid, diagonalAllow).boolean){//if LOS to neighbours
-                        neighbours_IndexArray.push_back(j);
-
-                        std::pair<double, double> coord1(mapNodes[i].valueXY.first,mapNodes[i].valueXY.second);
-                        std::pair<double, double> coord2(result[k].point[0],result[k].point[1]);
-                        pushNewEdgeToEdgeAccumalator(coord1, coord2, edgeAccumalator);
-                    }
-                }
-            }
-        }
-        mapNodes[i].neighbours = neighbours_IndexArray; // load k nearest neighbours index to mapnode;
-
-        
-    }
-    for(int i = 0; i < edgeAccumalator.size(); ++i){
-        if (showNetworkGraph)createAction(DrawEdge, CanvasNetworkGraph, edgeAccumalator[i][0], -1, -1, -1, 0, {}, -1, edgeAccumalator[i][1]);
-        if (showNetworkGraph)saveStep(true);
-    }
-    
-    std::cout << "Points in kd-tree:\n  ";
-    print_nodes(tree.allnodes);
-    std::cout<<"sample size "<<sampleSize<<"\n";
-    std::cout<<"random coord array size "<<tree.allnodes.size()<<"\n";
-   
-
-    
    
   };
 

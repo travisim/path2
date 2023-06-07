@@ -259,7 +259,7 @@ std::vector<pairDouble> CustomLOSGenerator(pairDouble src, pairDouble tgt, bool 
 
 // LOS Checker(combined with generator)
 
-bool CustomLOSDiagonalChecker(grid_t& grid, bool diagonalAllow, pairDouble src, pairDouble tgt, bool cons = false, int correctLength = -1) {
+bool CustomLOSDiagonalChecker(const grid_t& grid, bool diagonalAllow, pairDouble src, pairDouble tgt, bool cons = false, int correctLength = -1) {
   
   auto isBlocked = [&](const pairDouble& a){ return grid[a.first][a.second] == 0; };
 
