@@ -44,7 +44,7 @@ class VisibilityGraph extends Pathfinder{
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
       {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`},  
       {uid: "show_network_graph", displayName: "Show network graph:", options: ["Off", "On"], description: `Every corner and corner-pair will be shown in the first two steps if set to "On".`},
-      {uid: "set_max_lines", displayName: "Maximum number of lines:", options: "number", defaultVal: 20, description: `Maximum number of lines (of each type) to be shown on the screen at any time.`},
+      {uid: "set_max_lines", displayName: "Maximum number of lines:", options: "number", defaultVal: 100, description: `Maximum number of lines (of each type) to be shown on the screen at any time.`},
     );
 		return configs;
   }
@@ -374,10 +374,16 @@ class VisibilityGraph extends Pathfinder{
     let numNodes = this.mapNodes.length;
     let loopLength = 20000;
     let cnt = 0;
+    let total = numNodes * (numNodes - 1) / 2;
+    let loopCnt = 0;
 
     function runNextLoop(a){
       let chg = Math.floor((Math.sqrt(8*loopLength + 4*a*a - 4*a + 1) - 2*a + 1)/2);
       // console.log(`a: ${a}, loopLenFloor: ${a*chg + chg*chg/2 - chg/2}`);
+      if(loopCnt++ % 10 == 0){
+        let pct = a * (a - 1) / 2 / total * 100;
+        console.log(`Progress: ${pct.toFixed(2)}%`);
+      }
       for(let i = a; i < a + chg; ++i){
         if(numNodes == i){
           console.log(`Generated map! Time taken = ${Date.now() - myUI.startTime}ms`);
@@ -566,8 +572,9 @@ class VisibilityGraph extends Pathfinder{
           if(!this.bigMap){
             this._create_action({command: STATIC.UpdateRowAtIndex, dest: this.dests.ITNeighbors, infoTableRowIndex: i+1, infoTableRowData: [next_XY.toPrecision(5).join(", "), f_cost.toPrecision(5), g_cost.toPrecision(5), h_cost.toPrecision(5), "Not a child"]});
             this._create_action({command: STATIC.DrawSinglePixel, dest: this.dests.focused, nodeCoord: next_XY});
-            this._save_step(false);
+            // this._save_step(false);
           }
+          this._save_step(false);
           continue; // do not add to queue if open list already has a lower cost node
         }
         let closed_node = this.closed_list.get(next_XY);

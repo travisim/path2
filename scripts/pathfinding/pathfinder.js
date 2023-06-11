@@ -18,7 +18,7 @@ class Pathfinder{
 		return [numBits, offset, idx];
 	}
 
-	static unpackAction(action, readable = false){
+	static unpackAction(action, debug = false){
 		/* NEW */
 		let bitOffset = 13;
 		let idx = 0;
@@ -76,7 +76,7 @@ class Pathfinder{
 		}
 	
     
-		if(readable){
+		if(debug && command == STATIC.DrawEdge && myUI.planner.destsToId[dest] == "networkGraph"){
 			console.log(`
 			Command          : ${STATIC_COMMANDS[command]}
 			Dest             : ${myUI.planner.destsToId[dest]}
@@ -248,7 +248,7 @@ class Pathfinder{
 	static get configs(){
     return [
 			{uid: "diagonal_block", displayName: "Diagonal Blocking:", options: ["Blocked", "Unblocked"], description: `Block connection to an ordinal neighbor (e.g. NW) if there are obstacles in its applicable cardinal directions (e.g. N, W). <br>Unblock to ignore this constraint`},
-      {uid: "big_map", displayName: "Big Map Optimization:", options: ["Enabled","Disabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
+      {uid: "big_map", displayName: "Big Map Optimization:", options: ["Disabled","Enabled",], description: `Enabled will reduce the amount of canvases drawn and steps stored, as certain canvases are meaningless when the map gets too big (queue, neighbors etc.)`},
     ];
 	}
 

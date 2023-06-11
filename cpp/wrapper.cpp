@@ -19,6 +19,8 @@ EMSCRIPTEN_BINDINGS(myModule) {
   bindStep(BindType::int_coord);
   bindState(BindType::int_coord);
   bindFreeStores(BindType::int_coord);
+  bindMapNode(BindType::int_coord, true);
+  bindMapEdge(BindType::int_coord, true);
   bindPathfinder(BindType::int_coord);
   bindGridPathfinder(BindType::int_coord);
   bindAStar();
@@ -52,5 +54,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
   emscripten::register_vector<std::string>("vectorString");
   emscripten::register_vector<std::vector<std::string>>("vectorVectorString");
   emscripten::register_vector<double>("vectorDouble");
+
+  // bind vector of mapnodes
 
 }

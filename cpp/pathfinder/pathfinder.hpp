@@ -116,6 +116,7 @@ namespace pathfinder
     virtual inline bool showFreeVertex(){ return false; }
     virtual inline bool gridPrecisionFloat(){ return false; }
 
+    inline std::vector<Coord_t> getPath() { return path; }
 
     virtual void initSearch(grid_t &grid, Coord_t start, Coord_t goal, bool diagonalAllow, bool bigMap)
     {
@@ -291,6 +292,7 @@ namespace pathfinder
       std::cout<<"Num nodes: "<<Node<Coord_t>::count<<std::endl;
       std::cout<<"Num root nodes: "<<rootNodes.size()<<std::endl;
       for(const Node<Coord_t>* ptr : rootNodes) delete ptr;
+      rootNodes.clear();
       std::cout<<"Deleted rootNodes!"<<std::endl;
       return true;
     }

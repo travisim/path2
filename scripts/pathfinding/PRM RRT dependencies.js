@@ -582,25 +582,46 @@ class SVGCanvas {
     this.opacityStep = 100/this.maxLines;
   }
 
+  setLineState(destId, indices){
+    let breakpoint = Math.max(0, indices.length - this.maxLines);
+    for(let i = 0; i < breakpoint; ++i){
+      let line = this.lines[destId][indices[i]];
+      line.classList.remove("hidden");
+      line.setAttributeNS(null, "stroke-opacity", `0%`);
+      this.shownLines[destId].push(line);
+    }
+    let cnt = this.maxLines;
+    for(let i = Math.min(this.maxLines, indices.length) - 1; i >= 0; --i){
+      let line = this.lines[destId][indices[breakpoint + i]];
+      line.classList.remove("hidden");
+      line.setAttributeNS(null, "stroke-opacity", `${(cnt--) * this.opacityStep}%`);
+      this.shownLines[destId].push(line);
+    }
+  }
+
   showLine(destId, index){
-    this.shownLines[destId].forEach(line=>{
+    let n = this.shownLines[destId].length;
+    for(let i = Math.max(n - this.maxLines, 0); i < n; ++i){
+      let line = this.shownLines[destId][i];
       let nextOpacity = line.getAttributeNS(null, "stroke-opacity").slice(0, -1) - this.opacityStep;
       line.setAttributeNS(null, "stroke-opacity", `${nextOpacity}%`);
-    });
+    }
+    
     this.lines[destId][index].classList.remove("hidden");
     this.shownLines[destId].push(this.lines[destId][index]);
   }
 
   hideLine(destId, index){
-    console.log(`HIDING LINE ${index}`);
-    this.shownLines[destId].forEach(line=>{
-      let nextOpacity = Number(line.getAttributeNS(null, "stroke-opacity").slice(0, -1)) + this.opacityStep;
-      line.setAttributeNS(null, "stroke-opacity", `${nextOpacity}%`);
-    });
     this.lines[destId][index].classList.add("hidden");
     let idx = this.shownLines[destId].findIndex(el => el == this.lines[destId][index]);
     if(idx != -1) this.shownLines[destId].splice(idx, 1);
-    
+
+    let n = this.shownLines[destId].length;
+    for(let i = Math.max(n - this.maxLines, 0); i < n; ++i){
+      let line = this.shownLines[destId][i];
+      let nextOpacity = Number(line.getAttributeNS(null, "stroke-opacity").slice(0, -1)) + this.opacityStep;
+      line.setAttributeNS(null, "stroke-opacity", `${nextOpacity}%`);
+    }
   }
 
   hideAllLines(destId){
