@@ -259,7 +259,7 @@ std::vector<pairDouble> CustomLOSGenerator(pairDouble src, pairDouble tgt, bool 
 
 // LOS Checker(combined with generator)
 
-bool CustomLOSDiagonalChecker(grid_t& grid, bool diagonalAllow, pairDouble src, pairDouble tgt, bool cons = false, int correctLength = -1) {
+bool CustomLOSDiagonalChecker(const grid_t& grid, bool diagonalAllow, pairDouble src, pairDouble tgt, bool cons = false, int correctLength = -1) {
   
   auto isBlocked = [&](const pairDouble& a){ return grid[a.first][a.second] == 0; };
 
@@ -517,14 +517,14 @@ struct CustomLOSResult {
   std::pair<int, int> lastPassableCoordBeforeUnpassable;
 };
 
-CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double, double> tgt, grid_t& grid, bool diagonalAllow) {
+CustomLOSResult CustomLOSChecker(std::pair<double, double> src, std::pair<double, double> tgt,const grid_t& grid, bool diagonalAllow) { //added const t ogrid
   // c++ implementation checks for opposite values of grid[][] because it uses 1: passable and 0: blocked
   // JS implementation uses bg.canvas_cache which takes 1: blocked and 0: passable
   if (grid.empty() || grid[0].empty())
     return {false, {0, 0}};
 
-  int map_height = grid.size();
-  int map_width = grid[0].size();
+  int map_height = static_cast<int>(grid.size());
+  int map_width = static_cast<int>(grid[0].size());
 
   if (src.first == tgt.first && src.second == tgt.second) {
     if (src.first == std::floor(src.first) && src.second == std::floor(src.second)) {

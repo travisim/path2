@@ -64,6 +64,5 @@ struct MapNode{
   inline std::vector<int> getNeighbors(){ return neighbours; }
 };
 
-
 }
 #endif
