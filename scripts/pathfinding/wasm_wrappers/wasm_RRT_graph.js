@@ -115,7 +115,8 @@ class wasm_RRT_graph extends wasm_Pathfinder{
   }
 
   downloadMapNodes(){
-    // to implement
+    console.assert(this.wasmPlanner, "No wasm planner created!");
+    this.wasmPlanner.download()
     let text = `type,mapnode`;
     for(let node of this.mapNodes){
       text += `\n${node.value_XY},${node.getNeighbors()}`;
@@ -153,7 +154,8 @@ class wasm_RRT_graph extends wasm_Pathfinder{
   }
 
   loadWasmPlanner(){
-    this.wasmPlanner = this.bigMap ? new Module["BaseRRTPlanner"]() : new Module["RRTPlanner"]();
+     if(!this.wasmPlanner)
+      this.wasmPlanner = this.bigMap ? new Module["BaseRRTPlanner"]() : new Module["RRTPlanner"]();
   }
 
   async search(start, goal){
@@ -170,7 +172,7 @@ class wasm_RRT_graph extends wasm_Pathfinder{
     let order = ["FIFO", "LIFO"].findIndex(cost=>{
         return cost == this.timeOrder;
       });
-    if(this.wasmPlanner) this.wasmPlanner.delete();
+   
     this.loadWasmPlanner();
     
     if(toGenerateMap) await this.generateNewMap();

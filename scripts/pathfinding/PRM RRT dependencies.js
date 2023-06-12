@@ -682,7 +682,9 @@ class SVGCanvas {
       this.shownCircles[destId] = [];
     }
 
-    var r = radius?radius:Math.max(0.25*this.displayRatio, 4);
+
+    
+    var r = (radius && radius > 0.25*this.displayRatio)?radius:Math.max(0.25*this.displayRatio, 4); // wasm network graph passes radius = 1 here but this fixes it
     var [cy, cx] = circle_XY.map(t => t * this.displayRatio);
     var circle_id = id?id:`SVGcircle_${destId}_${this.circles[destId].length}`;
     var circle_class = `SVGcircle_${destId} hidden`;

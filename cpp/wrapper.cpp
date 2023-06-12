@@ -9,6 +9,7 @@
 #include "bindings/bind_Theta_star.hpp"
 #include "bindings/bind_Visibility_graph.hpp"
 #include "bindings/bind_RRT_graph.hpp"
+#include "bindings/bind_PRM_graph.hpp"
 
 int main() { return 0; }
 
@@ -27,6 +28,7 @@ EMSCRIPTEN_BINDINGS(myModule) {
   bindThetaStar();
   bindVisibilityGraph();
   bindRRTGraph();
+  bindPRMGraph();
 
   // misc
   emscripten::class_<coordInt_t>("coordInt_t")

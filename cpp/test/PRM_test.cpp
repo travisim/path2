@@ -7,7 +7,7 @@
 
 #include "../nadeau.hpp"
 
-pathfinder::PRMGraph<pathfinder::BaseAction<coordDouble_t>> planner;
+pathfinder::PRMGraph<pathfinder::BaseAction<coordDoublegcc _t>> planner;
 
 int main(int argc, char* argv[]){
 
