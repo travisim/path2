@@ -116,20 +116,24 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
 
   downloadMapNodes(){
     console.assert(this.wasmPlanner, "No wasm planner created!");
-    this.wasmPlanner.download()
     let text = `type,mapnode`;
-    for(let node of this.mapNodes){
-      text += `\n${node.value_XY},${node.getNeighbors()}`;
-    }
+    const mapNodeGen = vector_values(this.wasmPlanner.getMapNodes());
+    run_generator(mapNodeGen, (wasmMapNode) => {
+      text += `\n${wasmMapNode.valueXY.x},${wasmMapNode.valueXY.y},${vec_to_arr(wasmMapNode.getNeighbors())}`;
+    });
     text += `\ntype,mapedge`
-    for(let edge of this.mapEdges){
-      text += `\n${edge}`;
-    }
+    const mapEdgeGen = vector_values(this.wasmPlanner.getMapEdges());
+    run_generator(mapEdgeGen, (wasmMapEdge) => {
+      text += `\n`;
+      text += `${wasmMapEdge.get(0).x},${wasmMapEdge.get(0).y},`;
+      text += `${wasmMapEdge.get(1).x},${wasmMapEdge.get(1).y}`;
+    });
     download("saved.mapnode", text);
   }
 
   generateNewMap(){
     this.loadWasmPlanner();
+    this.add_map(myUI.map_arr);
     let finished = this.wasmPlanner.wrapperGNM(this.map.copy_2d(), this.diagonal_allow);
     let thisPlanner = this;
     

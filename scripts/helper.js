@@ -574,6 +574,14 @@ function* vector_values(vector) {
 	vector.delete();
 }
 
+function run_generator(gen, fn){
+	let nxt = gen.next();
+	while(!nxt.done){
+		fn(nxt.value);
+		nxt = gen.next();
+	}
+}
+
 function* map_entries(map){
 	for(let i = 0; i < map.size(); ++i){
 		let k = map.keys().get(i);
@@ -592,9 +600,10 @@ function map_to_obj(map){
 }
 
 function vec_to_arr(vec){
-	let arr = [];
+	return [...vector_values(vec)];
+	/* let arr = [];
 	for(let i = 0; i < vec.size(); ++i){
 		arr.push(vec.get(i));
 	}
-	return arr;
+	return arr; */
 }

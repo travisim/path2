@@ -38,7 +38,7 @@ class wasm_Pathfinder extends Pathfinder{
     // possible to export the javascript create_arrow function, will do so after the c++ A* is finalized
     let arrows = this.wasmPlanner.arrowCoords;
     for(let i = 0; i < arrows.size(); ++i){
-      let arrow_data = [...vector_values(arrows.get(i))];
+      let arrow_data = vec_to_arr(arrows.get(i));
       let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
       myUI.create_arrow(start, end);
     }
@@ -65,6 +65,13 @@ class wasm_Pathfinder extends Pathfinder{
   getStep(stepNo){
     return myUI.planner.wasmPlanner.getStep(stepNo);
   }
+
+  clearMapNodes(){
+    setTimeout(() => {
+      this.loadWasmPlanner();
+      this.wasmPlanner.clearMapNodes();
+    }, 200);  // give some time for the Module to load on the first call
+	}
 }
 
 class wasm_GridPathfinder extends GridPathfinder{
@@ -106,7 +113,7 @@ class wasm_GridPathfinder extends GridPathfinder{
     // possible to export the javascript create_arrow function, will do so after the c++ A* is finalized
     let arrows = this.wasmPlanner.arrowCoords;
     for(let i = 0; i < arrows.size(); ++i){
-      let arrow_data = [...vector_values(arrows.get(i))];
+      let arrow_data = vec_to_arr(arrows.get(i));
       let start = arrow_data.slice(0, 2), end = arrow_data.slice(2);
       myUI.create_arrow(start, end);
     }

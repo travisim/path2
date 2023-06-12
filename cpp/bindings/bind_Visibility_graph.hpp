@@ -19,6 +19,9 @@ void bindVisibilityGraph(){
     .function("runNextSearch", &VisibilityGraph<Action<coordInt_t>>::runNextSearch)
     .function("addMapNode", &VisibilityGraph<Action<coordInt_t>>::addMapNode)
     .function("addMapEdge", &VisibilityGraph<Action<coordInt_t>>::addMapEdge)
+    .function("getMapNodes", &VisibilityGraph<Action<coordInt_t>>::getMapNodes)
+    .function("getMapEdges", &VisibilityGraph<Action<coordInt_t>>::getMapEdges)
+    .function("clearMapNodes", &VisibilityGraph<Action<coordInt_t>>::clearMapNodes)
     ;
   
   /* -------------END OF ACTION------------- */
@@ -34,6 +37,9 @@ void bindVisibilityGraph(){
     .function("runNextSearch", &VisibilityGraph<BaseAction<coordInt_t>>::runNextSearch)
     .function("addMapNode", &VisibilityGraph<BaseAction<coordInt_t>>::addMapNode)
     .function("addMapEdge", &VisibilityGraph<BaseAction<coordInt_t>>::addMapEdge)
+    .function("getMapNodes", &VisibilityGraph<BaseAction<coordInt_t>>::getMapNodes)
+    .function("getMapEdges", &VisibilityGraph<BaseAction<coordInt_t>>::getMapEdges)
+    .function("clearMapNodes", &VisibilityGraph<BaseAction<coordInt_t>>::clearMapNodes)
     ;
   /* -------------END OF BASEACTION------------- */
 }

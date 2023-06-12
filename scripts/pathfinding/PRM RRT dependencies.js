@@ -508,7 +508,7 @@ class MapNode {
   }
 
   hasNeighbours() {
-    return (this.numberOfNeighbours > 0);
+    return (this.numberOfNeighbours() > 0);
   }
 
   getNeighbors(){ return this.neighbours; }
@@ -590,11 +590,11 @@ class SVGCanvas {
       line.setAttributeNS(null, "stroke-opacity", `0%`);
       this.shownLines[destId].push(line);
     }
-    let cnt = this.maxLines;
-    for(let i = Math.min(this.maxLines, indices.length) - 1; i >= 0; --i){
+    let cnt = Math.max(this.maxLines - indices.length, 0);
+    for(let i = 0; i < Math.min(this.maxLines, indices.length); ++i){
       let line = this.lines[destId][indices[breakpoint + i]];
       line.classList.remove("hidden");
-      line.setAttributeNS(null, "stroke-opacity", `${(cnt--) * this.opacityStep}%`);
+      line.setAttributeNS(null, "stroke-opacity", `${(++cnt) * this.opacityStep}%`);
       this.shownLines[destId].push(line);
     }
   }
