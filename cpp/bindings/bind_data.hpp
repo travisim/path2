@@ -1,5 +1,6 @@
 #include <emscripten/bind.h>
 #include "../pathfinder/enums.hpp"
+#include "../pathfinder/node.hpp"
 #include "register_ds.hpp"
 
 
@@ -179,6 +180,44 @@ void bindFreeStores(BindType myType){
     
     emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordDouble_t>>>("vertexStoreDouble");
     emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordDouble_t>>>("edgeStoreDouble"); 
+  }
+}
+
+void bindMapNode(BindType myType, bool bindVector = false){
+  if(myType == BindType::int_coord){
+    emscripten::class_<pathfinder::MapNode<coordInt_t>>("MapNodeInt")
+      .constructor<coordInt_t>()
+      .property("valueXY", &pathfinder::MapNode<coordInt_t>::valueXY)
+      .property("parent", &pathfinder::MapNode<coordInt_t>::parent)
+      .property("gCost", &pathfinder::MapNode<coordInt_t>::gCost)
+      .function("getNeighbors", &pathfinder::MapNode<coordInt_t>::getNeighbors)
+      ;
+    if(bindVector)
+      emscripten::register_vector<pathfinder::MapNode<coordInt_t>>("vectorMapNodeInt");
+  }
+  else if(myType == BindType::double_coord){
+    emscripten::class_<pathfinder::MapNode<coordDouble_t>>("MapNodeDouble")
+      .constructor<coordDouble_t>()
+      .property("valueXY", &pathfinder::MapNode<coordDouble_t>::valueXY)
+      .property("parent", &pathfinder::MapNode<coordDouble_t>::parent)
+      .property("gCost", &pathfinder::MapNode<coordDouble_t>::gCost)
+      .function("getNeighbors", &pathfinder::MapNode<coordDouble_t>::getNeighbors)
+      ;
+    if(bindVector)
+      emscripten::register_vector<pathfinder::MapNode<coordDouble_t>>("vectorMapNodeDouble");
+  }
+}
+
+void bindMapEdge(BindType myType, bool bindVector = false){
+  if(myType == BindType::int_coord){
+    emscripten_extensions::register_array<coordInt_t, 2>("MapEdgeInt");
+    if(bindVector)
+      emscripten::register_vector<std::array<coordInt_t, 2>>("vectorMapEdgeInt");
+  }
+  else if(myType == BindType::double_coord){
+    emscripten_extensions::register_array<coordDouble_t, 2>("MapEdgeDouble");
+    if(bindVector)
+      emscripten::register_vector<std::array<coordDouble_t, 2>>("vectorMapEdgeDouble");
   }
 }
 

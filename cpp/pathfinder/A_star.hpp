@@ -174,10 +174,10 @@ public:
 
   bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, neighbors_t &neighborsIndex, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1)
   {
-    std::cout <<startX<<' '<<startY<<' '<<goalX<<' '<<goalY<<std::endl;
+    std::cout << "Start:" << startX << ',' << startY << " Goal: " << goalX << ',' << goalY << std::endl;
     vectDigitPrint(neighborsIndex);
-    std::cout <<vertexEnabled<<' '<<diagonalAllow<<' '<<bigMap<<' '<<hOptimized<<std::endl;
-    std::cout <<chosenCost<<' '<<order<<std::endl;
+    std::cout << vertexEnabled << ' ' <<diagonalAllow << ' ' << bigMap << ' ' << hOptimized << std::endl;
+    std::cout << chosenCost << ' ' << order <<std::endl;
     initSearch(grid, {startX, startY}, {goalX, goalY}, diagonalAllow, bigMap, neighborsIndex, vertexEnabled);
     this->chosenCost = chosenCost;
     this->order = order;

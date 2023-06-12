@@ -363,7 +363,7 @@ myUI.parseNodeMap = function(contents){
     let coord = [items[0], items[1]];
     let neighbors = items.slice(2);
     if(myUI.planner.constructor.wasm){
-      if(!myUI.planner.wasmPlanner) myUI.planner.loadWasmPlanner();
+      myUI.planner.loadWasmPlanner();
       myUI.planner.wasmPlanner.addMapNode(coord, neighbors);
     }
     else myUI.planner.mapNodes.push(new MapNode(null, coord, neighbors));
@@ -375,12 +375,12 @@ myUI.parseNodeMap = function(contents){
   while(idx < lines.length){
     let edge = lines[idx++].split(",").map(x=>Number(x));
     if(myUI.planner.constructor.wasm){
-      if(!myUI.planner.wasmPlanner) myUI.planner.loadWasmPlanner();
+      myUI.planner.loadWasmPlanner();
       myUI.planner.wasmPlanner.addMapEdge(edge);
     }
     else myUI.planner.mapEdges.push(edge);
   }
-  console.log(myUI.mapEdges[0]);
+  console.log(myUI.planner.mapEdges[0]);
 
 }
 

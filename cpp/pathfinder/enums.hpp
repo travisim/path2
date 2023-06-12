@@ -145,11 +145,40 @@ namespace pathfinder
     Octile,
   };
 
+  std::ostream &operator<<(std::ostream &out, const costType value)
+  {
+    static std::map<costType, std::string> myStrings;
+    if (myStrings.size() == 0)
+    {
+#define INSERT_ELEMENT(p) myStrings[p] = #p
+      INSERT_ELEMENT(Euclidean),
+      INSERT_ELEMENT(Manhattan),
+      INSERT_ELEMENT(Chebyshev),
+      INSERT_ELEMENT(Octile);
+#undef INSERT_ELEMENT
+    }
+    return out << myStrings[value];
+  }
+
   enum timeOrder
   {
     FIFO,
     LIFO
   };
+
+  std::ostream &operator<<(std::ostream &out, const timeOrder value)
+  {
+    static std::map<timeOrder, std::string> myStrings;
+    if (myStrings.size() == 0)
+    {
+#define INSERT_ELEMENT(p) myStrings[p] = #p
+      INSERT_ELEMENT(FIFO),
+      INSERT_ELEMENT(LIFO);
+#undef INSERT_ELEMENT
+    }
+    return out << myStrings[value];
+  }
+
 
   template <typename Coord_t>
   struct BaseAction

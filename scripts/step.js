@@ -755,9 +755,7 @@ myUI.jump_to_step = function(target_step){
     for(let [dest, edges] of items){
       let destId = myUI.planner.destsToId[dest];
       if(myUI.planner.constructor.wasm) edges = [...vector_values(edges)];
-      for(let index of edges){
-        myUI.edgeCanvas.showLine(destId, index);
-      }
+      myUI.edgeCanvas.setLineState(destId, edges);
     }
     
 

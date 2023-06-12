@@ -101,7 +101,6 @@ class wasm_A_star extends wasm_GridPathfinder{
     let order = ["FIFO", "LIFO"].findIndex(cost=>{
         return cost == this.timeOrder;
       });
-    if(this.wasmPlanner) this.wasmPlanner.delete();
     this.loadWasmPlanner();
     let finished = this.wasmPlanner.wrapperSearch(this.map.copy_2d(),
     ...start, ...goal,

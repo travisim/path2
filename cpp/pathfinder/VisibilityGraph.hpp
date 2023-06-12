@@ -12,6 +12,11 @@
 
 
 
+#ifndef PURE_CPP
+#include <emscripten.h>
+#include <emscripten/bind.h>
+#endif
+
 #ifndef VGRAPH_HPP
 #define VGRAPH_HPP
 
@@ -112,7 +117,7 @@ class VisibilityGraph : public Pathfinder<Action_t>{
   using Pathfinder<Action_t>::octile;
 
   std::vector<MapNode<Coord_t>> mapNodes;
-  std::vector<std::array<Coord_t, 2>> mapEdges;//std::pair<Coord_t, Coord_t>> mapEdges;
+  std::vector<std::array<Coord_t, 2>> mapEdges;
   bool showNetworkGraph;  // config var
   bool toGenerateMap = true;  // config var
   std::unordered_map<Coord_t, MapNode<Coord_t>*, CoordHash<Coord_t>> matchMapNode;
@@ -125,6 +130,7 @@ class VisibilityGraph : public Pathfinder<Action_t>{
   int hCoeff;
 
   int loopLength;
+  int loopCnt;
   int loopStart;
   int cnt;
 
@@ -179,6 +185,7 @@ public:
 
   inline int getNumMapNodes(){ return mapNodes.size(); }
 
+#ifndef PURE_CPP
   bool wrapperGNM(emscripten::val gridArr, bool diagonalAllow){
     grid = js2DtoVect2D(gridArr);
     gridHeight = grid.size();
@@ -195,6 +202,7 @@ public:
     auto neighbors = jsInttoVectInt(neighborsJS);
 
     mapNodes.push_back(MapNode(coord, neighbors));
+    // std::cout << "Added: " << mapNodes.back().valueXY.first << " " << mapNodes.back().valueXY.second << std::endl;
   }
 
   void addMapEdge(emscripten::val edgeJS){
@@ -203,6 +211,10 @@ public:
 
     mapEdges.push_back({start, end});
   }
+
+  inline std::vector<MapNode<Coord_t>> getMapNodes(){ return mapNodes; }
+  inline std::vector<std::array<Coord_t, 2>> getMapEdges(){ return mapEdges; }
+#endif
 
   bool generateNewMap(){
     cnt = 0;
@@ -229,7 +241,11 @@ public:
     const double OFFSET = vertexEnabled ? 0 : 0.5;
     auto offsetCoord = [&](Coord_t coord){ return coordDouble_t{(double)coord.first + OFFSET, (double)coord.second + OFFSET}; };
     int chg = floor((sqrt(8*loopLength + 4*loopStart*loopStart - 4*loopStart + 1) - 2 * loopStart + 1) / 2);
-    std::cout<<"loopStart: "<<loopStart<<", loopLenFloor: "<<loopStart*chg + chg*chg/2 - chg/2<<std::endl;
+    // std::cout<<"loopStart: "<<loopStart<<", loopLenFloor: "<<loopStart*chg + chg*chg/2 - chg/2<<std::endl;
+    if(loopCnt++ % 10 == 0){
+      float pct = (float)(loopStart) * (float)(loopStart - 1) * 100.0 / ((float)mapNodes.size() * (float)(mapNodes.size() - 1));
+      std::cout << "Progress: " << std::fixed << std::setprecision(2) << pct << "%" << std::endl;
+    }
     for(int i = loopStart; i < loopStart + chg; ++i){
       if(i == mapNodes.size()){
         std::cout<<"Generated map! Node count: "<<mapNodes.size()<<", Edge count: "<<mapEdges.size()<<std::endl;
@@ -331,9 +347,9 @@ public:
   }
 
   bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1, bool showNetworkGraph = false){
-    std::cout<<startX<<' '<<startY<<' '<<goalX<<' '<<goalY<<std::endl;
-    std::cout<<vertexEnabled<<' '<<diagonalAllow<<' '<<bigMap<<' '<<hOptimized<<std::endl;
-    std::cout<<chosenCost<<' '<<order<<std::endl;
+    std::cout << "Start:" << startX << ',' << startY << " Goal: " << goalX << ',' << goalY << std::endl;
+    std::cout << vertexEnabled << ' ' << diagonalAllow << ' ' << bigMap << ' ' << hOptimized <<std::endl;
+    std::cout << chosenCost << ' ' << order << std::endl;
     initSearch(grid, {startX, startY}, {goalX, goalY}, diagonalAllow, bigMap);
 
     this->vertexEnabled = vertexEnabled;
@@ -443,8 +459,9 @@ public:
           if(!bigMap){
             createAction(UpdateRowAtIndex, ITNeighbors, {-1, -1}, -1, -1, -1, i + 1, {coord2String(nextXY, 5), std::to_string(fCost).substr(0, 6), std::to_string(gCost).substr(0, 6), std::to_string(hCost).substr(0, 6), "Not a child"});
             createAction(DrawSinglePixel, CanvasFocused, nextXY);
-            saveStep(false);
+            // saveStep(false);
           }
+          saveStep(false);
           continue;
         }
 

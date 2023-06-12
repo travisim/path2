@@ -48,7 +48,7 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
       {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`},  
       {uid: "show_network_graph", displayName: "Show network graph:", options: ["Off", "On"], description: `Every corner and corner-pair will be shown in the first two steps if set to "On".`},
-      {uid: "set_max_lines", displayName: "Maximum number of lines:", options: "number", defaultVal: 20, description: `Maximum number of lines (of each type) to be shown on the screen at any time.`},
+      {uid: "set_max_lines", displayName: "Maximum number of lines:", options: "number", defaultVal: 100, description: `Maximum number of lines (of each type) to be shown on the screen at any time.`},
     );
 		return configs;
   }
@@ -115,7 +115,8 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
   }
 
   downloadMapNodes(){
-    // to implement
+    console.assert(this.wasmPlanner, "No wasm planner created!");
+    this.wasmPlanner.download()
     let text = `type,mapnode`;
     for(let node of this.mapNodes){
       text += `\n${node.value_XY},${node.getNeighbors()}`;
@@ -128,7 +129,6 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
   }
 
   generateNewMap(){
-    if(this.wasmPlanner) this.wasmPlanner.delete();
     this.loadWasmPlanner();
     let finished = this.wasmPlanner.wrapperGNM(this.map.copy_2d(), this.diagonal_allow);
     let thisPlanner = this;
@@ -153,7 +153,8 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
   }
 
   loadWasmPlanner(){
-    this.wasmPlanner = this.bigMap ? new Module["BaseVGPlanner"]() : new Module["VGPlanner"]();
+    if(!this.wasmPlanner)
+      this.wasmPlanner = this.bigMap ? new Module["BaseVGPlanner"]() : new Module["VGPlanner"]();
   }
 
   async search(start, goal){
@@ -170,7 +171,6 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
     let order = ["FIFO", "LIFO"].findIndex(cost=>{
         return cost == this.timeOrder;
       });
-    if(this.wasmPlanner) this.wasmPlanner.delete();
     this.loadWasmPlanner();
     
     if(toGenerateMap) await this.generateNewMap();
