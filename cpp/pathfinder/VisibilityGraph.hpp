@@ -5,6 +5,12 @@
 #include "step.hpp"
 #include "rbt_pq.hpp"
 #include "LOS.hpp"
+#include <emscripten.h>
+#include <emscripten/bind.h>
+
+
+
+
 
 #ifndef VGRAPH_HPP
 #define VGRAPH_HPP
