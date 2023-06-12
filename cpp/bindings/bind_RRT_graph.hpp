@@ -1,8 +1,8 @@
 #include <emscripten/bind.h>
 #include "../pathfinder/RRTGraph.hpp"
 
-#ifndef BIND_RRTGRAPH_HPP
-#define BIND_RRTGRAPH_HPP
+#ifndef BIND_RRT_HPP
+#define BIND_RRT_HPP
 
 void bindRRTGraph(){
 
@@ -17,8 +17,11 @@ void bindRRTGraph(){
     .function("wrapperGNM", &RRTGraph<Action<coordInt_t>>::wrapperGNM)
     .function("nextGNM", &RRTGraph<Action<coordInt_t>>::nextGNM)
     .function("runNextSearch", &RRTGraph<Action<coordInt_t>>::runNextSearch)
-    .function("addMapNode", &VisibilityGraph<Action<coordInt_t>>::addMapNode)
-    .function("addMapEdge", &VisibilityGraph<Action<coordInt_t>>::addMapEdge)
+    .function("addMapNode", &RRTGraph<Action<coordInt_t>>::addMapNode)
+    .function("addMapEdge", &RRTGraph<Action<coordInt_t>>::addMapEdge)
+    .function("getMapNodes", &RRTGraph<Action<coordInt_t>>::getMapNodes)
+    .function("getMapEdges", &RRTGraph<Action<coordInt_t>>::getMapEdges)
+    .function("clearMapNodes", &RRTGraph<Action<coordInt_t>>::clearMapNodes)
     ;
   
   /* -------------END OF ACTION------------- */
@@ -27,13 +30,16 @@ void bindRRTGraph(){
   
   emscripten::class_<RRTGraph<BaseAction<coordInt_t>>, emscripten::base<Pathfinder<BaseAction<coordInt_t>>>>("BaseRRTPlanner")
     .constructor<>()
-    .function("getNumMapNodes", &VisibilityGraph<BaseAction<coordInt_t>>::getNumMapNodes)
+    .function("getNumMapNodes", &RRTGraph<BaseAction<coordInt_t>>::getNumMapNodes)
     .function("wrapperSearch", &RRTGraph<BaseAction<coordInt_t>>::wrapperSearch)
     .function("wrapperGNM", &RRTGraph<BaseAction<coordInt_t>>::wrapperGNM)
     .function("nextGNM", &RRTGraph<BaseAction<coordInt_t>>::nextGNM)
     .function("runNextSearch", &RRTGraph<BaseAction<coordInt_t>>::runNextSearch)
-    .function("addMapNode", &VisibilityGraph<BaseAction<coordInt_t>>::addMapNode)
-    .function("addMapEdge", &VisibilityGraph<BaseAction<coordInt_t>>::addMapEdge)
+    .function("addMapNode", &RRTGraph<BaseAction<coordInt_t>>::addMapNode)
+    .function("addMapEdge", &RRTGraph<BaseAction<coordInt_t>>::addMapEdge)
+    .function("getMapNodes", &RRTGraph<BaseAction<coordInt_t>>::getMapNodes)
+    .function("getMapEdges", &RRTGraph<BaseAction<coordInt_t>>::getMapEdges)
+    .function("clearMapNodes", &RRTGraph<BaseAction<coordInt_t>>::clearMapNodes)
     ;
   /* -------------END OF BASEACTION------------- */
 }

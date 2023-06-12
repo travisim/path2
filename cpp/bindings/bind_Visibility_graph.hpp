@@ -1,8 +1,8 @@
 #include <emscripten/bind.h>
 #include "../pathfinder/VisibilityGraph.hpp"
 
-#ifndef BIND_VISBILITYGRAPH_HPP
-#define BIND_VISBILITYGRAPH_HPP
+#ifndef BIND_VISIBILITYGRAPH_HPP
+#define BIND_VISIBILITYGRAPH_HPP
 
 void bindVisibilityGraph(){
 

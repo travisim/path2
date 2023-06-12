@@ -39,8 +39,8 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
   static get configs(){
 		let configs = Pathfinder.configs;
 		configs.push(
-      {uid: "generate_visbility_graph", displayName: "Generate Visibility Graph", options: "button", description: `Generates the visibility graph without searching.`},
-      {uid: "download_visbility_data", displayName: "Download Visibility Data", options: "button", description: `Download the generated visibility data`},
+      {uid: "generate_visibility_graph", displayName: "Generate Visibility Graph", options: "button", description: `Generates the visibility graph without searching.`},
+      {uid: "download_visibility_data", displayName: "Download Visibility Data", options: "button", description: `Download the generated visibility data`},
       {uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
@@ -60,9 +60,9 @@ class wasm_Visibility_graph extends wasm_Pathfinder{
 
   setConfig(uid, value){
     switch(uid){
-      case "generate_visbility_graph":
+      case "generate_visibility_graph":
         this.generateNewMap(); break;
-      case "download_visbility_data":
+      case "download_visibility_data":
         this.downloadMapNodes(); break;
       case "mapType":
 				if(value=="Grid Vertex"){

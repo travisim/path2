@@ -468,7 +468,10 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
 // wrapper search
 // cpp search
 
-
+  void clearMapNodes(){
+    mapNodes.clear();
+    mapEdges.clear();
+  }
 
   bool foundGoal(Node<Coord_t> *node){
     // every planner now has to define their own implementation of foundGoal because of enum-binding

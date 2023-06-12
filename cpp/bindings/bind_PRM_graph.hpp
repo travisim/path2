@@ -1,10 +1,8 @@
 #include <emscripten/bind.h>
 #include "../pathfinder/PRMGraph.hpp"
 
-
-#ifndef BIND_PRMGRAPH_HPP
-#define BIND_PRMGRAPH_HPP
-
+#ifndef BIND_PRM_HPP
+#define BIND_PRM_HPP
 
 void bindPRMGraph(){
 
@@ -21,6 +19,9 @@ void bindPRMGraph(){
     .function("runNextSearch", &PRMGraph<Action<coordInt_t>>::runNextSearch)
     .function("addMapNode", &PRMGraph<Action<coordInt_t>>::addMapNode)
     .function("addMapEdge", &PRMGraph<Action<coordInt_t>>::addMapEdge)
+    .function("getMapNodes", &PRMGraph<Action<coordInt_t>>::getMapNodes)
+    .function("getMapEdges", &PRMGraph<Action<coordInt_t>>::getMapEdges)
+    .function("clearMapNodes", &PRMGraph<Action<coordInt_t>>::clearMapNodes)
     ;
   
   /* -------------END OF ACTION------------- */
@@ -36,6 +37,9 @@ void bindPRMGraph(){
     .function("runNextSearch", &PRMGraph<BaseAction<coordInt_t>>::runNextSearch)
     .function("addMapNode", &PRMGraph<BaseAction<coordInt_t>>::addMapNode)
     .function("addMapEdge", &PRMGraph<BaseAction<coordInt_t>>::addMapEdge)
+    .function("getMapNodes", &PRMGraph<BaseAction<coordInt_t>>::getMapNodes)
+    .function("getMapEdges", &PRMGraph<BaseAction<coordInt_t>>::getMapEdges)
+    .function("clearMapNodes", &PRMGraph<BaseAction<coordInt_t>>::clearMapNodes)
     ;
   /* -------------END OF BASEACTION------------- */
 }

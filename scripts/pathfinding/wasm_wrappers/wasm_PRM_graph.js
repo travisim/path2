@@ -39,8 +39,8 @@ class wasm_PRM_graph extends wasm_Pathfinder{
   static get configs(){
 		let configs = Pathfinder.configs;
 		configs.push(
-      {uid: "generate_visbility_graph", displayName: "Generate PRM Graph", options: "button", description: `Generates the PRM graph without searching.`},
-      {uid: "download_visbility_data", displayName: "Download PRM Data", options: "button", description: `Download the generated PRM data`},
+      {uid: "generate_PRM_graph", displayName: "Generate PRM Graph", options: "button", description: `Generates the PRM graph without searching.`},
+      {uid: "download_PRM_data", displayName: "Download PRM Data", options: "button", description: `Download the generated PRM data`},
       {uid: "mapType", displayName: "Map Type:", options: [ "Grid Vertex","Grid Cell"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
@@ -60,9 +60,9 @@ class wasm_PRM_graph extends wasm_Pathfinder{
 
   setConfig(uid, value){
     switch(uid){
-      case "generate_visbility_graph":
+      case "generate_PRM_graph":
         this.generateNewMap(); break;
-      case "download_visbility_data":
+      case "download_PRM_data":
         this.downloadMapNodes(); break;
       case "mapType":
 				if(value=="Grid Vertex"){
