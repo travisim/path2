@@ -92,7 +92,7 @@ myUI.run_steps = function(num_steps, step_direction){
         let arrowIndex = action.arrowIndex == -1 ? undefined : action.arrowIndex;
         let pseudoCodeRow = action.pseudoCodeRow == -1 ? undefined : action.pseudoCodeRow;
         let infoTableRowIndex = action.infoTableRowIndex == 0 ? undefined : action.infoTableRowIndex;
-        let infoTableRowData =  action.infoTableRowData === undefined || action.infoTableRowData.size() == 0 ? undefined : [...vector_values(action.infoTableRowData)];
+        let infoTableRowData =  action.infoTableRowData === undefined || action.infoTableRowData.size() == 0 ? undefined : vec_to_arr(action.infoTableRowData);
         let anyVal = action.anyVal == -1 ? undefined : action.anyVal;
         let endX = action.endCoord === undefined || action.endCoord.x == -1 ? undefined : action.endCoord.x;
         let endY = action.endCoord === undefined || action.endCoord.y == -1 ? undefined : action.endCoord.y;
@@ -696,7 +696,7 @@ myUI.jump_to_step = function(target_step){
         const generator = vector_values(tableState.rows);
         let nxt = generator.next();
         while(!nxt.done){
-          let row = [...vector_values(nxt.value)];
+          let row = vec_to_arr(nxt.value);
           myUI.InfoTables[tableId].insertRowAtIndex(1, row);
           nxt = generator.next();
         }
@@ -742,7 +742,7 @@ myUI.jump_to_step = function(target_step){
     items.sort(orderCanvases);
     for(let [dest, vertices] of items){
       let destId = myUI.planner.destsToId[dest];
-      if(myUI.planner.constructor.wasm) vertices = [...vector_values(vertices)];
+      if(myUI.planner.constructor.wasm) vertices = vec_to_arr(vertices);
       for(let index of vertices){
         myUI.nodeCanvas.showCircle(destId, index);
       }
@@ -754,7 +754,7 @@ myUI.jump_to_step = function(target_step){
     items.sort(orderCanvases);
     for(let [dest, edges] of items){
       let destId = myUI.planner.destsToId[dest];
-      if(myUI.planner.constructor.wasm) edges = [...vector_values(edges)];
+      if(myUI.planner.constructor.wasm) edges = vec_to_arr(edges);
       myUI.edgeCanvas.setLineState(destId, edges);
     }
     
@@ -780,7 +780,7 @@ myUI.jump_to_step = function(target_step){
         myUI.fCostNo = canvasNo;
       }
       document.getElementById("compute_btn").children[0].innerHTML = `drawing ${id}...`;
-      if(data?.$$?.ptrType?.name == "vectorDouble*") data = [...vector_values(data)];
+      if(data?.$$?.ptrType?.name == "vectorDouble*") data = vec_to_arr(data);
       return myUI.canvases[id].draw_canvas_recursive(data, canvasNo, target_step);
     }
     

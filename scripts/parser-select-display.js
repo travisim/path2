@@ -105,6 +105,9 @@ myUI.displayMap = function(){
 
   myUI.canvases["bg"].draw_canvas(myUI.map_arr, "2d", true);
 	myUI.canvases["edit_map"].draw_canvas(myUI.map_arr, "2d", true);
+
+  myUI.planner.clearMapNodes();
+
 	if(myUI.scenFail)
 		myUI.displayScen();
 }

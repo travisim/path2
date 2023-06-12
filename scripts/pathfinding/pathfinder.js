@@ -481,6 +481,10 @@ class Pathfinder{
 		}
 		return pathLength.toPrecision(5)
 	}
+
+	clearMapNodes(){
+		this.mapNodes = undefined;
+	}
 }
 
 	class Node{
