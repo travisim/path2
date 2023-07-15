@@ -346,12 +346,12 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
         test_point[0] = ArrayOfRandomPoints[i].first;
         test_point[1] = ArrayOfRandomPoints[i].second;
         Kdtree::KdNodeVector result;
-        if (neighbourSelectionMethod == "Closest Neighbours By Radius"){
-          tree.range_nearest_neighbors(test_point, connectionDistance, &result);
-        }
-        else if (neighbourSelectionMethod == "K Nearest Neighbours"){
+        if (neighbourSelectionMethod == "Top Closest Neighbours"){
           tree.k_nearest_neighbors(test_point, k_nearest_neighbors_int, &result); //calculate k nearest neighbours
 
+        }
+        else if (neighbourSelectionMethod == "Closest Neighbours By Radius"){
+          tree.range_nearest_neighbors(test_point, connectionDistance, &result);
         }
 
 

@@ -42,7 +42,7 @@ class wasm_PRM_graph extends wasm_Pathfinder{
       {uid: "generate_PRM_graph", displayName: "Generate PRM Graph", options: "button", description: `Generates the PRM graph without searching.` },
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "1234", description: `Sets seed for randomness of random points`},
       {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 30, description: `Sets number of random points`},
-      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Closest Neighbours By Radius","Top Closest Neighbours",/* "Top Closest Visible Neighbours"*/, ],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
+      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours","Closest Neighbours By Radius"/* "Top Closest Visible Neighbours"*/ ],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:4, description: `Sets radius of closest neighbours to select`},
       {uid: "download_PRM_data", displayName: "Download PRM Data", options: "button", description: `Download the generated PRM data` },
@@ -89,17 +89,20 @@ class wasm_PRM_graph extends wasm_Pathfinder{
       case "time_ordering":
 				this.timeOrder = value; break;
       case "show_network_graph":
-        this.showNetworkGraph = value=="On"; break;
+        this.showNetworkGraph = value == "On"; break;
+      /*cases below here run generateNewMap() after var changes*/
       case "sample_size":
-        this.sampleSize = parseInt(value); break;
+        this.sampleSize = parseInt(value);
       case "seed":
-        this.seed = parseInt(value); break; // should only input unsigned int
+        this.seed = parseInt(value); // should only input unsigned int
       case "neighbour_selection_method":
-				this.neighbourSelectionMethod = value;break;
+        this.neighbourSelectionMethod = value;
       case "number_of_closest_neighbours":
-				this.numberOfTopClosestNeighbours = parseInt(value);break;
+        this.numberOfTopClosestNeighbours = parseInt(value);
       case "closest_neighbours_by_radius":
-				this.connectionDistance = parseInt(value);break;
+        this.connectionDistance = parseInt(value);
+      /*cases above here run generateNewMap() after var changes*/
+      // if (this.generateNewMap) this.generateNewMap()
       default:
         super.setConfig(uid, value);
     }
