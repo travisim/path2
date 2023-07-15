@@ -39,8 +39,13 @@ class wasm_PRM_graph extends wasm_Pathfinder{
   static get configs(){
 		let configs = Pathfinder.configs;
 		configs.push(
-      {uid: "generate_PRM_graph", displayName: "Generate PRM Graph", options: "button", description: `Generates the PRM graph without searching.`},
-      {uid: "download_PRM_data", displayName: "Download PRM Data", options: "button", description: `Download the generated PRM data`},
+      {uid: "generate_PRM_graph", displayName: "Generate PRM Graph", options: "button", description: `Generates the PRM graph without searching.` },
+      {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "1234", description: `Sets seed for randomness of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 30, description: `Sets number of random points`},
+      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Closest Neighbours By Radius","Top Closest Neighbours",/* "Top Closest Visible Neighbours"*/, ],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
+      {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
+      {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:4, description: `Sets radius of closest neighbours to select`},
+      {uid: "download_PRM_data", displayName: "Download PRM Data", options: "button", description: `Download the generated PRM data` },
       {uid: "mapType", displayName: "Map Type:", options: [ "Grid Vertex","Grid Cell"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
@@ -48,7 +53,6 @@ class wasm_PRM_graph extends wasm_Pathfinder{
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
       {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`},  
       {uid: "show_network_graph", displayName: "Show network graph:", options: [ "On","Off"], description: `Every corner and corner-pair will be shown in the first two steps if set to "On".`},
-      {uid: "set_max_lines", displayName: "Maximum number of lines:", options: "number", defaultVal: 100, description: `Maximum number of lines (of each type) to be shown on the screen at any time.`},
     );
 		return configs;
   }
@@ -86,8 +90,16 @@ class wasm_PRM_graph extends wasm_Pathfinder{
 				this.timeOrder = value; break;
       case "show_network_graph":
         this.showNetworkGraph = value=="On"; break;
-      case "set_max_lines":
-        myUI.edgeCanvas.setMaxLines(Number(value)); break;
+      case "sample_size":
+        this.sampleSize = parseInt(value); break;
+      case "seed":
+        this.seed = parseInt(value); break; // should only input unsigned int
+      case "neighbour_selection_method":
+				this.neighbourSelectionMethod = value;break;
+      case "number_of_closest_neighbours":
+				this.numberOfTopClosestNeighbours = parseInt(value);break;
+      case "closest_neighbours_by_radius":
+				this.connectionDistance = parseInt(value);break;
       default:
         super.setConfig(uid, value);
     }
@@ -128,9 +140,10 @@ class wasm_PRM_graph extends wasm_Pathfinder{
     download("saved.mapnode", text);
   }
 
-  generateNewMap(){
+  generateNewMap() {
+    console.log(typeof this.neighbourSelectionMethod);
     this.loadWasmPlanner();
-    let finished = this.wasmPlanner.wrapperGNM(this.map.copy_2d(), this.diagonal_allow);
+    let finished = this.wasmPlanner.wrapperGNM(this.map.copy_2d(), this.diagonal_allow,this.sampleSize,this.seed,this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance);
     let thisPlanner = this;
     
     function NextGNM(){
@@ -178,7 +191,7 @@ class wasm_PRM_graph extends wasm_Pathfinder{
     let finished = this.wasmPlanner.wrapperSearch(this.map.copy_2d(),
     ...start, ...goal,
     this.vertexEnabled, this.diagonal_allow, this.bigMap, this.hOptimized,
-    chosenCost, order, this.gWeight, this.hWeight, this.showNetworkGraph);
+    chosenCost, order, this.gWeight, this.hWeight, this.showNetworkGraph,this.sampleSize,this.seed,this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance);
 
     if(finished) return this._finish_searching();
 

@@ -5,8 +5,9 @@
 #include "step.hpp"
 #include "kdtree.hpp"
 #include "LOS.hpp"
-#include <emscripten.h>
-#include <emscripten/bind.h>
+#include "rbt_pq.hpp"
+
+
 
 
 
@@ -123,7 +124,7 @@ public:
   inline int getNumMapNodes(){ return mapNodes.size(); }
 
 #ifndef PURE_CPP
-  bool wrapperGNM(emscripten::val gridArr, bool diagonalAllow){
+  bool wrapperGNM(emscripten::val gridArr, bool diagonalAllow,int sampleSize,unsigned int seed,std::string neighbourSelectionMethod,int numberOfTopClosestNeighbours,int connectionDistance){
     grid = js2DtoVect2D(gridArr);
     gridHeight = grid.size();
     gridWidth = grid.size() ? grid[0].size() : 0;
@@ -131,7 +132,7 @@ public:
 
     std::cout<<"STARTING MAP GENERATION, GRID SIZE = "<<grid.size()<<"×"<<grid[0].size()<<std::endl;
 
-    return generateNewMap();
+    return generateNewMap(sampleSize,seed,neighbourSelectionMethod,numberOfTopClosestNeighbours,connectionDistance);
   }
 
   void addMapNode(emscripten::val coordJS, emscripten::val neighborsJS){
@@ -258,26 +259,27 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
 }
 
 
-  bool generateNewMap(){
+  bool generateNewMap(int sampleSize,unsigned int seed,std::string neighbourSelectionMethod,int numberOfTopClosestNeighbours,int connectionDistance){
     cnt = 0;
     mapNodes.clear();
+    mapEdges.clear();
 //   int x1 = start.first; // start coord
 //     int y1 = start.second;
 //     int x2 = goal.first; // end coord
 //     int y2 = goal.second;
     // int gridHeight;
     // int gridWidth;
-    int sampleSize = 30;
+    // int sampleSize = 10;
     // grid_t grid;
 
-    unsigned int seed = 1234;
+    // unsigned int seed = 1234;
     double  pointXawayFromSource = 4;
     bool vertexEnabled = true;
     const double OFFSET = vertexEnabled ? 0 : 0.5;
     bool diagonalAllow = true;
-    std::string neighbourSelectionMethod = "Closest Neighbours By Radius";
-    double connectionDistance=4;
-    int numberOfTopClosestNeighbours=3;
+    // std::string neighbourSelectionMethod = "Closest Neighbours By Radius";
+    // double connectionDistance=4;
+    // int numberOfTopClosestNeighbours=3;
 
     
 
@@ -302,15 +304,15 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
    std::vector<std::vector<std::pair<double, double>>> edgeAccumalator;
     
     srand(seed);
-    Coord_t randomCoord_XY = randomDoubleCoordGenerator(gridHeight, gridWidth);
-    // std::cout <<"firstcoord selected:"<< randomCoord_XY.first << ", " << randomCoord_XY.second << std::endl;
-   
 
-    mapNodes.push_back(randomCoord_XY); // start and end not connected
-    mapNodes[0].gCost = 0;
-    mapNodes[0].parent = 999999;
-    if (showNetworkGraph)createAction(DrawVertex, CanvasNetworkGraph, randomCoord_XY);
-    if (showNetworkGraph)saveStep(true);
+    Coord_t randomCoord_XY;
+    // std::cout <<"firstcoord selected:"<< randomCoord_XY.first << ", " << randomCoord_XY.second << std::endl;
+
+    // mapNodes.push_back(randomCoord_XY); // start and end not connected
+    // mapNodes[0].gCost = 0;
+    // mapNodes[0].parent = 999999;
+    // if (showNetworkGraph)createAction(DrawVertex, CanvasNetworkGraph, randomCoord_XY);
+    // if (showNetworkGraph)saveStep(true);
     
     auto offsetCoord = [&](Coord_t coord){ return std::pair<double, double>{coord.first + OFFSET, coord.second + OFFSET}; };
     
@@ -323,8 +325,6 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
         randomCoord_XY = randomDoubleCoordGenerator(gridHeight, gridWidth);
         if(CustomLOSChecker(offsetCoord(randomCoord_XY), offsetCoord(randomCoord_XY), grid, diagonalAllow).boolean){ // filters out random points that are on obsacles verified to work
             ArrayOfRandomPoints.push_back(randomCoord_XY);
-            if (showNetworkGraph)createAction(DrawVertex, CanvasNetworkGraph, randomCoord_XY);
-            if (showNetworkGraph)saveStep(true);
         }
         
         
@@ -346,7 +346,15 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
         test_point[0] = ArrayOfRandomPoints[i].first;
         test_point[1] = ArrayOfRandomPoints[i].second;
         Kdtree::KdNodeVector result;
-        tree.k_nearest_neighbors(test_point, k_nearest_neighbors_int, &result); //calculate k nearest neighbours
+        if (neighbourSelectionMethod == "Closest Neighbours By Radius"){
+          tree.range_nearest_neighbors(test_point, connectionDistance, &result);
+        }
+        else if (neighbourSelectionMethod == "K Nearest Neighbours"){
+          tree.k_nearest_neighbors(test_point, k_nearest_neighbors_int, &result); //calculate k nearest neighbours
+
+        }
+
+
         //convert array or coord to array of indexes in ArrayOfRandomPoints
         std::vector<int>  neighbours_IndexArray;
         for (int j = 0; j < ArrayOfRandomPoints.size(); ++j) {
@@ -365,11 +373,9 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
 
     }
      for(int i = 0; i < edgeAccumalator.size(); ++i){
-        if (showNetworkGraph)createAction(DrawEdge, CanvasNetworkGraph, edgeAccumalator[i][0], -1, -1, -1, 0, {}, -1, edgeAccumalator[i][1]);
-        if (showNetworkGraph)saveStep(true);
-    }
-  
-   
+        mapEdges.push_back({edgeAccumalator[i][0], edgeAccumalator[i][1]});
+     }
+
     std::cout<<"sample size "<<sampleSize<<"\n";
     std::cout<<"random coord array size "<<tree.allnodes.size()<<"\n";
 
@@ -377,41 +383,41 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
 
     loopStart = 0;
     loopLength = 10000;
-    return false;
+    return true;
   }
 
-  bool nextGNM(){
-    const double OFFSET = vertexEnabled ? 0 : 0.5;
-    auto offsetCoord = [&](Coord_t coord){ return coordDouble_t{(double)coord.first + OFFSET, (double)coord.second + OFFSET}; };
-    int chg = floor((sqrt(8*loopLength + 4*loopStart*loopStart - 4*loopStart + 1) - 2 * loopStart + 1) / 2);
-    // std::cout<<"loopStart: "<<loopStart<<", loopLenFloor: "<<loopStart*chg + chg*chg/2 - chg/2<<std::endl;
-    if(loopCnt++ % 10 == 0){
-      float pct = (float)(loopStart) * (float)(loopStart - 1) * 100.0 / ((float)mapNodes.size() * (float)(mapNodes.size() - 1));
-      std::cout << "Progress: " << std::fixed << std::setprecision(2) << pct << "%" << std::endl;
-    }
-    for(int i = loopStart; i < loopStart + chg; ++i){
-      if(i == mapNodes.size()){
-        std::cout<<"Generated map! Node count: "<<mapNodes.size()<<", Edge count: "<<mapEdges.size()<<std::endl;
-        std::cout<<cnt<<" calls to CustomLOSChecker(C++) made!\n";
-        return true;
-      }
-      for(int j = 0; j < i; ++j){
-        auto &n1 = mapNodes[i], &n2 = mapNodes[j];
-        cnt++;
-        if(CustomLOSChecker(offsetCoord(n1.valueXY), offsetCoord(n2.valueXY), grid, diagonalAllow).boolean){
-          // std::cout<<n1.valueXY.first<<' '<<n1.valueXY.second<<' '<<n2.valueXY.first<<' '<<n2.valueXY.second<<": HAVE LOS\n";
-          // auto xy1 = offsetCoord(n1.valueXY);
-          // auto xy2 = offsetCoord(n2.valueXY);
-          // std::cout<<xy1.first<<' '<<xy1.second<<' '<<xy2.first<<' '<<xy2.second<<": HAVE LOS\n";
-          mapNodes[i].addNeighbor(j);
-          mapNodes[j].addNeighbor(i);
-          mapEdges.push_back({n1.valueXY, n2.valueXY});
-        }
-      }
-    }
-    loopStart += chg;
-    return false;
-  }
+  // bool nextGNM(){
+  //   const double OFFSET = vertexEnabled ? 0 : 0.5;
+  //   auto offsetCoord = [&](Coord_t coord){ return coordDouble_t{(double)coord.first + OFFSET, (double)coord.second + OFFSET}; };
+  //   int chg = floor((sqrt(8*loopLength + 4*loopStart*loopStart - 4*loopStart + 1) - 2 * loopStart + 1) / 2);
+  //   // std::cout<<"loopStart: "<<loopStart<<", loopLenFloor: "<<loopStart*chg + chg*chg/2 - chg/2<<std::endl;
+  //   if(loopCnt++ % 10 == 0){
+  //     float pct = (float)(loopStart) * (float)(loopStart - 1) * 100.0 / ((float)mapNodes.size() * (float)(mapNodes.size() - 1));
+  //     std::cout << "Progress: " << std::fixed << std::setprecision(2) << pct << "%" << std::endl;
+  //   }
+  //   for(int i = loopStart; i < loopStart + chg; ++i){
+  //     if(i == mapNodes.size()){
+  //       std::cout<<"Generated map! Node count: "<<mapNodes.size()<<", Edge count: "<<mapEdges.size()<<std::endl;
+  //       std::cout<<cnt<<" calls to CustomLOSChecker(C++) made!\n";
+  //       return true;
+  //     }
+  //     for(int j = 0; j < i; ++j){
+  //       auto &n1 = mapNodes[i], &n2 = mapNodes[j];
+  //       cnt++;
+  //       if(CustomLOSChecker(offsetCoord(n1.valueXY), offsetCoord(n2.valueXY), grid, diagonalAllow).boolean){
+  //         // std::cout<<n1.valueXY.first<<' '<<n1.valueXY.second<<' '<<n2.valueXY.first<<' '<<n2.valueXY.second<<": HAVE LOS\n";
+  //         // auto xy1 = offsetCoord(n1.valueXY);
+  //         // auto xy2 = offsetCoord(n2.valueXY);
+  //         // std::cout<<xy1.first<<' '<<xy1.second<<' '<<xy2.first<<' '<<xy2.second<<": HAVE LOS\n";
+  //         mapNodes[i].addNeighbor(j);
+  //         mapNodes[j].addNeighbor(i);
+  //         mapEdges.push_back({n1.valueXY, n2.valueXY});
+  //       }
+  //     }
+  //   }
+  //   loopStart += chg;
+  //   return false;
+  // }
 
   void addStartGoalNodes(Coord_t start, Coord_t goal){
     const auto OFFSET = vertexEnabled ? 0 : 0.5;
@@ -451,7 +457,12 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized,
     int chosenCostInt, int orderInt, // implicit type conversion (?)
     int gCoeff, int hCoeff,
-    bool showNetworkGraph
+    bool showNetworkGraph,
+    int sampleSize,
+    unsigned int seed,
+    std::string neighbourSelectionMethod,
+    int numberOfTopClosestNeighbours,
+    int connectionDistance
   ){
     costType chosenCost = (costType)chosenCostInt;
     timeOrder order = (timeOrder)orderInt;
@@ -459,7 +470,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
 
     toGenerateMap = false;
     
-    return search(grid, startX, startY, goalX, goalY, vertexEnabled, diagonalAllow, bigMap, hOptimized, chosenCost, order, gCoeff, hCoeff, showNetworkGraph);
+    return search(grid, startX, startY, goalX, goalY, vertexEnabled, diagonalAllow, bigMap, hOptimized, chosenCost, order, gCoeff, hCoeff, showNetworkGraph,sampleSize);
   }
 
   #endif
@@ -496,7 +507,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     return true;
   }
 
-  bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1, bool showNetworkGraph = false){
+  bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1, bool showNetworkGraph = false, int sampleSize = 10,unsigned int seed = 123,std::string neighbourSelectionMethod = "Closest Neighbours By Radius",int numberOfTopClosestNeighbours=3,int connectionDistance=3){
     std::cout << "Start:" << startX << ',' << startY << " Goal: " << goalX << ',' << goalY << std::endl;
     std::cout << vertexEnabled << ' ' << diagonalAllow << ' ' << bigMap << ' ' << hOptimized <<std::endl;
     std::cout << chosenCost << ' ' << order << std::endl;
@@ -517,8 +528,8 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     closedList.clear();
 
     if(toGenerateMap){
-      bool finished = generateNewMap();
-      while(!finished) finished = nextGNM();
+      bool finished = generateNewMap(sampleSize,seed,neighbourSelectionMethod,numberOfTopClosestNeighbours,connectionDistance);
+      // while(!finished) finished = nextGNM();
     }
     addStartGoalNodes({startX, startY}, {goalX, goalY});
     drawPRMGraph();

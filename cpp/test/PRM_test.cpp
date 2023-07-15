@@ -1,3 +1,4 @@
+// c++ -std=c++17 /Users/k/Downloads/cody/path/cpp/test/PRM_test.cpp /Users/k/Downloads/cody/path/cpp/pathfinder/kdtree.cpp
 #define PURE_CPP
 
 #include <iostream>
@@ -7,7 +8,7 @@
 
 #include "../nadeau.hpp"
 
-pathfinder::PRMGraph<pathfinder::BaseAction<coordDoublegcc _t>> planner;
+pathfinder::PRMGraph<pathfinder::BaseAction<coordDouble_t>> planner;
 
 int main(int argc, char* argv[]){
 
@@ -22,7 +23,7 @@ int main(int argc, char* argv[]){
 
   std::cout<<"starting"<<std::endl;
   uint64_t start = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-  bool finished = planner.search(grid, coords[0], coords[1], coords[2], coords[3], false, false, true, true, pathfinder::Octile, pathfinder::FIFO, 1, 1, false);
+  bool finished = planner.search(grid, coords[0], coords[1], coords[2], coords[3], true, false, true, true, pathfinder::Octile, pathfinder::FIFO, 1, 1, false);
 
   while(!finished){
     finished = planner.runNextSearch();
