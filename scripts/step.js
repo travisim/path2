@@ -336,6 +336,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
   });
 
   function finishGenerating(bounds, clearUpdate = true){
+    console.log(`myUI.tmpCnt: ${myUI.tmpCnt}`);
     console.log("Finished generating states");
     console.log(`Bounds:`, bounds);
     for(const [dest, bound] of Object.entries(bounds)){
@@ -365,7 +366,7 @@ myUI.generateReverseSteps = function({genStates=false}={}){
           ++j;
         // [i,j) is the action length
         
-        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, anyVal, endX, endY] = Pathfinder.unpackAction(step.slice(i, j),  false);
+        let [command, dest, x, y, colorIndex, arrowIndex, pseudoCodeRow, infoTableRowIndex, infoTableRowData, anyVal, endX, endY] = Pathfinder.unpackAction(step.slice(i, j), false);
         let destId = myUI.planner.destsToId[dest];
         let action = [];
         var includeAction = true;
@@ -604,9 +605,11 @@ myUI.generateReverseSteps = function({genStates=false}={}){
             /*
             if(canvas.maxVal==1) var mat = BitMatrix.compress_bit_matrix(canvas.virtualCanvas);
             else var mat = NBitMatrix.compress_matrix(canvas.virtualCanvas, canvas.maxVal);*/
-            //if(canvas.id=="visited") debugger;
-            let mat = NBitMatrix.compress_matrix(canvas.virtualCanvas, canvas.maxVal);
-            nextState.canvases[canvas.id] = mat.get_truncated_data();
+
+            // flattened_matrix is more efficient when canvas is sparse, which is most cases in pathfinding.
+            // NBitMatrix is more efficient when canvas is dense (>50%). Kept for future use.
+            nextState.canvases[canvas.id] = flatten_matrix(canvas.virtualCanvas, canvas.defaultVal);
+            // nextState.canvases[canvas.id] = NBitMatrix.compress_matrix(canvas.virtualCanvas, canvas.maxVal).get_truncated_data();
           }
         };
         // arrow
@@ -662,6 +665,7 @@ myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
 }
 
 myUI.jump_to_step = function(target_step){
+  myUI.tmpStart = Date.now();
   /*
   if state exists:
     load state
@@ -754,10 +758,9 @@ myUI.jump_to_step = function(target_step){
     items.sort(orderCanvases);
     for(let [dest, edges] of items){
       let destId = myUI.planner.destsToId[dest];
-      if(myUI.planner.constructor.wasm) edges = vec_to_arr(edges);
+      if(myUI.planner.constructor.wasm) edges = vec_to_arr(edges).sort(); // sort because c++ uses unordered_set so order is not guaranteed
       myUI.edgeCanvas.setLineState(destId, edges);
     }
-    
 
     // canvases
     var canvases = myUI.planner.constructor.wasm ? map_to_obj(state.canvases) : state.canvases;
@@ -804,5 +807,6 @@ myUI.jump_to_step = function(target_step){
     myUI.run_steps(target_step-myUI.animation.step, "fwd");
     document.getElementById("compute_btn").children[0].innerHTML = `Compute Path`;
     myUI.update_search_slider(target_step);
+    console.log(Date.now() - myUI.tmpStart);
   }
 }

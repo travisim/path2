@@ -643,6 +643,13 @@ class SVGCanvas {
       this.shownLines[destId] = [];
     }
 
+    try{
+      let k = myUI.canvases[destId];
+    }
+    catch(e){
+      console.log("canvas not found", destId);
+    }
+
     var [y1, x1] = start_XY.map(t => t * this.displayRatio);
     var [y2, x2] = end_XY.map(t => t * this.displayRatio);
     var strokeWidth = myUI.canvases[destId] ? Math.max(myUI.canvases[destId].lineWidth/20*this.displayRatio, 1) : 1;

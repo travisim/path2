@@ -2,6 +2,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
 #include <memory>
 
 #include "infotable.hpp"
@@ -320,17 +321,9 @@ namespace pathfinder
   template <typename Coord_t>
   struct State
   {
-    // int is used in favour of Dest because
-    // implicit type conversion works 
-    // and there is no need to bind the enum Dest to emscripten (see wrapper.cpp)
+    // use int in favor of Dest because Dest is now planner-specific, so the enum is not visible to State
     bool valid = true;
-    /* std::unordered_map<Dest, rowf_t> canvases;
-    std::unordered_map<Dest, InfoTableState> infotables;
-    std::unordered_map<Dest, std::vector<Coord_t>> vertices;
-    std::unordered_map<Dest, std::vector<lineInt_t>> edges; 
-    std::unordered_map<Dest, uint8_t> arrowColor;*/
     
-
     std::unordered_map<int, rowf_t> canvases;
     std::unordered_map<int, InfoTableState> infotables;
     std::unordered_map<int, std::vector<int>> vertices;
@@ -350,7 +343,6 @@ namespace pathfinder
     std::unordered_map<int, std::unique_ptr<InfoTable>> activeTable;
     std::unordered_map<int, Coord_t> singlePixelCanvas;
     std::unordered_map<int, uint8_t> arrowColor;
-    // std::unordered_map<Dest, std::pair<double, double>> bounds;
     std::unordered_map<int, bound_t> bounds;
     std::unordered_map<int, std::unordered_set<int>> vertices;
     std::unordered_map<int, std::unordered_set<int>> edges;

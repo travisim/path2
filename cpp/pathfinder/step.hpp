@@ -316,43 +316,35 @@ namespace pathfinder
       {
         int stateNum = stepCnt / stateFreq;
         if (stateNum % 100 == 0){
-          
+          #ifdef PURE_CPP
           std::cout << "State " << stateNum << std::endl;
           std::cout << "CURRENT RSS at state "<<stateNum<<": "<<getCurrentRSS() <<std::endl;
-
+          #endif
         }
         std::unique_ptr<State<Coord_t>> nextState = std::make_unique<State<Coord_t>>();
 
         // canvas
         for (const auto &p : sim.activeCanvas)
         {
-          #ifdef CANVAS_COMPRESSED
-            const double NotANumber = std::nan("0");
-            double defaultVal = getDestDefaultVal(p.first);
-            // if((dests.find("fCost") != dests.end() && p.first == dests["fCost"])
-            // || (dests.find("gCost") != dests.end() && p.first == dests["gCost"])
-            // || (dests.find("hCost") != dests.end() && p.first == dests["hCost"])){
-            //   defaultVal = std::numeric_limits<double>::infinity();
-            // }
-            // else{
-            //   defaultVal = 0;
-            // }
-            for(int i = 0; i < p.second.size(); ++i){
-              if(p.second[i] == defaultVal){
-                if(nextState->canvases[p.first].size() > 0 && !std::isnan(nextState->canvases[p.first].back())){
-                  nextState->canvases[p.first].push_back(NotANumber);
-                }
-              }
-              else{
-                if(nextState->canvases[p.first].size() == 0 || std::isnan(nextState->canvases[p.first].back())){
-                  nextState->canvases[p.first].push_back(i);
-                }
-                nextState->canvases[p.first].push_back(p.second[i]);
+        #ifdef CANVAS_COMPRESSED
+          const double NotANumber = std::nan("0");
+          double defaultVal = getDestDefaultVal(p.first);
+          for(int i = 0; i < p.second.size(); ++i){
+            if(p.second[i] == defaultVal){
+              if(nextState->canvases[p.first].size() > 0 && !std::isnan(nextState->canvases[p.first].back())){
+                nextState->canvases[p.first].push_back(NotANumber);
               }
             }
-          #else
-            nextState->canvases[p.first] = p.second;
-          #endif
+            else{
+              if(nextState->canvases[p.first].size() == 0 || std::isnan(nextState->canvases[p.first].back())){
+                nextState->canvases[p.first].push_back(i);
+              }
+              nextState->canvases[p.first].push_back(p.second[i]);
+            }
+          }
+        #else
+          nextState->canvases[p.first] = p.second;
+        #endif
         }
 
         // arrow
@@ -371,20 +363,16 @@ namespace pathfinder
         
         for (const auto &p : sim.vertices)
         {
-          const int &d = p.first;  // Dest
-          for (const auto &v : p.second)
-          {
-            nextState->vertices[d].push_back(v);
-          }
+          // copies all vertices to the next state
+          auto &stateVect = nextState->vertices[p.first];
+          stateVect.insert(stateVect.end(), p.second.begin(), p.second.end());
         }
 
         for (const auto &p : sim.edges)
         {
-          int d = p.first;
-          for (const auto &e : p.second)
-          {
-            nextState->edges[d].push_back(e);
-          }
+          // copies all edges to the next state
+          auto &stateVect = nextState->edges[p.first];
+          stateVect.insert(stateVect.end(), p.second.begin(), p.second.end());
         }
 
         states.push_back(std::move(nextState));

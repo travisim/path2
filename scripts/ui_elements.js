@@ -451,24 +451,32 @@ class UICanvas{
   
   draw_canvas_recursive(toDraw, canvasNo, target_step){
     var canvas = this;
-    // first way: array with NaN as delimiters
+    // first way: NBitMatrix
+    // simplest approach -> NBitMatrix to 2D Array then manually draw
+    if(toDraw.constructor == NBitMatrix.data_arr){
+      var arrayData = NBitMatrix.expand_2_matrix(toDraw);
+    }
+    // second way: array with NaN as delimiters
     // simplest approach -> use a number to keep track then iteratively increase the index
-    if(toDraw.constructor != NBitMatrix.data_arr){
+    else{
       var arrayData = toDraw;
       var prev = NaN;
       var idx = 0;
-    }
-    // second way: NBitMatrix
-    // simplest approach -> NBitMatrix to 2D Array then manually draw
-    else if(toDraw.constructor == NBitMatrix.data_arr){
-      var arrayData = NBitMatrix.expand_2_matrix(toDraw);
     }
     // third way?: nx where n is the number of following continguous cells -> uses 2D Array
     function draw_next_batch(start){
       if(target_step!=myUI.target_step) return -1;
       const batchSize = Math.max(10 * Math.max(canvas.data_height, canvas.data_width), 500);
       let end = start + batchSize;
-      if(toDraw.constructor != NBitMatrix.data_arr){
+      if(toDraw.constructor == NBitMatrix.data_arr){
+        while(start < end && start < arrayData.length * arrayData[0].length){
+          let x = Math.floor(start / arrayData[0].length);
+          let y = start++ - x * arrayData[0].length;
+          canvas.draw_pixel([x, y], false, arrayData[x][y]);
+        }
+        if(start >= arrayData.length * arrayData[0].length) return canvasNo + 1;
+      }
+      else{
         while(start < arrayData.length){
           let curr = arrayData[start];
           if(isNaN(prev)){
@@ -484,14 +492,6 @@ class UICanvas{
           if(start >= end) break;
         }
         if(start >= arrayData.length) return canvasNo + 1;
-      }
-      else if(toDraw.constructor == NBitMatrix.data_arr){
-        while(start < end && start < arrayData.length * arrayData[0].length){
-          let x = Math.floor(start / arrayData[0].length);
-          let y = start++ - x * arrayData[0].length;
-          canvas.draw_pixel([x, y], false, arrayData[x][y]);
-        }
-        if(start >= arrayData.length * arrayData[0].length) return canvasNo + 1;
       }
 
       return new Promise((resolve, _) => {

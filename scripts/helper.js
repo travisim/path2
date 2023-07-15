@@ -62,22 +62,23 @@ function deep_copy_matrix(mat, flip_bit=false, compress=false){
 
 function flatten_matrix(mat, defaultVal = null){
 	let res = [];
+	let lastIndex = -1; // Track the last index in the result array
+
+	// if defaultVal is not provided, then we don't need to compress
+	if(defaultVal == null) return [0].concat(...mat);
+
 	for(let i = 0; i < mat.length; ++i){
-		for(let j = 0; j < mat.length; ++j){
-			if(defaultVal == null){
-				res.push(mat[i][j]);
-				continue;
-			}
+		for(let j = 0; j < mat[i].length; ++j){
 			if(mat[i][j] == defaultVal){
-				if(res.length && !isNaN(res.slice(-1))){
-					res.push(NaN);
+				if(res.length && !isNaN(res[lastIndex])){
+					res[++lastIndex] = NaN;
 				}
 			}
 			else{
-				if(res.length == 0 || isNaN(res.slice(-1))){
-					res.push(i * mat[i].length + j);
+				if(res.length == 0 || isNaN(res[lastIndex])){
+					res[++lastIndex] = i * mat[i].length + j;
 				}
-				res.push(mat[i][j]);
+				res[++lastIndex] = mat[i][j];
 			}
 		}
 	}
@@ -88,27 +89,6 @@ function deepCopyNodeArray(nodeArray){
 	let res = [];
 	for(const node of nodeArray){
 		res.push(node.clone());
-	}
-	return res;
-}
-
-function unpackMatrix(mat){
-	let res = [];
-	for(let i=0;i<mat.length;++i){
-		let j=0
-		let row = [];
-		while(j<mat[i].length){
-			if(typeof mat[i][j] == "string" && mat[i][j].slice(-1)=="x"){
-				let arr = [];
-				arr.length = mat[i][j].slice(0, -1);
-				++j;
-				arr.fill(mat[i][j]);
-				row.push.apply(row, arr);
-			}
-			else row.push(mat[i][j]);
-			++j;
-		}
-		res.push(row);
 	}
 	return res;
 }

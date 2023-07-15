@@ -9,9 +9,6 @@
 #include <emscripten/bind.h>
 
 
-
-
-
 #ifndef PURE_CPP
 #include <emscripten.h>
 #include <emscripten/bind.h>
