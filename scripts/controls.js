@@ -27,11 +27,6 @@ function compute_path(){
 	// 	document.getElementById("compute_btn").children[0].innerHTML = `computing... ${(Date.now()-myUI.startTime)/1000.0}s`;
 	// }, 50);
 	updateComputeProgress();
-	if(myUI.planner.constructor.wasm){
-		console.log("TTTTTTTTTTTT")
-    console.log(myUI.planner.wasmPlanner.getMapNodes().size());
-    console.log(myUI.planner.wasmPlanner.getMapEdges().size());
-  } 
 	// search
 	myUI.planner.search(myUI.map_start, myUI.map_goal).then(_=>{
 		myUI.genStart = Date.now();

@@ -215,11 +215,7 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
     myUI.nodeCanvas.showCircle(destId, arrowIndex);
   }
   else if(command == STATIC.DrawEdge){
-    myUI.tmpStart = Date.now();
     myUI.edgeCanvas.showLine(destId, arrowIndex);
-    let tmpEnd = Date.now();
-    myUI.tmpTime += tmpEnd - myUI.tmpStart;
-    myUI.cnt++;
   }
   else if(command == STATIC.EraseEdge){
     myUI.edgeCanvas.hideLine(destId, arrowIndex);
@@ -762,6 +758,8 @@ myUI.jump_to_step = function(target_step){
     for(let [dest, edges] of items){
       let destId = myUI.planner.destsToId[dest];
       if(myUI.planner.constructor.wasm) edges = vec_to_arr(edges).sort((a, b) => a - b); // sort because c++ uses unordered_set so order is not guaranteed
+      // and Array in JS sorts by converting to string and comparing the strings???? Unacceptable!!!
+      // [3,2,1,4,5,11,6,123] => [1,11,123,2,3,4,5,6] (even copilot auto-suggests this lmao)
       myUI.edgeCanvas.setLineState(destId, edges);
     }
 
