@@ -2,7 +2,6 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <set>
 #include <memory>
 
 #include "infotable.hpp"

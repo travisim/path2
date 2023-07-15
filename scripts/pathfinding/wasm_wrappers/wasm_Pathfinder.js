@@ -67,10 +67,9 @@ class wasm_Pathfinder extends Pathfinder{
   }
 
   clearMapNodes(){
-    setTimeout(() => {
-      this.loadWasmPlanner();
+    if(this.wasmPlanner){
       this.wasmPlanner.clearMapNodes();
-    }, 200);  // give some time for the Module to load on the first call
+    }
 	}
 }
 

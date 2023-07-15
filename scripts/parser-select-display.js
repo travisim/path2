@@ -9,8 +9,8 @@ myUI.parseMap = function(map_str_var, file_name){
 	myUI.map_height = parseInt(map_str_var.split('\n')[1].split(' ')[1]);
 	myUI.map_width = parseInt(map_str_var.split('\n')[2].split(' ')[1]);
 	myUI.map_arr = zero2D(myUI.map_height, myUI.map_width);
-  console.log(myUI.map_height);
-	console.log(myUI.map_width)
+  // console.log(myUI.map_height);
+	// console.log(myUI.map_width)
 	
   let map_array = map_str_var.split("\n").splice(4).filter((el) => {
     return el !== null && typeof el !== 'undefined' && el.length > 0;
@@ -54,8 +54,8 @@ myUI.parse2DArrayToMap = (map_array) => {
 }
 
 myUI.displayMap = function(){
-  console.log("Map Arr below:");
-	console.log(myUI.map_arr);
+  // console.log("Map Arr below:");
+	// console.log(myUI.map_arr);
 	myUI.reset_animation(true, true);
   
 	myUI.planner.cell_map = undefined;
@@ -80,7 +80,7 @@ myUI.displayMap = function(){
   let height_px = getComputedStyle(document.getElementById("bg")).getPropertyValue('height').slice(0, -2);
   let height_interval = height_px / height;
   let height_muls = calcIntervals(height, height_interval, 10);
-  console.log("LEFT:", height_muls);
+  // console.log("LEFT:", height_muls);
   document.getElementById("left_axes_markers").innerHTML = "";
   for(const m of height_muls){
     let el = document.createElement("div");
@@ -93,7 +93,7 @@ myUI.displayMap = function(){
   let width_px = getComputedStyle(document.getElementById("bg")).getPropertyValue('width').slice(0, -2);
   let width_interval = width_px / width;
   let width_muls = calcIntervals(width, width_interval, 29);
-  console.log("TOP:", width_muls);
+  // console.log("TOP:", width_muls);
   document.getElementById("top_axes_markers").innerHTML = "";
   for(const m of width_muls){
     let el = document.createElement("div");
@@ -224,8 +224,8 @@ myUI.displayScen = function(update=false, reset_zero=false){
   
 	try{myUI.updateInfoMap(myUI.map_start);}catch(e){}
 
-  if(CustomLOSChecker(myUI.map_start, myUI.map_goal).boolean) console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "HAVE LOS");
-  else console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "NO LOS");
+  // if(CustomLOSChecker(myUI.map_start, myUI.map_goal).boolean) console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "HAVE LOS");
+  // else console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "NO LOS");
 }
 
 function moveDraggable(xy){
@@ -357,18 +357,21 @@ myUI.toggleVertex = function(enable=true){
 
 myUI.parseNodeMap = function(contents){
   let lines = contents.split("\n");
+
+  let start = Date.now();
   
-  myUI.planner.mapNodes = [];
+  if(myUI.planner.constructor.wasm){
+    myUI.planner.loadWasmPlanner();
+    myUI.planner.wasmPlanner.clearMapNodes();
+  }
+  else myUI.planner.mapNodes = [];
   let idx = 0;
   console.assert(lines[idx++].endsWith("mapnode"), "INVALID NODE MAP FILE UPLOADED");
   while(idx < lines.length && !lines[idx].startsWith("type")){
     let items = lines[idx++].split(",").map(x=>Number(x));
     let coord = [items[0], items[1]];
     let neighbors = items.slice(2);
-    if(myUI.planner.constructor.wasm){
-      myUI.planner.loadWasmPlanner();
-      myUI.planner.wasmPlanner.addMapNode(coord, neighbors);
-    }
+    if(myUI.planner.constructor.wasm) myUI.planner.wasmPlanner.addMapNode(coord, neighbors);
     else myUI.planner.mapNodes.push(new MapNode(null, coord, neighbors));
     
   }
@@ -377,13 +380,11 @@ myUI.parseNodeMap = function(contents){
   console.assert(lines[idx++].endsWith("mapedge"), "INVALID NODE MAP FILE UPLOADED");
   while(idx < lines.length){
     let edge = lines[idx++].split(",").map(x=>Number(x));
-    if(myUI.planner.constructor.wasm){
-      myUI.planner.loadWasmPlanner();
-      myUI.planner.wasmPlanner.addMapEdge(edge);
-    }
+    if(myUI.planner.constructor.wasm) myUI.planner.wasmPlanner.addMapEdge(edge);
     else myUI.planner.mapEdges.push(edge);
   }
-  console.log(myUI.planner.mapEdges[0]);
+
+  console.log("Time to parse node map: ", Date.now()-start);
 
 }
 

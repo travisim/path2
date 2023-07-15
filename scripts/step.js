@@ -215,7 +215,11 @@ myUI.run_action = function(command, dest, x, y, colorIndex, arrowIndex, pseudoCo
     myUI.nodeCanvas.showCircle(destId, arrowIndex);
   }
   else if(command == STATIC.DrawEdge){
+    myUI.tmpStart = Date.now();
     myUI.edgeCanvas.showLine(destId, arrowIndex);
+    let tmpEnd = Date.now();
+    myUI.tmpTime += tmpEnd - myUI.tmpStart;
+    myUI.cnt++;
   }
   else if(command == STATIC.EraseEdge){
     myUI.edgeCanvas.hideLine(destId, arrowIndex);
@@ -665,7 +669,6 @@ myUI.updateInfoMap = function(infoMapPlannerMode,x,y){
 }
 
 myUI.jump_to_step = function(target_step){
-  myUI.tmpStart = Date.now();
   /*
   if state exists:
     load state
@@ -758,7 +761,7 @@ myUI.jump_to_step = function(target_step){
     items.sort(orderCanvases);
     for(let [dest, edges] of items){
       let destId = myUI.planner.destsToId[dest];
-      if(myUI.planner.constructor.wasm) edges = vec_to_arr(edges).sort(); // sort because c++ uses unordered_set so order is not guaranteed
+      if(myUI.planner.constructor.wasm) edges = vec_to_arr(edges).sort((a, b) => a - b); // sort because c++ uses unordered_set so order is not guaranteed
       myUI.edgeCanvas.setLineState(destId, edges);
     }
 
@@ -807,6 +810,5 @@ myUI.jump_to_step = function(target_step){
     myUI.run_steps(target_step-myUI.animation.step, "fwd");
     document.getElementById("compute_btn").children[0].innerHTML = `Compute Path`;
     myUI.update_search_slider(target_step);
-    console.log(Date.now() - myUI.tmpStart);
   }
 }

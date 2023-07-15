@@ -416,7 +416,6 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
   void addStartGoalNodes(Coord_t start, Coord_t goal){
     const auto OFFSET = vertexEnabled ? 0 : 0.5;
     auto offsetCoord = [&](Coord_t coord){ return coordDouble_t{(double)coord.first + OFFSET, (double)coord.second + OFFSET}; };
-    Coord_t arr[2] = {start, goal};
     for(auto coord : {start, goal}){
       // check if coordinate is already a mapnode
       auto nodeToAdd = MapNode(coord);

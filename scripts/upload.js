@@ -48,20 +48,31 @@ myUI.fileHandler = {}
 
 myUI.fileHandler.handleFiles = function (){
 	// takes first map, scen & path file
-	let found = {map: false, scen: false, pathf: false, mapnode: false, pseudo: false}
-	Object.keys(found).forEach(key=>{
-		for(let i=0;i<this.files.length;++i){
-			if(this.files[i].name.endsWith(`.${key}`)){
-				if(found[key]) continue;
-				else{
-					found[key] = true;
-					processFile(key, this.files[i]);
-				}
-			}
-		}
-	});
+	let fileTypes = ["map", "scen", "pathf", "mapnode", "pseudo"];
 
-	function processFile(fileType, file){
+	const FILES = Array.from(this.files);
+
+	nextFileType(0);
+
+	function nextFileType(idx){
+		if(idx>=fileTypes.length) return;
+		console.log("CURRENT FILE TYPE: ", fileTypes[idx])
+		let fileSelected = false;
+		for(const file of FILES){
+			if(file.name.endsWith(`.${fileTypes[idx]}`)){
+				console.log("FILE MATCHED");
+				processNextFile(idx, file);
+				fileSelected = true;
+				break;
+			}
+		};
+		if(!fileSelected){
+			nextFileType(idx + 1);
+		}
+	}
+
+	function processNextFile(idx, file){
+		let fileType = fileTypes[idx];
 		let reader = new FileReader();
 
 		reader.addEventListener("load", function(e) {
@@ -83,9 +94,10 @@ myUI.fileHandler.handleFiles = function (){
 			}
       else if(fileType=="pseudo"){
         console.log(contents);  
-      myUI.PseudoCode.rowGenerator(contents);
+      	myUI.PseudoCode.rowGenerator(contents);
 				console.log(contents);  
 			}
+			nextFileType(idx + 1);
 		});
 		reader.readAsText(file);
 	}

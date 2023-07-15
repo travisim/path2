@@ -586,7 +586,7 @@ class SVGCanvas {
     let breakpoint = Math.max(0, indices.length - this.maxLines);
     for(let i = 0; i < breakpoint; ++i){
       let line = this.lines[destId][indices[i]];
-      line.classList.remove("hidden");
+      line.classList.add("hidden");
       line.setAttributeNS(null, "stroke-opacity", `0%`);
       this.shownLines[destId].push(line);
     }
@@ -605,6 +605,7 @@ class SVGCanvas {
       let line = this.shownLines[destId][i];
       let nextOpacity = line.getAttributeNS(null, "stroke-opacity").slice(0, -1) - this.opacityStep;
       line.setAttributeNS(null, "stroke-opacity", `${nextOpacity}%`);
+      if(nextOpacity == 0) line.classList.add("hidden");
     }
     
     this.lines[destId][index].classList.remove("hidden");
@@ -621,6 +622,7 @@ class SVGCanvas {
       let line = this.shownLines[destId][i];
       let nextOpacity = Number(line.getAttributeNS(null, "stroke-opacity").slice(0, -1)) + this.opacityStep;
       line.setAttributeNS(null, "stroke-opacity", `${nextOpacity}%`);
+      line.classList.remove("hidden");
     }
   }
 
