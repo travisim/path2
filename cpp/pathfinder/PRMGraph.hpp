@@ -260,7 +260,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
 
 
   bool generateNewMap(int sampleSize,unsigned int seed,std::string neighbourSelectionMethod,int numberOfTopClosestNeighbours,int connectionDistance){
-    cnt = 0;
+    // cnt = 0;
     mapNodes.clear();
     mapEdges.clear();
 //   int x1 = start.first; // start coord

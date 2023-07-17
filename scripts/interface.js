@@ -3,7 +3,7 @@ var myUI = {};
 myUI.initialize = function(){
 
   // planners
-  myUI.planners = [wasm_PRM_graph,wasm_Visibility_graph, wasm_A_star, wasm_Theta_star, wasm_RRT_graph, A_star, Theta_star, PRM, RRT_star, VisibilityGraph];
+  myUI.planners = [wasm_RRT_graph,wasm_PRM_graph,wasm_Visibility_graph, wasm_A_star, wasm_Theta_star,  A_star, Theta_star, PRM, RRT_star, VisibilityGraph];
   // default planner is decided in parser-select-display.js -> myUI.runDefault
   myUI.top_Z = 99;
 

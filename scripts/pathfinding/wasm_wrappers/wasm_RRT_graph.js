@@ -13,9 +13,13 @@ class wasm_RRT_graph extends wasm_Pathfinder{
   static get indexOfCollapsiblesToExpand() {
     return [0, 1, 2, 3];
   }
+  static get addGoalRadius() {
+    return 1;
+  }
   static get pseudoCode() {
     return {
-      
+      code: "T ← InitializeTree();\nT ← InsertNode(∅, Zinit , T ); \nfor i = 1 to i = N do \n  Zrand ← Sample(i);\n  Znearest ←Nearest(T,Zrand); \n  (Xnew,Unew,Tnew) ← Steer(Znearest,Zrand);\n  if ObstacleFree(Xnew) then \n    Znear ←Near(T, Znew,|V|);\n    Zmin ← ChooseParent(Znear, Znearest, Znew, Xnew);\n    T ←InsertNode(Zmin, Znew, T);\n    T ←ReWire(T, Znear, Zmin, Znew); \nreturn T;",
+      reference:"S. Karaman, M. R. Walter, A. Perez, E. Frazzoli and S. Teller, \"Anytime Motion Planning using the RRT*,\" 2011 IEEE International Conference on Robotics and Automation, Shanghai, China, 2011, pp. 1478-1483, doi: 10.1109/ICRA.2011.5980479."
     }
   }
 
@@ -39,16 +43,22 @@ class wasm_RRT_graph extends wasm_Pathfinder{
   static get configs(){
 		let configs = Pathfinder.configs;
 		configs.push(
-      {uid: "generate_RRT_graph", displayName: "Generate RRT Graph", options: "button", description: `Generates the RRT graph without searching.`},
-      {uid: "download_RRT_data", displayName: "Download RRT Data", options: "button", description: `Download the generated RRT data`},
-      {uid: "mapType", displayName: "Map Type:", options: ["Grid Cell", "Grid Vertex"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
+      {uid: "generate_RRT_graph", displayName: "Generate RRT Graph", options: "button", description: `Generates the RRT graph without searching.` },
+      {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "1234", description: `Sets seed for randomness of random points`},
+      {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 30, description: `Sets number of random points`},
+      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours","Closest Neighbours By Radius"/* "Top Closest Visible Neighbours"*/ ],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
+      {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
+      {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:4, description: `Sets radius of closest neighbours to select`},
+      {uid: "max_distance_between_nodes", displayName: "Max Distance Between Nodes", options: "number",defaultVal:5, description: `Sets maximum distance between 2 nodes`},
+      { uid: "goal_radius", displayName: "Goal Radius", options: "number", defaultVal: 3, description: `Sets radius of goal` },
+      { uid: "download_RRT_data", displayName: "Download RRT Data", options: "button", description: `Download the generated RRT data` },
+      {uid: "mapType", displayName: "Map Type:", options: [ "Grid Vertex","Grid Cell"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
       {uid: "h_weight", displayName: "H-Weight:", options: "number", defaultVal: 1, description: `Coefficient of H-cost when calculating the F-cost. Setting H to 0 and G to positive changes this to Dijkstra's algorithm.`},
       {uid: "h_optimized", displayName: "H-optimized:", options: ["On", "Off"], description: `For algorithms like A* and Jump Point Search, F-cost = G-cost + H-cost. This has priority over the time-ordering option.<br> If Optimise is selected, when retrieving the cheapest vertex from the open list, the vertex with the lowest H-cost among the lowest F-cost vertices will be chosen. This has the effect of doing a Depth-First-Search on equal F-cost paths, which can be faster.<br> Select Vanilla to use their original implementations`},  
       {uid: "time_ordering", displayName: "Time Ordering:", options: ["FIFO", "LIFO"], description: `When sorting a vertex into the open-list or unvisited-list and it has identical cost* to earlier entries, select: <br>FIFO to place the new vertex behind the earlier ones, so it comes out after them<br> LIFO to place the new vertex in front of the earlier ones, so it comes out before them.<br>* cost refers to F-cost & H-cost, if F-H-Cost Optimisation is set to "Optimise", otherwise it is the F-cost for A*, G-cost for Dijkstra and H-cost for GreedyBestFirst)`},  
-      {uid: "show_network_graph", displayName: "Show network graph:", options: ["Off", "On"], description: `Every corner and corner-pair will be shown in the first two steps if set to "On".`},
-      {uid: "set_max_lines", displayName: "Maximum number of lines:", options: "number", defaultVal: 20, description: `Maximum number of lines (of each type) to be shown on the screen at any time.`},
+      {uid: "show_network_graph", displayName: "Show network graph:", options: [ "On","Off"], description: `Every corner and corner-pair will be shown in the first two steps if set to "On".`},
     );
 		return configs;
   }
@@ -85,9 +95,26 @@ class wasm_RRT_graph extends wasm_Pathfinder{
       case "time_ordering":
 				this.timeOrder = value; break;
       case "show_network_graph":
-        this.showNetworkGraph = value=="On"; break;
-      case "set_max_lines":
-        myUI.edgeCanvas.setMaxLines(Number(value)); break;
+        this.showNetworkGraph = value == "On"; break;
+      /*cases below here run generateNewMap() after var changes*/
+      case "sample_size":
+        this.sampleSize = parseInt(value);
+      case "seed":
+        this.seed = parseInt(value); // should only input unsigned int
+      case "neighbour_selection_method":
+        this.neighbourSelectionMethod = value;
+      case "number_of_closest_neighbours":
+        this.numberOfTopClosestNeighbours = parseInt(value);
+      case "closest_neighbours_by_radius":
+        this.connectionDistance = parseInt(value);
+      /*cases above here run generateNewMap() after var changes*/
+      // if (this.generateNewMap) this.generateNewMap()
+      case "goal_radius":
+        this.goalRadius = value;
+        break;
+      case "max_distance_between_nodes":
+        this.pointsXawayFromSource = parseInt(value);
+        break;
       default:
         super.setConfig(uid, value);
     }
@@ -128,10 +155,10 @@ class wasm_RRT_graph extends wasm_Pathfinder{
     download("saved.mapnode", text);
   }
 
-  generateNewMap(start = [1,1]){
-    if(this.wasmPlanner) this.wasmPlanner.delete();
+  generateNewMap() {
+    console.log(typeof this.neighbourSelectionMethod);
     this.loadWasmPlanner();
-    let finished = this.wasmPlanner.wrapperGNM(this.map.copy_2d(), this.diagonal_allow,start[0],start[1]);
+    let finished = this.wasmPlanner.wrapperGNM(this.map.copy_2d(), this.diagonal_allow,this.sampleSize,this.seed,this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance,...myUI.map_start,this.pointsXawayFromSource);
     let thisPlanner = this;
     
     function NextGNM(){
@@ -154,7 +181,7 @@ class wasm_RRT_graph extends wasm_Pathfinder{
   }
 
   loadWasmPlanner(){
-     if(!this.wasmPlanner)
+    if(!this.wasmPlanner)
       this.wasmPlanner = this.bigMap ? new Module["BaseRRTPlanner"]() : new Module["RRTPlanner"]();
   }
 
@@ -172,7 +199,6 @@ class wasm_RRT_graph extends wasm_Pathfinder{
     let order = ["FIFO", "LIFO"].findIndex(cost=>{
         return cost == this.timeOrder;
       });
-   
     this.loadWasmPlanner();
     
     if(toGenerateMap) await this.generateNewMap();
@@ -180,7 +206,7 @@ class wasm_RRT_graph extends wasm_Pathfinder{
     let finished = this.wasmPlanner.wrapperSearch(this.map.copy_2d(),
     ...start, ...goal,
     this.vertexEnabled, this.diagonal_allow, this.bigMap, this.hOptimized,
-    chosenCost, order, this.gWeight, this.hWeight, this.showNetworkGraph);
+    chosenCost, order, this.gWeight, this.hWeight, this.showNetworkGraph,this.sampleSize,this.seed,this.neighbourSelectionMethod,this.numberOfTopClosestNeighbours,this.connectionDistance,this.pointsXawayFromSource);
 
     if(finished) return this._finish_searching();
 
