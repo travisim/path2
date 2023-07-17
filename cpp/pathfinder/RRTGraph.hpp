@@ -117,6 +117,7 @@ class RRTGraph : public Pathfinder<Action_t>{
     CanvasNetworkGraph,
     ITNeighbors,
     ITQueue,
+    CanvasIntermediaryMapExpansion
   };
 
 public:
@@ -363,34 +364,22 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     // double connectionDistance=4;
     // int numberOfTopClosestNeighbours=3;
     srand(seed);
-    Coord_t randomCoord_XY = randomDoubleCoordGenerator(gridHeight, gridWidth);
-   // std::cout <<"firstcoord selected:"<< randomCoord_XY.first << ", " << randomCoord_XY.second << std::endl;
- 
+    Coord_t randomCoord_XY;
+    // std::cout <<"firstcoord selected:"<< randomCoord_XY.first << ", " << randomCoord_XY.second << std::endl;
+
     mapNodes.push_back(MapNode(Coord_t(startX,startY)));  // start and end not connected
     mapNodes[0].gCost = 0;
     mapNodes[0].parent = 9999999;
     auto offsetCoord = [&](Coord_t coord){ return std::pair<double, double>{coord.first + OFFSET, coord.second + OFFSET}; };
 
     
-    if(showNetworkGraph) createAction(DrawVertex, CanvasNetworkGraph, randomCoord_XY);
+    if(showNetworkGraph) createAction(DrawVertex, CanvasNetworkGraph, Coord_t(startX,startY));
     createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 1);
     if(showNetworkGraph) saveStep(true);
 
 
 
-    
   
-   
-
-
-    // if(showNetworkGraph) createAction(DrawPixel, CanvasNetworkGraph, coord);
-
-    // if(showNetworkGraph) saveStep(true);
-
-  
-    // if(showNetworkGraph) createAction(DrawEdge, CanvasNetworkGraph, n1.valueXY, -1, -1, -1, 0, {}, -1, n2.valueXY);
-   
-    // if(showNetworkGraph) saveStep(true);
  
     
     
@@ -400,29 +389,28 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
         randomCoord_XY = randomDoubleCoordGenerator(gridHeight, gridWidth);
        // std::cout <<"randomcoord "<<randomCoord_XY.first<<","<<randomCoord_XY.second<<std::endl;;
         createAction(HighlightPseudoCodeRowSec, PseudoCode, {-1, -1}, -1, -1, 2);
-        createAction(DrawVertex, CanvasNetworkGraph, randomCoord_XY); //intermediaryMapExpansion
+        createAction(DrawVertex, CanvasIntermediaryMapExpansion, randomCoord_XY); 
         createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 3);
         saveStep(true);
         int nearestNode_Index = getNearestNodeIndexInTreeToRandomCoord(mapNodes, randomCoord_XY);
         createAction(DrawSingleVertex, CanvasNetworkGraph, mapNodes[nearestNode_Index].valueXY); //expanded
         createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 4);
-        createAction(DrawEdge, CanvasNetworkGraph, mapNodes[nearestNode_Index].valueXY, -1, -1, -1, 0, {}, -1, randomCoord_XY); //intermediaryMapExpansion
+        // createAction(DrawEdge, CanvasIntermediaryMapExpansion, mapNodes[nearestNode_Index].valueXY, -1, -1, -1, 0, {}, -1, randomCoord_XY); 
         saveStep(true);
         Coord_t nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(randomCoord_XY,mapNodes[nearestNode_Index].valueXY,pointsXawayFromSource);
        // std::cout <<"1 "<<randomCoord_XY.first<<","<<randomCoord_XY.second<<" "<<nextCoordToAdd_XY.first<<","<<nextCoordToAdd_XY.second<<std::endl;
-        createAction(DrawVertex, CanvasNetworkGraph, nextCoordToAdd_XY); //intermediaryMapExpansion
+        // createAction(DrawVertex, CanvasIntermediaryMapExpansion, nextCoordToAdd_XY); 
         createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 5);
         saveStep(true);  
        // std::cout <<randomCoord_XY.first<<","<<randomCoord_XY.second<<" "<<nextCoordToAdd_XY.first<<","<<nextCoordToAdd_XY.second<<std::endl;
         if(CustomLOSChecker(offsetCoord(randomCoord_XY), offsetCoord(nextCoordToAdd_XY), grid, diagonalAllow).boolean){ // last argument is diagonalAllow
           std::vector<int>  nodesNearby_Indexes = getNodesNearbyIndex(mapNodes, nextCoordToAdd_XY, neighbourSelectionMethod, connectionDistance,numberOfTopClosestNeighbours);
           for(MapNode<Coord_t> node : mapNodes){
-            createAction(DrawVertex, CanvasNeighbors, node.valueXY); //intermediaryMapExpansion
-              
+            createAction(DrawVertex, CanvasNeighbors, node.valueXY); 
           }
-          createAction(DrawVertex, CanvasNetworkGraph, nextCoordToAdd_XY); //intermediaryMapExpansion
+          createAction(DrawVertex, CanvasNetworkGraph, nextCoordToAdd_XY);
           //increment static row
-          createAction(DrawVertex, CanvasNetworkGraph, nextCoordToAdd_XY, -1, -1,-1,0,{},connectionDistance); //intermediaryMapExpansion
+          // createAction(DrawVertex, CanvasIntermediaryMapExpansion, nextCoordToAdd_XY, -1, -1,-1,0,{},connectionDistance); 
           createAction(HighlightPseudoCodeRowSec, PseudoCode, {-1, -1}, -1, -1, 6);
           createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 7);
           saveStep(true);
@@ -432,7 +420,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
           createAction(DrawSingleVertex, CanvasNetworkGraph, mapNodes[selectedParent_Index].valueXY); //expanded //colour pink 
           createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 8);
           saveStep(true);
-          createAction(DrawEdge, CanvasNetworkGraph, mapNodes[selectedParent_Index].valueXY, -1, -1, -1, 0, {}, -1, nextCoordToAdd_XY); //intermediaryMapExpansion
+          createAction(DrawEdge, CanvasNetworkGraph, mapNodes[selectedParent_Index].valueXY, -1, -1, -1, 0, {}, -1, nextCoordToAdd_XY); 
           createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 9);
           saveStep(true);
 
@@ -443,15 +431,15 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
           createAction(UnhighlightAllPseudoCodeRowSec, PseudoCode);
           createAction(HighlightPseudoCodeRowSec, PseudoCode, {-1, -1}, -1, -1, 2);
           createAction(EraseAllVertex, CanvasNeighbors); 
-          // createAction(EraseAllVertex, intermediary map expansion); 
-          // createAction(EraseAllEdge, intermediary map expansion); 
+          // createAction(EraseAllVertex, CanvasIntermediaryMapExpansion); 
+          // createAction(EraseAllEdge, CanvasIntermediaryMapExpansion); 
           saveStep(true);
     
         }
         else{
           createAction(EraseAllVertex, CanvasNeighbors); 
-          // createAction(EraseAllVertex, intermediary map expansion); 
-          // createAction(EraseAllEdge, intermediary map expansion); 
+          // createAction(EraseAllVertex, CanvasIntermediaryMapExpansion); 
+          // createAction(EraseAllEdge, CanvasIntermediaryMapExpansion); 
           saveStep(true);
         }
     }
@@ -542,7 +530,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     timeOrder order = (timeOrder)orderInt;
     grid_t grid = js2DtoVect2D(gridArr);
 
-    toGenerateMap = false;
+    toGenerateMap = true;
     
     return search(grid, startX, startY, goalX, goalY, vertexEnabled, diagonalAllow, bigMap, hOptimized, chosenCost, order, gCoeff, hCoeff, showNetworkGraph,sampleSize,seed,neighbourSelectionMethod,numberOfTopClosestNeighbours,connectionDistance,pointsXawayFromSource);
   }

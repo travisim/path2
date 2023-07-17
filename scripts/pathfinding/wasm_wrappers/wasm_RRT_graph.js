@@ -10,12 +10,12 @@ class wasm_RRT_graph extends wasm_Pathfinder{
 
   static get showFreeVertex(){ return true; }
   
-  static get indexOfCollapsiblesToExpand() {
-    return [0, 1, 2, 3];
-  }
   static get addGoalRadius() {
     return 1;
   }
+  static get indexOfCollapsiblesToExpand() {
+    return [0, 1, 2, 3];
+}
   static get pseudoCode() {
     return {
       code: "T ← InitializeTree();\nT ← InsertNode(∅, Zinit , T ); \nfor i = 1 to i = N do \n  Zrand ← Sample(i);\n  Znearest ←Nearest(T,Zrand); \n  (Xnew,Unew,Tnew) ← Steer(Znearest,Zrand);\n  if ObstacleFree(Xnew) then \n    Znear ←Near(T, Znew,|V|);\n    Zmin ← ChooseParent(Znear, Znearest, Znew, Xnew);\n    T ←InsertNode(Zmin, Znew, T);\n    T ←ReWire(T, Znear, Zmin, Znew); \nreturn T;",
@@ -25,6 +25,7 @@ class wasm_RRT_graph extends wasm_Pathfinder{
 
   static get infoTables(){
     return [    
+      // {id:"ITStatistics", displayName: "Statistics", headers: ["Indicator ", "Value"], fixedContentOfFirstRowOfHeaders:["Number Of Nodes","Path Distance"]},      
 			{id:"ITNeighbors", displayName: "Neighbors", headers:["Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
       {id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
       
@@ -33,10 +34,10 @@ class wasm_RRT_graph extends wasm_Pathfinder{
   
   static get hoverData(){
     return [
-      {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCacheArray", canvasId: "visited"},
-      {id: "hoverFCost", displayName: "F Cost", type: "canvasCacheArray", canvasId: "fCost"},
-      {id: "hoverGCost", displayName: "G Cost", type: "canvasCacheArray", canvasId: "gCost"},
-      {id: "hoverHCost", displayName: "H Cost", type: "canvasCacheArray", canvasId: "hCost"},
+      // {id: "hoverCellVisited", displayName: "Times Visited", type: "canvasCacheArray", canvasId: "visited"},
+      // {id: "hoverFCost", displayName: "F Cost", type: "canvasCacheArray", canvasId: "fCost"},
+      // {id: "hoverGCost", displayName: "G Cost", type: "canvasCacheArray", canvasId: "gCost"},
+      // {id: "hoverHCost", displayName: "H Cost", type: "canvasCacheArray", canvasId: "hCost"},
     ];
   }
 
@@ -133,7 +134,10 @@ class wasm_RRT_graph extends wasm_Pathfinder{
 			// },
       {
 				id:"networkGraph", drawType:"cell", drawOrder: 17, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null, lineWidth: 1,
-			}
+      },
+      {
+				id:"intermediaryMapExpansion", drawType:"dotted", drawOrder: 12, fixedResVal: 1024, valType: "integer", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "rgb(0, 204, 255)"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: null, lineWidth: 1,
+			},
     ])
     if(this.bigMap){
       canvases = canvases.filter(conf => conf.bigMap);

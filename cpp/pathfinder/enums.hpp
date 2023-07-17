@@ -114,6 +114,8 @@ namespace pathfinder
     // SVGVertex,
     ITNeighbors,
     ITQueue,
+    CanvasIntermediaryMapExpansion,
+    
   };
 
   std::ostream &operator<<(std::ostream &out, const Dest value)
@@ -134,6 +136,7 @@ namespace pathfinder
       INSERT_ELEMENT(CanvasHCost),
       INSERT_ELEMENT(ITNeighbors),
       INSERT_ELEMENT(ITQueue);
+      INSERT_ELEMENT(CanvasIntermediaryMapExpansion);
 #undef INSERT_ELEMENT
     }
     return out << myStrings[value];
