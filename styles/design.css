@@ -310,7 +310,7 @@ center {
   white-space: -pre-wrap;
   white-space: -o-pre-wrap;
   word-wrap: break-word;
-  z-index: 102;
+  z-index: 10000;
 }
 
 .hover-info[alt]:hover::before {
@@ -323,7 +323,7 @@ center {
   border: 5px solid transparent;
   border-bottom: 5px solid rgba(0, 0, 0, 0.7);
   box-sizing: border-box;
-  z-index: 102;
+  z-index: 10000;
 }
 
 .empty-outer {
@@ -383,4 +383,8 @@ element.style {
     z-index: 9502;
     overflow-x: hidden;
     overflow-y: hidden;
+}
+
+#detail_btn, #planner_config_btn{
+  font-weight: bold;
 }
