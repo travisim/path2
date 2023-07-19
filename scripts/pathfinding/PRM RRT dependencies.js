@@ -685,13 +685,23 @@ class SVGCanvas {
   }
 
   drawCircle(circle_XY, destId = "networkGraph",id=false, colorIndex = 0, radius = undefined, opacityValue = false){
-
+    console.log(radius,"r")
+    if (radius == -1 || radius == 1) radius = undefined;
     if(!this.circles.hasOwnProperty(destId)){
       this.circles[destId] = [];
       this.shownCircles[destId] = [];
     }
 
-
+    // console.log("1","radius", radius, typeof(radius));
+    
+    // if (typeof(radius) != "string" && radius != undefined){
+    //   try {
+    //     radius = radius.toString();
+    //   }
+    //   catch (e) {
+    //     console.error("radius should be type:number");
+    //   }
+    // }
     
     var r = (radius && radius > 0.25*this.displayRatio)?radius:Math.max(0.25*this.displayRatio, 4); // wasm network graph passes radius = 1 here but this fixes it
     var [cy, cx] = circle_XY.map(t => t * this.displayRatio);
@@ -710,8 +720,14 @@ class SVGCanvas {
       config.r = ((radius && radius > 0.29) ? radius : 0.29) * this.displayRatio
       config.strokeWidth = 2;
     }
-    var cir = this.getSvgNode('circle', config);
+    // console.log("radius", radius, typeof(radius));
 
+    // if (radius>2){
+    //   console.log("hi")
+
+    // }
+    var cir = this.getSvgNode('circle', config);
+    
     this.frag.appendChild(cir);
     this.circles[destId].push(cir);
     return this.circles[destId].length - 1;

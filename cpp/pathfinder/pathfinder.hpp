@@ -156,7 +156,11 @@ namespace pathfinder
         if(edges.find(dest) == edges.end()) edges[dest] = {};
         arrowIndex = edgeStore[dest].size();  // simulates myUI.edgeCanvas
         if(colorIndex == -1) colorIndex = 0;
+        if(anyVal != -1){
+          std::cout<<"ANYVAL: "<<anyVal<<std::endl;
+        }
         if(anyVal == -1) anyVal = 100;
+
         edges[dest].push_back({nodeCoord, endCoord, colorIndex, anyVal, arrowIndex});
         edgeStore[dest].push_back({nodeCoord, endCoord, colorIndex, anyVal});
         nodeCoord = {-1, -1}; endCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
@@ -179,6 +183,9 @@ namespace pathfinder
         if(vertices.find(dest) == vertices.end()) vertices[dest] = {};
         arrowIndex = vertexStore[dest].size();  // simulates myUI.nodeCanvas
         if(colorIndex == -1) colorIndex = 0;
+        if(anyVal != -1){
+          std::cout<<"ANYVAL: "<<anyVal<<std::endl;
+        }
         if(anyVal == -1) anyVal = 1;
         vertices[dest].push_back({nodeCoord, colorIndex, anyVal, arrowIndex});
         vertexStore[dest].push_back({nodeCoord, colorIndex, anyVal});

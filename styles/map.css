@@ -5,6 +5,8 @@
   --canvas-z-index: 40;
 }
 
+
+
 #map-container{
 	flex-grow: 5;
 	min-width:520px;

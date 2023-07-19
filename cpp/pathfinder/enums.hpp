@@ -110,11 +110,11 @@ namespace pathfinder
     CanvasFCost,
     CanvasGCost,
     CanvasHCost,
+    CanvasIntermediaryMapExpansion,
     // SVGNode,
     // SVGVertex,
     ITNeighbors,
     ITQueue,
-    CanvasIntermediaryMapExpansion,
     
   };
 

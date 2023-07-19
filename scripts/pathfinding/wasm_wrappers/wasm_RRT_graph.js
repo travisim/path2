@@ -49,7 +49,7 @@ class wasm_RRT_graph extends wasm_Pathfinder{
       {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 30, description: `Sets number of random points`},
       {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours","Closest Neighbours By Radius"/* "Top Closest Visible Neighbours"*/ ],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
-      {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:4, description: `Sets radius of closest neighbours to select`},
+      {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:5, description: `Sets radius of closest neighbours to select`},
       {uid: "max_distance_between_nodes", displayName: "Max Distance Between Nodes", options: "number",defaultVal:5, description: `Sets maximum distance between 2 nodes`},
       { uid: "goal_radius", displayName: "Goal Radius", options: "number", defaultVal: 3, description: `Sets radius of goal` },
       { uid: "download_RRT_data", displayName: "Download RRT Data", options: "button", description: `Download the generated RRT data` },

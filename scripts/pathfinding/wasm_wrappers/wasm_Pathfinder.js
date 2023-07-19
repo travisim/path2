@@ -46,7 +46,8 @@ class wasm_Pathfinder extends Pathfinder{
     // draw vertices and edges from vertex and edge stores
     let obj = map_to_obj(this.wasmPlanner.vertexStore);
     for(const [dest, vertices] of Object.entries(obj)){
-      for(const vertex of vec_to_arr(vertices)){
+      for (const vertex of vec_to_arr(vertices)) {
+        console.log(vertex.radius)
         myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[dest], false, vertex.colorIndex, vertex.radius);
       }
     }

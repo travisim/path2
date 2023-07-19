@@ -124,7 +124,7 @@ public:
   inline int getNumMapNodes(){ return mapNodes.size(); }
 
 #ifndef PURE_CPP
-  bool wrapperGNM(emscripten::val gridArr, bool diagonalAllow,int sampleSize,unsigned int seed,std::string neighbourSelectionMethod,int numberOfTopClosestNeighbours,int connectionDistance){
+  bool wrapperGNM(emscripten::val gridArr, bool diagonalAllow,int sampleSize,unsigned int seed,std::string neighbourSelectionMethod,int numberOfTopClosestNeighbours,double connectionDistance){
     grid = js2DtoVect2D(gridArr);
     gridHeight = grid.size();
     gridWidth = grid.size() ? grid[0].size() : 0;
@@ -238,28 +238,7 @@ void print_nodes(const Kdtree::KdNodeVector &nodes) {
 
 
 
-void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const std::pair<double, double> &coord2, std::vector<std::vector<std::pair<double, double>>> &edgeAccumalator){
-    bool flag = true;
-    for (int i = 0; i<edgeAccumalator.size(); ++i){
-      if ((edgeAccumalator[i][0] == coord1 && edgeAccumalator[i][1] == coord2) || (edgeAccumalator[i][0] == coord2 && edgeAccumalator[i][1] == coord1)){
-          bool flag = false;
-          //std::cout<<"dup detected";
-      }
-     
-        
-    }
-    if(flag == true){
-        std::vector<std::pair<double, double>> temp;
-        temp.push_back(coord1);
-        temp.push_back(coord2);
-        edgeAccumalator.push_back(temp);
-    }
-
-   
-}
-
-
-  bool generateNewMap(int sampleSize,unsigned int seed,std::string neighbourSelectionMethod,int numberOfTopClosestNeighbours,int connectionDistance){
+  bool generateNewMap(int sampleSize,unsigned int seed,std::string neighbourSelectionMethod,int numberOfTopClosestNeighbours,double connectionDistance){
     // cnt = 0;
     mapNodes.clear();
     mapEdges.clear();
@@ -301,7 +280,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
    
     // if(showNetworkGraph) saveStep(true);
 
-   std::vector<std::vector<std::pair<double, double>>> edgeAccumalator;
+ 
     
     srand(seed);
 
@@ -364,7 +343,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
                         neighbours_IndexArray.push_back(j);
                         std::pair<double, double> coord1(mapNodes[i].valueXY.first,mapNodes[i].valueXY.second);
                         std::pair<double, double> coord2(result[k].point[0],result[k].point[1]);
-                        pushNewEdgeToEdgeAccumalator(coord1, coord2, edgeAccumalator);
+                        mapEdges.push_back({coord1, coord2});
                     }
                 }
             }
@@ -372,9 +351,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
         mapNodes[i].neighbours = neighbours_IndexArray; // load k nearest neighbours index to mapnode;
 
     }
-     for(int i = 0; i < edgeAccumalator.size(); ++i){
-        mapEdges.push_back({edgeAccumalator[i][0], edgeAccumalator[i][1]});
-     }
+     
 
     std::cout<<"sample size "<<sampleSize<<"\n";
     std::cout<<"random coord array size "<<tree.allnodes.size()<<"\n";
@@ -462,7 +439,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     unsigned int seed,
     std::string neighbourSelectionMethod,
     int numberOfTopClosestNeighbours,
-    int connectionDistance
+    double connectionDistance
   ){
     costType chosenCost = (costType)chosenCostInt;
     timeOrder order = (timeOrder)orderInt;
@@ -507,7 +484,7 @@ void pushNewEdgeToEdgeAccumalator(const std::pair<double, double> &coord1, const
     return true;
   }
 
-  bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1, bool showNetworkGraph = false, int sampleSize = 10,unsigned int seed = 123,std::string neighbourSelectionMethod = "Closest Neighbours By Radius",int numberOfTopClosestNeighbours=3,int connectionDistance=3){
+  bool search(grid_t &grid, int startX, int startY, int goalX, int goalY, bool vertexEnabled, bool diagonalAllow, bool bigMap, bool hOptimized, costType chosenCost, timeOrder order, int gCoeff = 1, int hCoeff = 1, bool showNetworkGraph = false, int sampleSize = 10,unsigned int seed = 123,std::string neighbourSelectionMethod = "Closest Neighbours By Radius",int numberOfTopClosestNeighbours=3,double connectionDistance=3){
     std::cout << "Start:" << startX << ',' << startY << " Goal: " << goalX << ',' << goalY << std::endl;
     std::cout << vertexEnabled << ' ' << diagonalAllow << ' ' << bigMap << ' ' << hOptimized <<std::endl;
     std::cout << chosenCost << ' ' << order << std::endl;
