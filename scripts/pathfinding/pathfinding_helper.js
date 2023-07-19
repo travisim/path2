@@ -685,7 +685,7 @@ class SVGCanvas {
   }
 
   drawCircle(circle_XY, destId = "networkGraph",id=false, colorIndex = 0, radius = undefined, opacityValue = false){
-
+    if (radius == -1 || radius == 1) radius = undefined;
     if(!this.circles.hasOwnProperty(destId)){
       this.circles[destId] = [];
       this.shownCircles[destId] = [];
