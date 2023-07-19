@@ -301,7 +301,7 @@
                     <!-- order is shown in terms of the order provided upon initialisation in interface.js -->
                   </div>
                 </button>
-                <button id="detail_btn" class="btn" style="font-weight: bold">
+                <button id="detail_btn" class="btn hover-info" alt="Toggle coarse Steps">
                   Coarse Steps
                 </button>
               </div>
@@ -456,7 +456,7 @@
                 <button
                   id="planner_config_btn"
                   class="btn hover-info"
-                  alt="Choose and customize the algorithm"
+                  alt="Choose the algorithm"
                 >
                   <div class="flex-col"></div>
                 </button>
@@ -525,7 +525,7 @@
               <div id="file_droparea" class="upload overlay">
                 <form class="my-form">
                   <p>
-                    Drag map/scen/pathf file here
+                    Click or drag files
                     <a
                       target="_blank"
                       href="https://movingai.com/benchmarks/street/index.html"
@@ -540,8 +540,7 @@
                     multiple
                   />
                   <label class="upload-btn" for="fileInput1"
-                    >Select files</label
-                  >
+                    >Select files</label>
                 </form>
               </div>
             </div>
@@ -786,7 +785,7 @@
     <script src="build/wasmPlanners.js"></script>
     <script src="scripts/dependencies/chroma.min.js"></script>
     <script src="scripts/dependencies/gsap.min.js"></script>
-    <script src="scripts/pathfinding/PRM RRT dependencies.js"></script>
+    <script src="scripts/pathfinding/pathfinding_helper.js"></script>
     <script src="scripts/helper.js"></script>
     <script src="scripts/pathfinding/pathfinder.js"></script>
     <script src="scripts/pathfinding/grid_pathfinder.js"></script>
@@ -803,8 +802,8 @@
     <script src="scripts/pathfinding/RRT.js"></script>
     <script src="scripts/ui_elements.js"></script>
     <!--script src="scripts/infomap.js"></script-->
-    <script src="scripts/infotable class.js"></script>
-    <script src="scripts/infopseudocode class.js"></script>
+    <script src="scripts/infotable_class.js"></script>
+    <script src="scripts/infopseudocode_class.js"></script>
     <script src="scripts/layers_checklist.js"></script>
     <script src="scripts/modal.js"></script>
     <script src="scripts/interface.js"></script>
@@ -819,7 +818,7 @@
     <script src="scripts/darkmode.js"></script>
     <script src="scripts/hover.js"></script>
     <script src="scripts/edit_map.js"></script>
-    <script src="scripts/parser-select-display.js"></script>
+    <script src="scripts/parser_select_display.js"></script>
     <script src="scripts/planner_config.js"></script>
     <script src="scripts/download.js"></script>
     <script src="scripts/default.js"></script>

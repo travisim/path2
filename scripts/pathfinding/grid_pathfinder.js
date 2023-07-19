@@ -48,8 +48,8 @@ class GridPathfinder extends Pathfinder{
 
 	static get infoTables(){
 		return [
-			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
-			{ id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
+			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Vertex", "State"]},
+			{ id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent"] },
 		];
 	}
 

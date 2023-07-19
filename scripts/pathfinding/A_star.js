@@ -40,6 +40,13 @@ class A_star extends GridPathfinder{
     return canvases;
   }
 
+  static get infoTables(){
+		return [
+			{id:"ITNeighbors", displayName: "Neighbors", headers:["Dir", "Vertex", "F-Cost", "G-Cost", "H-Cost", "State"]},
+			{ id: "ITQueue", displayName: "Queue", headers: ["Vertex", "Parent", "F-Cost", "G-Cost", "H-Cost"] },
+		];
+	}
+
   static get configs(){
 		let configs = GridPathfinder.configs;
 		configs.push(
