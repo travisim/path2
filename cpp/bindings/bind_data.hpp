@@ -156,6 +156,8 @@ void bindFreeStores(BindType myType){
     
     emscripten::register_vector<StoredVertex<coordInt_t>>("vectorStoredVertexInt");
     emscripten::register_vector<StoredEdge<coordInt_t>>("vectorStoredEdgeInt");
+    
+    emscripten::register_vector<StoredVertex<coordDouble_t>>("vertexStoreNewInt");
 
     emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordInt_t>>>("vertexStoreInt");
     emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordInt_t>>>("edgeStoreInt");
@@ -179,7 +181,8 @@ void bindFreeStores(BindType myType){
 
     emscripten::register_vector<StoredVertex<coordDouble_t>>("vectorStoredVertexDouble");
     emscripten::register_vector<StoredEdge<coordDouble_t>>("vectorStoredEdgeDouble");
-    
+   
+    emscripten::register_vector<StoredVertex<coordDouble_t>>("vertexStoreNewDouble");
     emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordDouble_t>>>("vertexStoreDouble");
     emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordDouble_t>>>("edgeStoreDouble"); 
   }

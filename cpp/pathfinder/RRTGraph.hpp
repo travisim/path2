@@ -356,12 +356,7 @@ void  rewireTree( std::vector<MapNode<Coord_t>>& mapNodes,int& currentNode_Index
     mapNodes[0].gCost = 0;
     mapNodes[0].parent = 9999999;
     auto offsetCoord = [&](Coord_t coord){ return std::pair<double, double>{coord.first + OFFSET, coord.second + OFFSET}; };
-    createAction(DrawVertex, CanvasNeighbors, std::pair<double, double>(1,1)); 
-    saveStep(true);
-    createAction(DrawVertex, CanvasNetworkGraph, std::pair<double, double>(1,1)); 
-    saveStep(true);
-    createAction(DrawVertex, CanvasNeighbors, std::pair<double, double>(1,1)); 
-    saveStep(true);
+
     
     createAction(DrawVertex, CanvasNetworkGraph, Coord_t(startX,startY));
     createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 1);
