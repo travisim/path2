@@ -389,7 +389,7 @@ void  rewireTree( std::vector<MapNode<Coord_t>>& mapNodes,int& currentNode_Index
         createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 4);
         createAction(DrawEdge, CanvasIntermediaryMapExpansion, mapNodes[nearestNode_Index].valueXY, -1, -1, -1, 0, {}, -1, randomCoord_XY); 
         saveStep(true);
-        Coord_t nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(randomCoord_XY,mapNodes[nearestNode_Index].valueXY,pointsXawayFromSource);
+        Coord_t nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(mapNodes[nearestNode_Index].valueXY,randomCoord_XY,pointsXawayFromSource);
        // std::cout <<"1 "<<randomCoord_XY.first<<","<<randomCoord_XY.second<<" "<<nextCoordToAdd_XY.first<<","<<nextCoordToAdd_XY.second<<std::endl;
         createAction(DrawVertex, CanvasIntermediaryMapExpansion, nextCoordToAdd_XY); 
         createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 5);
