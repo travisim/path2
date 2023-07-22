@@ -385,6 +385,7 @@ struct StoredVertex{
   Coord_t nodeCoord;
   int8_t colorIndex;
   double radius;
+  int dest;
 };
 
 template <typename Coord_t>

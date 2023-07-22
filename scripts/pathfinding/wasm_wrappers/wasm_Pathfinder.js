@@ -44,16 +44,22 @@ class wasm_Pathfinder extends Pathfinder{
     }
 
     // draw vertices and edges from vertex and edge stores
-    let obj = map_to_obj(this.wasmPlanner.vertexStore);
-    for(const [dest, vertices] of Object.entries(obj)){
-      for (const vertex of vec_to_arr(vertices)) {
+    // let obj = map_to_obj(this.wasmPlanner.vertexStore);
+    
+    // for(const [dest, vertices] of Object.entries(obj)){
+    //   for (const vertex of vec_to_arr(vertices)) {
         
-        myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[dest], false, vertex.colorIndex, vertex.radius);
+    //     myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[dest], false, vertex.colorIndex, vertex.radius);
+    //   }
+    // }
+
+      for (const vertex of vec_to_arr(this.wasmPlanner.vertexStoreNew)) {
+        myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[vertex.dest], false, vertex.colorIndex, vertex.radius);
       }
-    }
+    
 
     console.log("WASM EDGESTORE:", this.wasmPlanner.edgeStore);
-    obj = map_to_obj(this.wasmPlanner.edgeStore);
+    let obj = map_to_obj(this.wasmPlanner.edgeStore);
     for(const [dest, edges] of Object.entries(obj)){
       for(const edge of vec_to_arr(edges)){
         myUI.edgeCanvas.drawLine([edge.nodeCoord.x, edge.nodeCoord.y], [edge.endCoord.x, edge.endCoord.y], this.destsToId[dest], false, edge.colorIndex, edge.lineWidth);

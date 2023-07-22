@@ -43,8 +43,9 @@ namespace pathfinder
 
     std::unordered_map<int, std::deque<VertexSim<Coord_t>>> vertices;
     std::unordered_map<int, std::deque<EdgeSim<Coord_t>>> edges;
-    std::map<int, std::vector<StoredVertex<Coord_t>>> vertexStore;
+    std::unordered_map<int, std::vector<StoredVertex<Coord_t>>> vertexStore;
     std::unordered_map<int, std::vector<StoredEdge<Coord_t>>> edgeStore;
+    std::vector<StoredVertex<Coord_t>> vertexStoreNew;
    
     // std::vector<std::vector<StoredVertex<Coord_t>>>> vertexStoreNew
     
@@ -192,6 +193,8 @@ namespace pathfinder
         if(anyVal == -1) anyVal = 1;
         vertices[dest].push_back({nodeCoord, colorIndex, anyVal, arrowIndex});
         vertexStore[dest].push_back({nodeCoord, colorIndex, anyVal});
+        vertexStoreNew.push_back({nodeCoord, colorIndex, anyVal,dest});
+        
         nodeCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
       }
       else if(command == EraseVertex){
@@ -211,6 +214,8 @@ namespace pathfinder
         int arrowindex = vertexStore[dest].size();  // simulates myUI.nodeCanvas
         vertices[dest].push_back({nodeCoord, colorIndex, anyVal, arrowIndex});
         vertexStore[dest].push_back({nodeCoord, colorIndex, anyVal});
+        vertexStoreNew.push_back({nodeCoord, colorIndex, anyVal,dest});
+        
         nodeCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
       }
       

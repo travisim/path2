@@ -143,6 +143,7 @@ void bindFreeStores(BindType myType){
       .property("nodeCoord", &StoredVertex<coordInt_t>::nodeCoord)
       .property("colorIndex", &StoredVertex<coordInt_t>::colorIndex)
       .property("radius", &StoredVertex<coordInt_t>::radius)
+      .property("dest", &StoredVertex<coordInt_t>::dest)
       ;
     
     emscripten::class_<StoredEdge<coordInt_t>>("StoredEdgeInt")
@@ -165,6 +166,7 @@ void bindFreeStores(BindType myType){
       .property("nodeCoord", &StoredVertex<coordDouble_t>::nodeCoord)
       .property("colorIndex", &StoredVertex<coordDouble_t>::colorIndex)
       .property("radius", &StoredVertex<coordDouble_t>::radius)
+      .property("dest", &StoredVertex<coordDouble_t>::dest)
       ;
     
     emscripten::class_<StoredEdge<coordDouble_t>>("StoredEdgeDouble")

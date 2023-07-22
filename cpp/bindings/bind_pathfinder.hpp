@@ -16,6 +16,8 @@ void bindPathfinder(BindType myType){
       .property("stepIndex", &Pathfinder<Action<coordInt_t>>::stepIndex)
       .property("arrowCoords", &Pathfinder<Action<coordInt_t>>::arrowCoords)
       .property("vertexStore", &Pathfinder<Action<coordInt_t>>::vertexStore)
+      .property("vertexStoreNew", &Pathfinder<Action<coordInt_t>>::vertexStoreNew)
+      
       .property("edgeStore", &Pathfinder<Action<coordInt_t>>::edgeStore)
       .function("maxStep", &Pathfinder<Action<coordInt_t>>::maxStep)
     
@@ -32,6 +34,8 @@ void bindPathfinder(BindType myType){
       .property("stepIndex", &Pathfinder<BaseAction<coordInt_t>>::stepIndex)
       .property("arrowCoords", &Pathfinder<BaseAction<coordInt_t>>::arrowCoords)
       .property("vertexStore", &Pathfinder<BaseAction<coordInt_t>>::vertexStore)
+      .property("vertexStoreNew", &Pathfinder<BaseAction<coordInt_t>>::vertexStoreNew)
+     
       .property("edgeStore", &Pathfinder<BaseAction<coordInt_t>>::edgeStore)
       .function("maxStep", &Pathfinder<BaseAction<coordInt_t>>::maxStep)
     
