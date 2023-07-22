@@ -214,7 +214,7 @@ l        }
     this.rand = mulberry32(seed[0]);
     this.choosenCoordsNodes = [];
     var edgeAccumalator = [];
-    this.choosenCoordsNodes.push(new MapNode(null,start,[],null,null,0));//last 2 parameters are  additionalCoord, additionalEdge) 
+    this.choosenCoordsNodes.push(new MapNode(null,start,[],null,null,0));//last 2 parameters are  additionalCoord, additionalEdge)
     
    // myUI.nodeCanvas.drawCircle(start);
    
@@ -223,6 +223,16 @@ l        }
     // this._create_action({ command: STATIC.CreateStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "Path Distance" });
     // this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "NumberOfNodes", value: "0" });
     // this._create_action({ command: STATIC.EditStaticRow, dest: this.dests.ITStatistics, id: "PathDistance", value: "∞" });
+    this._create_action({ command: STATIC.DrawVertex, dest: this.dests.neighbors, nodeCoord: [1,1] }); 
+    this._save_step(true);
+    this._create_action({ command: STATIC.DrawVertex, dest: this.dests.networkGraph, nodeCoord: [1, 1] });
+    this._save_step(true);
+    this._create_action({ command: STATIC.DrawVertex, dest: this.dests.neighbors, nodeCoord: [1, 1] }); 
+    this._save_step(true);
+
+    
+
+
 
     this.createStaticRow(this.dests.ITStatistics, "NumberOfNodes", "Number Of Nodes");
     this.createStaticRow(this.dests.ITStatistics, "PathDistance", "Path Distance");

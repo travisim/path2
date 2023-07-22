@@ -356,7 +356,12 @@ void  rewireTree( std::vector<MapNode<Coord_t>>& mapNodes,int& currentNode_Index
     mapNodes[0].gCost = 0;
     mapNodes[0].parent = 9999999;
     auto offsetCoord = [&](Coord_t coord){ return std::pair<double, double>{coord.first + OFFSET, coord.second + OFFSET}; };
-
+    createAction(DrawVertex, CanvasNeighbors, std::pair<double, double>(1,1)); 
+    saveStep(true);
+    createAction(DrawVertex, CanvasNetworkGraph, std::pair<double, double>(1,1)); 
+    saveStep(true);
+    createAction(DrawVertex, CanvasNeighbors, std::pair<double, double>(1,1)); 
+    saveStep(true);
     
     createAction(DrawVertex, CanvasNetworkGraph, Coord_t(startX,startY));
     createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 1);
@@ -403,12 +408,7 @@ void  rewireTree( std::vector<MapNode<Coord_t>>& mapNodes,int& currentNode_Index
           createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 7);
           saveStep(true);
           
-          // createAction(DrawVertex, CanvasNeighbors, std::pair<double, double>(9,9)); 
-          // saveStep(true);
-          // createAction(DrawVertex, CanvasNetworkGraph, std::pair<double, double>(9,9)); 
-          // saveStep(true);
-          // createAction(DrawVertex, CanvasNeighbors, std::pair<double, double>(9,9)); 
-          // saveStep(true);
+         
          
           int selectedParent_Index = determineParentWithLowestCost(nodesNearby_Indexes,nextCoordToAdd_XY,nearestNode_Index,mapNodes,grid, diagonalAllow,OFFSET);
         

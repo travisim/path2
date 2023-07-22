@@ -5,6 +5,51 @@ class predefinedMaps{
 // document.getElementById(map_config).append
     
   }
+  static chevrons(width, height) {
+      // Initialize the 2D array with all black pixels
+      const grid = Array.from({ length: height }, () =>
+          Array.from({ length: width }, () => ".")
+      );
+
+      // Calculate the thickness of the lines (rounded up)
+      const thickness = Math.ceil(height * 0.06)-1;
+
+      var numberChevrons = 3;
+      var offsetPercentage = 0.19;
+      var p1 = [0.1, 0.1];
+      var p2 = [0.1, 0.5];
+      var p3 = [0.5, 0.1];
+      for (let i = 0; i < numberChevrons; i++) {
+      
+          // Draw the first line from top-left to top-right
+          for (let x = Math.floor(width * p1[1]); x <= Math.floor(width * p2[1]); x++) {
+              for (let y = Math.floor(height * p1[0])+thickness; y >= Math.floor(height * p2[0]); y--) {
+                  if (y >= 0 && y < height) {
+                      grid[y][x] = "@";
+                  }
+              }
+          }
+
+          // Draw the second line from bottom-left to top-left
+          for (let x = Math.floor(width * p3[1])+thickness; x >= Math.floor(width * p1[1]) ; x--) {
+              for (let y = Math.floor(height * p3[0]+thickness); y >= Math.floor(height * p1[0]); y--) {
+                  if (x >= 0 && x < width && y >= 0 && y < height) {
+                      grid[y][x] = "@";
+                  }
+              }
+          }
+
+          p1[0] += offsetPercentage;
+          p1[1] += offsetPercentage;
+          p2[0] += offsetPercentage;
+          p2[1] += offsetPercentage;
+          p3[0] += offsetPercentage;
+          p3[1] += offsetPercentage;
+      }
+
+      // Return the generated 2D array
+      return grid;
+  }
    static empty(width, height) {
       
         // Create a 2D array of black pixels
@@ -213,51 +258,6 @@ class predefinedMaps{
     }
 
    
-    static chevrons(width, height) {
-        // Initialize the 2D array with all black pixels
-        const grid = Array.from({ length: height }, () =>
-            Array.from({ length: width }, () => ".")
-        );
-
-        // Calculate the thickness of the lines (rounded up)
-        const thickness = Math.ceil(height * 0.06)-1;
-
-        var numberChevrons = 3;
-        var offsetPercentage = 0.19;
-        var p1 = [0.1, 0.1];
-        var p2 = [0.1, 0.5];
-        var p3 = [0.5, 0.1];
-        for (let i = 0; i < numberChevrons; i++) {
-        
-            // Draw the first line from top-left to top-right
-            for (let x = Math.floor(width * p1[1]); x <= Math.floor(width * p2[1]); x++) {
-                for (let y = Math.floor(height * p1[0])+thickness; y >= Math.floor(height * p2[0]); y--) {
-                    if (y >= 0 && y < height) {
-                        grid[y][x] = "@";
-                    }
-                }
-            }
-
-            // Draw the second line from bottom-left to top-left
-            for (let x = Math.floor(width * p3[1])+thickness; x >= Math.floor(width * p1[1]) ; x--) {
-                for (let y = Math.floor(height * p3[0]+thickness); y >= Math.floor(height * p1[0]); y--) {
-                    if (x >= 0 && x < width && y >= 0 && y < height) {
-                        grid[y][x] = "@";
-                    }
-                }
-            }
-
-            p1[0] += offsetPercentage;
-            p1[1] += offsetPercentage;
-            p2[0] += offsetPercentage;
-            p2[1] += offsetPercentage;
-            p3[0] += offsetPercentage;
-            p3[1] += offsetPercentage;
-        }
-
-        // Return the generated 2D array
-        return grid;
-    }
  
 
 

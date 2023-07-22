@@ -31,12 +31,18 @@ EMSCRIPTEN_BINDINGS(myModule) {
   bindPRMGraph();
 
   // misc
-  emscripten::class_<coordInt_t>("coordInt_t")
+  emscripten::class_<coordInt_t>("pairInt")
     .constructor<>()
     .property("x", &coordInt_t::first)
     .property("y", &coordInt_t::second)
     ;
-
+  // emscripten::class_<coordDouble_t>("pairDouble")
+  //     .constructor<>()
+  //     .property("x", &coordDouble_t::first)
+  //     .property("y", &coordDouble_t::second)
+  //     .property("min", &coordDouble_t::first)
+  //     .property("max", &coordDouble_t::second)
+  //     ;
   /* conflicts with bound_t */
   // emscripten::class_<coordDouble_t>("coordDouble_t")
   //   .constructor<>()

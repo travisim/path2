@@ -43,8 +43,11 @@ namespace pathfinder
 
     std::unordered_map<int, std::deque<VertexSim<Coord_t>>> vertices;
     std::unordered_map<int, std::deque<EdgeSim<Coord_t>>> edges;
-    std::unordered_map<int, std::vector<StoredVertex<Coord_t>>> vertexStore;
+    std::map<int, std::vector<StoredVertex<Coord_t>>> vertexStore;
     std::unordered_map<int, std::vector<StoredEdge<Coord_t>>> edgeStore;
+   
+    // std::vector<std::vector<StoredVertex<Coord_t>>>> vertexStoreNew
+    
     int maxLines = 500;
 
     Coord_t start, goal, currentNodeXY;
