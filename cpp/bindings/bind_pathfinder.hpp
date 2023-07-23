@@ -16,7 +16,7 @@ void bindPathfinder(BindType myType){
       .property("stepIndex", &Pathfinder<Action<coordInt_t>>::stepIndex)
       .property("arrowCoords", &Pathfinder<Action<coordInt_t>>::arrowCoords)
       .property("vertexStore", &Pathfinder<Action<coordInt_t>>::vertexStore)
-      .property("vertexStoreNew", &Pathfinder<Action<coordInt_t>>::vertexStoreNew)  // TO CHECK
+      // .property("vertexStoreNew", &Pathfinder<Action<coordInt_t>>::vertexStoreNew)  // TO CHECK
       .property("edgeStore", &Pathfinder<Action<coordInt_t>>::edgeStore)
       .function("maxStep", &Pathfinder<Action<coordInt_t>>::maxStep)
     
@@ -33,7 +33,7 @@ void bindPathfinder(BindType myType){
       .property("stepIndex", &Pathfinder<BaseAction<coordInt_t>>::stepIndex)
       .property("arrowCoords", &Pathfinder<BaseAction<coordInt_t>>::arrowCoords)
       .property("vertexStore", &Pathfinder<BaseAction<coordInt_t>>::vertexStore)
-      .property("vertexStoreNew", &Pathfinder<BaseAction<coordInt_t>>::vertexStoreNew)  //  TO CHECK
+      // .property("vertexStoreNew", &Pathfinder<BaseAction<coordInt_t>>::vertexStoreNew)  //  TO CHECK
       .property("edgeStore", &Pathfinder<BaseAction<coordInt_t>>::edgeStore)
       .function("maxStep", &Pathfinder<BaseAction<coordInt_t>>::maxStep)
     
@@ -51,7 +51,7 @@ void bindPathfinder(BindType myType){
       .property("stepIndex", &Pathfinder<Action<coordDouble_t>>::stepIndex)
       .property("arrowCoords", &Pathfinder<Action<coordDouble_t>>::arrowCoords)
       .property("vertexStore", &Pathfinder<Action<coordDouble_t>>::vertexStore)
-      .property("vertexStoreNew", &Pathfinder<Action<coordDouble_t>>::vertexStoreNew)  // TO CHECK
+      // .property("vertexStoreNew", &Pathfinder<Action<coordDouble_t>>::vertexStoreNew)  // TO CHECK
       .property("edgeStore", &Pathfinder<Action<coordDouble_t>>::edgeStore)
       .function("maxStep", &Pathfinder<Action<coordDouble_t>>::maxStep)
 
@@ -68,7 +68,7 @@ void bindPathfinder(BindType myType){
       .property("stepIndex", &Pathfinder<BaseAction<coordDouble_t>>::stepIndex)
       .property("arrowCoords", &Pathfinder<BaseAction<coordDouble_t>>::arrowCoords)
       .property("vertexStore", &Pathfinder<BaseAction<coordDouble_t>>::vertexStore)
-      .property("vertexStoreNew", &Pathfinder<BaseAction<coordDouble_t>>::vertexStoreNew)  //  TO CHECK
+      // .property("vertexStoreNew", &Pathfinder<BaseAction<coordDouble_t>>::vertexStoreNew)  //  TO CHECK
       .property("edgeStore", &Pathfinder<BaseAction<coordDouble_t>>::edgeStore)
       .function("maxStep", &Pathfinder<BaseAction<coordDouble_t>>::maxStep)
     
