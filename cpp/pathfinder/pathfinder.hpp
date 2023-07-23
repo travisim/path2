@@ -45,7 +45,7 @@ namespace pathfinder
     std::unordered_map<int, std::deque<EdgeSim<Coord_t>>> edges;
     std::unordered_map<int, std::vector<StoredVertex<Coord_t>>> vertexStore;
     std::unordered_map<int, std::vector<StoredEdge<Coord_t>>> edgeStore;
-    std::vector<StoredVertex<Coord_t>> vertexStoreNew;
+    // std::vector<StoredVertex<Coord_t>> vertexStoreNew;
    
     // std::vector<std::vector<StoredVertex<Coord_t>>>> vertexStoreNew
     
@@ -94,12 +94,14 @@ namespace pathfinder
 
     Action_t packAction(const Command &command, int dest = -1, Coord_t nodeCoord = {-1, -1}, int colorIndex = -1, int arrowIndex = -1, int pseudoCodeRow = -1, int infoTableRowIndex = 0, std::vector<std::string> infoTableRowData = std::vector<std::string>(0), double anyVal = -1, Coord_t endCoord = {-1, -1})
     {
+      // properties available in both Action and BaseAction
       Action_t ret;
       ret.command = command;
       ret.dest = (Dest)dest;
       ret.nodeCoord = nodeCoord;
       ret.arrowIndex = arrowIndex;
       ret.anyVal = anyVal;
+      // properties available only in Action
       if constexpr(std::is_same<Action_t, Action<Coord_t>>::value){
         ret.colorIndex = colorIndex;
         ret.pseudoCodeRow = pseudoCodeRow;
@@ -193,7 +195,7 @@ namespace pathfinder
         if(anyVal == -1) anyVal = 1;
         vertices[dest].push_back({nodeCoord, colorIndex, anyVal, arrowIndex});
         vertexStore[dest].push_back({nodeCoord, colorIndex, anyVal});
-        vertexStoreNew.push_back({nodeCoord, colorIndex, anyVal,dest});
+        // vertexStoreNew.push_back({nodeCoord, colorIndex, anyVal,dest});
         
         nodeCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
       }
@@ -211,10 +213,10 @@ namespace pathfinder
       }
       else if(command == DrawSingleVertex){
         vertices[dest].clear();
-        int arrowindex = vertexStore[dest].size();  // simulates myUI.nodeCanvas
+        int arrowIndex = vertexStore[dest].size();  // simulates myUI.nodeCanvas
         vertices[dest].push_back({nodeCoord, colorIndex, anyVal, arrowIndex});
         vertexStore[dest].push_back({nodeCoord, colorIndex, anyVal});
-        vertexStoreNew.push_back({nodeCoord, colorIndex, anyVal,dest});
+        // vertexStoreNew.push_back({nodeCoord, colorIndex, anyVal,dest});
         
         nodeCoord = {-1, -1}; colorIndex = -1; anyVal = -1;
       }

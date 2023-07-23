@@ -16,6 +16,7 @@ int main() { return 0; }
 
 EMSCRIPTEN_BINDINGS(myModule) {
 
+  // GENERIC INTEGER BINDS
   bindAction(BindType::int_coord);
   bindStep(BindType::int_coord);
   bindState(BindType::int_coord);
@@ -23,7 +24,20 @@ EMSCRIPTEN_BINDINGS(myModule) {
   bindMapNode(BindType::int_coord, true);
   bindMapEdge(BindType::int_coord, true);
   bindPathfinder(BindType::int_coord);
-  bindGridPathfinder(BindType::int_coord);
+  bindGridPathfinder(BindType::int_coord);  // a grid-based pathfinder only makes sense with integer coordinates
+
+  // GENERIC DOUBLE BINDINGS
+  bindAction(BindType::double_coord);
+  bindStep(BindType::double_coord);
+  bindState(BindType::double_coord);
+  bindFreeStores(BindType::double_coord);
+  bindMapNode(BindType::double_coord, true);
+  bindMapEdge(BindType::double_coord, true);
+  bindPathfinder(BindType::double_coord);
+
+  // GENERIC BINDINGS
+  bindStateProperties();  // required if you want to use the State class
+
   bindAStar();
   bindThetaStar();
   bindVisibilityGraph();
@@ -31,39 +45,27 @@ EMSCRIPTEN_BINDINGS(myModule) {
   bindPRMGraph();
 
   // misc
-  emscripten::class_<coordInt_t>("pairInt")
+  emscripten::class_<coordInt_t>("pairInt")  // used for integer coordinates
     .constructor<>()
     .property("x", &coordInt_t::first)
     .property("y", &coordInt_t::second)
     ;
-  // emscripten::class_<coordDouble_t>("pairDouble")
-  //     .constructor<>()
-  //     .property("x", &coordDouble_t::first)
-  //     .property("y", &coordDouble_t::second)
-  //     .property("min", &coordDouble_t::first)
-  //     .property("max", &coordDouble_t::second)
-  //     ;
-  /* conflicts with bound_t */
-  // emscripten::class_<coordDouble_t>("coordDouble_t")
-  //   .constructor<>()
-  //   .property("x", &coordDouble_t::first)
-  //   .property("y", &coordDouble_t::second)
-  //   ;
+  
+  emscripten::class_<coordDouble_t>("pairDouble")  // used for double coordinates and bounds
+    .constructor<>()
+    .property("x", &coordDouble_t::first)
+    .property("y", &coordDouble_t::second)
+    .property("min", &coordDouble_t::first)  //  double alias for bounds
+    .property("max", &coordDouble_t::second)
+    ;
 
   // bounds
   emscripten_extensions::register_unordered_map<int, bound_t>("bounds");
-  emscripten::class_<bound_t>("bound_t")
-    .constructor<>()
-    .property("min", &bound_t::first)
-    .property("max", &bound_t::second)
-    ;
     
   emscripten::register_vector<int>("vectorInt");
   emscripten::register_vector<std::vector<int>>("vectorVectorInt");
   emscripten::register_vector<std::string>("vectorString");
   emscripten::register_vector<std::vector<std::string>>("vectorVectorString");
   emscripten::register_vector<double>("vectorDouble");
-
-  // bind vector of mapnodes
 
 }

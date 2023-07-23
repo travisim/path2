@@ -84,16 +84,16 @@ void bindStep(BindType myType){
       ;
   }
   else if(myType == BindType::double_coord){
-    emscripten::register_vector<pathfinder::Action<coordDouble_t>>("vectorActionInt");
-    emscripten::class_<pathfinder::Step<pathfinder::Action<coordDouble_t>>>("StepInt")
+    emscripten::register_vector<pathfinder::Action<coordDouble_t>>("vectorActionDouble");
+    emscripten::class_<pathfinder::Step<pathfinder::Action<coordDouble_t>>>("StepDouble")
       .constructor<>()
       .property("fwdActions", &pathfinder::Step<pathfinder::Action<coordDouble_t>>::fwdActions)
       .property("revActions", &pathfinder::Step<pathfinder::Action<coordDouble_t>>::revActions)
       .property("combined", &pathfinder::Step<pathfinder::Action<coordDouble_t>>::combined)
       ;
 
-    emscripten::register_vector<pathfinder::BaseAction<coordDouble_t>>("vectorBaseActionInt");
-    emscripten::class_<pathfinder::Step<pathfinder::BaseAction<coordDouble_t>>>("BaseStepInt")
+    emscripten::register_vector<pathfinder::BaseAction<coordDouble_t>>("vectorBaseActionDouble");
+    emscripten::class_<pathfinder::Step<pathfinder::BaseAction<coordDouble_t>>>("BaseStepDouble")
       .constructor<>()
       .property("fwdActions", &pathfinder::Step<pathfinder::BaseAction<coordDouble_t>>::fwdActions)
       .property("revActions", &pathfinder::Step<pathfinder::BaseAction<coordDouble_t>>::revActions)
@@ -105,7 +105,7 @@ void bindStep(BindType myType){
 void bindState(BindType myType){
   
   if(myType == BindType::int_coord){
-    emscripten::class_<pathfinder::State<coordInt_t>>("State")
+    emscripten::class_<pathfinder::State<coordInt_t>>("StateInt")
       .constructor<>()
       .property("valid", &pathfinder::State<coordInt_t>::valid)
       .property("canvases", &pathfinder::State<coordInt_t>::canvases)
@@ -118,9 +118,21 @@ void bindState(BindType myType){
       ;
   }
   else if(myType == BindType::double_coord){
-    // TO DO
+    emscripten::class_<pathfinder::State<coordDouble_t>>("StateDouble")
+      .constructor<>()
+      .property("valid", &pathfinder::State<coordDouble_t>::valid)
+      .property("canvases", &pathfinder::State<coordDouble_t>::canvases)
+      .property("infotables", &pathfinder::State<coordDouble_t>::infotables)
+      .property("vertices", &pathfinder::State<coordDouble_t>::vertices)
+      .property("edges", &pathfinder::State<coordDouble_t>::edges)
+      .property("arrowColor", &pathfinder::State<coordDouble_t>::arrowColor)
+      .property("pseudoCodeRowPri", &pathfinder::State<coordDouble_t>::pseudoCodeRowPri)
+      .property("pseudoCodeRowSec", &pathfinder::State<coordDouble_t>::pseudoCodeRowSec)
+      ;
   }
+}
 
+void bindStateProperties(){
   /* STATE PROPERTIES BINDINGS */
   emscripten_extensions::register_unordered_map<int, rowf_t>("canvases");
   emscripten_extensions::register_unordered_map<int, InfoTableState>("infotables");
@@ -157,7 +169,7 @@ void bindFreeStores(BindType myType){
     emscripten::register_vector<StoredVertex<coordInt_t>>("vectorStoredVertexInt");
     emscripten::register_vector<StoredEdge<coordInt_t>>("vectorStoredEdgeInt");
     
-    emscripten::register_vector<StoredVertex<coordDouble_t>>("vertexStoreNewInt");
+    // emscripten::register_vector<StoredVertex<coordDouble_t>>("vertexStoreNewInt");  // TO CHECK
 
     emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordInt_t>>>("vertexStoreInt");
     emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordInt_t>>>("edgeStoreInt");
@@ -182,7 +194,7 @@ void bindFreeStores(BindType myType){
     emscripten::register_vector<StoredVertex<coordDouble_t>>("vectorStoredVertexDouble");
     emscripten::register_vector<StoredEdge<coordDouble_t>>("vectorStoredEdgeDouble");
    
-    emscripten::register_vector<StoredVertex<coordDouble_t>>("vertexStoreNewDouble");
+    // emscripten::register_vector<StoredVertex<coordDouble_t>>("vertexStoreNewDouble"); // TO CHECK
     emscripten_extensions::register_unordered_map<int, std::vector<StoredVertex<coordDouble_t>>>("vertexStoreDouble");
     emscripten_extensions::register_unordered_map<int, std::vector<StoredEdge<coordDouble_t>>>("edgeStoreDouble"); 
   }

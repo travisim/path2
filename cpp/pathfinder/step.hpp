@@ -50,8 +50,8 @@ namespace pathfinder
         int infoTableRowIndex = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowIndex = fwd.infoTableRowIndex;
         std::vector<std::string> infoTableRowData; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) infoTableRowData = fwd.infoTableRowData;
         double anyVal = fwd.anyVal;
-        int endX = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX = fwd.endCoord.first;
-        int endY = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY = fwd.endCoord.second;
+        // int endX = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endX = fwd.endCoord.first;
+        // int endY = -1; if constexpr(std::is_same<Action_t, Action<Coord_t>>::value) endY = fwd.endCoord.second;
 
         // std::cout << command << std::endl;
         
