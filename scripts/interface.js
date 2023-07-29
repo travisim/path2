@@ -74,7 +74,9 @@ myUI.initialize = function(){
   myUI.map_width = myUI.canvases.bg.canvas.width;
 
   myUI.nodeCanvas = new SVGCanvas("node_SVG", 18);
-  myUI.edgeCanvas = new SVGCanvas("edge_SVG", 19);
+  
+  
+  myUI.edgeCanvas = new SVGCanvas("edge_SVG", 20);
 
  //initialise info
   

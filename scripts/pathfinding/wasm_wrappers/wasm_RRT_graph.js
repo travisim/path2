@@ -47,12 +47,12 @@ class wasm_RRT_graph extends wasm_Pathfinder{
       {uid: "generate_RRT_graph", displayName: "Generate RRT Graph", options: "button", description: `Generates the RRT graph without searching.` },
       {uid: "seed", displayName: "Seed:", options: "text", defaultVal: "1234", description: `Sets seed for randomness of random points`},
       {uid: "sample_size", displayName: "Sample Size:", options: "number", defaultVal: 30, description: `Sets number of random points`},
-      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Top Closest Neighbours","Closest Neighbours By Radius"/* "Top Closest Visible Neighbours"*/ ],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
+      {uid: "neighbour_selection_method", displayName: "Neighbour Selection Method", options: ["Closest Neighbours By Radius","Top Closest Neighbours"/* "Top Closest Visible Neighbours"*/ ],defaultVal:"Top Closest Neighbours", description: `Sets neighbours selection method`},
       {uid: "number_of_closest_neighbours", displayName: "Number of Closest Neighbours", options: "number",defaultVal:6, description: `Sets number of closest neighbours to select`},
       {uid: "closest_neighbours_by_radius", displayName: "Closest Neighbours By Radius", options: "number",defaultVal:5, description: `Sets radius of closest neighbours to select`},
       {uid: "max_distance_between_nodes", displayName: "Max Distance Between Nodes", options: "number",defaultVal:5, description: `Sets maximum distance between 2 nodes`},
-      { uid: "goal_radius", displayName: "Goal Radius", options: "number", defaultVal: 3, description: `Sets radius of goal` },
-      { uid: "download_RRT_data", displayName: "Download RRT Data", options: "button", description: `Download the generated RRT data` },
+      {uid: "goal_radius", displayName: "Goal Radius", options: "number", defaultVal: 3, description: `Sets radius of goal` },
+      {uid: "download_RRT_data", displayName: "Download RRT Data", options: "button", description: `Download the generated RRT data` },
       {uid: "mapType", displayName: "Map Type:", options: [ "Grid Vertex","Grid Cell"], description: `Grid Cell is the default cell-based expansion. Grid Vertex uses the vertices of the grid. There is no diagonal blocking in grid vertex`},
       {uid: "distance_metric", displayName: "Distance Metric:", options: ["Euclidean"], description: `The metrics used for calculating distances.<br>Euclidean takes the L2-norm between two cells, which is the real-world distance between two points. This is commonly used for any angle paths.`},
       {uid: "g_weight", displayName: "G-Weight:", options: "number", defaultVal: 1, description: `Coefficient of G-cost when calculating the F-cost. Setting G to 0 and H to positive changes this to the greedy best first search algorithm.`},
@@ -99,15 +99,15 @@ class wasm_RRT_graph extends wasm_Pathfinder{
         this.showNetworkGraph = value == "On"; break;
       /*cases below here run generateNewMap() after var changes*/
       case "sample_size":
-        this.sampleSize = parseInt(value);
+        this.sampleSize = parseInt(value); break;
       case "seed":
-        this.seed = parseInt(value); // should only input unsigned int
+        this.seed = parseInt(value);break; // should only input unsigned int
       case "neighbour_selection_method":
-        this.neighbourSelectionMethod = value;
+        this.neighbourSelectionMethod = value;break;
       case "number_of_closest_neighbours":
-        this.numberOfTopClosestNeighbours = parseInt(value);
+        this.numberOfTopClosestNeighbours = parseInt(value);break;
       case "closest_neighbours_by_radius":
-        this.connectionDistance = parseInt(value);
+        this.connectionDistance = parseInt(value);break;
       /*cases above here run generateNewMap() after var changes*/
       // if (this.generateNewMap) this.generateNewMap()
       case "goal_radius":

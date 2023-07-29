@@ -46,12 +46,28 @@ class wasm_Pathfinder extends Pathfinder{
     // draw vertices and edges from vertex and edge stores
     let obj = map_to_obj(this.wasmPlanner.vertexStore);
     
-    for(const [dest, vertices] of Object.entries(obj)){
-      for (const vertex of vec_to_arr(vertices)) {
+    // these 2 for loops allows dest:neighbors to be drawn at the top most layer
+    // easiest way to control layering withour excessive code
+    for (const [dest, vertices] of Object.entries(obj)) {
+      if (this.destsToId[dest] != "neighbors") { 
+        for (const vertex of vec_to_arr(vertices)) {
         
-        myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[dest], false, vertex.colorIndex, vertex.radius);
+          myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[dest], false, vertex.colorIndex, vertex.radius);
+        }
+        
       }
+      
     }
+    for(const [dest, vertices] of Object.entries(obj)){
+      if (this.destsToId[dest] == "neighbors") {
+        for (const vertex of vec_to_arr(vertices)) {
+          myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[dest], false, vertex.colorIndex, vertex.radius);
+        }
+        break;
+      }
+      
+    }
+   
 
       // for (const vertex of vec_to_arr(this.wasmPlanner.vertexStoreNew)) {
       //   myUI.nodeCanvas.drawCircle([vertex.nodeCoord.x, vertex.nodeCoord.y], this.destsToId[vertex.dest], false, vertex.colorIndex, vertex.radius);

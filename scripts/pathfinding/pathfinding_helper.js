@@ -655,7 +655,7 @@ class SVGCanvas {
     var [y1, x1] = start_XY.map(t => t * this.displayRatio);
     var [y2, x2] = end_XY.map(t => t * this.displayRatio);
     var strokeWidth = myUI.canvases[destId] ? Math.max(myUI.canvases[destId].lineWidth/20*this.displayRatio, 1) : 1;
-    var line_id = id?id:`SVGLine_${destId}_${this.lines[destId].length}`;
+    var line_id = id?id:`SVGLine_${destId}_${this.lines[destId].length}`; //id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`
     var line_class = `SVGline_${destId} hidden`;
     var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";
     var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:strokeWidth, class:line_class, stroke: color});

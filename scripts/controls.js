@@ -107,6 +107,8 @@ myUI.reset_animation_callback = function(e){
 
 myUI.resetMapAnimations = (clear_data = false) => {
 	myUI.nodeCanvas.reset(clear_data);
+	
+	
 	myUI.edgeCanvas.reset(clear_data);
 }
 

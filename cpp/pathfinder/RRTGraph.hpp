@@ -312,8 +312,14 @@ void  rewireTree( std::vector<MapNode<Coord_t>>& mapNodes,int& currentNode_Index
 //          this._create_action({command: STATIC.DrawEdge, dest: this.dests.networkGraph, nodeCoord: mapNodes[currentNode_Index].valueXY, endCoord: mapNodes[nodeNearby_index].valueXY, colorIndex:1});
 //          this._create_action({command: STATIC.HighlightPseudoCodeRowPri, dest: this.dests.pseudocode, pseudoCodeRow: 10});
 //          this._save_step(true);
-        createAction(EraseEdge, CanvasNetworkGraph, mapNodes[formerParentOfNearbyNode_index].valueXY, -1, -1, -1, 0, {}, -1, mapNodes[nodeNearby_index].valueXY); 
-        createAction(DrawEdge, CanvasNetworkGraph, mapNodes[currentNode_Index].valueXY, 1, -1, -1, 0, {}, -1, mapNodes[nodeNearby_index].valueXY); 
+       
+    
+        // createAction(DrawEdge, CanvasNetworkGraph, Coord_t(5,5), 1, -1, -1, 0, {}, -1, Coord_t(10,10)); 
+
+        // createAction(DrawEdge, CanvasNetworkGraph, mapNodes[currentNode_Index].valueXY, 1, -1, -1, 0, {}, -1, mapNodes[nodeNearby_index].valueXY); 
+        createAction(EraseEdge, CanvasNetworkGraph,Coord_t( mapNodes[formerParentOfNearbyNode_index].valueXY.first,mapNodes[formerParentOfNearbyNode_index].valueXY.second), -1, -1, -1, 0, {}, -1, Coord_t(mapNodes[nodeNearby_index].valueXY.first,mapNodes[nodeNearby_index].valueXY.second)); 
+        // createAction(DrawEdge, CanvasNetworkGraph, Coord_t( mapNodes[currentNode_Index].valueXY.first, mapNodes[currentNode_Index].valueXY.second), -1, -1, -1, 0, {}, -1, Coord_t(mapNodes[nodeNearby_index].valueXY.first,mapNodes[nodeNearby_index].valueXY.second)); 
+        
         createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 10);
         saveStep(true);
 //
@@ -338,7 +344,7 @@ void  rewireTree( std::vector<MapNode<Coord_t>>& mapNodes,int& currentNode_Index
     // int gridWidth;
     // int sampleSize = 30;
     // grid_t grid;
-  
+    int lineindex = 0;
 
     // unsigned int seed = 123;
     // double  pointXawayFromSource = 4;
@@ -383,6 +389,8 @@ void  rewireTree( std::vector<MapNode<Coord_t>>& mapNodes,int& currentNode_Index
         createAction(DrawSingleVertex, CanvasExpanded, mapNodes[nearestNode_Index].valueXY); //expanded
         createAction(HighlightPseudoCodeRowPri, PseudoCode, {-1, -1}, -1, -1, 4);
         createAction(DrawEdge, CanvasIntermediaryMapExpansion, mapNodes[nearestNode_Index].valueXY, -1, -1, -1, 0, {}, -1, randomCoord_XY); 
+        // lineindex++;
+        
         saveStep(true);
         Coord_t nextCoordToAdd_XY = getCoordinatesofPointsXAwayFromSource(mapNodes[nearestNode_Index].valueXY,randomCoord_XY,pointsXawayFromSource);
        // std::cout <<"1 "<<randomCoord_XY.first<<","<<randomCoord_XY.second<<" "<<nextCoordToAdd_XY.first<<","<<nextCoordToAdd_XY.second<<std::endl;
