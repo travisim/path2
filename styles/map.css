@@ -1,22 +1,33 @@
 :root{
 	--canvas-length: 488px;
-  --canvas-offset: calc((var(--canvas-length) - 472px) / 2);
-	--canvas-remaining: calc(550px - var(--canvas-length));
-  --canvas-z-index: 40;
+	--canvas-offset: calc((var(
+	--canvas-length) - 472px) / 2);
+	--canvas-remaining: calc(550px - var(
+	--canvas-length));
+	--canvas-z-index: 40;
 }
 
 
 
 #map-container{
 	flex-grow: 5;
-	min-width:520px;
+	min-width:580px;
+	min-height: 580px;
+	/* left: 500px;
+  top:72px; */
+	/* height: 90%; */
+
+  top:25%;
+	/* aspect-ratio: 1; */
 }
 
 #map{
 	overflow: hidden;
-	position: relative;
+	position: absolute;
 	min-width: 570px;
-	height: 570px;
+	height: 100%;
+  left:0px;
+
 }
 
 #canvas_container{
@@ -142,8 +153,7 @@
 }
 
 #layer-controls{
-	overflow: hidden;
-	height: auto;/*calc(var(--canvas-remaining) + var(--canvas-length));*/
+	/* height: auto; *//*calc(var(--canvas-remaining) + var(--canvas-length));*/
 	flex-grow: 2;
 	width: 176px;
 	right: 0px;
@@ -243,3 +253,24 @@ h1{
 */
 /*end of layers css*/
 
+
+
+#mapArea{
+  color: black;
+  width: 70%;
+  /* left: 504px; */
+  /* position: fixed; */
+  /* top: 146px; */
+  /* left: 521px; */
+  /* height: 90%; */
+  /* position: fixed; */
+  /* height: 80%; */
+  flex: 2;
+  z-index: 1;
+  overflow: hidden;
+  background: black;
+  display: flex;
+  overflow: hidden;
+  justify-content: space-around;
+  align-content: center;
+}

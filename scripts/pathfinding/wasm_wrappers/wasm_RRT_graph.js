@@ -133,7 +133,7 @@ class wasm_RRT_graph extends wasm_Pathfinder{
 			// 	id:"hCost", drawType:"cell", drawOrder: 11, fixedResVal: 1024, valType: "float", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "#013220"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: "H",
 			// },
       {
-				id:"networkGraph", drawType:"cell", drawOrder: 17, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["grey"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null, lineWidth: 1,
+				id:"networkGraph", drawType:"cell", drawOrder: 17, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["white"], toggle: "multi", checked: true, bigMap: true, minVal: 1, maxVal: 1, infoMapBorder: true, infoMapValue: null, lineWidth: 1,
       },
       {
 				id:"intermediaryMapExpansion", drawType:"dotted", drawOrder: 12, fixedResVal: 1024, valType: "integer", defaultVal: Number.POSITIVE_INFINITY, colors:["#0FFF50", "rgb(0, 204, 255)"], toggle: "multi", checked: false, bigMap: true, minVal: null, maxVal: null, infoMapBorder: false, infoMapValue: null, lineWidth: 1,

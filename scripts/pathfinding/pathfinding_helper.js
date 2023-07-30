@@ -657,7 +657,7 @@ class SVGCanvas {
     var strokeWidth = myUI.canvases[destId] ? Math.max(myUI.canvases[destId].lineWidth/20*this.displayRatio, 1) : 1;
     var line_id = id?id:`SVGLine_${destId}_${this.lines[destId].length}`; //id?id:`SVGline_${start_coord.x}_${start_coord.y}_${end_coord.x}_${end_coord.y}_${destId}`
     var line_class = `SVGline_${destId} hidden`;
-    var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";
+    var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "white";
     var line = this.getSvgNode('line', { x1: x1, y1: y1, x2: x2,y2: y2, id:line_id, strokeWidth:strokeWidth, class:line_class, stroke: color});
     if(myUI.canvases[destId].drawType == "svgDotted") line.style.strokeDasharray = 5;
     line.setAttributeNS(null, "stroke-opacity", `${opacity}%`);
@@ -698,7 +698,7 @@ class SVGCanvas {
     var circle_id = id?id:`SVGcircle_${destId}_${this.circles[destId].length}`;
     var circle_class = `SVGcircle_${destId} hidden`;
 
-    var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "grey";
+    var color = myUI.canvases[destId] ? myUI.canvases[destId].colors[colorIndex] : "white";
     var drawType = myUI.canvases[destId] ? myUI.canvases[destId].drawType : "cell";
     var opacity = opacityValue ? opacityValue : "100%";
 

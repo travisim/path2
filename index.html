@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+
+
 <html>
   <!--
 	things to add
@@ -15,8 +17,9 @@
 	- scenario editor
 	-->
   <head>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale = 1.0, user-scalable = no" />
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
+
     <!--
 		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="styles/design.css" />
 		<link rel="stylesheet" media="screen and (min-device-width: 1080px)" href="styles/modal.css" />
@@ -38,215 +41,41 @@
   </head>
 
   <body>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <div id="mySidebar" class="sidebar" onmouseover="toggleSidebar()" onmouseout="toggleSidebar()">
+      <div id="settingsBtn"onclick = toggleDisplayControls()>
+ 
+      <a href="#"><i class="material-icons">settings</i><span class="icon-text"></span>Controls</span></a><br>
+   </div>
+   <div id="layersBtn"onclick = toggleDisplayLayers()>
+
+    <a href="#"><i class="material-icons">menu</i><span class="icon-text"></span>Layers</a></span></a><br>
+      </div>
+     <div id="infoBtn"onclick = toggleDisplayInfo()>
+      <a href="#"><span><i  class="material-icons">info</i><span class="icon-text">Info Panel</span></a><br>
+     </div>
+    </div>
+ 
+
     <div class="hover_popup" id="tooltip_data">
       <div class="flex-row" id="hoverCoord">
         <span id="hover_x">-</span>, <span id="hover_y">-</span>
       </div>
       <br />
     </div>
-    <div id="main-title">
-      Path Planner
-      <button onclick="darkmode()">Light/Dark</button>
-    </div>
+    
     <div id="dark-overlay" style="display: none;"></div>
+
+    <div id="main-title">
+    Path Planner
+    <button onclick="darkmode()">Light/Dark</button>
+  </div>
+              
     <div id="main">
-      <div id="info-container" class="container">
-        <div class="sub-container">
-          <div id="info-pane" class="interface overlay">
-            <!--start of html for info map-->
-            <!--button class="collapsible">Map</button>
-            <div class="content">
-              <div id="infomap" class="grid">
-                <div class="spacer"></div>
-
-                <div class="spacer"></div>
-
-                <div
-                  style="
-                    position: relative;
-                    display: flex;
-                    justify-content: center;
-                  "
-                >
-                  <div style="position: absolute; bottom: -5px" class="NWSE">
-                    -x
-                  </div>
-                </div>
-
-                <div class="spacer"></div>
-
-                <div class="spacer"></div>
-
-                <div class="spacer"></div>
-                <div class="info_neighbors" id="SE"></div>
-                <div class="info_neighbors" id="S"></div>
-                <div class="info_neighbors" id="SW"></div>
-                <div class="spacer"></div>
-
-                <div
-                  style="position: relative; display: flex; align-items: center"
-                >
-                  <div style="position: absolute; right: -5px" class="NWSE">
-                    -y
-                  </div>
-                </div>
-
-                <div class="info_neighbors" id="E"></div>
-
-                <div
-                  style="
-                    position: relative;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                  "
-                >
-                  <div
-                    style="position: absolute"
-                    class="info_currentXY"
-                    id="currentXY"
-                  >
-                    item
-                  </div>
-                </div>
-
-                <div class="info_neighbors" id="W"></div>
-
-                <div
-                  style="position: relative; display: flex; align-items: center"
-                >
-                  <div style="position: absolute; left: -5px" class="NWSE">
-                    +y
-                  </div>
-                </div>
-
-                <div class="spacer"></div>
-                <div class="info_neighbors" id="NE"></div>
-                <div class="info_neighbors" id="N"></div>
-                <div class="info_neighbors" id="NW"></div>
-                <div class="spacer"></div>
-
-                <div class="spacer"></div>
-
-                <div class="spacer"></div>
-
-                <div
-                  style="
-                    position: relative;
-                    display: flex;
-                    justify-content: center;
-                  "
-                >
-                  <div style="position: absolute; top: -5px" class="NWSE">
-                    +x
-                  </div>
-                </div>
-
-                <div class="spacer"></div>
-
-                <div class="spacer"></div>
-              </div>
-            </div-->
-
-            <button class="collapsible">Table</button>
-            <div class="content">
-              <div class="tab"></div>
-              <div id="info-tables-dynamic"></div>
-            </div>
-
-            <button class="collapsible">Pseudo Code</button>
-            <div class="content">
-              <div id="pseudo-code-container">
-                <table id="dynamic-pseudo-code-table"></table>
-              <div id = "pseudoCodeReference" style = "font-size:8px; color: rgba(0, 0, 0, 0.5);"> </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="map-container" class="container">
-        <div class="sub-container">
-          <div class="flex-row">
-            <div class="flex-col empty-outer">
-              <div id="map" class="interface overlay">
-                <div id="canvas_container">
-                  <img
-                    src="assets/map_start.svg"
-                    class="icon draggable unselectable"
-                    id="map_start_icon"
-                    alt="start"
-                  />
-                  <img
-                    src="assets/map_goal.svg"
-                    class="icon draggable unselectable"
-                    id="map_goal_icon"
-                    alt="goal"
-                  />
-                  
-                  <div  style=" top:50px; left:50px; width: 70px;   aspect-ratio: 1 / 1; position: absolute;"id="map_goal_radius"  class=" unselectable ">
-
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      width="100%"
-                      height= "100%"
-                      viewBox="0 0 70 70">
-                      <circle cx="50%" cy="50%" r="7.375" stroke-width="2"fill="grey" opacity="100%"></circle>
-                      <circle cx="50%" cy="50%" r="49%" stroke="red" stroke-width="2" fill="rgba(255, 255, 255, 0)" stroke-dasharray="5,5" d="M5 40 l215 0" class="dotted"/>
-                  
-                    </svg> 
-                  </div>
-                  
-                  <div id="arrow-div" class="map_canvas"></div>
-                </div>
-                <div id="left_axes" class="flex-row">
-                  <div
-                    id="left_axes_markers"
-                    class="flex-col unselectable"
-                  ></div>
-                </div>
-                <div id="top_axes" class="flex-col">
-                  <div
-                    id="top_axes_markers"
-                    class="flex-row unselectable"
-                  ></div>
-                </div>
-              </div>
-              <div class="flex-row">
-                <div class="flex-row unselectable">
-                  <img src="assets/map_start.svg" class="icon" alt="start" />
-                  Map Start
-                </div>
-                <div class="flex-row unselectable">
-                  <img src="assets/map_goal.svg" class="icon" alt="goal" />
-                  Map Goal
-                </div>
-              </div>
-            </div>
-            <div id="layer-controls">
-              <div class="flex-row">
-                <button id="reset_checkboxes" class="btn">
-                  <b>Hide All</b>
-                </button>
-                <button id="select_checkboxes" class="btn">
-                  <b>Select All</b>
-                </button>
-              </div>
-              <div id="canvas_layers"></div>
-              <div id="checkbox_style"></div>
-            </div>
-          </div>
-          <div class="flex-row">
-            <button id="download_map_btn" class="btn">Download Map</button>
-            <button id="download_scen_btn" class="btn">Download Scen</button>
-          </div>
-          <div class="flex-row">
-            <!-- bugs goal, layers, load bar-->
-          </div>
-        </div>
-      </div>
-
-      <div id="controls-container" class="container">
+    <div id= panels>
+      <div id = "box" style="display: flex;min-height: min-content;">
+        <div id="controls-container" class="container">
         <div class="sub-container">
           <div id="controls" class="interface overlay">
             <button class="collapsible">Display Controls</button>
@@ -543,6 +372,10 @@
                     >Select files</label>
                 </form>
               </div>
+              <div class="flex-row">
+                <button id="download_map_btn" class="btn">Download Map</button>
+                <button id="download_scen_btn" class="btn">Download Scen</button>
+              </div>
             </div>
             <div id="manualTab" class="controlTabContent">
               <div class="upload overlay">
@@ -560,16 +393,231 @@
                 </form>
               </div>
             </div>
+      </div>
+      <div id = "layers-container" class="container">
+        <div id="layer-controls">
+          <div class="flex-row">
+            <button id="reset_checkboxes" class="btn">
+              <b>Hide All</b>
+            </button>
+            <button id="select_checkboxes" class="btn">
+              <b>Select All</b>
+            </button>
+          </div>
+          <div id="canvas_layers"></div>
+          <div id="checkbox_style"></div>
+        </div>
+        
+      </div>
+      <div id="info-container" class="container">
+        <div class="sub-container">
+          <div id="info-pane" class="interface overlay">
+            <!--start of html for info map-->
+            <!--button class="collapsible">Map</button>
+            <div class="content">
+              <div id="infomap" class="grid">
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+
+                <div
+                  style="
+                    position: relative;
+                    display: flex;
+                    justify-content: center;
+                  "
+                >
+                  <div style="position: absolute; bottom: -5px" class="NWSE">
+                    -x
+                  </div>
+                </div>
+
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+                <div class="info_neighbors" id="SE"></div>
+                <div class="info_neighbors" id="S"></div>
+                <div class="info_neighbors" id="SW"></div>
+                <div class="spacer"></div>
+
+                <div
+                  style="position: relative; display: flex; align-items: center"
+                >
+                  <div style="position: absolute; right: -5px" class="NWSE">
+                    -y
+                  </div>
+                </div>
+
+                <div class="info_neighbors" id="E"></div>
+
+                <div
+                  style="
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <div
+                    style="position: absolute"
+                    class="info_currentXY"
+                    id="currentXY"
+                  >
+                    item
+                  </div>
+                </div>
+
+                <div class="info_neighbors" id="W"></div>
+
+                <div
+                  style="position: relative; display: flex; align-items: center"
+                >
+                  <div style="position: absolute; left: -5px" class="NWSE">
+                    +y
+                  </div>
+                </div>
+
+                <div class="spacer"></div>
+                <div class="info_neighbors" id="NE"></div>
+                <div class="info_neighbors" id="N"></div>
+                <div class="info_neighbors" id="NW"></div>
+     
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+
+                <div
+                  style="
+                    position: relative;
+                    display: flex;
+                    justify-content: center;
+                  "
+                >
+                  <div style="position: absolute; top: -5px" class="NWSE">
+                    +x
+                  </div>
+                </div>
+
+                <div class="spacer"></div>
+
+                <div class="spacer"></div>
+              </div>
+            </div-->
+
+            <button class="collapsible">Table</button>
+            <div class="content">
+              <div class="tab"></div>
+              <div id="info-tables-dynamic"></div>
+            </div>
+
+            <button class="collapsible">Pseudo Code</button>
+            <div class="content">
+              <div id="pseudo-code-container">
+                <table id="dynamic-pseudo-code-table"></table>
+              <div id = "pseudoCodeReference" style = "font-size:8px; color: rgba(0, 0, 0, 0.5);"> </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       
-      <footer id="bottom-bar">
-        <a id="trigger-about">About</a>
-        <a id="trigger-team">Team</a>
-        <a id="trigger-terms">Terms of use</a>
-        <a id="trigger-privacy">Privacy Policy</a>
-      </footer>
+
+      
+    </div>
+
+      <!--legend-->
+
+         <!-- <div class="flex-row" style="background-color: grey;border-radius: 5px;width: fit-content; position: absolute;right: 5px;bottom: 30px;">
+      <div class="flex-row unselectable">
+        <img src="assets/map_start.svg" class="icon" alt="start" />
+        <div> Map Start</div>
+      </div>
+      <div class="flex-row unselectable">
+        <img src="assets/map_goal.svg" class="icon" alt="goal" />
+        <div>Map Goal</div>
+      </div>
+    </div> -->
+
+
+
+    </div>
+    <div id="mapArea">
+       <div id="map-container" class="mainContainer">
+                  <div class="sub-container">
+                    <div class="flex-row">
+                      <div class="flex-col empty-outer">
+                        <div id="map" class="interface overlay">
+                          <div id="canvas_container">
+
+                            <img
+                              src="assets/map_start.svg"
+                              class="icon draggable unselectable"
+                              id="map_start_icon"
+                              alt="start"
+                              />
+                              <img
+                              src="assets/map_goal.svg"
+                              class="icon draggable unselectable"
+                              id="map_goal_icon"
+                              alt="goal"
+                              />
+                              <canvas id="my-canvas" width="472" height="472" class="map_canvas" style="position: absolute;"></canvas>
+                              
+                              <div  style=" top:50px; left:50px; width: 70px;   aspect-ratio: 1 / 1; position: absolute;"id="map_goal_radius"  class=" unselectable ">
+                                
+                              <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                width="100%"
+                                height= "100%"
+                                viewBox="0 0 70 70">
+                                <circle cx="50%" cy="50%" r="7.375" stroke-width="2"fill="grey" opacity="100%"></circle>
+                                <circle cx="50%" cy="50%" r="49%" stroke="red" stroke-width="2" fill="rgba(255, 255, 255, 0)" stroke-dasharray="5,5" d="M5 40 l215 0" class="dotted"/>
+                            
+                              </svg> 
+                            </div>
+                            
+                            <div id="arrow-div" class="map_canvas"></div>
+                          </div>
+                          <div id="left_axes" class="flex-row">
+                            <div
+                              id="left_axes_markers"
+                              class="flex-col unselectable"
+                            ></div>
+                          </div>
+                          <div id="top_axes" class="flex-col">
+                            <div
+                              id="top_axes_markers"
+                              class="flex-row unselectable"
+                            ></div>
+                          </div>
+                        </div>
+                        
+                      </div>
+                    
+                    </div>
+                    
+                    
+                  </div>
+                </div>
+
+      
+    </div>
+  
+    </div>
+    <footer id="bottom-bar">
+      <a id="trigger-about">About</a>
+      <a id="trigger-team">Team</a>
+      <a id="trigger-terms">Terms of use</a>
+      <a id="trigger-privacy">Privacy Policy</a>
+    </footer>
+
+
+     
+      
       <!--
       <div id="about" class="overlays" style="">
         <h4 style="background-color: rgb(167, 212, 30);" data-darkreader-inline-bgcolor="">About</h4><span class="close-overlay">✕</span>
@@ -824,5 +872,13 @@
     <script src="scripts/default.js"></script>
     <script src="scripts/predefinedMaps.js"></script>
     <script src="scripts/preloadMap.js"></script>
+
+    <script src='https://unpkg.com/panzoom@9.4.0/dist/panzoom.min.js'></script>
+
+    <script src="scripts/canvasMovements.js"></script>
+    <script src='scripts/canvasAxis.js'></script>
+    <script src='scripts/sidebar.js'></script>
+
+
   </body>
 </html>
