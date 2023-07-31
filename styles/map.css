@@ -273,7 +273,7 @@ h1{
   overflow: hidden;
   /* background: red; */
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   /* overflow: hidden; */
   /* justify-content: space-around; */
   align-content: center;
@@ -281,7 +281,7 @@ h1{
   /* border-color: blue; */
   /* padding: 49px; */
   border-radius: 24px;
-  justify-content: center;
+  /* justify-content: center; */
   border-color: white;
   margin-color: blue;
   border-style: solid;
