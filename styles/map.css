@@ -16,9 +16,10 @@
 	/* left: 500px;
   top:72px; */
 	/* height: 90%; */
-
-  top:25%;
+	/* top:25%; */
+	/* left: 25%; */
 	/* aspect-ratio: 1; */
+	/* width: 50%; */
 }
 
 #map{
@@ -26,8 +27,9 @@
 	position: absolute;
 	min-width: 570px;
 	height: 100%;
-  left:0px;
-
+	left:0px;
+	width: 500px;
+	/* position: inherit; */
 }
 
 #canvas_container{
@@ -257,20 +259,30 @@ h1{
 
 #mapArea{
   color: black;
+  position: inherit;
   width: 70%;
   /* left: 504px; */
   /* position: fixed; */
-  /* top: 146px; */
+  /* top: 12px; */
   /* left: 521px; */
   /* height: 90%; */
-  /* position: fixed; */
+  position: relative;
   /* height: 80%; */
-  flex: 2;
+  /* flex: 2; */
   z-index: 1;
   overflow: hidden;
-  background: black;
+  /* background: red; */
   display: flex;
-  overflow: hidden;
-  justify-content: space-around;
+  align-items: center;
+  /* overflow: hidden; */
+  /* justify-content: space-around; */
   align-content: center;
+  border: -20px;
+  /* border-color: blue; */
+  /* padding: 49px; */
+  border-radius: 24px;
+  justify-content: center;
+  border-color: white;
+  margin-color: blue;
+  border-style: solid;
 }

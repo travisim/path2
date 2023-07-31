@@ -1,7 +1,7 @@
 
 
 // var instance = panzoom(document.getElementById('map-container'));
-panzoom(document.getElementById('map-container'), {
+instance = panzoom(document.getElementById('map-container'), {
   beforeWheel: function(e) {
     // allow wheel-zoom only if altKey is down. Otherwise - ignore
     var shouldIgnore = !e.altKey;
@@ -15,15 +15,24 @@ panzoom(document.getElementById('map-container'), {
   },
     maxZoom: 3,
     minZoom: 0.5,
-    bounds: true,
-     boundsPadding: 0.2,
+    // bounds: true,
+    //  boundsPadding: 0.2,
+
+
+  filterKey: function(/* e, dx, dy, dz */) {
+    // don't let panzoom handle this event:
+    return true;
+  },
+
+  initialX: 0,
+  initialY: 500,
+  initialZoom: 1.4,
 
   
-  initialX: 0,
-  initialY: 0,
-  initialZoom: 1
+
 });
 
+// instance.smoothZoom(-10, -10, 1.6);
 
 // instance.on('panstart', function(e) {
 //   console.log('Fired when pan is just started ', e);

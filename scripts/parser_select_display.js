@@ -77,10 +77,13 @@ myUI.displayMap = function(){
   for scaling down, image gets lighter, solution: make lines thicker
   for scaling up, lines between pixel forms, solution: make lines thicker
   */
+ 
   let height_px = getComputedStyle(document.getElementById("bg")).getPropertyValue('height').slice(0, -2);
   let height_interval = height_px / height;
   let height_muls = calcIntervals(height, height_interval, 10);
   // console.log("LEFT:", height_muls);
+    // document.getElementById("map-container").style.transform = 'scale(1.5)';
+  drawAxis();
   document.getElementById("left_axes_markers").innerHTML = "";
   for(const m of height_muls){
     let el = document.createElement("div");
@@ -155,7 +158,8 @@ myUI.parseScenario = function(contents){
 	myUI.scen_name = scen_array[0][1];
 }
 
-myUI.loadScenario = function(){
+myUI.loadScenario = function () {
+ 
   let elem = this;
   if(elem==myUI) elem = document.querySelector('#scen_num');
   if(elem==document.querySelector('#scen_num')){

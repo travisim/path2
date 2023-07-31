@@ -57,14 +57,14 @@ myUI.initialize = function(){
     },
     // arrows draworder is -1
     {
-      id:"bg", drawType:"cell", drawOrder: 20, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
+      id:"bg", drawType:"cell", drawOrder: 20, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(79,79,79)"], toggle: "off", checked: true, minVal: 1, maxVal: 1,
     },
   ];
   
   myUI.checkbox = {canvas:[]};
   myUI.canvasGenerator(canvasStatic);
   let edit_map = {
-    id:"edit_map", drawType:"cell", drawOrder: -80, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["#000000" ,"#d19b6d", "#AA1945"], toggle: "off"
+    id:"edit_map", drawType:"cell", drawOrder: -80, fixedResVal: 1024, valType: "integer", defaultVal: 0, colors:["rgb(79,79,79)" ,"#d19b6d", "#AA1945"], toggle: "off"
   };
   myUI.canvases["edit_map"] = new UICanvas(edit_map.id, edit_map.drawOrder, edit_map.colors, edit_map.drawType, edit_map.fixedResVal, edit_map.valType, edit_map.defaultVal, false);
   myUI.canvases.edit_map.toggle_edit();

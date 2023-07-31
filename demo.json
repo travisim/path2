@@ -99,7 +99,7 @@
         "name":"bg",
         "displayOrder":13,
         "drawType": "cell",
-        "colors":["#000000"]
+        "colors":["rgb(79,79,79)"]
       }
     ],
     "ENUM":{

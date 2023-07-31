@@ -42,7 +42,7 @@ body {
   /* white-space: nowrap; this does the trick */
   /* overflow: hidden; */ /* this prevents the grey divs from overflowing */
   flex-direction: row-reverse;
-  /* height: 100%; */
+  height: 89%;
   /* overflow: hidden; */
 }
 
@@ -142,21 +142,25 @@ body {
   display: block;
   vertical-align: middle;
   flex: 3 1 0;
-  border: 3px solid black;
-  margin: 2px;
+  /* border: 3px solid black; */
+  /* margin: 2px; */
   overflow: hidden;
   border-radius: 20px;
-  background-color: #d1cfe2;
+  /* background-color: #d1cfe2; */
   /* height: fit-content; */
   /* left: 0; */
   /* top: 0; */
-  position: absolute;
+  /* position: absolute; */
   height: var(--canvas-length);
   aspect-ratio: square;
-  z-index: -100;
+  /* z-index: -100; */
+  transform: scaleY(1.5);
+  /* width: fit-content; */
 }
 
-div#map-container {}
+div#map-container {
+    transform: scale(1.5);
+}
 
 .thin-container {
   display: inline-block;
@@ -176,8 +180,9 @@ div#map-container {}
 .sub-container {
   border-radius: 20px;
   overflow: hidden;
-  width: 100%;
-  height: max-content;
+  /* width: 100%; */
+  /* height: max-content; */
+  /* height: 100%; */
 }
 
 .interface {
@@ -426,6 +431,7 @@ center {
   margin: 0;
   border: 0;
   padding: 0;
+  /* position: absolute; */
 }
 
 
@@ -543,7 +549,7 @@ main .sidebar {
   padding: 16px;
   margin-left: 85px;
   transition: margin-left 0.5s;
-  top: 33px;
+  top: 51px;
 }
 
 @media screen and (max-height: 450px) {
