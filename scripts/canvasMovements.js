@@ -24,9 +24,9 @@ instance = panzoom(document.getElementById('map-container'), {
     return true;
   },
 
-  initialX: 0,
-  initialY: 0,
-  initialZoom: 1.4,
+  initialX: 1000,
+  initialY: 1000,
+  // initialZoom: 1.4,
 
   
 
