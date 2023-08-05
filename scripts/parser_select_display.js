@@ -232,18 +232,21 @@ myUI.displayScen = function(update=false, reset_zero=false){
   // else console.log(myUI.map_start.toPrecision(5), myUI.map_goal.toPrecision(5), "NO LOS");
 }
 
-function moveDraggable(xy){
+function moveDraggable(xy) {
+  var canvasElement = myUI.canvases.hover_map.canvas
+  var scaleX = canvasElement.getBoundingClientRect().width / canvasElement.offsetWidth;
+
   const CANVAS_OFFSET = Number(getComputedStyle(document.querySelector(".map_canvas")).getPropertyValue('top').slice(0,-2));
 	let bounds = myUI.canvases.bg.canvas.getBoundingClientRect();
   let offset = (myUI.planner && myUI?.planner.constructor.gridPrecision == "float") || myUI.vertex ? 0 : 0.5;
 
   if (this.elem.height) { //checks if the elem has this property
-    this.elem.style.top = ((xy[0] + offset) * bounds.height / myUI.map_height - this.elem.height / 2) + CANVAS_OFFSET + "px";
-    this.elem.style.left = ((xy[1] + offset) * bounds.width / myUI.map_width - this.elem.width / 2) + CANVAS_OFFSET + "px";
+    this.elem.style.top = ((xy[0] + offset) * bounds.height/scaleX / myUI.map_height - this.elem.height / 2) + CANVAS_OFFSET + "px";
+    this.elem.style.left = ((xy[1] + offset) * bounds.width/scaleX / myUI.map_width - this.elem.width / 2) + CANVAS_OFFSET + "px";
   }
   else if (this.elem.scrollHeight) {
-    this.elem.style.top = ((xy[0] + offset) * bounds.height / myUI.map_height - this.elem.scrollHeight / 2) + 11 + "px";
-    this.elem.style.left = ((xy[1] + offset) * bounds.width / myUI.map_width - this.elem.scrollWidth / 2) + CANVAS_OFFSET + "px";
+    this.elem.style.top = ((xy[0] + offset) * bounds.height/scaleX / myUI.map_height - this.elem.scrollHeight / 2) + 11 + "px";
+    this.elem.style.left = ((xy[1] + offset) * bounds.width/scaleX / myUI.map_width - this.elem.scrollWidth / 2) + CANVAS_OFFSET + "px";
   
   }
 }
